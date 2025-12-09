@@ -1,0 +1,505 @@
+openapi: 3.0.3
+info:
+  title: Truck Track - Location Service API
+  description: |
+    API for querying truck locations, current positions, and historical routes.
+    Supports real-time GPS tracking with WebSocket subscriptions.
+  version: 1.0.0
+  contact:
+    name: Truck Track Development Team
+    email: dev@trucktrack.com
+
+servers:
+  - url: https://api.trucktrack.com/location/v1
+    description: Production
+  - url: https://staging-api.trucktrack.com/location/v1
+    description: Staging
+  - url: http://localhost:8081/location/v1
+    description: Local development
+
+tags:
+  - name: Trucks
+    description: Current truck positions and metadata
+  - name: History
+    description: Historical GPS routes and positions
+  - name: WebSocket
+    description: Real-time truck position updates via WebSocket
+
+paths:
+  /trucks:
+    get:
+      tags:
+        - Trucks
+      summary: List all trucks
+      description: Returns list of all trucks accessible to the authenticated user
+      operationId: listTrucks
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          description: Filter by truck status
+          required: false
+          schema:
+            type: string
+            enum: [ACTIVE, IDLE, OFFLINE, ALL]
+            default: ALL
+        - name: truckGroupId
+          in: query
+          description: Filter by truck group ID
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          description: Page number (0-indexed)
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          description: Page size
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TruckListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /trucks/{truckId}:
+    get:
+      tags:
+        - Trucks
+      summary: Get truck by ID
+      description: Returns detailed information about a specific truck
+      operationId: getTruckById
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: truckId
+          in: path
+          description: Truck UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TruckDetail'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /trucks/search:
+    get:
+      tags:
+        - Trucks
+      summary: Search trucks
+      description: Search trucks by truck ID or driver name
+      operationId: searchTrucks
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          description: Search query (truck ID or driver name)
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 100
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TruckSummary'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /trucks/{truckId}/current-position:
+    get:
+      tags:
+        - Trucks
+      summary: Get current truck position
+      description: Returns the latest GPS position for a truck (fast cached response)
+      operationId: getCurrentPosition
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: truckId
+          in: path
+          description: Truck UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GPSPosition'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /trucks/{truckId}/history:
+    get:
+      tags:
+        - History
+      summary: Get truck movement history
+      description: Returns historical GPS positions for a truck within a time range
+      operationId: getTruckHistory
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: truckId
+          in: path
+          description: Truck UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: startTime
+          in: query
+          description: Start of time range (ISO 8601)
+          required: true
+          schema:
+            type: string
+            format: date-time
+            example: "2025-12-09T00:00:00Z"
+        - name: endTime
+          in: query
+          description: End of time range (ISO 8601)
+          required: true
+          schema:
+            type: string
+            format: date-time
+            example: "2025-12-09T23:59:59Z"
+        - name: maxPoints
+          in: query
+          description: Maximum number of GPS points to return (for sampling)
+          required: false
+          schema:
+            type: integer
+            minimum: 10
+            maximum: 1000
+            default: 500
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TruckHistoryResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /trucks/within-bounds:
+    post:
+      tags:
+        - Trucks
+      summary: Get trucks within map bounds
+      description: Returns trucks within specified geographical bounds (for map viewport queries)
+      operationId: getTrucksWithinBounds
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MapBoundsRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TruckSummary'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    TruckListResponse:
+      type: object
+      properties:
+        trucks:
+          type: array
+          items:
+            $ref: '#/components/schemas/TruckSummary'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    TruckSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        truckId:
+          type: string
+          example: "TRK-001"
+        licensePlate:
+          type: string
+          example: "ABC-1234"
+        driverName:
+          type: string
+          nullable: true
+          example: "John Doe"
+        vehicleType:
+          type: string
+          example: "VAN"
+        status:
+          type: string
+          enum: [ACTIVE, IDLE, OFFLINE]
+        currentPosition:
+          $ref: '#/components/schemas/GPSPosition'
+        lastUpdate:
+          type: string
+          format: date-time
+          example: "2025-12-09T10:30:00Z"
+
+    TruckDetail:
+      allOf:
+        - $ref: '#/components/schemas/TruckSummary'
+        - type: object
+          properties:
+            driverPhone:
+              type: string
+              nullable: true
+              example: "+1-555-0123"
+            truckGroupId:
+              type: string
+              format: uuid
+            truckGroupName:
+              type: string
+              example: "Fleet A"
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+
+    GPSPosition:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          example: 37.7749
+        longitude:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          example: -122.4194
+        altitude:
+          type: number
+          format: double
+          nullable: true
+          example: 12.5
+        speed:
+          type: number
+          format: double
+          minimum: 0
+          example: 45.3
+          description: Speed in km/h
+        heading:
+          type: integer
+          minimum: 0
+          maximum: 359
+          example: 270
+          description: Heading in degrees (0=North, 90=East, 180=South, 270=West)
+        accuracy:
+          type: number
+          format: double
+          nullable: true
+          example: 5.0
+          description: GPS accuracy in meters
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-12-09T10:30:00Z"
+
+    TruckHistoryResponse:
+      type: object
+      properties:
+        truckId:
+          type: string
+          format: uuid
+        truckIdReadable:
+          type: string
+          example: "TRK-001"
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        totalPoints:
+          type: integer
+          description: Total number of GPS points in time range
+        returnedPoints:
+          type: integer
+          description: Number of GPS points returned (may be sampled)
+        route:
+          type: array
+          items:
+            $ref: '#/components/schemas/GPSPosition'
+
+    MapBoundsRequest:
+      type: object
+      required:
+        - northEast
+        - southWest
+      properties:
+        northEast:
+          $ref: '#/components/schemas/Coordinate'
+        southWest:
+          $ref: '#/components/schemas/Coordinate'
+        status:
+          type: string
+          enum: [ACTIVE, IDLE, OFFLINE, ALL]
+          default: ALL
+
+    Coordinate:
+      type: object
+      required:
+        - latitude
+        - longitude
+      properties:
+        latitude:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 0
+        size:
+          type: integer
+          example: 20
+        totalElements:
+          type: integer
+          example: 150
+        totalPages:
+          type: integer
+          example: 8
+
+    Error:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized - missing or invalid JWT token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Forbidden - user lacks permission to access this resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

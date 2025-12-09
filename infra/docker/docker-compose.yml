@@ -1,0 +1,144 @@
+services:
+  # Kafka Broker (KRaft mode - no Zookeeper needed)
+  kafka:
+    image: confluentinc/cp-kafka:7.5.3
+    container_name: kafka
+    user: root
+    ports:
+      - "9092:9092"
+      - "9094:9094"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:29093'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:9092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+    volumes:
+      - kafka-data:/tmp/kraft-combined-logs
+    networks:
+      - truck-track-network
+    command: >
+      bash -c '
+      sed -i "/^[^#]/ s/\(^.*zookeeper\.connect=\)\(.*\)/\1localhost:2181/" /etc/kafka/server.properties;
+      if [ ! -f /tmp/kraft-combined-logs/meta.properties ]; then
+        kafka-storage format -t $${CLUSTER_ID} -c /etc/kafka/server.properties;
+      fi;
+      /etc/confluent/docker/run
+      '
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 15
+      start_period: 40s
+
+  # Kafka UI (for development)
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: truck-track-cluster
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      DYNAMIC_CONFIG_ENABLED: 'true'
+    networks:
+      - truck-track-network
+
+  # PostgreSQL with PostGIS
+  postgres:
+    image: postgis/postgis:15-3.4
+    container_name: postgres
+    environment:
+      POSTGRES_DB: trucktrack
+      POSTGRES_USER: trucktrack
+      POSTGRES_PASSWORD: changeme
+      POSTGRES_INITDB_ARGS: "-E UTF8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - truck-track-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trucktrack -d trucktrack"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - truck-track-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Create Kafka Topics (init container)
+  kafka-init:
+    image: confluentinc/cp-kafka:7.5.3
+    container_name: kafka-init
+    depends_on:
+      kafka:
+        condition: service_healthy
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        echo "Creating Kafka topics..."
+
+        # Topic: truck-track.gps.position (10 partitions)
+        kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists \
+          --topic truck-track.gps.position \
+          --partitions 10 \
+          --replication-factor 1 \
+          --config retention.ms=604800000 \
+          --config compression.type=snappy
+
+        # Topic: truck-track.location.status-change (5 partitions)
+        kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists \
+          --topic truck-track.location.status-change \
+          --partitions 5 \
+          --replication-factor 1 \
+          --config retention.ms=2592000000
+
+        # Topic: truck-track.notification.alert (3 partitions)
+        kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists \
+          --topic truck-track.notification.alert \
+          --partitions 3 \
+          --replication-factor 1 \
+          --config retention.ms=7776000000
+
+        echo "Kafka topics created successfully!"
+        kafka-topics --bootstrap-server kafka:29092 --list
+    networks:
+      - truck-track-network
+
+networks:
+  truck-track-network:
+    driver: bridge
+
+volumes:
+  kafka-data:
+  postgres-data:
+  redis-data:

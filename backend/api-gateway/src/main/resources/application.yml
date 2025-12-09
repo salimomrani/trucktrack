@@ -1,0 +1,88 @@
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      routes:
+        # Auth Service Routes
+        - id: auth-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/auth/**
+          filters:
+            - RewritePath=/auth/(?<segment>.*), /auth/$\{segment}
+
+        # GPS Ingestion Service Routes
+        - id: gps-ingestion-service
+          uri: http://localhost:8080
+          predicates:
+            - Path=/gps/**
+          filters:
+            - name: JwtAuthenticationFilter
+            - RewritePath=/gps/(?<segment>.*), /gps/$\{segment}
+
+        # Location Service Routes
+        - id: location-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/location/**
+          filters:
+            - name: JwtAuthenticationFilter
+            - RewritePath=/location/(?<segment>.*), /location/$\{segment}
+
+        # Notification Service Routes
+        - id: notification-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/notifications/**
+          filters:
+            - name: JwtAuthenticationFilter
+            - RewritePath=/notifications/(?<segment>.*), /notifications/$\{segment}
+
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:4200"
+              - "http://localhost:3000"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - PATCH
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+            maxAge: 3600
+
+# JWT Configuration
+jwt:
+  secret: changeme-this-should-be-a-very-long-secret-key-for-production
+  expiration: 86400000 # 24 hours in milliseconds
+
+server:
+  port: 8000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus,metrics
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+logging:
+  level:
+    com.trucktrack: INFO
+    org.springframework: WARN
+    org.springframework.cloud.gateway: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"

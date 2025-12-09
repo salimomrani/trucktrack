@@ -1,0 +1,180 @@
+{
+  "topics": {
+    "truck-track.gps.position": {
+      "description": "GPS position events from trucks",
+      "partitions": 10,
+      "replicationFactor": 3,
+      "retentionMs": 604800000,
+      "keySchema": {
+        "type": "string",
+        "description": "Truck UUID"
+      },
+      "valueSchema": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique event identifier"
+          },
+          "truckId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Truck UUID"
+          },
+          "truckIdReadable": {
+            "type": "string",
+            "description": "Human-readable truck ID (e.g., TRK-001)"
+          },
+          "latitude": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "longitude": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "altitude": {
+            "type": "number",
+            "nullable": true
+          },
+          "speed": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Speed in km/h"
+          },
+          "heading": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 359
+          },
+          "accuracy": {
+            "type": "number",
+            "nullable": true
+          },
+          "satellites": {
+            "type": "integer",
+            "nullable": true
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "GPS reading timestamp from device"
+          },
+          "ingestedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Server ingestion timestamp"
+          }
+        },
+        "required": ["eventId", "truckId", "truckIdReadable", "latitude", "longitude", "speed", "heading", "timestamp", "ingestedAt"]
+      }
+    },
+    "truck-track.location.status-change": {
+      "description": "Truck status change events (ACTIVE/IDLE/OFFLINE)",
+      "partitions": 5,
+      "replicationFactor": 3,
+      "retentionMs": 2592000000,
+      "keySchema": {
+        "type": "string",
+        "description": "Truck UUID"
+      },
+      "valueSchema": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "truckId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "truckIdReadable": {
+            "type": "string"
+          },
+          "previousStatus": {
+            "type": "string",
+            "enum": ["ACTIVE", "IDLE", "OFFLINE"]
+          },
+          "newStatus": {
+            "type": "string",
+            "enum": ["ACTIVE", "IDLE", "OFFLINE"]
+          },
+          "latitude": {
+            "type": "number"
+          },
+          "longitude": {
+            "type": "number"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["eventId", "truckId", "truckIdReadable", "previousStatus", "newStatus", "latitude", "longitude", "timestamp"]
+      }
+    },
+    "truck-track.notification.alert": {
+      "description": "Alert events triggered by rules",
+      "partitions": 3,
+      "replicationFactor": 3,
+      "retentionMs": 7776000000,
+      "keySchema": {
+        "type": "string",
+        "description": "Alert Rule UUID"
+      },
+      "valueSchema": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "alertRuleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "truckId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "truckIdReadable": {
+            "type": "string"
+          },
+          "alertType": {
+            "type": "string",
+            "enum": ["OFFLINE", "IDLE", "GEOFENCE_ENTER", "GEOFENCE_EXIT", "SPEED_LIMIT"]
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["INFO", "WARNING", "CRITICAL"]
+          },
+          "message": {
+            "type": "string"
+          },
+          "latitude": {
+            "type": "number"
+          },
+          "longitude": {
+            "type": "number"
+          },
+          "triggeredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "affectedUserIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "required": ["eventId", "alertRuleId", "truckId", "truckIdReadable", "alertType", "severity", "message", "triggeredAt", "affectedUserIds"]
+      }
+    }
+  }
+}
