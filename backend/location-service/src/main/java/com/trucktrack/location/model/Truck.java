@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -16,9 +17,9 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "trucks", indexes = {
-    @Index(name = "idx_truck_id_readable", columnList = "truck_id_readable"),
-    @Index(name = "idx_truck_status", columnList = "status"),
-    @Index(name = "idx_truck_group_id", columnList = "truck_group_id")
+    @Index(name = "idx_trucks_truck_id", columnList = "truck_id"),
+    @Index(name = "idx_trucks_status", columnList = "status"),
+    @Index(name = "idx_trucks_truck_group", columnList = "truck_group_id")
 })
 public class Truck {
 
@@ -29,23 +30,12 @@ public class Truck {
 
     @NotBlank(message = "Truck ID is required")
     @Size(max = 50, message = "Truck ID must not exceed 50 characters")
-    @Column(name = "truck_id_readable", unique = true, nullable = false, length = 50)
-    private String truckIdReadable;
+    @Column(name = "truck_id", unique = true, nullable = false, length = 50)
+    private String truckId;
 
     @Size(max = 100, message = "License plate must not exceed 100 characters")
     @Column(name = "license_plate", length = 100)
     private String licensePlate;
-
-    @Size(max = 100, message = "Make must not exceed 100 characters")
-    @Column(name = "make", length = 100)
-    private String make;
-
-    @Size(max = 100, message = "Model must not exceed 100 characters")
-    @Column(name = "model", length = 100)
-    private String model;
-
-    @Column(name = "year")
-    private Integer year;
 
     @Size(max = 100, message = "Driver name must not exceed 100 characters")
     @Column(name = "driver_name", length = 100)
@@ -55,22 +45,27 @@ public class Truck {
     @Column(name = "driver_phone", length = 50)
     private String driverPhone;
 
+    @NotNull(message = "Vehicle type is required")
+    @Size(max = 50, message = "Vehicle type must not exceed 50 characters")
+    @Column(name = "vehicle_type", nullable = false, length = 50)
+    private String vehicleType;
+
     @NotNull(message = "Status is required")
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private TruckStatus status = TruckStatus.OFFLINE;
 
-    @Column(name = "last_latitude")
-    private Double lastLatitude;
+    @Column(name = "current_latitude", precision = 10, scale = 8)
+    private BigDecimal currentLatitude;
 
-    @Column(name = "last_longitude")
-    private Double lastLongitude;
+    @Column(name = "current_longitude", precision = 11, scale = 8)
+    private BigDecimal currentLongitude;
 
-    @Column(name = "last_speed")
-    private Double lastSpeed;
+    @Column(name = "current_speed", precision = 5, scale = 2)
+    private BigDecimal currentSpeed;
 
-    @Column(name = "last_heading")
-    private Integer lastHeading;
+    @Column(name = "current_heading")
+    private Integer currentHeading;
 
     @Column(name = "last_update")
     private Instant lastUpdate;
@@ -78,9 +73,6 @@ public class Truck {
     @NotNull(message = "Truck group ID is required")
     @Column(name = "truck_group_id", nullable = false)
     private UUID truckGroupId;
-
-    @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -94,8 +86,8 @@ public class Truck {
     public Truck() {
     }
 
-    public Truck(String truckIdReadable, UUID truckGroupId) {
-        this.truckIdReadable = truckIdReadable;
+    public Truck(String truckId, UUID truckGroupId) {
+        this.truckId = truckId;
         this.truckGroupId = truckGroupId;
     }
 
@@ -108,12 +100,12 @@ public class Truck {
         this.id = id;
     }
 
-    public String getTruckIdReadable() {
-        return truckIdReadable;
+    public String getTruckId() {
+        return truckId;
     }
 
-    public void setTruckIdReadable(String truckIdReadable) {
-        this.truckIdReadable = truckIdReadable;
+    public void setTruckId(String truckId) {
+        this.truckId = truckId;
     }
 
     public String getLicensePlate() {
@@ -122,30 +114,6 @@ public class Truck {
 
     public void setLicensePlate(String licensePlate) {
         this.licensePlate = licensePlate;
-    }
-
-    public String getMake() {
-        return make;
-    }
-
-    public void setMake(String make) {
-        this.make = make;
-    }
-
-    public String getModel() {
-        return model;
-    }
-
-    public void setModel(String model) {
-        this.model = model;
-    }
-
-    public Integer getYear() {
-        return year;
-    }
-
-    public void setYear(Integer year) {
-        this.year = year;
     }
 
     public String getDriverName() {
@@ -164,6 +132,14 @@ public class Truck {
         this.driverPhone = driverPhone;
     }
 
+    public String getVehicleType() {
+        return vehicleType;
+    }
+
+    public void setVehicleType(String vehicleType) {
+        this.vehicleType = vehicleType;
+    }
+
     public TruckStatus getStatus() {
         return status;
     }
@@ -172,36 +148,36 @@ public class Truck {
         this.status = status;
     }
 
-    public Double getLastLatitude() {
-        return lastLatitude;
+    public BigDecimal getCurrentLatitude() {
+        return currentLatitude;
     }
 
-    public void setLastLatitude(Double lastLatitude) {
-        this.lastLatitude = lastLatitude;
+    public void setCurrentLatitude(BigDecimal currentLatitude) {
+        this.currentLatitude = currentLatitude;
     }
 
-    public Double getLastLongitude() {
-        return lastLongitude;
+    public BigDecimal getCurrentLongitude() {
+        return currentLongitude;
     }
 
-    public void setLastLongitude(Double lastLongitude) {
-        this.lastLongitude = lastLongitude;
+    public void setCurrentLongitude(BigDecimal currentLongitude) {
+        this.currentLongitude = currentLongitude;
     }
 
-    public Double getLastSpeed() {
-        return lastSpeed;
+    public BigDecimal getCurrentSpeed() {
+        return currentSpeed;
     }
 
-    public void setLastSpeed(Double lastSpeed) {
-        this.lastSpeed = lastSpeed;
+    public void setCurrentSpeed(BigDecimal currentSpeed) {
+        this.currentSpeed = currentSpeed;
     }
 
-    public Integer getLastHeading() {
-        return lastHeading;
+    public Integer getCurrentHeading() {
+        return currentHeading;
     }
 
-    public void setLastHeading(Integer lastHeading) {
-        this.lastHeading = lastHeading;
+    public void setCurrentHeading(Integer currentHeading) {
+        this.currentHeading = currentHeading;
     }
 
     public Instant getLastUpdate() {
@@ -218,14 +194,6 @@ public class Truck {
 
     public void setTruckGroupId(UUID truckGroupId) {
         this.truckGroupId = truckGroupId;
-    }
-
-    public Boolean getIsActive() {
-        return isActive;
-    }
-
-    public void setIsActive(Boolean isActive) {
-        this.isActive = isActive;
     }
 
     public Instant getCreatedAt() {
@@ -248,7 +216,7 @@ public class Truck {
     public String toString() {
         return "Truck{" +
                 "id=" + id +
-                ", truckIdReadable='" + truckIdReadable + '\'' +
+                ", truckId='" + truckId + '\'' +
                 ", status=" + status +
                 ", lastUpdate=" + lastUpdate +
                 '}';

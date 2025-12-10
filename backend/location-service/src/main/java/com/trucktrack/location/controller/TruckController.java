@@ -54,19 +54,16 @@ public class TruckController {
 
         // Apply filters
         if (status != null && truckGroupId != null) {
-            // Filter by both status and group
-            trucks = Page.empty(); // TODO: Implement combined filter in repository
+            trucks = truckRepository.findByTruckGroupIdAndStatus(truckGroupId, status, pageRequest);
         } else if (status != null) {
             trucks = truckRepository.findByStatus(status, pageRequest);
         } else if (truckGroupId != null) {
-            List<Truck> truckList = truckRepository.findByTruckGroupIdAndIsActiveTrue(truckGroupId);
+            List<Truck> truckList = truckRepository.findByTruckGroupId(truckGroupId);
             // Convert List to Page
             trucks = Page.empty(); // TODO: Convert properly
         } else {
-            // No filters - return all active trucks
-            List<Truck> truckList = truckRepository.findByIsActiveTrue();
-            // Convert List to Page
-            trucks = Page.empty(); // TODO: Convert properly
+            // No filters - return all trucks
+            trucks = truckRepository.findAll(pageRequest);
         }
 
         return ResponseEntity.ok(trucks);
@@ -108,7 +105,7 @@ public class TruckController {
         Truck truck = truckRepository.findById(truckId)
                 .orElseThrow(() -> new IllegalArgumentException("Truck not found: " + truckId));
 
-        if (truck.getLastLatitude() == null || truck.getLastLongitude() == null) {
+        if (truck.getCurrentLatitude() == null || truck.getCurrentLongitude() == null) {
             logger.warn("Truck {} has no position data", truckId);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -116,10 +113,10 @@ public class TruckController {
         // Convert truck's last position to GPSPositionEvent format
         GPSPositionEvent position = new GPSPositionEvent();
         position.setTruckId(truckId.toString());
-        position.setLatitude(truck.getLastLatitude());
-        position.setLongitude(truck.getLastLongitude());
-        position.setSpeed(truck.getLastSpeed());
-        position.setHeading(truck.getLastHeading());
+        position.setLatitude(truck.getCurrentLatitude() != null ? truck.getCurrentLatitude().doubleValue() : null);
+        position.setLongitude(truck.getCurrentLongitude() != null ? truck.getCurrentLongitude().doubleValue() : null);
+        position.setSpeed(truck.getCurrentSpeed() != null ? truck.getCurrentSpeed().doubleValue() : null);
+        position.setHeading(truck.getCurrentHeading());
         position.setTimestamp(truck.getLastUpdate());
 
         return ResponseEntity.ok(position);

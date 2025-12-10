@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 /**
@@ -87,12 +88,12 @@ public class LocationService {
     private GPSPosition convertEventToEntity(GPSPositionEvent event) {
         GPSPosition position = new GPSPosition();
         position.setTruckId(UUID.fromString(event.getTruckId()));
-        position.setLatitude(event.getLatitude());
-        position.setLongitude(event.getLongitude());
-        position.setAltitude(event.getAltitude());
-        position.setSpeed(event.getSpeed());
+        position.setLatitude(event.getLatitude() != null ? BigDecimal.valueOf(event.getLatitude()) : null);
+        position.setLongitude(event.getLongitude() != null ? BigDecimal.valueOf(event.getLongitude()) : null);
+        position.setAltitude(event.getAltitude() != null ? BigDecimal.valueOf(event.getAltitude()) : null);
+        position.setSpeed(event.getSpeed() != null ? BigDecimal.valueOf(event.getSpeed()) : null);
         position.setHeading(event.getHeading());
-        position.setAccuracy(event.getAccuracy());
+        position.setAccuracy(event.getAccuracy() != null ? BigDecimal.valueOf(event.getAccuracy()) : null);
         position.setSatellites(event.getSatellites());
         position.setTimestamp(event.getTimestamp());
         position.setEventId(event.getEventId());
@@ -115,10 +116,10 @@ public class LocationService {
         TruckStatus oldStatus = truck.getStatus();
 
         // Update current position fields
-        truck.setLastLatitude(event.getLatitude());
-        truck.setLastLongitude(event.getLongitude());
-        truck.setLastSpeed(event.getSpeed());
-        truck.setLastHeading(event.getHeading());
+        truck.setCurrentLatitude(event.getLatitude() != null ? BigDecimal.valueOf(event.getLatitude()) : null);
+        truck.setCurrentLongitude(event.getLongitude() != null ? BigDecimal.valueOf(event.getLongitude()) : null);
+        truck.setCurrentSpeed(event.getSpeed() != null ? BigDecimal.valueOf(event.getSpeed()) : null);
+        truck.setCurrentHeading(event.getHeading());
         truck.setLastUpdate(event.getTimestamp());
 
         // Calculate and update status (ACTIVE/IDLE/OFFLINE)

@@ -22,9 +22,9 @@ import java.util.UUID;
 public interface TruckRepository extends JpaRepository<Truck, UUID> {
 
     /**
-     * Find truck by readable ID (e.g., "TRUCK-001")
+     * Find truck by truck ID (e.g., "TRUCK-001")
      */
-    Optional<Truck> findByTruckIdReadable(String truckIdReadable);
+    Optional<Truck> findByTruckId(String truckId);
 
     /**
      * Find all trucks in a specific group
@@ -37,11 +37,6 @@ public interface TruckRepository extends JpaRepository<Truck, UUID> {
     List<Truck> findByStatus(TruckStatus status);
 
     /**
-     * Find all active trucks in a group
-     */
-    List<Truck> findByTruckGroupIdAndIsActiveTrue(UUID truckGroupId);
-
-    /**
      * Find trucks by status with pagination
      */
     Page<Truck> findByStatus(TruckStatus status, Pageable pageable);
@@ -52,23 +47,23 @@ public interface TruckRepository extends JpaRepository<Truck, UUID> {
     List<Truck> findByTruckGroupIdAndStatus(UUID truckGroupId, TruckStatus status);
 
     /**
-     * Find all active trucks (for live map display)
+     * Find trucks in a group with specific status (paginated)
      */
-    List<Truck> findByIsActiveTrue();
+    Page<Truck> findByTruckGroupIdAndStatus(UUID truckGroupId, TruckStatus status, Pageable pageable);
 
     /**
      * Search trucks by truck ID or driver name (case-insensitive)
      * Used for User Story 2: Search and Filter
      */
     @Query("SELECT t FROM Truck t WHERE " +
-           "LOWER(t.truckIdReadable) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "LOWER(t.truckId) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
            "LOWER(t.driverName) LIKE LOWER(CONCAT('%', :query, '%'))")
     List<Truck> searchByTruckIdOrDriverName(@Param("query") String query);
 
     /**
      * Find trucks that haven't updated in specified duration (for detecting offline trucks)
      */
-    @Query("SELECT t FROM Truck t WHERE t.lastUpdate < :threshold AND t.isActive = true")
+    @Query("SELECT t FROM Truck t WHERE t.lastUpdate < :threshold")
     List<Truck> findStalePositions(@Param("threshold") Instant threshold);
 
     /**
@@ -76,9 +71,8 @@ public interface TruckRepository extends JpaRepository<Truck, UUID> {
      * Uses spatial index for performance
      */
     @Query("SELECT t FROM Truck t WHERE " +
-           "t.lastLatitude BETWEEN :minLat AND :maxLat AND " +
-           "t.lastLongitude BETWEEN :minLng AND :maxLng AND " +
-           "t.isActive = true")
+           "t.currentLatitude BETWEEN :minLat AND :maxLat AND " +
+           "t.currentLongitude BETWEEN :minLng AND :maxLng")
     List<Truck> findTrucksInBoundingBox(
         @Param("minLat") Double minLat,
         @Param("maxLat") Double maxLat,
@@ -92,14 +86,9 @@ public interface TruckRepository extends JpaRepository<Truck, UUID> {
     long countByStatus(TruckStatus status);
 
     /**
-     * Count active trucks in a group
+     * Check if truck exists by truck ID
      */
-    long countByTruckGroupIdAndIsActiveTrue(UUID truckGroupId);
-
-    /**
-     * Check if truck exists by readable ID
-     */
-    boolean existsByTruckIdReadable(String truckIdReadable);
+    boolean existsByTruckId(String truckId);
 
     /**
      * Find trucks with license plate (exact match)

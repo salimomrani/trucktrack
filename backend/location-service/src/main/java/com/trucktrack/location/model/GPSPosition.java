@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import org.locationtech.jts.geom.Point;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -21,9 +22,9 @@ import java.util.UUID;
 public class GPSPosition {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
-    private UUID id;
+    private Long id;
 
     @NotNull(message = "Truck ID is required")
     @Column(name = "truck_id", nullable = false)
@@ -32,29 +33,29 @@ public class GPSPosition {
     @NotNull(message = "Latitude is required")
     @DecimalMin(value = "-90.0", message = "Latitude must be >= -90")
     @DecimalMax(value = "90.0", message = "Latitude must be <= 90")
-    @Column(name = "latitude", nullable = false)
-    private Double latitude;
+    @Column(name = "latitude", nullable = false, precision = 10, scale = 8)
+    private BigDecimal latitude;
 
     @NotNull(message = "Longitude is required")
     @DecimalMin(value = "-180.0", message = "Longitude must be >= -180")
     @DecimalMax(value = "180.0", message = "Longitude must be <= 180")
-    @Column(name = "longitude", nullable = false)
-    private Double longitude;
+    @Column(name = "longitude", nullable = false, precision = 11, scale = 8)
+    private BigDecimal longitude;
 
     /**
      * PostGIS Point geometry for spatial queries
      * SRID 4326 (WGS84) - standard GPS coordinate system
      */
-    @Column(name = "location", columnDefinition = "geometry(Point, 4326)")
+    @Column(name = "geom", columnDefinition = "geometry(Point, 4326)")
     private Point location;
 
     @DecimalMin(value = "0.0", message = "Altitude must be >= 0")
-    @Column(name = "altitude")
-    private Double altitude;
+    @Column(name = "altitude", precision = 7, scale = 2)
+    private BigDecimal altitude;
 
     @DecimalMin(value = "0.0", message = "Speed must be >= 0")
-    @Column(name = "speed")
-    private Double speed;
+    @Column(name = "speed", precision = 5, scale = 2)
+    private BigDecimal speed;
 
     @Min(value = 0, message = "Heading must be >= 0")
     @Max(value = 359, message = "Heading must be <= 359")
@@ -62,8 +63,8 @@ public class GPSPosition {
     private Integer heading;
 
     @DecimalMin(value = "0.0", message = "Accuracy must be >= 0")
-    @Column(name = "accuracy")
-    private Double accuracy;
+    @Column(name = "accuracy", precision = 5, scale = 2)
+    private BigDecimal accuracy;
 
     @Min(value = 0, message = "Satellite count must be >= 0")
     @Column(name = "satellites")
@@ -73,10 +74,10 @@ public class GPSPosition {
     @Column(name = "timestamp", nullable = false)
     private Instant timestamp;
 
-    @Column(name = "received_at", nullable = false)
+    @Column(name = "created_at", nullable = false)
     private Instant receivedAt;
 
-    @Column(name = "event_id", length = 100)
+    @Transient
     private String eventId;
 
     // Constructors
@@ -84,7 +85,7 @@ public class GPSPosition {
         this.receivedAt = Instant.now();
     }
 
-    public GPSPosition(UUID truckId, Double latitude, Double longitude, Instant timestamp) {
+    public GPSPosition(UUID truckId, BigDecimal latitude, BigDecimal longitude, Instant timestamp) {
         this();
         this.truckId = truckId;
         this.latitude = latitude;
@@ -93,11 +94,11 @@ public class GPSPosition {
     }
 
     // Getters and Setters
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -109,19 +110,19 @@ public class GPSPosition {
         this.truckId = truckId;
     }
 
-    public Double getLatitude() {
+    public BigDecimal getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(Double latitude) {
+    public void setLatitude(BigDecimal latitude) {
         this.latitude = latitude;
     }
 
-    public Double getLongitude() {
+    public BigDecimal getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(Double longitude) {
+    public void setLongitude(BigDecimal longitude) {
         this.longitude = longitude;
     }
 
@@ -133,19 +134,19 @@ public class GPSPosition {
         this.location = location;
     }
 
-    public Double getAltitude() {
+    public BigDecimal getAltitude() {
         return altitude;
     }
 
-    public void setAltitude(Double altitude) {
+    public void setAltitude(BigDecimal altitude) {
         this.altitude = altitude;
     }
 
-    public Double getSpeed() {
+    public BigDecimal getSpeed() {
         return speed;
     }
 
-    public void setSpeed(Double speed) {
+    public void setSpeed(BigDecimal speed) {
         this.speed = speed;
     }
 
@@ -157,11 +158,11 @@ public class GPSPosition {
         this.heading = heading;
     }
 
-    public Double getAccuracy() {
+    public BigDecimal getAccuracy() {
         return accuracy;
     }
 
-    public void setAccuracy(Double accuracy) {
+    public void setAccuracy(BigDecimal accuracy) {
         this.accuracy = accuracy;
     }
 

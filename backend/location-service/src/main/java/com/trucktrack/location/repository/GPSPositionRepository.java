@@ -86,11 +86,6 @@ public interface GPSPositionRepository extends JpaRepository<GPSPosition, UUID> 
     void deleteOlderThan(@Param("threshold") Instant threshold);
 
     /**
-     * Find GPS positions by event ID (for debugging/tracing)
-     */
-    List<GPSPosition> findByEventId(String eventId);
-
-    /**
      * Check if any GPS position exists for a truck within time range
      */
     boolean existsByTruckIdAndTimestampBetween(UUID truckId, Instant startTime, Instant endTime);
