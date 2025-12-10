@@ -160,6 +160,11 @@ dump.rdb
 kafka-logs/
 zookeeper-data/
 
+### Scripts & Runtime ###
+.pids
+logs/
+*.pid
+
 ### Specify framework (preserve these) ###
 # .specify/
 # .claude/
