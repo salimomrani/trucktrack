@@ -2,6 +2,38 @@ spring:
   application:
     name: auth-service
 
+  # Database Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/trucktrack
+    username: trucktrack
+    password: trucktrack
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  # Security
+  security:
+    user:
+      name: admin
+      password: admin
+
+# JWT Configuration
+jwt:
+  secret: changeme-this-should-be-a-very-long-secret-key-for-production-use-at-least-64-characters
+  expiration: 86400000  # 24 hours in milliseconds
+
 server:
   port: 8083
 

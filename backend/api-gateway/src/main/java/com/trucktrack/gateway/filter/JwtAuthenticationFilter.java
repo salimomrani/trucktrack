@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 
 /**
  * JWT Authentication Filter for API Gateway
@@ -54,12 +54,12 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
 
             try {
                 // Validate JWT token
-                Key key = Keys.hmacShaKeyFor(secret.getBytes());
-                Claims claims = Jwts.parserBuilder()
-                        .setSigningKey(key)
+                SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
+                Claims claims = Jwts.parser()
+                        .verifyWith(key)
                         .build()
-                        .parseClaimsJws(token)
-                        .getBody();
+                        .parseSignedClaims(token)
+                        .getPayload();
 
                 // Add user information to request headers for downstream services
                 ServerHttpRequest modifiedRequest = request.mutate()
