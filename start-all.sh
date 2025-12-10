@@ -99,7 +99,7 @@ if ! docker info > /dev/null 2>&1; then
   echo "  open -a Docker"
   echo ""
 
-  read -p "$(echo -e ${YELLOW}Do you want to continue without Docker? (services will fail) [y/N]: ${NC})" -n 1 -r
+  read -p "Do you want to continue without Docker? (services will fail) [y/N]: " -n 1 -r
   echo
   if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     echo -e "${RED}Exiting. Please start Docker and try again.${NC}"

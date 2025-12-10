@@ -90,7 +90,7 @@ done
 echo ""
 
 # Ask about stopping Docker infrastructure
-read -p "$(echo -e ${YELLOW}Stop Docker infrastructure (Kafka, PostgreSQL, Redis)? [y/N]: ${NC})" -n 1 -r
+read -p "Stop Docker infrastructure (Kafka, PostgreSQL, Redis)? [y/N]: " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
   echo -e "${BLUE}Stopping Docker infrastructure...${NC}"
