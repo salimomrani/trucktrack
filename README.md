@@ -4,6 +4,19 @@ Real-time GPS tracking application for fleet management with live map visualizat
 
 ## 🚀 Quick Start (Une seule commande!)
 
+### Prérequis
+
+⚠️ **Docker doit être démarré avant de lancer les services!**
+
+```bash
+# Option 1: Démarrer Docker automatiquement
+./start-docker.sh
+
+# Option 2: Démarrer Docker manuellement
+# Sur macOS: Ouvrir Docker Desktop depuis Applications
+# ou: open -a Docker
+```
+
 ### Démarrage rapide
 
 ```bash
@@ -41,6 +54,7 @@ Attendez 30-60 secondes que tous les services démarrent, puis accédez à:
 
 | Script | Description | Usage |
 |--------|-------------|-------|
+| `./start-docker.sh` | Démarre Docker Desktop | `./start-docker.sh` |
 | `./start-all.sh` | Démarre tous les services | `./start-all.sh [--build] [--logs]` |
 | `./stop-all.sh` | Arrête tous les services | `./stop-all.sh` |
 | `./status.sh` | Affiche le statut des services | `./status.sh` |
@@ -266,6 +280,23 @@ npm run e2e                 # Tests E2E
 - [Data Model](specs/001-gps-live-tracking/data-model.md)
 
 ## 🐛 Dépannage
+
+### Docker n'est pas démarré
+
+```bash
+# Erreur: Cannot connect to the Docker daemon
+# Solution: Démarrer Docker
+
+# Méthode automatique
+./start-docker.sh
+
+# Méthode manuelle (macOS)
+open -a Docker
+
+# Vérifier que Docker fonctionne
+docker info
+docker ps
+```
 
 ### Les services ne démarrent pas
 

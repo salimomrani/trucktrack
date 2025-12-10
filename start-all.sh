@@ -81,22 +81,50 @@ wait_for_service() {
   return 1
 }
 
-# Step 1: Start Infrastructure (Docker Compose)
+# Step 1: Check Docker and Start Infrastructure
 echo -e "${GREEN}[1/4]${NC} Starting infrastructure (Kafka, PostgreSQL, Redis)..."
-cd "$DOCKER_DIR"
 
-if docker-compose ps | grep -q "Up"; then
-  echo -e "${YELLOW}Infrastructure already running${NC}"
+# Check if Docker is running
+if ! docker info > /dev/null 2>&1; then
+  echo -e "${RED}✗ Docker is not running!${NC}"
+  echo ""
+  echo -e "${YELLOW}Please start Docker Desktop and try again.${NC}"
+  echo ""
+  echo -e "${BLUE}On macOS:${NC}"
+  echo "  1. Open Docker Desktop application"
+  echo "  2. Wait for Docker to start (whale icon in menu bar)"
+  echo "  3. Run this script again"
+  echo ""
+  echo -e "${BLUE}Alternatively, start Docker from command line:${NC}"
+  echo "  open -a Docker"
+  echo ""
+
+  read -p "$(echo -e ${YELLOW}Do you want to continue without Docker? (services will fail) [y/N]: ${NC})" -n 1 -r
+  echo
+  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo -e "${RED}Exiting. Please start Docker and try again.${NC}"
+    exit 1
+  fi
+  echo -e "${YELLOW}⚠ Continuing without Docker - services will fail to connect to Kafka/PostgreSQL/Redis${NC}"
 else
-  docker-compose up -d
-  echo -e "${GREEN}✓ Infrastructure started${NC}"
+  cd "$DOCKER_DIR"
 
-  # Wait for PostgreSQL
-  wait_for_service "http://localhost:5432" "PostgreSQL" || echo -e "${YELLOW}PostgreSQL may not be ready${NC}"
+  if docker-compose ps 2>/dev/null | grep -q "Up"; then
+    echo -e "${YELLOW}Infrastructure already running${NC}"
+  else
+    echo -e "${BLUE}Starting Docker containers...${NC}"
+    docker-compose up -d
+    echo -e "${GREEN}✓ Infrastructure started${NC}"
 
-  # Wait for Kafka
-  sleep 10
-  echo -e "${GREEN}✓ Kafka should be ready${NC}"
+    # Wait for PostgreSQL
+    echo -e "${YELLOW}Waiting for PostgreSQL to be ready...${NC}"
+    sleep 5
+
+    # Wait for Kafka
+    echo -e "${YELLOW}Waiting for Kafka to be ready...${NC}"
+    sleep 10
+    echo -e "${GREEN}✓ All infrastructure should be ready${NC}"
+  fi
 fi
 
 echo ""
