@@ -4,21 +4,18 @@
  */
 export interface Truck {
   id: string;
-  truckIdReadable: string;
+  truckId: string;
   licensePlate?: string;
-  make?: string;
-  model?: string;
-  year?: number;
   driverName?: string;
   driverPhone?: string;
+  vehicleType: string;
   status: TruckStatus;
-  lastLatitude?: number;
-  lastLongitude?: number;
-  lastSpeed?: number;
-  lastHeading?: number;
+  currentLatitude?: number;
+  currentLongitude?: number;
+  currentSpeed?: number;
+  currentHeading?: number;
   lastUpdate?: string; // ISO 8601 timestamp
   truckGroupId: string;
-  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }

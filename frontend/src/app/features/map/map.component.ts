@@ -118,7 +118,7 @@ export class MapComponent implements OnInit, OnDestroy {
     this.markers.clear();
 
     this.trucks.forEach(truck => {
-      if (truck.lastLatitude && truck.lastLongitude) {
+      if (truck.currentLatitude && truck.currentLongitude) {
         const marker = this.createTruckMarker(truck);
         this.markers.set(truck.id, marker);
         this.markerClusterGroup.addLayer(marker);
@@ -134,7 +134,7 @@ export class MapComponent implements OnInit, OnDestroy {
   private createTruckMarker(truck: Truck): L.Marker {
     const icon = this.getTruckIcon(truck.status);
     const marker = L.marker(
-      [truck.lastLatitude!, truck.lastLongitude!],
+      [truck.currentLatitude!, truck.currentLongitude!],
       { icon }
     );
 
@@ -143,9 +143,10 @@ export class MapComponent implements OnInit, OnDestroy {
     marker.bindPopup(popupContent);
 
     // T084: Implement truck direction indicator (rotate marker based on heading)
-    if (truck.lastHeading !== undefined && truck.lastHeading !== null) {
-      marker.setRotationAngle(truck.lastHeading);
-    }
+    // TODO: Install leaflet-rotatedmarker plugin to enable rotation
+    // if (truck.currentHeading !== undefined && truck.currentHeading !== null) {
+    //   marker.setRotationAngle(truck.currentHeading);
+    // }
 
     return marker;
   }
@@ -199,10 +200,10 @@ export class MapComponent implements OnInit, OnDestroy {
 
     return `
       <div class="truck-popup">
-        <h3>${truck.truckIdReadable}</h3>
+        <h3>${truck.truckId}</h3>
         <p><strong>Status:</strong> <span class="status-${truck.status.toLowerCase()}">${truck.status}</span></p>
         ${truck.driverName ? `<p><strong>Driver:</strong> ${truck.driverName}</p>` : ''}
-        ${truck.lastSpeed !== null && truck.lastSpeed !== undefined ? `<p><strong>Speed:</strong> ${truck.lastSpeed.toFixed(1)} km/h</p>` : ''}
+        ${truck.currentSpeed !== null && truck.currentSpeed !== undefined ? `<p><strong>Speed:</strong> ${truck.currentSpeed.toFixed(1)} km/h</p>` : ''}
         <p><strong>Last Update:</strong> ${lastUpdate}</p>
       </div>
     `;
@@ -243,9 +244,10 @@ export class MapComponent implements OnInit, OnDestroy {
       existingMarker.setLatLng(newLatLng);
 
       // Update heading if available
-      if (position.heading !== undefined && position.heading !== null) {
-        existingMarker.setRotationAngle(position.heading);
-      }
+      // TODO: Install leaflet-rotatedmarker plugin to enable rotation
+      // if (position.heading !== undefined && position.heading !== null) {
+      //   existingMarker.setRotationAngle(position.heading);
+      // }
 
       console.log(`Updated position for truck ${truckId}`);
     } else {
@@ -256,9 +258,10 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 }
 
-// Extend Leaflet Marker interface for rotation
-declare module 'leaflet' {
-  interface Marker {
-    setRotationAngle(angle: number): this;
-  }
-}
+// TODO: Add Leaflet Marker rotation plugin
+// // Extend Leaflet Marker interface for rotation
+// declare module 'leaflet' {
+//   interface Marker {
+//     setRotationAngle(angle: number): this;
+//   }
+// }

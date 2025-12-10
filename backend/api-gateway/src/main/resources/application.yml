@@ -22,7 +22,15 @@ spring:
             - name: JwtAuthenticationFilter
             - RewritePath=/gps/(?<segment>.*), /gps/$\{segment}
 
-        # Location Service Routes
+        # Location Service Routes - Public (no auth required)
+        - id: location-service-public
+          uri: http://localhost:8081
+          predicates:
+            - Path=/public/location/**
+          filters:
+            - RewritePath=/public/location/(?<segment>.*), /location/$\{segment}
+
+        # Location Service Routes - Private (auth required)
         - id: location-service
           uri: http://localhost:8081
           predicates:

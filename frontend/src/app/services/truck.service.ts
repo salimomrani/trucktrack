@@ -13,7 +13,7 @@ import { GPSPosition } from '../models/gps-position.model';
   providedIn: 'root'
 })
 export class TruckService {
-  private readonly baseUrl = `${environment.apiUrl}/location/v1`;
+  private readonly baseUrl = `${environment.apiUrl}/public/location/v1`;
 
   constructor(private http: HttpClient) {}
 
