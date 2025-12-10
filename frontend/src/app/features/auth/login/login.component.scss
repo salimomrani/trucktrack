@@ -1,0 +1,122 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.login-card {
+  max-width: 450px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.login-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 28px;
+  font-weight: 500;
+  color: #333;
+}
+
+.login-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #667eea;
+}
+
+mat-card-header {
+  margin-bottom: 24px;
+}
+
+mat-card-subtitle {
+  font-size: 16px;
+  color: #666;
+  margin-top: 8px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.login-button {
+  height: 48px;
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 8px;
+  position: relative;
+}
+
+.spinner {
+  margin: 0 auto;
+}
+
+.demo-info {
+  margin-top: 24px;
+  padding: 16px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  border-left: 4px solid #667eea;
+}
+
+.demo-title {
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.demo-credentials {
+  font-size: 14px;
+  color: #666;
+  margin: 4px 0;
+  font-family: 'Courier New', monospace;
+}
+
+// Accessibility improvements
+button:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+input:focus {
+  outline: none;
+}
+
+// Error styling
+::ng-deep .error-snackbar {
+  background-color: #f44336;
+  color: white;
+}
+
+// Success styling
+::ng-deep .success-snackbar {
+  background-color: #4caf50;
+  color: white;
+}
+
+// Responsive design
+@media (max-width: 600px) {
+  .login-card {
+    max-width: 100%;
+  }
+
+  .login-title {
+    font-size: 24px;
+  }
+
+  .login-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+}

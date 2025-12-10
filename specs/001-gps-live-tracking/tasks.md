@@ -76,12 +76,12 @@
 - [X] T039 [P] Create common DTO classes in backend/shared/src/main/java/com/trucktrack/common/dto/ (GPSCoordinate, TruckStatus)
 - [X] T040 [P] Create common event POJOs in backend/shared/src/main/java/com/trucktrack/common/event/ (GPSPositionEvent, TruckStatusChangeEvent, AlertTriggeredEvent)
 - [X] T041 [P] Create common exception classes in backend/shared/src/main/java/com/trucktrack/common/exception/ (ResourceNotFoundException, ValidationException, UnauthorizedException)
-- [ ] T042 [P] Setup Angular Material in frontend/src/app/app.module.ts (import Material modules)
-- [ ] T043 [P] Create Angular environment configurations in frontend/src/environments/ (dev, staging, prod)
-- [ ] T044 [P] Implement AuthService in frontend/src/app/core/services/auth.service.ts (JWT storage, HTTP interceptor)
-- [ ] T045 [P] Implement AuthGuard in frontend/src/app/core/guards/auth.guard.ts (route protection)
-- [ ] T046 [P] Create login component in frontend/src/app/features/auth/login/ (email/password form)
-- [ ] T047 [P] Setup Angular routing in frontend/src/app/app-routing.module.ts (login, map, history, alerts routes)
+- [X] T042 [P] Setup Angular Material in frontend/src/app/app.module.ts (import Material modules)
+- [X] T043 [P] Create Angular environment configurations in frontend/src/environments/ (dev, staging, prod)
+- [X] T044 [P] Implement AuthService in frontend/src/app/core/services/auth.service.ts (JWT storage, HTTP interceptor)
+- [X] T045 [P] Implement AuthGuard in frontend/src/app/core/guards/auth.guard.ts (route protection)
+- [X] T046 [P] Create login component in frontend/src/app/features/auth/login/ (email/password form)
+- [X] T047 [P] Setup Angular routing in frontend/src/app/app-routing.module.ts (login, map, history, alerts routes)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

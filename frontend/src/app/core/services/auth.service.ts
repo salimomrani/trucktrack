@@ -1,0 +1,249 @@
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, tap, catchError, throwError, map } from 'rxjs';
+import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
+import {
+  LoginRequest,
+  LoginResponse,
+  RefreshTokenRequest,
+  RefreshTokenResponse,
+  User,
+  JwtPayload
+} from '../models/auth.model';
+
+/**
+ * AuthService handles authentication, token management, and user state.
+ * Implements JWT-based authentication with refresh token support.
+ */
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+  private http = inject(HttpClient);
+  private router = inject(Router);
+
+  private readonly API_URL = environment.apiUrl;
+  private readonly TOKEN_KEY = environment.auth.tokenKey;
+  private readonly REFRESH_TOKEN_KEY = environment.auth.refreshTokenKey;
+
+  // Current user state (null when not authenticated)
+  private currentUserSubject = new BehaviorSubject<User | null>(this.getUserFromStorage());
+  public currentUser$ = this.currentUserSubject.asObservable();
+
+  // Authentication state
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasValidToken());
+  public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+
+  constructor() {
+    // Check token expiry on init
+    this.checkTokenExpiry();
+  }
+
+  /**
+   * Login with email and password
+   */
+  login(credentials: LoginRequest): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.API_URL}/auth/v1/login`, credentials).pipe(
+      tap(response => {
+        this.handleAuthSuccess(response);
+      }),
+      catchError(error => {
+        console.error('Login failed:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Logout - clear tokens and redirect to login
+   */
+  logout(): void {
+    // Clear tokens from storage
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+    localStorage.removeItem('current_user');
+
+    // Update state
+    this.currentUserSubject.next(null);
+    this.isAuthenticatedSubject.next(false);
+
+    // Redirect to login
+    this.router.navigate(['/login']);
+  }
+
+  /**
+   * Refresh access token using refresh token
+   */
+  refreshToken(): Observable<RefreshTokenResponse> {
+    const refreshToken = this.getRefreshToken();
+
+    if (!refreshToken) {
+      return throwError(() => new Error('No refresh token available'));
+    }
+
+    const request: RefreshTokenRequest = { refreshToken };
+
+    return this.http.post<RefreshTokenResponse>(`${this.API_URL}/auth/v1/refresh`, request).pipe(
+      tap(response => {
+        this.setAccessToken(response.accessToken);
+        this.setRefreshToken(response.refreshToken);
+        this.isAuthenticatedSubject.next(true);
+      }),
+      catchError(error => {
+        console.error('Token refresh failed:', error);
+        this.logout();
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Get current access token
+   */
+  getAccessToken(): string | null {
+    return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  /**
+   * Get current refresh token
+   */
+  getRefreshToken(): string | null {
+    return localStorage.getItem(this.REFRESH_TOKEN_KEY);
+  }
+
+  /**
+   * Get current user
+   */
+  getCurrentUser(): User | null {
+    return this.currentUserSubject.value;
+  }
+
+  /**
+   * Check if user is authenticated
+   */
+  isAuthenticated(): boolean {
+    return this.isAuthenticatedSubject.value && this.hasValidToken();
+  }
+
+  /**
+   * Check if user has a specific role
+   */
+  hasRole(role: string): boolean {
+    const user = this.getCurrentUser();
+    return user?.role === role;
+  }
+
+  /**
+   * Decode JWT token to get payload
+   */
+  private decodeToken(token: string): JwtPayload | null {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        return null;
+      }
+
+      const payload = parts[1];
+      const decoded = atob(payload);
+      return JSON.parse(decoded) as JwtPayload;
+    } catch (error) {
+      console.error('Failed to decode token:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Check if token is expired
+   */
+  private isTokenExpired(token: string): boolean {
+    const payload = this.decodeToken(token);
+    if (!payload) {
+      return true;
+    }
+
+    const expiryTime = payload.exp * 1000; // Convert to milliseconds
+    const currentTime = Date.now();
+
+    return currentTime >= expiryTime;
+  }
+
+  /**
+   * Check if there's a valid token in storage
+   */
+  private hasValidToken(): boolean {
+    const token = this.getAccessToken();
+    if (!token) {
+      return false;
+    }
+
+    return !this.isTokenExpired(token);
+  }
+
+  /**
+   * Handle successful authentication
+   */
+  private handleAuthSuccess(response: LoginResponse): void {
+    // Store tokens
+    this.setAccessToken(response.accessToken);
+    this.setRefreshToken(response.refreshToken);
+
+    // Store user data
+    localStorage.setItem('current_user', JSON.stringify(response.user));
+
+    // Update state
+    this.currentUserSubject.next(response.user);
+    this.isAuthenticatedSubject.next(true);
+
+    console.log('Authentication successful for user:', response.user.email);
+  }
+
+  /**
+   * Set access token in storage
+   */
+  private setAccessToken(token: string): void {
+    localStorage.setItem(this.TOKEN_KEY, token);
+  }
+
+  /**
+   * Set refresh token in storage
+   */
+  private setRefreshToken(token: string): void {
+    localStorage.setItem(this.REFRESH_TOKEN_KEY, token);
+  }
+
+  /**
+   * Get user from local storage
+   */
+  private getUserFromStorage(): User | null {
+    const userJson = localStorage.getItem('current_user');
+    if (!userJson) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(userJson) as User;
+    } catch (error) {
+      console.error('Failed to parse user from storage:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Check token expiry and refresh if needed
+   */
+  private checkTokenExpiry(): void {
+    const token = this.getAccessToken();
+    if (!token) {
+      return;
+    }
+
+    if (this.isTokenExpired(token)) {
+      console.log('Token expired, attempting refresh...');
+      this.refreshToken().subscribe({
+        next: () => console.log('Token refreshed successfully'),
+        error: (error) => console.error('Token refresh failed:', error)
+      });
+    }
+  }
+}

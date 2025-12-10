@@ -1,1 +1,41 @@
 /* You can add global styles to this file, and also import other style files */
+
+// Angular Material Theme
+@use '@angular/material' as mat;
+
+// Include the core styles
+@include mat.core();
+
+// Define the theme
+$truck-track-primary: mat.define-palette(mat.$indigo-palette);
+$truck-track-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
+$truck-track-warn: mat.define-palette(mat.$red-palette);
+
+$truck-track-theme: mat.define-light-theme((
+  color: (
+    primary: $truck-track-primary,
+    accent: $truck-track-accent,
+    warn: $truck-track-warn,
+  ),
+  typography: mat.define-typography-config(),
+  density: 0,
+));
+
+// Include theme styles for core and each component
+@include mat.all-component-themes($truck-track-theme);
+
+// Global styles
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
