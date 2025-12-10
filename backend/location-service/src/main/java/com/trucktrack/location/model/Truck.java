@@ -51,7 +51,7 @@ public class Truck {
     private String vehicleType;
 
     @NotNull(message = "Status is required")
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = com.trucktrack.location.converter.TruckStatusConverter.class)
     @Column(name = "status", nullable = false, length = 20)
     private TruckStatus status = TruckStatus.OFFLINE;
 
