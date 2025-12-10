@@ -70,7 +70,7 @@ export class LoginComponent {
     this.authService.login(credentials).subscribe({
       next: (response) => {
         this.isLoading = false;
-        this.showSuccess(`Welcome back, ${response.user.firstName}!`);
+        this.showSuccess(`Welcome back!`);
 
         // Redirect to map page
         this.router.navigate(['/map']);

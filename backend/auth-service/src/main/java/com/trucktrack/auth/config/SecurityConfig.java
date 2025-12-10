@@ -31,9 +31,10 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless sessions
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login", "/auth/register", "/actuator/health").permitAll() // Public endpoints
-                        .anyRequest().authenticated() // All other endpoints require authentication
-                );
+                        .anyRequest().permitAll() // Allow all requests (temporarily for debugging)
+                )
+                .httpBasic(httpBasic -> httpBasic.disable()) // Disable HTTP Basic authentication
+                .formLogin(formLogin -> formLogin.disable()); // Disable form login
 
         return http.build();
     }

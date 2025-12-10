@@ -9,7 +9,7 @@ import {
   RefreshTokenRequest,
   RefreshTokenResponse,
   User,
-  JwtPayload
+  JwtPayload, UserRole
 } from '../models/auth.model';
 
 /**
@@ -184,18 +184,33 @@ export class AuthService {
    * Handle successful authentication
    */
   private handleAuthSuccess(response: LoginResponse): void {
-    // Store tokens
-    this.setAccessToken(response.accessToken);
-    this.setRefreshToken(response.refreshToken);
+    // Store token
+    this.setAccessToken(response.token);
+
+    // Create user object from response
+    const user: User = {
+      id: '', // Will be extracted from JWT
+      email: response.email,
+      firstName: '', // Not provided by backend yet
+      lastName: '', // Not provided by backend yet
+      role: response.role as UserRole,
+      isActive: true
+    };
+
+    // Extract user ID from JWT token
+    const payload = this.decodeToken(response.token);
+    if (payload && payload.userId) {
+      user.id = payload.userId;
+    }
 
     // Store user data
-    localStorage.setItem('current_user', JSON.stringify(response.user));
+    localStorage.setItem('current_user', JSON.stringify(user));
 
     // Update state
-    this.currentUserSubject.next(response.user);
+    this.currentUserSubject.next(user);
     this.isAuthenticatedSubject.next(true);
 
-    console.log('Authentication successful for user:', response.user.email);
+    console.log('Authentication successful for user:', response.email);
   }
 
   /**

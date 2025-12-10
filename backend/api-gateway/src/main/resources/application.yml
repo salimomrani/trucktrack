@@ -63,7 +63,7 @@ spring:
 
 # JWT Configuration
 jwt:
-  secret: changeme-this-should-be-a-very-long-secret-key-for-production
+  secret: changeme-this-should-be-a-very-long-secret-key-for-production-use-at-least-64-characters
   expiration: 86400000 # 24 hours in milliseconds
 
 server:
@@ -83,6 +83,6 @@ logging:
   level:
     com.trucktrack: INFO
     org.springframework: WARN
-    org.springframework.cloud.gateway: INFO
+    org.springframework.cloud.gateway: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"

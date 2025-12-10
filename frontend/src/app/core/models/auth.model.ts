@@ -6,11 +6,10 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
-  tokenType: string;
-  expiresIn: number;
-  user: User;
+  token: string;
+  type: string;
+  email: string;
+  role: string;
 }
 
 export interface User {
@@ -41,9 +40,10 @@ export interface RefreshTokenResponse {
 }
 
 export interface JwtPayload {
-  sub: string; // user ID
-  email: string;
-  role: UserRole;
+  sub: string; // email
+  username: string; // email
+  userId: string; // user ID
+  role: string;
   exp: number;
   iat: number;
 }
