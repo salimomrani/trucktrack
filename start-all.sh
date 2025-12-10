@@ -143,8 +143,8 @@ fi
 
 # Step 3: Run database migrations
 echo -e "${GREEN}[3/4]${NC} Running database migrations..."
-cd "$BACKEND_DIR"
-mvn flyway:migrate -P local 2>&1 | grep -E "(SUCCESS|ERROR|WARNING|Migration)" || true
+cd "$BACKEND_DIR/location-service"
+mvn flyway:migrate -P local -Dflyway.url=jdbc:postgresql://localhost:5432/trucktrack -Dflyway.user=trucktrack -Dflyway.password=changeme 2>&1 | grep -E "(SUCCESS|ERROR|WARNING|Migration)" || true
 echo -e "${GREEN}✓ Database migrations complete${NC}"
 echo ""
 
