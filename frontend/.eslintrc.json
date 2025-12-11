@@ -12,8 +12,7 @@
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:@angular-eslint/recommended",
-        "plugin:@angular-eslint/template/process-inline-templates",
-        "prettier"
+        "plugin:@angular-eslint/template/process-inline-templates"
       ],
       "rules": {
         "@angular-eslint/directive-selector": [
@@ -32,33 +31,47 @@
             "style": "kebab-case"
           }
         ],
-        "@typescript-eslint/no-explicit-any": "warn",
+        "@angular-eslint/prefer-on-push-component-change-detection": "warn",
+        "@angular-eslint/prefer-standalone": "warn",
+        "@angular-eslint/use-injectable-provided-in": "error",
         "@typescript-eslint/explicit-function-return-type": "off",
-        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/no-explicit-any": "warn",
         "@typescript-eslint/no-unused-vars": [
           "error",
           {
             "argsIgnorePattern": "^_"
           }
         ],
+        "@typescript-eslint/naming-convention": [
+          "error",
+          {
+            "selector": "variable",
+            "modifiers": ["const"],
+            "format": ["camelCase", "UPPER_CASE", "PascalCase"]
+          },
+          {
+            "selector": "function",
+            "format": ["camelCase"]
+          },
+          {
+            "selector": "class",
+            "format": ["PascalCase"]
+          },
+          {
+            "selector": "interface",
+            "format": ["PascalCase"]
+          }
+        ],
         "no-console": [
           "warn",
           {
-            "allow": [
-              "warn",
-              "error"
-            ]
+            "allow": ["warn", "error"]
           }
         ],
-        "max-len": [
-          "error",
-          {
-            "code": 120,
-            "ignoreUrls": true,
-            "ignoreStrings": true,
-            "ignoreTemplateLiterals": true
-          }
-        ]
+        "prefer-const": "error",
+        "no-var": "error",
+        "eqeqeq": ["error", "always"],
+        "curly": "error"
       }
     },
     {
@@ -67,10 +80,16 @@
       ],
       "extends": [
         "plugin:@angular-eslint/template/recommended",
-        "plugin:@angular-eslint/template/accessibility",
-        "prettier"
+        "plugin:@angular-eslint/template/accessibility"
       ],
-      "rules": {}
+      "rules": {
+        "@angular-eslint/template/prefer-control-flow": "warn",
+        "@angular-eslint/template/prefer-self-closing-tags": "warn",
+        "@angular-eslint/template/no-negated-async": "error",
+        "@angular-eslint/template/alt-text": "error",
+        "@angular-eslint/template/click-events-have-key-events": "warn",
+        "@angular-eslint/template/mouse-events-have-key-events": "warn"
+      }
     }
   ]
 }

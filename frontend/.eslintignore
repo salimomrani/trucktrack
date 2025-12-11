@@ -1,0 +1,26 @@
+# Build output
+dist/
+.angular/
+
+# Node modules
+node_modules/
+
+# Coverage
+coverage/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Test files
+*.spec.ts
+**/test.ts
+
+# Configuration files
+karma.conf.js
+angular.json
+tsconfig*.json
+
+# Generated files
+src/environments/*.ts

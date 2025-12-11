@@ -70,7 +70,7 @@ export class LoginComponent {
     };
 
     this.authService.login(credentials).subscribe({
-      next: (response) => {
+      next: (_response) => {
         this.isLoading.set(false);
         this.showSuccess(`Welcome back!`);
 
