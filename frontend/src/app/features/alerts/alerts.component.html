@@ -1,0 +1,157 @@
+<div class="alerts-container">
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <mat-card class="stat-card total">
+      <mat-card-content>
+        <div class="stat-icon">
+          <mat-icon>notifications</mat-icon>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats().total }}</div>
+          <div class="stat-label">Total Alerts</div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card unread" [matBadge]="stats().unread" matBadgeColor="warn" [matBadgeHidden]="stats().unread === 0">
+      <mat-card-content>
+        <div class="stat-icon">
+          <mat-icon>mark_email_unread</mat-icon>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats().unread }}</div>
+          <div class="stat-label">Unread</div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card critical">
+      <mat-card-content>
+        <div class="stat-icon">
+          <mat-icon>error</mat-icon>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats().critical }}</div>
+          <div class="stat-label">Critical</div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card high">
+      <mat-card-content>
+        <div class="stat-icon">
+          <mat-icon>warning</mat-icon>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats().high }}</div>
+          <div class="stat-label">High</div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Filters and Actions -->
+  <mat-card class="controls-card">
+    <mat-card-content>
+      <div class="controls">
+        <div class="severity-filters">
+          <button mat-button [class.active]="selectedSeverity() === null" (click)="filterBySeverity(null)">
+            All
+          </button>
+          <button mat-button [class.active]="selectedSeverity() === 'critical'" (click)="filterBySeverity('critical')">
+            <mat-icon>error</mat-icon>
+            Critical
+          </button>
+          <button mat-button [class.active]="selectedSeverity() === 'high'" (click)="filterBySeverity('high')">
+            <mat-icon>warning</mat-icon>
+            High
+          </button>
+          <button mat-button [class.active]="selectedSeverity() === 'medium'" (click)="filterBySeverity('medium')">
+            <mat-icon>info</mat-icon>
+            Medium
+          </button>
+          <button mat-button [class.active]="selectedSeverity() === 'low'" (click)="filterBySeverity('low')">
+            <mat-icon>check_circle</mat-icon>
+            Low
+          </button>
+        </div>
+
+        <div class="actions">
+          <button mat-stroked-button (click)="toggleShowResolved()">
+            <mat-icon>{{ showResolved() ? 'visibility_off' : 'visibility' }}</mat-icon>
+            {{ showResolved() ? 'Hide' : 'Show' }} Resolved
+          </button>
+          <button mat-raised-button color="primary" (click)="markAllAsRead()" [disabled]="stats().unread === 0">
+            <mat-icon>done_all</mat-icon>
+            Mark All Read
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Alerts List -->
+  <div class="alerts-list">
+    @if (isLoading()) {
+      <div class="loading-spinner">
+        <mat-spinner />
+        <p>Loading alerts...</p>
+      </div>
+    } @else if (filteredAlerts().length === 0) {
+      <mat-card class="no-alerts">
+        <mat-card-content>
+          <mat-icon>check_circle_outline</mat-icon>
+          <h3>No alerts found</h3>
+          <p>Great! There are no alerts matching your filters.</p>
+        </mat-card-content>
+      </mat-card>
+    } @else {
+      @for (alert of filteredAlerts(); track alert.id) {
+        <mat-card class="alert-card" [class.unread]="!alert.isRead" [class.resolved]="alert.isResolved" [attr.data-severity]="alert.severity">
+          <mat-card-content>
+            <div class="alert-icon" [attr.data-severity]="alert.severity">
+              <mat-icon>{{ getSeverityIcon(alert.severity) }}</mat-icon>
+            </div>
+
+            <div class="alert-content">
+              <div class="alert-header">
+                <div class="alert-title">
+                  <mat-icon class="type-icon">{{ getTypeIcon(alert.type) }}</mat-icon>
+                  <strong>{{ alert.title }}</strong>
+                  @if (!alert.isRead) {
+                    <mat-chip class="unread-badge">New</mat-chip>
+                  }
+                  @if (alert.isResolved) {
+                    <mat-chip class="resolved-badge">Resolved</mat-chip>
+                  }
+                </div>
+                <div class="alert-time">{{ alert.timestamp | date:'short' }}</div>
+              </div>
+
+              <div class="alert-message">{{ alert.message }}</div>
+
+              <div class="alert-meta">
+                <mat-chip>{{ alert.truckId }}</mat-chip>
+                <mat-chip [attr.data-severity]="alert.severity">{{ alert.severity }}</mat-chip>
+                <mat-chip>{{ alert.type }}</mat-chip>
+              </div>
+            </div>
+
+            <div class="alert-actions">
+              @if (!alert.isRead) {
+                <button mat-icon-button (click)="markAsRead(alert)" matTooltip="Mark as read">
+                  <mat-icon>mark_email_read</mat-icon>
+                </button>
+              }
+              @if (!alert.isResolved) {
+                <button mat-icon-button color="primary" (click)="markAsResolved(alert)" matTooltip="Mark as resolved">
+                  <mat-icon>check_circle</mat-icon>
+                </button>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    }
+  </div>
+</div>
