@@ -34,7 +34,7 @@
           <div class="user-menu-header">
             <mat-icon>person</mat-icon>
             <div class="user-info">
-              <div class="user-name">{{ currentUser()?.name || currentUser()?.email }}</div>
+              <div class="user-name">{{ getUserDisplayName() }}</div>
               <div class="user-role">{{ currentUser()?.role }}</div>
             </div>
           </div>

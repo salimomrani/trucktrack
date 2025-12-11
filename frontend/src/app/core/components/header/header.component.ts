@@ -46,4 +46,20 @@ export class HeaderComponent {
     this.facade.logout();
     this.router.navigate(['/login']);
   }
+
+  /**
+   * Get user display name (firstName + lastName or email)
+   */
+  getUserDisplayName(): string {
+    const user = this.currentUser();
+    if (!user) {
+      return '';
+    }
+
+    const fullName = [user.firstName, user.lastName]
+      .filter(name => name && name.trim())
+      .join(' ');
+
+    return fullName || user.email;
+  }
 }
