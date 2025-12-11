@@ -152,8 +152,8 @@ echo ""
 echo -e "${GREEN}[4/4]${NC} Starting all services..."
 
 # Check if ports are available
-PORTS=(8080 8081 8082 8083 8000 4200)
-PORT_NAMES=("GPS Ingestion" "Location" "Notification" "Auth" "API Gateway" "Frontend")
+PORTS=(8080 8081 8082 8083 8000)
+PORT_NAMES=("GPS Ingestion" "Location" "Notification" "Auth" "API Gateway")
 
 for i in "${!PORTS[@]}"; do
   check_port ${PORTS[$i]} || echo -e "${YELLOW}${PORT_NAMES[$i]} (${PORTS[$i]}) may conflict${NC}"
@@ -194,20 +194,6 @@ echo -e "  API Gateway (PID: $GATEWAY_PID) on port 8000"
 
 echo ""
 
-# Start frontend
-echo -e "${BLUE}Starting frontend...${NC}"
-cd "$FRONTEND_DIR"
-
-# Install dependencies if needed
-if [ ! -d "node_modules" ]; then
-  echo -e "${YELLOW}Installing frontend dependencies...${NC}"
-  npm install
-fi
-
-nohup npm start > "$PROJECT_ROOT/logs/frontend.log" 2>&1 &
-FRONTEND_PID=$!
-echo -e "  Angular Frontend (PID: $FRONTEND_PID) on port 4200"
-
 # Save PIDs to file for cleanup
 cat > "$PROJECT_ROOT/.pids" <<EOF
 GPS_INGESTION_PID=$GPS_PID
@@ -215,30 +201,31 @@ LOCATION_PID=$LOCATION_PID
 NOTIFICATION_PID=$NOTIFICATION_PID
 AUTH_PID=$AUTH_PID
 API_GATEWAY_PID=$GATEWAY_PID
-FRONTEND_PID=$FRONTEND_PID
 EOF
 
 echo ""
 echo -e "${GREEN}╔════════════════════════════════════════════╗${NC}"
-echo -e "${GREEN}║         All Services Started! 🚀           ║${NC}"
+echo -e "${GREEN}║    Backend Services Started! 🚀            ║${NC}"
 echo -e "${GREEN}╚════════════════════════════════════════════╝${NC}"
 echo ""
 echo -e "Services are starting up. This may take 30-60 seconds..."
 echo ""
 echo -e "${BLUE}Access Points:${NC}"
-echo -e "  Frontend:        ${GREEN}http://localhost:4200${NC}"
 echo -e "  API Gateway:     ${GREEN}http://localhost:8000${NC}"
 echo -e "  Health Check:    ${GREEN}http://localhost:8000/actuator/health${NC}"
+echo ""
+echo -e "${YELLOW}Note: Frontend not included. Start manually with:${NC}"
+echo -e "  cd frontend && npm start"
 echo ""
 echo -e "${BLUE}Credentials:${NC}"
 echo -e "  Email:    admin@trucktrack.com"
 echo -e "  Password: AdminPass123!"
 echo ""
 echo -e "${BLUE}Logs:${NC}"
-echo -e "  View logs:       ${YELLOW}tail -f logs/*.log${NC}"
+echo -e "  View all logs:   ${YELLOW}tail -f logs/*.log${NC}"
 echo -e "  GPS Ingestion:   ${YELLOW}tail -f logs/gps-ingestion.log${NC}"
 echo -e "  Location:        ${YELLOW}tail -f logs/location.log${NC}"
-echo -e "  Frontend:        ${YELLOW}tail -f logs/frontend.log${NC}"
+echo -e "  Auth:            ${YELLOW}tail -f logs/auth.log${NC}"
 echo ""
 echo -e "${BLUE}Management:${NC}"
 echo -e "  Stop all:        ${YELLOW}./stop-all.sh${NC}"
