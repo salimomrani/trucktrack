@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, catchError, throwError } from 'rxjs';
+import { Observable, tap, catchError, throwError, map } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import {
@@ -196,14 +196,22 @@ export class AuthService {
     // Store token
     this.setAccessToken(response.token);
 
-    // Extract user from JWT token
-    const user = this.getUserFromStorage();
-
-    // Update state
-    this.currentUserSignal.set(user);
+    // Set authentication state immediately
     this.isAuthenticatedSignal.set(true);
 
-    console.log('Authentication successful for user:', response.email);
+    // Fetch user details from backend
+    this.getCurrentUserFromBackend()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (user) => {
+          this.currentUserSignal.set(user);
+          console.log('Authentication successful for user:', response.email);
+        },
+        error: (error) => {
+          console.error('Failed to fetch user details:', error);
+          // Keep authenticated but with null user
+        }
+      });
   }
 
   /**
@@ -221,28 +229,31 @@ export class AuthService {
   }
 
   /**
-   * Get user from JWT token
+   * Get current authenticated user from backend
+   */
+  getCurrentUserFromBackend(): Observable<User> {
+    return this.http.get<{id: string, email: string, role: string}>(`${this.API_URL}/auth/v1/me`).pipe(
+      map(response => ({
+        id: response.id,
+        email: response.email,
+        firstName: '',
+        lastName: '',
+        role: response.role as UserRole,
+        isActive: true
+      })),
+      catchError(error => {
+        console.error('Failed to get current user:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Get user from storage (for backward compatibility)
+   * @deprecated Use getCurrentUserFromBackend() instead
    */
   private getUserFromStorage(): User | null {
-    const token = this.getAccessToken();
-    if (!token) {
-      return null;
-    }
-
-    const payload = this.decodeToken(token);
-    if (!payload) {
-      return null;
-    }
-
-    // Extract user info from JWT payload
-    return {
-      id: payload.userId || payload.sub || '',
-      email: payload.email || '',
-      firstName: payload.firstName || '',
-      lastName: payload.lastName || '',
-      role: payload.role as UserRole || 'DRIVER',
-      isActive: true
-    };
+    return this.currentUser();
   }
 
   /**

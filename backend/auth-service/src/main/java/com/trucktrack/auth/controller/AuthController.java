@@ -2,6 +2,7 @@ package com.trucktrack.auth.controller;
 
 import com.trucktrack.auth.dto.LoginRequest;
 import com.trucktrack.auth.dto.LoginResponse;
+import com.trucktrack.auth.dto.UserResponse;
 import com.trucktrack.auth.service.AuthService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -55,6 +56,44 @@ public class AuthController {
         log.warn("Invalid credentials for user: {}", loginRequest.getEmail());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body("Invalid credentials");
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
+        log.info("Getting current user info");
+
+        try {
+            // Extract token from Authorization header (Bearer token)
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                log.warn("Invalid Authorization header");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Invalid Authorization header");
+            }
+
+            String token = authHeader.substring(7); // Remove "Bearer " prefix
+
+            // Validate token
+            if (!authService.validateToken(token)) {
+                log.warn("Invalid or expired token");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Invalid or expired token");
+            }
+
+            // Extract user info from token
+            String userId = authService.getUserIdFromToken(token);
+            String email = authService.getUsernameFromToken(token);
+            String role = authService.getRoleFromToken(token);
+
+            UserResponse userResponse = new UserResponse(userId, email, role);
+
+            log.info("Returning user info for: {}", email);
+            return ResponseEntity.ok(userResponse);
+
+        } catch (Exception e) {
+            log.error("Error getting current user", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error processing request");
+        }
     }
 
     @GetMapping("/health")

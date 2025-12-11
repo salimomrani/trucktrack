@@ -69,13 +69,18 @@ export class AuthEffects implements OnInitEffects {
   loadUser$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.loadUser),
-      map(() => {
-        const user = this.authService.getCurrentUser();
-        if (user) {
-          return AuthActions.loadUserSuccess({ user });
-        } else {
-          return AuthActions.loadUserFailure({ error: 'No user found' });
+      switchMap(() => {
+        // Check if token exists
+        const token = localStorage.getItem('truck_track_token');
+        if (!token) {
+          return of(AuthActions.loadUserFailure({ error: 'No token found' }));
         }
+
+        // Fetch user from backend
+        return this.authService.getCurrentUserFromBackend().pipe(
+          map(user => AuthActions.loadUserSuccess({ user })),
+          catchError(error => of(AuthActions.loadUserFailure({ error: error.message || 'Failed to load user' })))
+        );
       })
     )
   );
