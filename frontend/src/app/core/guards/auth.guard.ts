@@ -21,11 +21,11 @@ export const authGuard: CanActivateFn = (): Observable<boolean | UrlTree> | Prom
 };
 
 /**
- * No Auth Guard - Prevents authenticated users from accessing public routes
- * Redirects to map page if user is already authenticated
- * Usage: canActivate: [noAuthGuard] on login route
+ * Guest Only Guard - Allows access only to unauthenticated users
+ * Redirects authenticated users to map page
+ * Usage: canActivate: [guestOnlyGuard] on login route
  */
-export const noAuthGuard: CanActivateFn = (): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree => {
+export const guestOnlyGuard: CanActivateFn = (): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree => {
   const authService = inject(AuthService);
   const router = inject(Router);
 

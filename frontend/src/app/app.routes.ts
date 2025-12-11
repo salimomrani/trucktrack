@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, noAuthGuard } from './core/guards/auth.guard';
+import { authGuard, guestOnlyGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   // Default route - redirect to map if authenticated, otherwise to login
@@ -9,10 +9,10 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
 
-  // Login route - redirects to map if already authenticated
+  // Login route - guests only, authenticated users redirected to map
   {
     path: 'login',
-    canActivate: [noAuthGuard],
+    canActivate: [guestOnlyGuard],
     loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent),
     title: 'Login - Truck Track'
   },
