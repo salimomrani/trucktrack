@@ -1,0 +1,50 @@
+@if (isAuthenticated()) {
+  <mat-toolbar color="primary" class="app-header">
+    <div class="header-container">
+      <!-- Logo and Title -->
+      <div class="logo-section">
+        <mat-icon class="logo-icon">local_shipping</mat-icon>
+        <span class="app-title">Truck Track</span>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="nav-links">
+        <a mat-button routerLink="/map" routerLinkActive="active-link">
+          <mat-icon>map</mat-icon>
+          <span>Map</span>
+        </a>
+        <a mat-button routerLink="/history" routerLinkActive="active-link">
+          <mat-icon>history</mat-icon>
+          <span>History</span>
+        </a>
+        <a mat-button routerLink="/alerts" routerLinkActive="active-link">
+          <mat-icon>notifications</mat-icon>
+          <span>Alerts</span>
+        </a>
+      </nav>
+
+      <!-- User Menu -->
+      <div class="user-section">
+        <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
+          <mat-icon>account_circle</mat-icon>
+          <span class="user-email">{{ currentUser()?.email }}</span>
+          <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
+        </button>
+        <mat-menu #userMenu="matMenu">
+          <div class="user-menu-header">
+            <mat-icon>person</mat-icon>
+            <div class="user-info">
+              <div class="user-name">{{ currentUser()?.name || currentUser()?.email }}</div>
+              <div class="user-role">{{ currentUser()?.role }}</div>
+            </div>
+          </div>
+          <mat-divider></mat-divider>
+          <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            <span>Logout</span>
+          </button>
+        </mat-menu>
+      </div>
+    </div>
+  </mat-toolbar>
+}
