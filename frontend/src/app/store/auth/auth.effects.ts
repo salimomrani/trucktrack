@@ -1,13 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { Actions, createEffect, ofType, OnInitEffects } from '@ngrx/effects';
+import { Action } from '@ngrx/store';
 import { of } from 'rxjs';
 import { map, catchError, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 import * as AuthActions from './auth.actions';
 
 @Injectable()
-export class AuthEffects {
+export class AuthEffects implements OnInitEffects {
   private actions$ = inject(Actions);
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -78,4 +79,12 @@ export class AuthEffects {
       })
     )
   );
+
+  /**
+   * Initialize auth state on effects startup
+   * This method is called automatically by NgRx when the effect is initialized
+   */
+  ngrxOnInitEffects(): Action {
+    return AuthActions.loadUser();
+  }
 }
