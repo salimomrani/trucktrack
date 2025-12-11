@@ -1,4 +1,4 @@
-import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, effect, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -10,13 +10,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
-import { AuthService } from '../../../core/services/auth.service';
+import { StoreFacade } from '../../../store/store.facade';
 import { LoginRequest } from '../../../core/models/auth.model';
 
 /**
  * Login Component - Handles user authentication
  * Provides email/password login form with validation
- * Refactored with Angular 17+ best practices: signals, inject(), OnPush
+ * Migrated to use NgRx StoreFacade with Angular 17+ signals
  */
 @Component({
   selector: 'app-login',
@@ -38,23 +38,44 @@ import { LoginRequest } from '../../../core/models/auth.model';
 })
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);
-  private readonly authService = inject(AuthService);
+  private readonly facade = inject(StoreFacade);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
 
   loginForm: FormGroup;
-  isLoading = signal(false);
   hidePassword = signal(true);
+
+  // Use store signals for loading and authentication state
+  isLoading = this.facade.authLoading;
+  isAuthenticated = this.facade.isAuthenticated;
+  authError = this.facade.authError;
 
   constructor() {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]]
     });
+
+    // React to authentication success
+    effect(() => {
+      if (this.isAuthenticated()) {
+        this.showSuccess('Welcome back!');
+        this.router.navigate(['/map']);
+      }
+    });
+
+    // React to authentication errors
+    effect(() => {
+      const error = this.authError();
+      if (error) {
+        this.showError(error);
+      }
+    });
   }
 
   /**
    * Handle form submission
+   * Dispatches login action to NgRx store
    */
   onSubmit(): void {
     if (this.loginForm.invalid) {
@@ -62,27 +83,14 @@ export class LoginComponent {
       return;
     }
 
-    this.isLoading.set(true);
-
     const credentials: LoginRequest = {
       email: this.loginForm.value.email,
       password: this.loginForm.value.password
     };
 
-    this.authService.login(credentials).subscribe({
-      next: (_response) => {
-        this.isLoading.set(false);
-        this.showSuccess(`Welcome back!`);
-
-        // Redirect to map page
-        this.router.navigate(['/map']);
-      },
-      error: (error) => {
-        this.isLoading.set(false);
-        const errorMessage = error.error?.message || 'Login failed. Please check your credentials.';
-        this.showError(errorMessage);
-      }
-    });
+    // Dispatch login action to store
+    // Effects will handle the async operation, success/error handling
+    this.facade.login(credentials);
   }
 
   /**
