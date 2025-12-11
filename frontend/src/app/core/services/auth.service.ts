@@ -69,7 +69,6 @@ export class AuthService {
     // Clear tokens from storage
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
-    localStorage.removeItem('current_user');
 
     // Update state
     this.currentUserSignal.set(null);
@@ -194,24 +193,8 @@ export class AuthService {
     // Store token
     this.setAccessToken(response.token);
 
-    // Create user object from response
-    const user: User = {
-      id: '', // Will be extracted from JWT
-      email: response.email,
-      firstName: '', // Not provided by backend yet
-      lastName: '', // Not provided by backend yet
-      role: response.role as UserRole,
-      isActive: true
-    };
-
-    // Extract user ID from JWT token
-    const payload = this.decodeToken(response.token);
-    if (payload && payload.userId) {
-      user.id = payload.userId;
-    }
-
-    // Store user data
-    localStorage.setItem('current_user', JSON.stringify(user));
+    // Extract user from JWT token
+    const user = this.getUserFromStorage();
 
     // Update state
     this.currentUserSignal.set(user);
@@ -235,20 +218,28 @@ export class AuthService {
   }
 
   /**
-   * Get user from local storage
+   * Get user from JWT token
    */
   private getUserFromStorage(): User | null {
-    const userJson = localStorage.getItem('current_user');
-    if (!userJson) {
+    const token = this.getAccessToken();
+    if (!token) {
       return null;
     }
 
-    try {
-      return JSON.parse(userJson) as User;
-    } catch (error) {
-      console.error('Failed to parse user from storage:', error);
+    const payload = this.decodeToken(token);
+    if (!payload) {
       return null;
     }
+
+    // Extract user info from JWT payload
+    return {
+      id: payload.userId || payload.sub || '',
+      email: payload.email || '',
+      firstName: payload.firstName || '',
+      lastName: payload.lastName || '',
+      role: payload.role as UserRole || 'DRIVER',
+      isActive: true
+    };
   }
 
   /**

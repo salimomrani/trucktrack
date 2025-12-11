@@ -40,10 +40,13 @@ export interface RefreshTokenResponse {
 }
 
 export interface JwtPayload {
-  sub: string; // email
-  username: string; // email
-  userId: string; // user ID
+  sub: string; // email or user ID
+  username?: string; // email
+  userId?: string; // user ID
+  email?: string; // email
   role: string;
+  firstName?: string;
+  lastName?: string;
   exp: number;
   iat: number;
 }
