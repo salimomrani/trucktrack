@@ -14,7 +14,6 @@ NC='\033[0m' # No Color
 # Configuration
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKEND_DIR="$PROJECT_ROOT/backend"
-FRONTEND_DIR="$PROJECT_ROOT/frontend"
 DOCKER_DIR="$PROJECT_ROOT/infra/docker"
 
 BUILD_BACKEND=false
@@ -213,9 +212,6 @@ echo ""
 echo -e "${BLUE}Access Points:${NC}"
 echo -e "  API Gateway:     ${GREEN}http://localhost:8000${NC}"
 echo -e "  Health Check:    ${GREEN}http://localhost:8000/actuator/health${NC}"
-echo ""
-echo -e "${YELLOW}Note: Frontend not included. Start manually with:${NC}"
-echo -e "  cd frontend && npm start"
 echo ""
 echo -e "${BLUE}Credentials:${NC}"
 echo -e "  Email:    admin@trucktrack.com"
