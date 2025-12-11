@@ -1,58 +1,78 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, signal, inject, effect, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import * as L from 'leaflet';
 import 'leaflet.markercluster';
 import { TruckService } from '../../services/truck.service';
 import { WebSocketService } from '../../core/services/websocket.service';
 import { Truck, TruckStatus } from '../../models/truck.model';
 import { GPSPositionEvent } from '../../models/gps-position.model';
-import { Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 /**
  * MapComponent - Main map view for displaying live truck locations
  * T079-T092: Implement MapComponent with Leaflet, real-time updates, markers, clustering
+ * Refactored with Angular 17+ best practices: signals, inject(), takeUntilDestroyed(), OnPush
  */
 @Component({
   selector: 'app-map',
   standalone: true,
   imports: [CommonModule, MatProgressSpinnerModule, MatIconModule],
   templateUrl: './map.component.html',
-  styleUrls: ['./map.component.scss']
+  styleUrls: ['./map.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MapComponent implements OnInit, OnDestroy {
+export class MapComponent implements OnInit {
+  // Inject dependencies using inject()
+  private readonly truckService = inject(TruckService);
+  private readonly webSocketService = inject(WebSocketService);
+
+  // Map and marker state
   private map!: L.Map;
   private markers: Map<string, L.Marker> = new Map();
   private markerClusterGroup!: L.MarkerClusterGroup;
-  private positionSubscription?: Subscription;
 
-  trucks: Truck[] = [];
-  isLoading = true;
-  isConnected = false;
-  errorMessage = '';
+  // Component state using signals
+  trucks = signal<Truck[]>([]);
+  isLoading = signal(true);
+  isConnected = signal(false);
+  errorMessage = signal('');
 
-  constructor(
-    private truckService: TruckService,
-    private webSocketService: WebSocketService
-  ) {}
+  constructor() {
+    // Setup WebSocket connection status subscription with automatic cleanup
+    this.webSocketService.connectionStatus$
+      .pipe(takeUntilDestroyed())
+      .subscribe(connected => {
+        this.isConnected.set(connected);
+        console.log('WebSocket connection status:', connected);
+      });
+
+    // Subscribe to position updates with automatic cleanup
+    this.webSocketService.positionUpdates$
+      .pipe(takeUntilDestroyed())
+      .subscribe(position => {
+        if (position) {
+          this.handlePositionUpdate(position);
+        }
+      });
+
+    // Effect to cleanup map on component destruction
+    effect((onCleanup) => {
+      onCleanup(() => {
+        this.webSocketService.disconnect();
+        if (this.map) {
+          this.map.remove();
+        }
+      });
+    });
+  }
 
   ngOnInit(): void {
     this.initMap();
     this.loadTrucks();
     this.connectWebSocket();
-  }
-
-  ngOnDestroy(): void {
-    if (this.positionSubscription) {
-      this.positionSubscription.unsubscribe();
-    }
-    this.webSocketService.disconnect();
-
-    if (this.map) {
-      this.map.remove();
-    }
   }
 
   /**
@@ -89,22 +109,24 @@ export class MapComponent implements OnInit, OnDestroy {
 
   /**
    * Load all active trucks from API
+   * Note: No takeUntilDestroyed() needed here as HTTP requests auto-complete
    */
   private loadTrucks(): void {
-    this.isLoading = true;
-    this.truckService.getActiveTrucks().subscribe({
-      next: (response) => {
-        this.trucks = response.content || [];
-        this.renderTruckMarkers();
-        this.isLoading = false;
-        console.log(`Loaded ${this.trucks.length} trucks`);
-      },
-      error: (error) => {
-        console.error('Failed to load trucks', error);
-        this.errorMessage = 'Failed to load trucks. Please refresh the page.';
-        this.isLoading = false;
-      }
-    });
+    this.isLoading.set(true);
+    this.truckService.getActiveTrucks()
+      .subscribe({
+        next: (response) => {
+          this.trucks.set(response.content || []);
+          this.renderTruckMarkers();
+          this.isLoading.set(false);
+          console.log(`Loaded ${this.trucks().length} trucks`);
+        },
+        error: (error) => {
+          console.error('Failed to load trucks', error);
+          this.errorMessage.set('Failed to load trucks. Please refresh the page.');
+          this.isLoading.set(false);
+        }
+      });
   }
 
   /**
@@ -117,7 +139,7 @@ export class MapComponent implements OnInit, OnDestroy {
     this.markerClusterGroup.clearLayers();
     this.markers.clear();
 
-    this.trucks.forEach(truck => {
+    this.trucks().forEach(truck => {
       if (truck.currentLatitude && truck.currentLongitude) {
         const marker = this.createTruckMarker(truck);
         this.markers.set(truck.id, marker);
@@ -215,20 +237,6 @@ export class MapComponent implements OnInit, OnDestroy {
    */
   private connectWebSocket(): void {
     this.webSocketService.connect();
-
-    // Subscribe to connection status
-    this.webSocketService.connectionStatus$.subscribe(connected => {
-      this.isConnected = connected;
-      console.log('WebSocket connection status:', connected);
-    });
-
-    // Subscribe to position updates
-    // T087: Implement real-time marker position update logic
-    this.positionSubscription = this.webSocketService.positionUpdates$.subscribe(position => {
-      if (position) {
-        this.handlePositionUpdate(position);
-      }
-    });
   }
 
   /**

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -8,14 +8,14 @@ import { GPSPosition } from '../models/gps-position.model';
 /**
  * Service for truck-related HTTP operations
  * T077: Create TruckService (HTTP client for GET /location/v1/trucks)
+ * Refactored with Angular 17+ best practices: inject()
  */
 @Injectable({
   providedIn: 'root'
 })
 export class TruckService {
+  private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/public/location/v1`;
-
-  constructor(private http: HttpClient) {}
 
   /**
    * Get all trucks with optional filters

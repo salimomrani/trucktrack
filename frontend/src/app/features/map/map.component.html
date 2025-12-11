@@ -5,29 +5,33 @@
     <h1>Live Truck Tracking</h1>
     <div class="status-indicators">
       <!-- Loading indicator (T091) -->
-      <div class="status-item" *ngIf="isLoading">
-        <mat-spinner diameter="20"></mat-spinner>
-        <span>Loading trucks...</span>
-      </div>
+      @if (isLoading()) {
+        <div class="status-item">
+          <mat-spinner diameter="20"></mat-spinner>
+          <span>Loading trucks...</span>
+        </div>
+      }
 
       <!-- WebSocket connection status (T090) -->
-      <div class="status-item connection-status" [class.connected]="isConnected">
+      <div class="status-item connection-status" [class.connected]="isConnected()">
         <span class="status-dot"></span>
-        <span>{{ isConnected ? 'Live Updates Active' : 'Connecting...' }}</span>
+        <span>{{ isConnected() ? 'Live Updates Active' : 'Connecting...' }}</span>
       </div>
 
       <!-- Truck count -->
       <div class="status-item">
-        <span class="truck-count">{{ trucks.length }} trucks</span>
+        <span class="truck-count">{{ trucks().length }} trucks</span>
       </div>
     </div>
   </div>
 
   <!-- Error message (T092) -->
-  <div class="error-banner" *ngIf="errorMessage">
-    <mat-icon>error</mat-icon>
-    <span>{{ errorMessage }}</span>
-  </div>
+  @if (errorMessage()) {
+    <div class="error-banner">
+      <mat-icon>error</mat-icon>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
 
   <!-- Map container -->
   <div id="map" class="map-container"></div>
