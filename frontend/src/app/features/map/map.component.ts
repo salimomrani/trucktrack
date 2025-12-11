@@ -5,8 +5,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import * as L from 'leaflet';
 import 'leaflet.markercluster';
-import { TruckService } from '../../services/truck.service';
 import { WebSocketService } from '../../core/services/websocket.service';
+import { StoreFacade } from '../../store/store.facade';
 import { Truck, TruckStatus } from '../../models/truck.model';
 import { GPSPositionEvent } from '../../models/gps-position.model';
 import { environment } from '../../../environments/environment';
@@ -15,6 +15,7 @@ import { environment } from '../../../environments/environment';
  * MapComponent - Main map view for displaying live truck locations
  * T079-T092: Implement MapComponent with Leaflet, real-time updates, markers, clustering
  * Refactored with Angular 17+ best practices: signals, inject(), takeUntilDestroyed(), OnPush
+ * Migrated to use NgRx StoreFacade with signals
  */
 @Component({
   selector: 'app-map',
@@ -26,7 +27,7 @@ import { environment } from '../../../environments/environment';
 })
 export class MapComponent implements OnInit {
   // Inject dependencies using inject()
-  private readonly truckService = inject(TruckService);
+  private readonly facade = inject(StoreFacade);
   private readonly webSocketService = inject(WebSocketService);
 
   // Map and marker state
@@ -34,9 +35,9 @@ export class MapComponent implements OnInit {
   private markers: Map<string, L.Marker> = new Map();
   private markerClusterGroup!: L.MarkerClusterGroup;
 
-  // Component state using signals
-  trucks = signal<Truck[]>([]);
-  isLoading = signal(true);
+  // Use store signals for state
+  trucks = this.facade.trucks;
+  isLoading = this.facade.trucksLoading;
   isConnected = signal(false);
   errorMessage = signal('');
 
@@ -57,6 +58,14 @@ export class MapComponent implements OnInit {
           this.handlePositionUpdate(position);
         }
       });
+
+    // Effect to re-render markers when trucks change in store
+    effect(() => {
+      const trucks = this.trucks();
+      if (trucks.length > 0 && this.map) {
+        this.renderTruckMarkers();
+      }
+    });
 
     // Effect to cleanup map on component destruction
     effect((onCleanup) => {
@@ -108,25 +117,13 @@ export class MapComponent implements OnInit {
   }
 
   /**
-   * Load all active trucks from API
-   * Note: No takeUntilDestroyed() needed here as HTTP requests auto-complete
+   * Load all trucks from store
+   * Dispatch action to load trucks via NgRx effects
    */
   private loadTrucks(): void {
-    this.isLoading.set(true);
-    this.truckService.getActiveTrucks()
-      .subscribe({
-        next: (response) => {
-          this.trucks.set(response.content || []);
-          this.renderTruckMarkers();
-          this.isLoading.set(false);
-          console.log(`Loaded ${this.trucks().length} trucks`);
-        },
-        error: (error) => {
-          console.error('Failed to load trucks', error);
-          this.errorMessage.set('Failed to load trucks. Please refresh the page.');
-          this.isLoading.set(false);
-        }
-      });
+    // Dispatch action to load trucks - effects will handle the async operation
+    this.facade.loadTrucks();
+    console.log('Dispatched loadTrucks action');
   }
 
   /**
@@ -241,11 +238,25 @@ export class MapComponent implements OnInit {
 
   /**
    * Handle real-time position update from WebSocket
+   * Dispatch GPS position to store and update marker
    */
   private handlePositionUpdate(position: GPSPositionEvent): void {
     const truckId = position.truckId;
-    const existingMarker = this.markers.get(truckId);
 
+    // Dispatch GPS position to store
+    this.facade.addGpsPosition(position);
+
+    // Update truck position in store (provide defaults for optional fields)
+    this.facade.updateTruckPosition(
+      truckId,
+      position.latitude,
+      position.longitude,
+      position.speed ?? 0,
+      position.heading ?? 0
+    );
+
+    // Update marker on map
+    const existingMarker = this.markers.get(truckId);
     if (existingMarker) {
       // Update existing marker position with animation
       const newLatLng = L.latLng(position.latitude, position.longitude);
