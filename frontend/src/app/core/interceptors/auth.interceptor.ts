@@ -2,18 +2,19 @@ import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, switchMap, throwError } from 'rxjs';
 import { StoreFacade } from '../../store/store.facade';
-import { environment } from '../../../environments/environment';
+import { TokenStorageService } from '../services/token-storage.service';
 
 /**
  * HTTP Interceptor that adds JWT token to outgoing requests
  * and handles 401 Unauthorized responses by attempting token refresh
- * Uses NgRx Store via StoreFacade as single source of truth
+ * Uses TokenStorageService for token access and StoreFacade for refresh
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const facade = inject(StoreFacade);
+  const tokenStorage = inject(TokenStorageService);
 
-  // Get the access token from localStorage (token is not stored in NgRx)
-  const token = localStorage.getItem(environment.auth.tokenKey);
+  // Get the access token from TokenStorageService
+  const token = tokenStorage.getAccessToken();
 
   // Clone request and add authorization header if token exists
   // Skip token for login and refresh endpoints
@@ -37,8 +38,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
         return facade.refreshToken().pipe(
           switchMap(() => {
-            // Retry the original request with new token
-            const newToken = localStorage.getItem(environment.auth.tokenKey);
+            // Retry the original request with new token from TokenStorageService
+            const newToken = tokenStorage.getAccessToken();
             const retryReq = req.clone({
               setHeaders: {
                 Authorization: `Bearer ${newToken}`

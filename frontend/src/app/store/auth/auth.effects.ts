@@ -5,12 +5,16 @@ import { Action } from '@ngrx/store';
 import { of } from 'rxjs';
 import { map, catchError, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
+import { TokenStorageService } from '../../core/services/token-storage.service';
 import * as AuthActions from './auth.actions';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class AuthEffects implements OnInitEffects {
   private actions$ = inject(Actions);
   private authService = inject(AuthService);
+  private tokenStorage = inject(TokenStorageService);
   private router = inject(Router);
 
   login$ = createEffect(() =>
@@ -18,13 +22,18 @@ export class AuthEffects implements OnInitEffects {
       ofType(AuthActions.login),
       switchMap(({ credentials }) =>
         this.authService.login(credentials).pipe(
-          map((response) => {
-            // Get user from current state (already set by authService)
-            const user = this.authService.getCurrentUser();
-            if (!user) {
-              throw new Error('User not found after login');
-            }
-            return AuthActions.loginSuccess({ response, user });
+          switchMap((response) => {
+            // Store access token in localStorage
+            this.tokenStorage.setAccessToken(response.token);
+
+            // Fetch user details from backend
+            return this.authService.getCurrentUserFromBackend().pipe(
+              map(user => AuthActions.loginSuccess({ response, user })),
+              catchError(error => {
+                console.error('Failed to fetch user after login:', error);
+                return of(AuthActions.loginFailure({ error: error.message || 'Failed to fetch user details' }));
+              })
+            );
           }),
           catchError((error) =>
             of(AuthActions.loginFailure({ error: error.message || 'Login failed' }))
@@ -49,7 +58,8 @@ export class AuthEffects implements OnInitEffects {
     this.actions$.pipe(
       ofType(AuthActions.logout),
       tap(() => {
-        this.authService.logout();
+        // Clear tokens from localStorage
+        this.tokenStorage.clearTokens();
       }),
       map(() => AuthActions.logoutSuccess())
     )
@@ -60,7 +70,8 @@ export class AuthEffects implements OnInitEffects {
       this.actions$.pipe(
         ofType(AuthActions.logoutSuccess),
         tap(() => {
-          // AuthService already handles navigation
+          // Navigate to login page after logout
+          this.authService.navigateToLogin();
         })
       ),
     { dispatch: false }
@@ -70,10 +81,15 @@ export class AuthEffects implements OnInitEffects {
     this.actions$.pipe(
       ofType(AuthActions.loadUser),
       switchMap(() => {
-        // Check if token exists
-        const token = localStorage.getItem('truck_track_token');
+        // Check if token exists in localStorage
+        const token = this.tokenStorage.getAccessToken();
         if (!token) {
           return of(AuthActions.loadUserFailure({ error: 'No token found' }));
+        }
+
+        // Check if token is expired
+        if (this.tokenStorage.isTokenExpired(token)) {
+          return of(AuthActions.loadUserFailure({ error: 'Token expired' }));
         }
 
         // Fetch user from backend
@@ -88,19 +104,29 @@ export class AuthEffects implements OnInitEffects {
   refreshToken$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.refreshToken),
-      switchMap(() =>
-        this.authService.refreshToken().pipe(
-          map((response) =>
-            AuthActions.refreshTokenSuccess({
+      switchMap(() => {
+        // Get refresh token from localStorage
+        const refreshToken = this.tokenStorage.getRefreshToken();
+        if (!refreshToken) {
+          return of(AuthActions.refreshTokenFailure({ error: 'No refresh token available' }));
+        }
+
+        return this.authService.refreshToken(refreshToken).pipe(
+          map((response) => {
+            // Store new tokens in localStorage
+            this.tokenStorage.setAccessToken(response.accessToken);
+            this.tokenStorage.setRefreshToken(response.refreshToken);
+
+            return AuthActions.refreshTokenSuccess({
               token: response.accessToken,
               refreshToken: response.refreshToken
-            })
-          ),
+            });
+          }),
           catchError((error) =>
             of(AuthActions.refreshTokenFailure({ error: error.message || 'Token refresh failed' }))
           )
-        )
-      )
+        );
+      })
     )
   );
 
@@ -109,8 +135,9 @@ export class AuthEffects implements OnInitEffects {
       this.actions$.pipe(
         ofType(AuthActions.refreshTokenFailure),
         tap(() => {
-          // Logout on refresh failure
-          this.authService.logout();
+          // Clear tokens and navigate to login on refresh failure
+          this.tokenStorage.clearTokens();
+          this.authService.navigateToLogin();
         })
       ),
     { dispatch: false }
