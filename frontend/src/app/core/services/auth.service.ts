@@ -43,9 +43,6 @@ export class AuthService {
   public isAuthenticated$ = toObservable(this.isAuthenticated);
 
   constructor() {
-    // Migration: Remove legacy current_user from localStorage
-    localStorage.removeItem('current_user');
-
     // Check token expiry on init
     this.checkTokenExpiry();
   }
