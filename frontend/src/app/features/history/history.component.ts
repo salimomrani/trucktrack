@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 /**
@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-history',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="history-container">
       <h1>Truck Movement History</h1>

@@ -1,6 +1,7 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal, computed, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, catchError, throwError, map } from 'rxjs';
+import { Observable, tap, catchError, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import {
@@ -15,25 +16,31 @@ import {
 /**
  * AuthService handles authentication, token management, and user state.
  * Implements JWT-based authentication with refresh token support.
+ * Refactored with Angular 17+ best practices: signals, inject(), takeUntilDestroyed()
  */
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private http = inject(HttpClient);
-  private router = inject(Router);
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly API_URL = environment.apiUrl;
   private readonly TOKEN_KEY = environment.auth.tokenKey;
   private readonly REFRESH_TOKEN_KEY = environment.auth.refreshTokenKey;
 
-  // Current user state (null when not authenticated)
-  private currentUserSubject = new BehaviorSubject<User | null>(this.getUserFromStorage());
-  public currentUser$ = this.currentUserSubject.asObservable();
+  // Current user state using signals
+  private currentUserSignal = signal<User | null>(this.getUserFromStorage());
+  public currentUser = this.currentUserSignal.asReadonly();
 
-  // Authentication state
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasValidToken());
-  public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+  // Authentication state using signals
+  private isAuthenticatedSignal = signal<boolean>(this.hasValidToken());
+  public isAuthenticated = this.isAuthenticatedSignal.asReadonly();
+
+  // Backward compatibility: Observable streams from signals
+  public currentUser$ = toObservable(this.currentUser);
+  public isAuthenticated$ = toObservable(this.isAuthenticated);
 
   constructor() {
     // Check token expiry on init
@@ -65,8 +72,8 @@ export class AuthService {
     localStorage.removeItem('current_user');
 
     // Update state
-    this.currentUserSubject.next(null);
-    this.isAuthenticatedSubject.next(false);
+    this.currentUserSignal.set(null);
+    this.isAuthenticatedSignal.set(false);
 
     // Redirect to login
     this.router.navigate(['/login']);
@@ -88,7 +95,7 @@ export class AuthService {
       tap(response => {
         this.setAccessToken(response.accessToken);
         this.setRefreshToken(response.refreshToken);
-        this.isAuthenticatedSubject.next(true);
+        this.isAuthenticatedSignal.set(true);
       }),
       catchError(error => {
         console.error('Token refresh failed:', error);
@@ -116,14 +123,14 @@ export class AuthService {
    * Get current user
    */
   getCurrentUser(): User | null {
-    return this.currentUserSubject.value;
+    return this.currentUser();
   }
 
   /**
    * Check if user is authenticated
    */
-  isAuthenticated(): boolean {
-    return this.isAuthenticatedSubject.value && this.hasValidToken();
+  isAuthenticatedMethod(): boolean {
+    return this.isAuthenticated() && this.hasValidToken();
   }
 
   /**
@@ -207,8 +214,8 @@ export class AuthService {
     localStorage.setItem('current_user', JSON.stringify(user));
 
     // Update state
-    this.currentUserSubject.next(user);
-    this.isAuthenticatedSubject.next(true);
+    this.currentUserSignal.set(user);
+    this.isAuthenticatedSignal.set(true);
 
     console.log('Authentication successful for user:', response.email);
   }
@@ -255,10 +262,12 @@ export class AuthService {
 
     if (this.isTokenExpired(token)) {
       console.log('Token expired, attempting refresh...');
-      this.refreshToken().subscribe({
-        next: () => console.log('Token refreshed successfully'),
-        error: (error) => console.error('Token refresh failed:', error)
-      });
+      this.refreshToken()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => console.log('Token refreshed successfully'),
+          error: (error) => console.error('Token refresh failed:', error)
+        });
     }
   }
 }

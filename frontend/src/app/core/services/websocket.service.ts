@@ -1,27 +1,33 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { GPSPositionEvent } from '../../models/gps-position.model';
 
 /**
  * WebSocket service for real-time GPS position updates
  * T078: Create WebSocketService (STOMP client, RxJS observables for GPS updates)
+ * Refactored with Angular 17+ best practices: signals
  */
 @Injectable({
   providedIn: 'root'
 })
 export class WebSocketService {
   private client: Client | null = null;
-  private positionUpdatesSubject = new BehaviorSubject<GPSPositionEvent | null>(null);
-  private connectionStatusSubject = new BehaviorSubject<boolean>(false);
   private subscriptions: Map<string, StompSubscription> = new Map();
 
-  // Observable for all position updates
-  public positionUpdates$: Observable<GPSPositionEvent | null> = this.positionUpdatesSubject.asObservable();
+  // Position updates using signals
+  private positionUpdatesSignal = signal<GPSPositionEvent | null>(null);
+  public positionUpdates = this.positionUpdatesSignal.asReadonly();
 
-  // Observable for connection status
-  public connectionStatus$: Observable<boolean> = this.connectionStatusSubject.asObservable();
+  // Connection status using signals
+  private connectionStatusSignal = signal<boolean>(false);
+  public connectionStatus = this.connectionStatusSignal.asReadonly();
+
+  // Backward compatibility: Observable streams from signals
+  public positionUpdates$: Observable<GPSPositionEvent | null> = toObservable(this.positionUpdates);
+  public connectionStatus$: Observable<boolean> = toObservable(this.connectionStatus);
 
   constructor() {}
 
@@ -48,18 +54,18 @@ export class WebSocketService {
 
     this.client.onConnect = () => {
       console.log('WebSocket connected');
-      this.connectionStatusSubject.next(true);
+      this.connectionStatusSignal.set(true);
       this.subscribeToAllPositions();
     };
 
     this.client.onDisconnect = () => {
       console.log('WebSocket disconnected');
-      this.connectionStatusSubject.next(false);
+      this.connectionStatusSignal.set(false);
     };
 
     this.client.onStompError = (frame) => {
       console.error('STOMP error', frame);
-      this.connectionStatusSubject.next(false);
+      this.connectionStatusSignal.set(false);
     };
 
     this.client.activate();
@@ -73,7 +79,7 @@ export class WebSocketService {
       this.subscriptions.forEach(sub => sub.unsubscribe());
       this.subscriptions.clear();
       this.client.deactivate();
-      this.connectionStatusSubject.next(false);
+      this.connectionStatusSignal.set(false);
       console.log('WebSocket disconnected');
     }
   }
@@ -90,7 +96,7 @@ export class WebSocketService {
 
     const subscription = this.client.subscribe('/topic/positions', (message: IMessage) => {
       const position: GPSPositionEvent = JSON.parse(message.body);
-      this.positionUpdatesSubject.next(position);
+      this.positionUpdatesSignal.set(position);
     });
 
     this.subscriptions.set('all-positions', subscription);

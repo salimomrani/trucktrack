@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -16,6 +16,7 @@ import { LoginRequest } from '../../../core/models/auth.model';
 /**
  * Login Component - Handles user authentication
  * Provides email/password login form with validation
+ * Refactored with Angular 17+ best practices: signals, inject(), OnPush
  */
 @Component({
   selector: 'app-login',
@@ -32,17 +33,18 @@ import { LoginRequest } from '../../../core/models/auth.model';
     MatSnackBarModule
   ],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  styleUrl: './login.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginComponent {
-  private fb = inject(FormBuilder);
-  private authService = inject(AuthService);
-  private router = inject(Router);
-  private snackBar = inject(MatSnackBar);
+  private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly snackBar = inject(MatSnackBar);
 
   loginForm: FormGroup;
-  isLoading = false;
-  hidePassword = true;
+  isLoading = signal(false);
+  hidePassword = signal(true);
 
   constructor() {
     this.loginForm = this.fb.group({
@@ -60,7 +62,7 @@ export class LoginComponent {
       return;
     }
 
-    this.isLoading = true;
+    this.isLoading.set(true);
 
     const credentials: LoginRequest = {
       email: this.loginForm.value.email,
@@ -69,14 +71,14 @@ export class LoginComponent {
 
     this.authService.login(credentials).subscribe({
       next: (response) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.showSuccess(`Welcome back!`);
 
         // Redirect to map page
         this.router.navigate(['/map']);
       },
       error: (error) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         const errorMessage = error.error?.message || 'Login failed. Please check your credentials.';
         this.showError(errorMessage);
       }

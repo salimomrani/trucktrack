@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
   selector: 'app-unauthorized',
   standalone: true,
   imports: [CommonModule, RouterModule, MatCardModule, MatButtonModule, MatIconModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="unauthorized-container">
       <mat-card class="unauthorized-card">
