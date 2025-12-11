@@ -30,8 +30,8 @@ export class AuthService {
   private readonly TOKEN_KEY = environment.auth.tokenKey;
   private readonly REFRESH_TOKEN_KEY = environment.auth.refreshTokenKey;
 
-  // Current user state using signals
-  private currentUserSignal = signal<User | null>(this.getUserFromStorage());
+  // Current user state using signals (initialized as null, fetched from backend after login)
+  private currentUserSignal = signal<User | null>(null);
   public currentUser = this.currentUserSignal.asReadonly();
 
   // Authentication state using signals
@@ -243,15 +243,6 @@ export class AuthService {
         return throwError(() => error);
       })
     );
-  }
-
-  /**
-   * Get user from storage (for backward compatibility)
-   * @deprecated Use getCurrentUserFromBackend() instead
-   * Always returns null since we don't store user data in localStorage
-   */
-  private getUserFromStorage(): User | null {
-    return null;
   }
 
   /**
