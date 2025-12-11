@@ -21,6 +21,24 @@ export const authGuard: CanActivateFn = (): Observable<boolean | UrlTree> | Prom
 };
 
 /**
+ * No Auth Guard - Prevents authenticated users from accessing public routes
+ * Redirects to map page if user is already authenticated
+ * Usage: canActivate: [noAuthGuard] on login route
+ */
+export const noAuthGuard: CanActivateFn = (): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  if (!authService.isAuthenticated()) {
+    return true;
+  }
+
+  // User is already authenticated, redirect to map
+  console.log('User already authenticated, redirecting to map');
+  return router.createUrlTree(['/map']);
+};
+
+/**
  * Role Guard Factory - Creates a guard that checks for specific roles
  * Usage: canActivate: [roleGuard(['FLEET_MANAGER', 'DISPATCHER'])]
  */
