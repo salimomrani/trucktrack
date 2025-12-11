@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main, develop, '001-*']
+    branches: [master, develop, '001-*']
   pull_request:
-    branches: [main, develop]
+    branches: [master, develop]
 
 env:
   JAVA_VERSION: '17'
@@ -42,6 +42,24 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+      kafka:
+        image: confluentinc/cp-kafka:7.6.0
+        env:
+          KAFKA_BROKER_ID: 1
+          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+        ports:
+          - 9092:9092
+
+      zookeeper:
+        image: confluentinc/cp-zookeeper:7.6.0
+        env:
+          ZOOKEEPER_CLIENT_PORT: 2181
+          ZOOKEEPER_TICK_TIME: 2000
+        ports:
+          - 2181:2181
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -59,6 +77,14 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+
+      - name: Run Flyway migrations
+        working-directory: ./backend/location-service
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/trucktrack_test
+          SPRING_DATASOURCE_USERNAME: trucktrack
+          SPRING_DATASOURCE_PASSWORD: test
+        run: mvn flyway:migrate
 
       - name: Build with Maven
         working-directory: ./backend
@@ -137,7 +163,7 @@ jobs:
     name: SonarQube Analysis
     runs-on: ubuntu-latest
     needs: [backend-build, frontend-build]
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
 
     steps:
       - name: Checkout code
@@ -174,7 +200,7 @@ jobs:
     name: Build Docker Images
     runs-on: ubuntu-latest
     needs: [backend-build, frontend-build]
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
 
     strategy:
       matrix:
@@ -242,7 +268,7 @@ jobs:
     name: Deploy to Production
     runs-on: ubuntu-latest
     needs: [docker-build]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     environment: production
 
     steps:
