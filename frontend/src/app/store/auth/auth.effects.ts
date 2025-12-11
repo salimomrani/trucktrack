@@ -85,6 +85,37 @@ export class AuthEffects implements OnInitEffects {
     )
   );
 
+  refreshToken$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.refreshToken),
+      switchMap(() =>
+        this.authService.refreshToken().pipe(
+          map((response) =>
+            AuthActions.refreshTokenSuccess({
+              token: response.accessToken,
+              refreshToken: response.refreshToken
+            })
+          ),
+          catchError((error) =>
+            of(AuthActions.refreshTokenFailure({ error: error.message || 'Token refresh failed' }))
+          )
+        )
+      )
+    )
+  );
+
+  refreshTokenFailure$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.refreshTokenFailure),
+        tap(() => {
+          // Logout on refresh failure
+          this.authService.logout();
+        })
+      ),
+    { dispatch: false }
+  );
+
   /**
    * Initialize auth state on effects startup
    * This method is called automatically by NgRx when the effect is initialized

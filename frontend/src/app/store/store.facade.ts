@@ -1,6 +1,8 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Store } from '@ngrx/store';
+import { Actions, ofType } from '@ngrx/effects';
+import { Observable, race, filter, map, take } from 'rxjs';
 import { AppState } from './index';
 import * as AuthSelectors from './auth/auth.selectors';
 import * as TrucksSelectors from './trucks/trucks.selectors';
@@ -20,6 +22,7 @@ import { GPSPositionEvent } from '../models/gps-position.model';
 })
 export class StoreFacade {
   private store = inject(Store<AppState>);
+  private actions$ = inject(Actions);
 
   // Auth Signals
   readonly currentUser = toSignal(this.store.select(AuthSelectors.selectCurrentUser));
@@ -66,6 +69,31 @@ export class StoreFacade {
 
   checkAuthStatus() {
     this.store.dispatch(AuthActions.checkAuthStatus());
+  }
+
+  /**
+   * Refresh access token
+   * Returns an Observable that completes when refresh succeeds or errors when it fails
+   */
+  refreshToken(): Observable<void> {
+    // Dispatch refresh action
+    this.store.dispatch(AuthActions.refreshToken());
+
+    // Wait for either success or failure
+    return race([
+      this.actions$.pipe(
+        ofType(AuthActions.refreshTokenSuccess),
+        take(1),
+        map(() => undefined)
+      ),
+      this.actions$.pipe(
+        ofType(AuthActions.refreshTokenFailure),
+        take(1),
+        map((action) => {
+          throw new Error(action.error);
+        })
+      )
+    ]);
   }
 
   // Trucks Actions

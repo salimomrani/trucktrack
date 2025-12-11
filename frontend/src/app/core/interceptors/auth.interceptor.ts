@@ -1,17 +1,19 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, switchMap, throwError } from 'rxjs';
-import { AuthService } from '../services/auth.service';
+import { StoreFacade } from '../../store/store.facade';
+import { environment } from '../../../environments/environment';
 
 /**
  * HTTP Interceptor that adds JWT token to outgoing requests
  * and handles 401 Unauthorized responses by attempting token refresh
+ * Uses NgRx Store via StoreFacade as single source of truth
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AuthService);
+  const facade = inject(StoreFacade);
 
-  // Get the access token
-  const token = authService.getAccessToken();
+  // Get the access token from localStorage (token is not stored in NgRx)
+  const token = localStorage.getItem(environment.auth.tokenKey);
 
   // Clone request and add authorization header if token exists
   // Skip token for login and refresh endpoints
@@ -33,10 +35,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       if (error.status === 401 && !isAuthEndpoint) {
         console.log('Received 401, attempting token refresh...');
 
-        return authService.refreshToken().pipe(
+        return facade.refreshToken().pipe(
           switchMap(() => {
             // Retry the original request with new token
-            const newToken = authService.getAccessToken();
+            const newToken = localStorage.getItem(environment.auth.tokenKey);
             const retryReq = req.clone({
               setHeaders: {
                 Authorization: `Bearer ${newToken}`
@@ -47,7 +49,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           catchError((refreshError) => {
             // Refresh failed, logout user
             console.error('Token refresh failed, logging out');
-            authService.logout();
+            facade.logout();
             return throwError(() => refreshError);
           })
         );
