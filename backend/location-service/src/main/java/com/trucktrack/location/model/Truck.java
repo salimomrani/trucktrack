@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -14,6 +15,7 @@ import java.util.UUID;
 /**
  * Truck entity representing a vehicle in the fleet
  * T056: Create Truck entity with JPA + validation
+ * Refactored with Lombok best practices
  */
 @Entity
 @Table(name = "trucks", indexes = {
@@ -21,6 +23,12 @@ import java.util.UUID;
     @Index(name = "idx_trucks_status", columnList = "status"),
     @Index(name = "idx_trucks_truck_group", columnList = "truck_group_id")
 })
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
 public class Truck {
 
     @Id
@@ -53,6 +61,7 @@ public class Truck {
     @NotNull(message = "Status is required")
     @Convert(converter = com.trucktrack.location.converter.TruckStatusConverter.class)
     @Column(name = "status", nullable = false, length = 20)
+    @Builder.Default
     private TruckStatus status = TruckStatus.OFFLINE;
 
     @Column(name = "current_latitude", precision = 10, scale = 8)
@@ -81,144 +90,4 @@ public class Truck {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
-
-    // Constructors
-    public Truck() {
-    }
-
-    public Truck(String truckId, UUID truckGroupId) {
-        this.truckId = truckId;
-        this.truckGroupId = truckGroupId;
-    }
-
-    // Getters and Setters
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public String getTruckId() {
-        return truckId;
-    }
-
-    public void setTruckId(String truckId) {
-        this.truckId = truckId;
-    }
-
-    public String getLicensePlate() {
-        return licensePlate;
-    }
-
-    public void setLicensePlate(String licensePlate) {
-        this.licensePlate = licensePlate;
-    }
-
-    public String getDriverName() {
-        return driverName;
-    }
-
-    public void setDriverName(String driverName) {
-        this.driverName = driverName;
-    }
-
-    public String getDriverPhone() {
-        return driverPhone;
-    }
-
-    public void setDriverPhone(String driverPhone) {
-        this.driverPhone = driverPhone;
-    }
-
-    public String getVehicleType() {
-        return vehicleType;
-    }
-
-    public void setVehicleType(String vehicleType) {
-        this.vehicleType = vehicleType;
-    }
-
-    public TruckStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(TruckStatus status) {
-        this.status = status;
-    }
-
-    public BigDecimal getCurrentLatitude() {
-        return currentLatitude;
-    }
-
-    public void setCurrentLatitude(BigDecimal currentLatitude) {
-        this.currentLatitude = currentLatitude;
-    }
-
-    public BigDecimal getCurrentLongitude() {
-        return currentLongitude;
-    }
-
-    public void setCurrentLongitude(BigDecimal currentLongitude) {
-        this.currentLongitude = currentLongitude;
-    }
-
-    public BigDecimal getCurrentSpeed() {
-        return currentSpeed;
-    }
-
-    public void setCurrentSpeed(BigDecimal currentSpeed) {
-        this.currentSpeed = currentSpeed;
-    }
-
-    public Integer getCurrentHeading() {
-        return currentHeading;
-    }
-
-    public void setCurrentHeading(Integer currentHeading) {
-        this.currentHeading = currentHeading;
-    }
-
-    public Instant getLastUpdate() {
-        return lastUpdate;
-    }
-
-    public void setLastUpdate(Instant lastUpdate) {
-        this.lastUpdate = lastUpdate;
-    }
-
-    public UUID getTruckGroupId() {
-        return truckGroupId;
-    }
-
-    public void setTruckGroupId(UUID truckGroupId) {
-        this.truckGroupId = truckGroupId;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    @Override
-    public String toString() {
-        return "Truck{" +
-                "id=" + id +
-                ", truckId='" + truckId + '\'' +
-                ", status=" + status +
-                ", lastUpdate=" + lastUpdate +
-                '}';
-    }
 }

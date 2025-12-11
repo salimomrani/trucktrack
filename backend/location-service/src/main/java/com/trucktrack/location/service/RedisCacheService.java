@@ -4,8 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.trucktrack.common.event.GPSPositionEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +14,11 @@ import java.util.UUID;
 /**
  * Service for caching truck positions in Redis
  * T068: Implement RedisCacheService to cache current truck positions with TTL=5min
+ * Refactored with Lombok best practices
  */
+@Slf4j
 @Service
 public class RedisCacheService {
-
-    private static final Logger logger = LoggerFactory.getLogger(RedisCacheService.class);
 
     private static final String CURRENT_POSITION_PREFIX = "truck:position:";
     private static final Duration TTL = Duration.ofMinutes(5);
@@ -44,10 +43,10 @@ public class RedisCacheService {
             String value = objectMapper.writeValueAsString(position);
 
             redisTemplate.opsForValue().set(key, value, TTL);
-            logger.debug("Cached position for truck {} with TTL {}min", truckId, TTL.toMinutes());
+            log.debug("Cached position for truck {} with TTL {}min", truckId, TTL.toMinutes());
 
         } catch (JsonProcessingException e) {
-            logger.error("Failed to serialize GPS position for caching: {}", e.getMessage());
+            log.error("Failed to serialize GPS position for caching: {}", e.getMessage());
             // Don't throw - caching failure shouldn't break the flow
         }
     }
@@ -62,15 +61,15 @@ public class RedisCacheService {
             String value = redisTemplate.opsForValue().get(key);
 
             if (value == null) {
-                logger.debug("Cache miss for truck: {}", truckId);
+                log.debug("Cache miss for truck: {}", truckId);
                 return null;
             }
 
-            logger.debug("Cache hit for truck: {}", truckId);
+            log.debug("Cache hit for truck: {}", truckId);
             return objectMapper.readValue(value, GPSPositionEvent.class);
 
         } catch (JsonProcessingException e) {
-            logger.error("Failed to deserialize GPS position from cache: {}", e.getMessage());
+            log.error("Failed to deserialize GPS position from cache: {}", e.getMessage());
             return null;
         }
     }
@@ -81,7 +80,7 @@ public class RedisCacheService {
     public void invalidatePosition(UUID truckId) {
         String key = CURRENT_POSITION_PREFIX + truckId;
         redisTemplate.delete(key);
-        logger.debug("Invalidated cache for truck: {}", truckId);
+        log.debug("Invalidated cache for truck: {}", truckId);
     }
 
     /**

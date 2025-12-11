@@ -7,12 +7,12 @@ import com.trucktrack.location.model.TruckStatus;
 import com.trucktrack.location.repository.GPSPositionRepository;
 import com.trucktrack.location.repository.TruckRepository;
 import com.trucktrack.location.websocket.LocationWebSocketHandler;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,11 +22,12 @@ import java.util.UUID;
 /**
  * Service for processing GPS positions and managing truck locations
  * T067: Implement LocationService to save GPS position to PostgreSQL and update truck current position
+ * Refactored with Lombok best practices
  */
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class LocationService {
-
-    private static final Logger logger = LoggerFactory.getLogger(LocationService.class);
 
     // SRID 4326 = WGS84 (standard GPS coordinate system)
     private static final int WGS84_SRID = 4326;
@@ -37,18 +38,6 @@ public class LocationService {
     private final RedisCacheService redisCacheService;
     private final TruckStatusService truckStatusService;
     private final LocationWebSocketHandler webSocketHandler;
-
-    public LocationService(GPSPositionRepository gpsPositionRepository,
-                          TruckRepository truckRepository,
-                          RedisCacheService redisCacheService,
-                          TruckStatusService truckStatusService,
-                          LocationWebSocketHandler webSocketHandler) {
-        this.gpsPositionRepository = gpsPositionRepository;
-        this.truckRepository = truckRepository;
-        this.redisCacheService = redisCacheService;
-        this.truckStatusService = truckStatusService;
-        this.webSocketHandler = webSocketHandler;
-    }
 
     /**
      * Process GPS position event from Kafka
@@ -61,25 +50,25 @@ public class LocationService {
     public void processGPSPosition(GPSPositionEvent event) {
         UUID truckId = UUID.fromString(event.getTruckId());
 
-        logger.debug("Processing GPS position for truck: {}", truckId);
+        log.debug("Processing GPS position for truck: {}", truckId);
 
         // 1. Convert event to GPS position entity
         GPSPosition gpsPosition = convertEventToEntity(event);
 
         // 2. Save GPS position to PostgreSQL (historical data)
         gpsPositionRepository.save(gpsPosition);
-        logger.debug("Saved GPS position to database: {}", gpsPosition.getId());
+        log.debug("Saved GPS position to database: {}", gpsPosition.getId());
 
         // 3. Update truck's current position
         updateTruckCurrentPosition(truckId, event);
 
         // 4. Update Redis cache (for fast reads)
         redisCacheService.cacheCurrentPosition(truckId, event);
-        logger.debug("Updated Redis cache for truck: {}", truckId);
+        log.debug("Updated Redis cache for truck: {}", truckId);
 
         // 5. Broadcast position update via WebSocket to connected clients
         webSocketHandler.sendPositionUpdate(event);
-        logger.debug("Broadcasted WebSocket update for truck: {}", truckId);
+        log.debug("Broadcasted WebSocket update for truck: {}", truckId);
     }
 
     /**
@@ -127,12 +116,12 @@ public class LocationService {
         truck.setStatus(newStatus);
 
         truckRepository.save(truck);
-        logger.debug("Updated truck current position: {} - Status: {}", truckId, truck.getStatus());
+        log.debug("Updated truck current position: {} - Status: {}", truckId, truck.getStatus());
 
         // Notify clients if status changed
         if (oldStatus != newStatus) {
             webSocketHandler.notifyStatusChange(truckId, oldStatus.name(), newStatus.name());
-            logger.info("Truck {} status changed: {} -> {}", truckId, oldStatus, newStatus);
+            log.info("Truck {} status changed: {} -> {}", truckId, oldStatus, newStatus);
         }
     }
 }

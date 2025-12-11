@@ -2,6 +2,7 @@ package com.trucktrack.location.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import lombok.*;
 import org.locationtech.jts.geom.Point;
 
 import java.math.BigDecimal;
@@ -13,12 +14,19 @@ import java.util.UUID;
  * T057: Create GPSPosition entity with JPA + PostGIS Point type
  *
  * Stored in partitioned table gps_positions (partitioned by timestamp)
+ * Refactored with Lombok best practices
  */
 @Entity
 @Table(name = "gps_positions", indexes = {
     @Index(name = "idx_gps_positions_truck_time", columnList = "truck_id, timestamp"),
     @Index(name = "idx_gps_positions_timestamp", columnList = "timestamp")
 })
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
 public class GPSPosition {
 
     @Id
@@ -74,138 +82,10 @@ public class GPSPosition {
     @Column(name = "timestamp", nullable = false)
     private Instant timestamp;
 
+    @Builder.Default
     @Column(name = "created_at", nullable = false)
-    private Instant receivedAt;
+    private Instant receivedAt = Instant.now();
 
     @Transient
     private String eventId;
-
-    // Constructors
-    public GPSPosition() {
-        this.receivedAt = Instant.now();
-    }
-
-    public GPSPosition(UUID truckId, BigDecimal latitude, BigDecimal longitude, Instant timestamp) {
-        this();
-        this.truckId = truckId;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.timestamp = timestamp;
-    }
-
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public UUID getTruckId() {
-        return truckId;
-    }
-
-    public void setTruckId(UUID truckId) {
-        this.truckId = truckId;
-    }
-
-    public BigDecimal getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(BigDecimal latitude) {
-        this.latitude = latitude;
-    }
-
-    public BigDecimal getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(BigDecimal longitude) {
-        this.longitude = longitude;
-    }
-
-    public Point getLocation() {
-        return location;
-    }
-
-    public void setLocation(Point location) {
-        this.location = location;
-    }
-
-    public BigDecimal getAltitude() {
-        return altitude;
-    }
-
-    public void setAltitude(BigDecimal altitude) {
-        this.altitude = altitude;
-    }
-
-    public BigDecimal getSpeed() {
-        return speed;
-    }
-
-    public void setSpeed(BigDecimal speed) {
-        this.speed = speed;
-    }
-
-    public Integer getHeading() {
-        return heading;
-    }
-
-    public void setHeading(Integer heading) {
-        this.heading = heading;
-    }
-
-    public BigDecimal getAccuracy() {
-        return accuracy;
-    }
-
-    public void setAccuracy(BigDecimal accuracy) {
-        this.accuracy = accuracy;
-    }
-
-    public Integer getSatellites() {
-        return satellites;
-    }
-
-    public void setSatellites(Integer satellites) {
-        this.satellites = satellites;
-    }
-
-    public Instant getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(Instant timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public Instant getReceivedAt() {
-        return receivedAt;
-    }
-
-    public void setReceivedAt(Instant receivedAt) {
-        this.receivedAt = receivedAt;
-    }
-
-    public String getEventId() {
-        return eventId;
-    }
-
-    public void setEventId(String eventId) {
-        this.eventId = eventId;
-    }
-
-    @Override
-    public String toString() {
-        return "GPSPosition{" +
-                "id=" + id +
-                ", truckId=" + truckId +
-                ", latitude=" + latitude +
-                ", longitude=" + longitude +
-                ", timestamp=" + timestamp +
-                '}';
-    }
 }

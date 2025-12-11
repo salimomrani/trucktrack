@@ -1,8 +1,7 @@
 package com.trucktrack.location.service;
 
 import com.trucktrack.location.model.TruckStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -16,11 +15,11 @@ import java.time.Instant;
  * - ACTIVE: Truck is moving (speed > 5 km/h) and data is recent (< 5 min)
  * - IDLE: Truck is stationary (speed <= 5 km/h) but data is recent (< 5 min)
  * - OFFLINE: No GPS data received in last 5 minutes
+ * Refactored with Lombok best practices
  */
+@Slf4j
 @Service
 public class TruckStatusService {
-
-    private static final Logger logger = LoggerFactory.getLogger(TruckStatusService.class);
 
     // Speed threshold to determine if truck is moving (in km/h)
     private static final double SPEED_THRESHOLD_KMH = 5.0;
@@ -43,7 +42,7 @@ public class TruckStatusService {
         // Check if data is stale (older than 5 minutes)
         Duration timeSinceUpdate = Duration.between(lastUpdate, Instant.now());
         if (timeSinceUpdate.compareTo(OFFLINE_THRESHOLD) > 0) {
-            logger.debug("Truck is OFFLINE - Last update: {} ({} minutes ago)",
+            log.debug("Truck is OFFLINE - Last update: {} ({} minutes ago)",
                     lastUpdate, timeSinceUpdate.toMinutes());
             return TruckStatus.OFFLINE;
         }
@@ -55,10 +54,10 @@ public class TruckStatusService {
 
         // Check if truck is moving
         if (speed > SPEED_THRESHOLD_KMH) {
-            logger.debug("Truck is ACTIVE - Speed: {} km/h", speed);
+            log.debug("Truck is ACTIVE - Speed: {} km/h", speed);
             return TruckStatus.ACTIVE;
         } else {
-            logger.debug("Truck is IDLE - Speed: {} km/h (below {} km/h threshold)",
+            log.debug("Truck is IDLE - Speed: {} km/h (below {} km/h threshold)",
                     speed, SPEED_THRESHOLD_KMH);
             return TruckStatus.IDLE;
         }

@@ -1,8 +1,8 @@
 package com.trucktrack.location.websocket;
 
 import com.trucktrack.common.event.GPSPositionEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
@@ -15,17 +15,14 @@ import java.util.UUID;
  * Broadcasts GPS position updates to:
  * - /topic/positions - All position updates (for general map view)
  * - /topic/truck/{truckId} - Specific truck updates (for truck detail view)
+ * Refactored with Lombok best practices
  */
+@Slf4j
 @Component
+@RequiredArgsConstructor
 public class LocationWebSocketHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(LocationWebSocketHandler.class);
-
     private final SimpMessagingTemplate messagingTemplate;
-
-    public LocationWebSocketHandler(SimpMessagingTemplate messagingTemplate) {
-        this.messagingTemplate = messagingTemplate;
-    }
 
     /**
      * Broadcast GPS position update to all connected clients
@@ -33,10 +30,10 @@ public class LocationWebSocketHandler {
      */
     public void broadcastPositionUpdate(GPSPositionEvent position) {
         try {
-            logger.debug("Broadcasting position update for truck: {}", position.getTruckId());
+            log.debug("Broadcasting position update for truck: {}", position.getTruckId());
             messagingTemplate.convertAndSend("/topic/positions", position);
         } catch (Exception e) {
-            logger.error("Failed to broadcast position update: {}", e.getMessage(), e);
+            log.error("Failed to broadcast position update: {}", e.getMessage(), e);
             // Don't throw - WebSocket broadcast failure shouldn't break processing
         }
     }
@@ -48,10 +45,10 @@ public class LocationWebSocketHandler {
     public void sendTruckPositionUpdate(UUID truckId, GPSPositionEvent position) {
         try {
             String destination = "/topic/truck/" + truckId;
-            logger.debug("Sending position update to {}", destination);
+            log.debug("Sending position update to {}", destination);
             messagingTemplate.convertAndSend(destination, position);
         } catch (Exception e) {
-            logger.error("Failed to send truck-specific position update: {}", e.getMessage(), e);
+            log.error("Failed to send truck-specific position update: {}", e.getMessage(), e);
         }
     }
 
@@ -76,43 +73,28 @@ public class LocationWebSocketHandler {
             String destination = "/topic/truck/" + truckId + "/status";
             StatusChangeEvent event = new StatusChangeEvent(truckId, oldStatus, newStatus);
             messagingTemplate.convertAndSend(destination, event);
-            logger.debug("Notified status change for truck {}: {} -> {}", truckId, oldStatus, newStatus);
+            log.debug("Notified status change for truck {}: {} -> {}", truckId, oldStatus, newStatus);
         } catch (Exception e) {
-            logger.error("Failed to notify status change: {}", e.getMessage(), e);
+            log.error("Failed to notify status change: {}", e.getMessage(), e);
         }
     }
 
     /**
      * Event class for status changes
+     * Refactored with Lombok
      */
+    @Getter
     public static class StatusChangeEvent {
-        private UUID truckId;
-        private String oldStatus;
-        private String newStatus;
-        private long timestamp;
+        private final UUID truckId;
+        private final String oldStatus;
+        private final String newStatus;
+        private final long timestamp;
 
         public StatusChangeEvent(UUID truckId, String oldStatus, String newStatus) {
             this.truckId = truckId;
             this.oldStatus = oldStatus;
             this.newStatus = newStatus;
             this.timestamp = System.currentTimeMillis();
-        }
-
-        // Getters
-        public UUID getTruckId() {
-            return truckId;
-        }
-
-        public String getOldStatus() {
-            return oldStatus;
-        }
-
-        public String getNewStatus() {
-            return newStatus;
-        }
-
-        public long getTimestamp() {
-            return timestamp;
         }
     }
 }

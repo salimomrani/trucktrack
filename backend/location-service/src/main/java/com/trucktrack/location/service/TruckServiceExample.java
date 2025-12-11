@@ -112,7 +112,7 @@ public class TruckServiceExample {
         log.info("Truck {} status changed: {} -> {}", truckId, oldStatus, newStatus);
 
         // Invalider le cache Redis
-        redisCacheService.evictCurrentPosition(truckId);
+        redisCacheService.invalidatePosition(truckId);
 
         return TruckResponseDTO.fromEntity(updated);
     }
@@ -130,7 +130,7 @@ public class TruckServiceExample {
         }
 
         truckRepository.deleteById(truckId);
-        redisCacheService.evictCurrentPosition(truckId);
+        redisCacheService.invalidatePosition(truckId);
 
         log.info("Truck deleted successfully: {}", truckId);
     }

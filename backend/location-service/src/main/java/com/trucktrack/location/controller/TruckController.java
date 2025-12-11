@@ -5,8 +5,8 @@ import com.trucktrack.location.model.Truck;
 import com.trucktrack.location.model.TruckStatus;
 import com.trucktrack.location.repository.TruckRepository;
 import com.trucktrack.location.service.RedisCacheService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -20,20 +20,16 @@ import java.util.UUID;
  * REST Controller for truck location queries
  * T070: Implement TruckController GET /location/v1/trucks (list trucks with filters)
  * T071: Implement TruckController GET /location/v1/trucks/{truckId}/current-position (read from Redis cache)
+ * Refactored with Lombok best practices
  */
+@Slf4j
 @RestController
 @RequestMapping("/location/v1")
+@RequiredArgsConstructor
 public class TruckController {
-
-    private static final Logger logger = LoggerFactory.getLogger(TruckController.class);
 
     private final TruckRepository truckRepository;
     private final RedisCacheService redisCacheService;
-
-    public TruckController(TruckRepository truckRepository, RedisCacheService redisCacheService) {
-        this.truckRepository = truckRepository;
-        this.redisCacheService = redisCacheService;
-    }
 
     /**
      * List all trucks with optional filters
@@ -46,7 +42,7 @@ public class TruckController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
-        logger.debug("Listing trucks - status: {}, groupId: {}, page: {}, size: {}",
+        log.debug("Listing trucks - status: {}, groupId: {}, page: {}, size: {}",
                 status, truckGroupId, page, size);
 
         Page<Truck> trucks;
@@ -75,7 +71,7 @@ public class TruckController {
      */
     @GetMapping("/trucks/{truckId}")
     public ResponseEntity<Truck> getTruckById(@PathVariable UUID truckId) {
-        logger.debug("Getting truck by ID: {}", truckId);
+        log.debug("Getting truck by ID: {}", truckId);
 
         Truck truck = truckRepository.findById(truckId)
                 .orElseThrow(() -> new IllegalArgumentException("Truck not found: " + truckId));
@@ -92,12 +88,12 @@ public class TruckController {
      */
     @GetMapping("/trucks/{truckId}/current-position")
     public ResponseEntity<GPSPositionEvent> getCurrentPosition(@PathVariable UUID truckId) {
-        logger.debug("Getting current position for truck: {}", truckId);
+        log.debug("Getting current position for truck: {}", truckId);
 
         // Try Redis cache first (fastest)
         GPSPositionEvent cachedPosition = redisCacheService.getCurrentPosition(truckId);
         if (cachedPosition != null) {
-            logger.debug("Cache hit for truck {}", truckId);
+            log.debug("Cache hit for truck {}", truckId);
             return ResponseEntity.ok(cachedPosition);
         }
 
@@ -106,7 +102,7 @@ public class TruckController {
                 .orElseThrow(() -> new IllegalArgumentException("Truck not found: " + truckId));
 
         if (truck.getCurrentLatitude() == null || truck.getCurrentLongitude() == null) {
-            logger.warn("Truck {} has no position data", truckId);
+            log.warn("Truck {} has no position data", truckId);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
@@ -128,7 +124,7 @@ public class TruckController {
      */
     @GetMapping("/trucks/search")
     public ResponseEntity<List<Truck>> searchTrucks(@RequestParam String q) {
-        logger.debug("Searching trucks with query: {}", q);
+        log.debug("Searching trucks with query: {}", q);
 
         List<Truck> trucks = truckRepository.searchByTruckIdOrDriverName(q);
         return ResponseEntity.ok(trucks);
@@ -145,7 +141,7 @@ public class TruckController {
             @RequestParam Double minLng,
             @RequestParam Double maxLng) {
 
-        logger.debug("Getting trucks in bounding box: ({}, {}) to ({}, {})",
+        log.debug("Getting trucks in bounding box: ({}, {}) to ({}, {})",
                 minLat, minLng, maxLat, maxLng);
 
         List<Truck> trucks = truckRepository.findTrucksInBoundingBox(minLat, maxLat, minLng, maxLng);
