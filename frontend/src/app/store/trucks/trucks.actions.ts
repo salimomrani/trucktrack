@@ -1,0 +1,24 @@
+import { createAction, props } from '@ngrx/store';
+import { Truck } from '../../models/truck.model';
+
+export const loadTrucks = createAction('[Trucks] Load Trucks');
+
+export const loadTrucksSuccess = createAction(
+  '[Trucks] Load Trucks Success',
+  props<{ trucks: Truck[] }>()
+);
+
+export const loadTrucksFailure = createAction(
+  '[Trucks] Load Trucks Failure',
+  props<{ error: string }>()
+);
+
+export const selectTruck = createAction(
+  '[Trucks] Select Truck',
+  props<{ truckId: string }>()
+);
+
+export const updateTruckPosition = createAction(
+  '[Trucks] Update Truck Position',
+  props<{ truckId: string; latitude: number; longitude: number; speed: number; heading: number }>()
+);
