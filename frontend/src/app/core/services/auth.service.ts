@@ -1,5 +1,4 @@
-import { Injectable, inject, signal, DestroyRef } from '@angular/core';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, throwError, map } from 'rxjs';
 import { Router } from '@angular/router';
@@ -10,13 +9,19 @@ import {
   RefreshTokenRequest,
   RefreshTokenResponse,
   User,
-  JwtPayload, UserRole
+  JwtPayload,
+  UserRole
 } from '../models/auth.model';
 
 /**
- * AuthService handles authentication, token management, and user state.
- * Implements JWT-based authentication with refresh token support.
- * Refactored with Angular 17+ best practices: signals, inject(), takeUntilDestroyed()
+ * AuthService - HTTP Service for authentication API calls and token management
+ *
+ * This service is a pure HTTP service that:
+ * - Makes API calls to the backend
+ * - Manages JWT tokens in localStorage
+ * - Does NOT manage application state (NgRx Store handles that)
+ *
+ * Used exclusively by NgRx Effects - components should NOT use this service directly
  */
 @Injectable({
   providedIn: 'root'
@@ -24,36 +29,20 @@ import {
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
-  private readonly destroyRef = inject(DestroyRef);
 
   private readonly API_URL = environment.apiUrl;
   private readonly TOKEN_KEY = environment.auth.tokenKey;
   private readonly REFRESH_TOKEN_KEY = environment.auth.refreshTokenKey;
 
-  // Current user state using signals (initialized as null, fetched from backend after login)
-  private currentUserSignal = signal<User | null>(null);
-  public currentUser = this.currentUserSignal.asReadonly();
-
-  // Authentication state using signals
-  private isAuthenticatedSignal = signal<boolean>(this.hasValidToken());
-  public isAuthenticated = this.isAuthenticatedSignal.asReadonly();
-
-  // Backward compatibility: Observable streams from signals
-  public currentUser$ = toObservable(this.currentUser);
-  public isAuthenticated$ = toObservable(this.isAuthenticated);
-
-  constructor() {
-    // Check token expiry on init
-    this.checkTokenExpiry();
-  }
-
   /**
    * Login with email and password
+   * Returns the login response - NgRx effects handle state updates
    */
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.API_URL}/auth/v1/login`, credentials).pipe(
       tap(response => {
-        this.handleAuthSuccess(response);
+        // Store token in localStorage only
+        this.setAccessToken(response.token);
       }),
       catchError(error => {
         console.error('Login failed:', error);
@@ -64,15 +53,12 @@ export class AuthService {
 
   /**
    * Logout - clear tokens and redirect to login
+   * NgRx effects handle state updates
    */
   logout(): void {
     // Clear tokens from storage
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
-
-    // Update state
-    this.currentUserSignal.set(null);
-    this.isAuthenticatedSignal.set(false);
 
     // Redirect to login
     this.router.navigate(['/login']);
@@ -80,6 +66,7 @@ export class AuthService {
 
   /**
    * Refresh access token using refresh token
+   * Returns new tokens - NgRx effects handle state updates
    */
   refreshToken(): Observable<RefreshTokenResponse> {
     const refreshToken = this.getRefreshToken();
@@ -92,9 +79,9 @@ export class AuthService {
 
     return this.http.post<RefreshTokenResponse>(`${this.API_URL}/auth/v1/refresh`, request).pipe(
       tap(response => {
+        // Store new tokens in localStorage only
         this.setAccessToken(response.accessToken);
         this.setRefreshToken(response.refreshToken);
-        this.isAuthenticatedSignal.set(true);
       }),
       catchError(error => {
         console.error('Token refresh failed:', error);
@@ -119,29 +106,8 @@ export class AuthService {
   }
 
   /**
-   * Get current user
-   */
-  getCurrentUser(): User | null {
-    return this.currentUser();
-  }
-
-  /**
-   * Check if user is authenticated
-   */
-  isAuthenticatedMethod(): boolean {
-    return this.isAuthenticated() && this.hasValidToken();
-  }
-
-  /**
-   * Check if user has a specific role
-   */
-  hasRole(role: string): boolean {
-    const user = this.getCurrentUser();
-    return user?.role === role;
-  }
-
-  /**
    * Decode JWT token to get payload
+   * Used internally to validate token expiry
    */
   private decodeToken(token: string): JwtPayload | null {
     try {
@@ -161,8 +127,9 @@ export class AuthService {
 
   /**
    * Check if token is expired
+   * Used for token validation
    */
-  private isTokenExpired(token: string): boolean {
+  isTokenExpired(token: string): boolean {
     const payload = this.decodeToken(token);
     if (!payload) {
       return true;
@@ -172,43 +139,6 @@ export class AuthService {
     const currentTime = Date.now();
 
     return currentTime >= expiryTime;
-  }
-
-  /**
-   * Check if there's a valid token in storage
-   */
-  private hasValidToken(): boolean {
-    const token = this.getAccessToken();
-    if (!token) {
-      return false;
-    }
-
-    return !this.isTokenExpired(token);
-  }
-
-  /**
-   * Handle successful authentication
-   */
-  private handleAuthSuccess(response: LoginResponse): void {
-    // Store token
-    this.setAccessToken(response.token);
-
-    // Set authentication state immediately
-    this.isAuthenticatedSignal.set(true);
-
-    // Fetch user details from backend
-    this.getCurrentUserFromBackend()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (user) => {
-          this.currentUserSignal.set(user);
-          console.log('Authentication successful for user:', response.email);
-        },
-        error: (error) => {
-          console.error('Failed to fetch user details:', error);
-          // Keep authenticated but with null user
-        }
-      });
   }
 
   /**
@@ -227,6 +157,7 @@ export class AuthService {
 
   /**
    * Get current authenticated user from backend
+   * Used by NgRx effects to fetch user details after login
    */
   getCurrentUserFromBackend(): Observable<User> {
     return this.http.get<{id: string, email: string, role: string}>(`${this.API_URL}/auth/v1/me`).pipe(
@@ -243,25 +174,5 @@ export class AuthService {
         return throwError(() => error);
       })
     );
-  }
-
-  /**
-   * Check token expiry and refresh if needed
-   */
-  private checkTokenExpiry(): void {
-    const token = this.getAccessToken();
-    if (!token) {
-      return;
-    }
-
-    if (this.isTokenExpired(token)) {
-      console.log('Token expired, attempting refresh...');
-      this.refreshToken()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: () => console.log('Token refreshed successfully'),
-          error: (error) => console.error('Token refresh failed:', error)
-        });
-    }
   }
 }
