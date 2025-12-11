@@ -1,5 +1,4 @@
 import { Injectable, inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { Actions, createEffect, ofType, OnInitEffects } from '@ngrx/effects';
 import { Action } from '@ngrx/store';
 import { of } from 'rxjs';
@@ -8,14 +7,11 @@ import { AuthService } from '../../core/services/auth.service';
 import { TokenStorageService } from '../../core/services/token-storage.service';
 import * as AuthActions from './auth.actions';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class AuthEffects implements OnInitEffects {
   private actions$ = inject(Actions);
   private authService = inject(AuthService);
   private tokenStorage = inject(TokenStorageService);
-  private router = inject(Router);
 
   login$ = createEffect(() =>
     this.actions$.pipe(
