@@ -248,9 +248,10 @@ export class AuthService {
   /**
    * Get user from storage (for backward compatibility)
    * @deprecated Use getCurrentUserFromBackend() instead
+   * Always returns null since we don't store user data in localStorage
    */
   private getUserFromStorage(): User | null {
-    return this.currentUser();
+    return null;
   }
 
   /**
