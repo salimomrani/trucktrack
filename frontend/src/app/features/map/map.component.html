@@ -3,7 +3,12 @@
   <!-- Header with status indicators -->
   <div class="map-header">
     <h1>Live Truck Tracking</h1>
-    <div class="status-indicators">
+    <div class="controls-section">
+      <!-- Search Bar -->
+      <app-search-bar />
+
+      <!-- Status Indicators -->
+      <div class="status-indicators">
       <!-- Loading indicator (T091) -->
       @if (isLoading()) {
         <div class="status-item">
@@ -21,6 +26,7 @@
       <!-- Truck count -->
       <div class="status-item">
         <span class="truck-count">{{ trucks().length }} trucks</span>
+      </div>
       </div>
     </div>
   </div>

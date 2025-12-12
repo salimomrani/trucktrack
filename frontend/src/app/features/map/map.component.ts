@@ -12,6 +12,7 @@ import { StoreFacade } from '../../store/store.facade';
 import { Truck, TruckStatus } from '../../models/truck.model';
 import { GPSPositionEvent } from '../../models/gps-position.model';
 import { environment } from '../../../environments/environment';
+import { SearchBarComponent } from '../../core/components/search-bar/search-bar.component';
 
 /**
  * MapComponent - Main map view for displaying live truck locations
@@ -22,7 +23,7 @@ import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-map',
   standalone: true,
-  imports: [CommonModule, MatProgressSpinnerModule, MatIconModule, MatSnackBarModule],
+  imports: [CommonModule, MatProgressSpinnerModule, MatIconModule, MatSnackBarModule, SearchBarComponent],
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
