@@ -7,9 +7,11 @@ import { AppState } from './index';
 import * as AuthSelectors from './auth/auth.selectors';
 import * as TrucksSelectors from './trucks/trucks.selectors';
 import * as GpsSelectors from './gps/gps.selectors';
+import * as HistorySelectors from './history/history.selectors';
 import * as AuthActions from './auth/auth.actions';
 import * as TrucksActions from './trucks/trucks.actions';
 import * as GpsActions from './gps/gps.actions';
+import * as HistoryActions from './history/history.actions';
 import { LoginRequest } from '../core/models/auth.model';
 import { GPSPositionEvent } from '../models/gps-position.model';
 
@@ -54,6 +56,15 @@ export class StoreFacade {
   readonly allPositions = toSignal(this.store.select(GpsSelectors.selectAllPositions), {
     initialValue: {}
   });
+
+  // History Signals
+  readonly historyEntries = toSignal(this.store.select(HistorySelectors.selectHistoryEntries), {
+    initialValue: []
+  });
+  readonly historyLoading = toSignal(this.store.select(HistorySelectors.selectHistoryLoading), {
+    initialValue: false
+  });
+  readonly historyError = toSignal(this.store.select(HistorySelectors.selectHistoryError));
 
   // Computed Signals
   readonly trucksCount = computed(() => this.trucks().length);
@@ -139,5 +150,19 @@ export class StoreFacade {
   // Helper to get position for specific truck
   getTruckPosition(truckId: string) {
     return toSignal(this.store.select(GpsSelectors.selectTruckPosition(truckId)));
+  }
+
+  // History Actions
+  loadHistory() {
+    this.store.dispatch(HistoryActions.loadHistory());
+  }
+
+  clearHistory() {
+    this.store.dispatch(HistoryActions.clearHistory());
+  }
+
+  // Helper to get history for specific truck
+  getHistoryByTruckId(truckId: string) {
+    return toSignal(this.store.select(HistorySelectors.selectHistoryByTruckId(truckId)));
   }
 }

@@ -4,9 +4,11 @@ import { isDevMode } from '@angular/core';
 import { authReducer } from './auth/auth.reducer';
 import { trucksReducer } from './trucks/trucks.reducer';
 import { gpsReducer } from './gps/gps.reducer';
+import { historyReducer } from './history/history.reducer';
 import { AuthState } from './auth/auth.state';
 import { TrucksState } from './trucks/trucks.state';
 import { GpsState } from './gps/gps.state';
+import { HistoryState } from './history/history.state';
 
 /**
  * Root application state
@@ -15,6 +17,7 @@ export interface AppState {
   auth: AuthState;
   trucks: TrucksState;
   gps: GpsState;
+  history: HistoryState;
 }
 
 /**
@@ -23,7 +26,8 @@ export interface AppState {
 export const rootReducers: ActionReducerMap<AppState> = {
   auth: authReducer,
   trucks: trucksReducer,
-  gps: gpsReducer
+  gps: gpsReducer,
+  history: historyReducer
 };
 
 /**

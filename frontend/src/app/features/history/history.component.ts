@@ -55,13 +55,11 @@ export class HistoryComponent implements OnInit {
 
   // State signals
   trucks = this.facade.trucks;
-  isLoading = signal(false);
+  historyData = this.facade.historyEntries;
+  isLoading = this.facade.historyLoading;
   selectedTruckId = signal<string | null>(null);
   startDate = signal<Date | null>(null);
   endDate = signal<Date | null>(null);
-
-  // Mock history data (will be replaced with API call)
-  historyData = signal<TruckHistory[]>([]);
 
   // Computed signals
   selectedTruck = computed(() => {
@@ -97,9 +95,8 @@ export class HistoryComponent implements OnInit {
   ngOnInit(): void {
     // Load trucks from store
     this.facade.loadTrucks();
-
-    // Generate mock history data
-    this.generateMockHistory();
+    // Load history from store
+    this.facade.loadHistory();
   }
 
   onTruckSelect(truckId: string): void {
@@ -125,35 +122,6 @@ export class HistoryComponent implements OnInit {
     const data = this.filteredHistory();
     console.log('Exporting history data:', data);
     // TODO: Implement CSV export
-  }
-
-  private generateMockHistory(): void {
-    // Generate mock data for demonstration
-    const mockData: TruckHistory[] = [];
-    const trucks = this.trucks();
-
-    if (trucks.length === 0) {
-      // Generate data for sample trucks
-      const sampleTrucks = ['TRUCK-001', 'TRUCK-002', 'TRUCK-003'];
-      const now = new Date();
-
-      sampleTrucks.forEach(truckId => {
-        for (let i = 0; i < 20; i++) {
-          const timestamp = new Date(now.getTime() - (i * 30 * 60 * 1000)); // 30 min intervals
-          mockData.push({
-            truckId,
-            timestamp,
-            latitude: 40.7128 + (Math.random() - 0.5) * 0.1,
-            longitude: -74.0060 + (Math.random() - 0.5) * 0.1,
-            speed: Math.random() * 80,
-            heading: Math.random() * 360,
-            status: Math.random() > 0.8 ? 'stopped' : 'moving'
-          });
-        }
-      });
-    }
-
-    this.historyData.set(mockData);
   }
 
   formatLocation(lat: number, lon: number): string {

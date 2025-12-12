@@ -12,6 +12,7 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { rootReducers, metaReducers, AppState } from './store';
 import { AuthEffects } from './store/auth/auth.effects';
 import { TrucksEffects } from './store/trucks/trucks.effects';
+import { HistoryEffects } from './store/history/history.effects';
 import * as AuthActions from './store/auth/auth.actions';
 
 /**
@@ -38,7 +39,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     provideHttpClient(withInterceptors([authInterceptor])),
     provideStore(rootReducers, { metaReducers }),
-    provideEffects([AuthEffects, TrucksEffects]),
+    provideEffects([AuthEffects, TrucksEffects, HistoryEffects]),
     provideStoreDevtools({
       maxAge: 25,
       logOnly: !isDevMode(),
