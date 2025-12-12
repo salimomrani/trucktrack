@@ -1,0 +1,290 @@
+// TruckTrack Custom Theme
+// Modern, professional color palette for fleet management
+
+// ============================================
+// COLOR PALETTE
+// ============================================
+
+// Primary Colors - Purple gradient theme
+$color-primary-50: #f3f1ff;
+$color-primary-100: #ebe6ff;
+$color-primary-200: #d9d0ff;
+$color-primary-300: #bfb0ff;
+$color-primary-400: #9f85ff;
+$color-primary-500: #667eea;  // Main primary
+$color-primary-600: #5568d3;
+$color-primary-700: #4553b8;
+$color-primary-800: #3a4595;
+$color-primary-900: #303a78;
+
+// Secondary Colors - Deep Purple
+$color-secondary-50: #f8f5ff;
+$color-secondary-100: #efe9ff;
+$color-secondary-200: #e1d4ff;
+$color-secondary-300: #c9b2ff;
+$color-secondary-400: #a98aff;
+$color-secondary-500: #764ba2;  // Main secondary
+$color-secondary-600: #643d8a;
+$color-secondary-700: #533272;
+$color-secondary-800: #432959;
+$color-secondary-900: #362148;
+
+// Accent Colors - Vibrant Blue
+$color-accent-50: #e8f5ff;
+$color-accent-100: #d4ebff;
+$color-accent-200: #b0dcff;
+$color-accent-300: #7dc4ff;
+$color-accent-400: #40a3ff;
+$color-accent-500: #3b82f6;  // Main accent
+$color-accent-600: #2563eb;
+$color-accent-700: #1d4ed8;
+$color-accent-800: #1e40af;
+$color-accent-900: #1e3a8a;
+
+// Semantic Colors
+$color-success-50: #f0fdf4;
+$color-success-100: #dcfce7;
+$color-success-200: #bbf7d0;
+$color-success-300: #86efac;
+$color-success-400: #4ade80;
+$color-success-500: #10b981;  // Main success
+$color-success-600: #059669;
+$color-success-700: #047857;
+$color-success-800: #065f46;
+$color-success-900: #064e3b;
+
+$color-warning-50: #fffbeb;
+$color-warning-100: #fef3c7;
+$color-warning-200: #fde68a;
+$color-warning-300: #fcd34d;
+$color-warning-400: #fbbf24;
+$color-warning-500: #f59e0b;  // Main warning
+$color-warning-600: #d97706;
+$color-warning-700: #b45309;
+$color-warning-800: #92400e;
+$color-warning-900: #78350f;
+
+$color-danger-50: #fef2f2;
+$color-danger-100: #fee2e2;
+$color-danger-200: #fecaca;
+$color-danger-300: #fca5a5;
+$color-danger-400: #f87171;
+$color-danger-500: #ef4444;  // Main danger
+$color-danger-600: #dc2626;
+$color-danger-700: #b91c1c;
+$color-danger-800: #991b1b;
+$color-danger-900: #7f1d1d;
+
+$color-info-50: #eff6ff;
+$color-info-100: #dbeafe;
+$color-info-200: #bfdbfe;
+$color-info-300: #93c5fd;
+$color-info-400: #60a5fa;
+$color-info-500: #3b82f6;  // Main info
+$color-info-600: #2563eb;
+$color-info-700: #1d4ed8;
+$color-info-800: #1e40af;
+$color-info-900: #1e3a8a;
+
+// Neutral Colors
+$color-gray-50: #f9fafb;
+$color-gray-100: #f3f4f6;
+$color-gray-200: #e5e7eb;
+$color-gray-300: #d1d5db;
+$color-gray-400: #9ca3af;
+$color-gray-500: #6b7280;
+$color-gray-600: #4b5563;
+$color-gray-700: #374151;
+$color-gray-800: #1f2937;
+$color-gray-900: #111827;
+
+// Background Colors
+$color-background-light: #ffffff;
+$color-background-dark: #0f172a;
+$color-background-gray: #f8fafc;
+$color-background-overlay: rgba(0, 0, 0, 0.5);
+
+// Text Colors
+$color-text-primary: #1f2937;
+$color-text-secondary: #6b7280;
+$color-text-tertiary: #9ca3af;
+$color-text-inverse: #ffffff;
+$color-text-link: $color-primary-500;
+
+// Border Colors
+$color-border-light: #e5e7eb;
+$color-border-medium: #d1d5db;
+$color-border-dark: #9ca3af;
+
+// Shadow Colors
+$color-shadow-sm: rgba(0, 0, 0, 0.05);
+$color-shadow-md: rgba(0, 0, 0, 0.1);
+$color-shadow-lg: rgba(0, 0, 0, 0.15);
+$color-shadow-xl: rgba(0, 0, 0, 0.2);
+
+// ============================================
+// SPACING SYSTEM
+// ============================================
+
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+$spacing-2xl: 48px;
+$spacing-3xl: 64px;
+
+// ============================================
+// TYPOGRAPHY
+// ============================================
+
+$font-family-base: 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+$font-family-heading: 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+$font-family-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+
+$font-size-xs: 0.75rem;    // 12px
+$font-size-sm: 0.875rem;   // 14px
+$font-size-base: 1rem;     // 16px
+$font-size-lg: 1.125rem;   // 18px
+$font-size-xl: 1.25rem;    // 20px
+$font-size-2xl: 1.5rem;    // 24px
+$font-size-3xl: 1.875rem;  // 30px
+$font-size-4xl: 2.25rem;   // 36px
+
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+$font-weight-extrabold: 800;
+
+$line-height-tight: 1.25;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.75;
+
+// ============================================
+// BORDER RADIUS
+// ============================================
+
+$border-radius-sm: 4px;
+$border-radius-md: 8px;
+$border-radius-lg: 12px;
+$border-radius-xl: 16px;
+$border-radius-2xl: 24px;
+$border-radius-full: 9999px;
+
+// ============================================
+// SHADOWS
+// ============================================
+
+$shadow-sm: 0 1px 2px 0 $color-shadow-sm;
+$shadow-md: 0 4px 6px -1px $color-shadow-md, 0 2px 4px -1px $color-shadow-sm;
+$shadow-lg: 0 10px 15px -3px $color-shadow-md, 0 4px 6px -2px $color-shadow-sm;
+$shadow-xl: 0 20px 25px -5px $color-shadow-lg, 0 10px 10px -5px $color-shadow-sm;
+$shadow-2xl: 0 25px 50px -12px $color-shadow-xl;
+$shadow-inner: inset 0 2px 4px 0 $color-shadow-sm;
+
+// ============================================
+// Z-INDEX LAYERS
+// ============================================
+
+$z-index-dropdown: 1000;
+$z-index-sticky: 1020;
+$z-index-fixed: 1030;
+$z-index-modal-backdrop: 1040;
+$z-index-modal: 1050;
+$z-index-popover: 1060;
+$z-index-tooltip: 1070;
+
+// ============================================
+// TRANSITIONS
+// ============================================
+
+$transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+$transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+$transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+
+// ============================================
+// BREAKPOINTS
+// ============================================
+
+$breakpoint-xs: 480px;
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+$breakpoint-2xl: 1536px;
+
+// ============================================
+// GRADIENT PRESETS
+// ============================================
+
+$gradient-primary: linear-gradient(135deg, $color-primary-500 0%, $color-secondary-500 100%);
+$gradient-accent: linear-gradient(135deg, $color-accent-500 0%, $color-primary-500 100%);
+$gradient-success: linear-gradient(135deg, $color-success-400 0%, $color-success-600 100%);
+$gradient-warning: linear-gradient(135deg, $color-warning-400 0%, $color-warning-600 100%);
+$gradient-danger: linear-gradient(135deg, $color-danger-400 0%, $color-danger-600 100%);
+
+// ============================================
+// EXPORT AS CSS VARIABLES
+// ============================================
+
+:root {
+  // Primary
+  --color-primary: #{$color-primary-500};
+  --color-primary-light: #{$color-primary-400};
+  --color-primary-dark: #{$color-primary-600};
+  --color-primary-contrast: #ffffff;
+
+  // Secondary
+  --color-secondary: #{$color-secondary-500};
+  --color-secondary-light: #{$color-secondary-400};
+  --color-secondary-dark: #{$color-secondary-600};
+  --color-secondary-contrast: #ffffff;
+
+  // Accent
+  --color-accent: #{$color-accent-500};
+  --color-accent-light: #{$color-accent-400};
+  --color-accent-dark: #{$color-accent-600};
+  --color-accent-contrast: #ffffff;
+
+  // Semantic
+  --color-success: #{$color-success-500};
+  --color-warning: #{$color-warning-500};
+  --color-danger: #{$color-danger-500};
+  --color-info: #{$color-info-500};
+
+  // Backgrounds
+  --color-background: #{$color-background-light};
+  --color-surface: #ffffff;
+  --color-background-gray: #{$color-background-gray};
+
+  // Text
+  --color-text-primary: #{$color-text-primary};
+  --color-text-secondary: #{$color-text-secondary};
+  --color-text-tertiary: #{$color-text-tertiary};
+
+  // Borders
+  --color-border: #{$color-border-light};
+
+  // Spacing
+  --spacing-xs: #{$spacing-xs};
+  --spacing-sm: #{$spacing-sm};
+  --spacing-md: #{$spacing-md};
+  --spacing-lg: #{$spacing-lg};
+  --spacing-xl: #{$spacing-xl};
+
+  // Border Radius
+  --border-radius-sm: #{$border-radius-sm};
+  --border-radius-md: #{$border-radius-md};
+  --border-radius-lg: #{$border-radius-lg};
+
+  // Transitions
+  --transition-fast: #{$transition-fast};
+  --transition-base: #{$transition-base};
+
+  // Shadows
+  --shadow-sm: #{$shadow-sm};
+  --shadow-md: #{$shadow-md};
+  --shadow-lg: #{$shadow-lg};
+}
