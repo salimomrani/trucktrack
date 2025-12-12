@@ -111,6 +111,10 @@ export class StoreFacade {
     this.store.dispatch(TrucksActions.selectTruck({ truckId }));
   }
 
+  deselectTruck() {
+    this.store.dispatch(TrucksActions.deselectTruck());
+  }
+
   updateTruckPosition(truckId: string, latitude: number, longitude: number, speed: number, heading: number) {
     this.store.dispatch(TrucksActions.updateTruckPosition({ truckId, latitude, longitude, speed, heading }));
   }

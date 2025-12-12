@@ -29,6 +29,11 @@ export const trucksReducer = createReducer(
     selectedTruckId: truckId
   })),
 
+  on(TrucksActions.deselectTruck, (state) => ({
+    ...state,
+    selectedTruckId: null
+  })),
+
   on(TrucksActions.updateTruckPosition, (state, { truckId, latitude, longitude, speed, heading }) =>
     trucksAdapter.updateOne(
       {

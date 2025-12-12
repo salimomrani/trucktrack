@@ -37,6 +37,7 @@ export class MapComponent implements OnInit {
   private map!: L.Map;
   private markers: Map<string, L.Marker> = new Map();
   private markerClusterGroup!: L.MarkerClusterGroup;
+  private isRenderingMarkers = false; // Flag to prevent deselect during re-render
 
   // Use store signals for state
   trucks = this.facade.trucks;
@@ -79,11 +80,24 @@ export class MapComponent implements OnInit {
         }
       });
 
-    // Effect to re-render markers when trucks change in store
+    // Effect to re-render markers ONLY when truck count changes (not on position updates)
+    let previousTruckCount = 0;
     effect(() => {
       const trucks = this.trucks();
-      if (trucks.length > 0 && this.map) {
+      const currentCount = trucks.length;
+
+      // Only re-render if truck count changed or initial load
+      if (this.map && (currentCount !== previousTruckCount)) {
         this.renderTruckMarkers();
+        previousTruckCount = currentCount;
+      }
+    });
+
+    // Effect to focus on selected truck
+    effect(() => {
+      const selectedTruck = this.facade.selectedTruck();
+      if (selectedTruck && this.map) {
+        this.focusOnTruck(selectedTruck);
       }
     });
 
@@ -160,6 +174,14 @@ export class MapComponent implements OnInit {
 
     this.map.addLayer(this.markerClusterGroup);
 
+    // T103: Click on map background to deselect truck
+    this.map.on('click', () => {
+      if (this.facade.selectedTruck()) {
+        console.log('Map clicked - deselecting truck');
+        this.facade.deselectTruck();
+      }
+    });
+
     console.log('Map initialized');
   }
 
@@ -179,6 +201,17 @@ export class MapComponent implements OnInit {
    * T082: Implement custom truck marker icons
    */
   private renderTruckMarkers(): void {
+    // Set flag to prevent deselect during re-render
+    this.isRenderingMarkers = true;
+
+    // Save which truck has popup open
+    let openPopupTruckId: string | null = null;
+    this.markers.forEach((marker, truckId) => {
+      if (marker.isPopupOpen()) {
+        openPopupTruckId = truckId;
+      }
+    });
+
     // Clear existing markers
     this.markerClusterGroup.clearLayers();
     this.markers.clear();
@@ -191,7 +224,21 @@ export class MapComponent implements OnInit {
       }
     });
 
+    // Reopen popup if it was open before re-render
+    if (openPopupTruckId) {
+      const marker = this.markers.get(openPopupTruckId);
+      if (marker) {
+        // Use setTimeout to ensure marker is fully added to map
+        setTimeout(() => {
+          marker.openPopup();
+        }, 50);
+      }
+    }
+
     console.log(`Rendered ${this.markers.size} truck markers`);
+
+    // Reset flag after render
+    this.isRenderingMarkers = false;
   }
 
   /**
@@ -208,6 +255,19 @@ export class MapComponent implements OnInit {
     // T085: Implement truck marker click handler (popup with details)
     const popupContent = this.createPopupContent(truck);
     marker.bindPopup(popupContent);
+
+    // T103: Listen to popup close event to deselect truck
+    marker.on('popupclose', () => {
+      // Don't deselect if we're currently re-rendering markers
+      if (this.isRenderingMarkers) {
+        return;
+      }
+      const currentlySelected = this.facade.selectedTruck();
+      if (currentlySelected && currentlySelected.id === truck.id) {
+        console.log(`Popup closed for truck ${truck.truckId} - deselecting`);
+        this.facade.deselectTruck();
+      }
+    });
 
     // T084: Implement truck direction indicator (rotate marker based on heading)
     // TODO: Install leaflet-rotatedmarker plugin to enable rotation
@@ -326,6 +386,36 @@ export class MapComponent implements OnInit {
       console.log(`New truck detected: ${truckId}`);
       this.loadTrucks();
     }
+  }
+
+  /**
+   * Focus map on selected truck
+   * Centers the map and opens the truck's popup
+   */
+  private focusOnTruck(truck: Truck): void {
+    if (!truck.currentLatitude || !truck.currentLongitude) {
+      console.warn(`Cannot focus on truck ${truck.id}: no position available`);
+      return;
+    }
+
+    // Center map on truck with zoom level 15
+    this.map.setView(
+      [truck.currentLatitude, truck.currentLongitude],
+      15,
+      { animate: true }
+    );
+
+    // Open popup for this truck if marker exists
+    // Use setTimeout to ensure marker is rendered and animation completes
+    setTimeout(() => {
+      const marker = this.markers.get(truck.id);
+      if (marker) {
+        marker.openPopup();
+        console.log(`Focused on truck ${truck.truckId} - popup opened`);
+      } else {
+        console.warn(`Marker not found for truck ${truck.id} - available markers:`, Array.from(this.markers.keys()));
+      }
+    }, 400);
   }
 }
 

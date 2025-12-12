@@ -18,6 +18,8 @@ export const selectTruck = createAction(
   props<{ truckId: string }>()
 );
 
+export const deselectTruck = createAction('[Trucks] Deselect Truck');
+
 export const updateTruckPosition = createAction(
   '[Trucks] Update Truck Position',
   props<{ truckId: string; latitude: number; longitude: number; speed: number; heading: number }>()

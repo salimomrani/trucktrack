@@ -84,8 +84,9 @@ export class SearchBarComponent {
    */
   selectTruck(truckId: string): void {
     console.log('Selected truck:', truckId);
-    // TODO: Implement truck selection behavior (zoom on map, show details)
-    // For now, just clear the search
+    // Dispatch selection to store - MapComponent will react to this
+    this.facade.selectTruck(truckId);
+    // Clear search after selection
     this.clearSearch();
   }
 }
