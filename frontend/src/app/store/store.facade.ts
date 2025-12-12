@@ -14,6 +14,7 @@ import * as GpsActions from './gps/gps.actions';
 import * as HistoryActions from './history/history.actions';
 import { LoginRequest } from '../core/models/auth.model';
 import { GPSPositionEvent } from '../models/gps-position.model';
+import { TruckStatus } from '../models/truck.model';
 
 /**
  * Store Facade with Signals Integration
@@ -47,7 +48,22 @@ export class StoreFacade {
   readonly searchResults = toSignal(this.store.select(TrucksSelectors.selectSearchResults), {
     initialValue: []
   });
+  // Filtered search results - respects status filters
+  readonly filteredSearchResults = toSignal(this.store.select(TrucksSelectors.selectFilteredSearchResults), {
+    initialValue: []
+  });
   readonly isSearching = toSignal(this.store.select(TrucksSelectors.selectIsSearching), {
+    initialValue: false
+  });
+
+  // T106: Status Filter Signals for US2
+  readonly statusFilters = toSignal(this.store.select(TrucksSelectors.selectStatusFilters), {
+    initialValue: [TruckStatus.ACTIVE, TruckStatus.IDLE, TruckStatus.OFFLINE]
+  });
+  readonly filteredTrucks = toSignal(this.store.select(TrucksSelectors.selectFilteredTrucks), {
+    initialValue: []
+  });
+  readonly hasActiveFilters = toSignal(this.store.select(TrucksSelectors.selectHasActiveFilters), {
     initialValue: false
   });
 
@@ -136,6 +152,15 @@ export class StoreFacade {
 
   clearSearch() {
     this.store.dispatch(TrucksActions.clearSearch());
+  }
+
+  // T106: Status Filter Actions for US2
+  setStatusFilters(statuses: TruckStatus[]) {
+    this.store.dispatch(TrucksActions.setStatusFilters({ statuses }));
+  }
+
+  clearStatusFilters() {
+    this.store.dispatch(TrucksActions.clearStatusFilters());
   }
 
   // GPS Actions

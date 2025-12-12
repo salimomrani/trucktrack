@@ -39,3 +39,28 @@ export const selectIsSearching = createSelector(
   selectTrucksState,
   (state) => state.isSearching
 );
+
+// T106: Status Filter Selectors for US2
+export const selectStatusFilters = createSelector(
+  selectTrucksState,
+  (state) => state.statusFilters
+);
+
+export const selectFilteredTrucks = createSelector(
+  selectAllTrucks,
+  selectStatusFilters,
+  (trucks, statusFilters) => trucks.filter(truck => statusFilters.includes(truck.status))
+);
+
+export const selectHasActiveFilters = createSelector(
+  selectStatusFilters,
+  (statusFilters) => statusFilters.length < 3
+);
+
+// Filter search results based on status filters
+// If user deselects "Active", search should not return active trucks
+export const selectFilteredSearchResults = createSelector(
+  selectSearchResults,
+  selectStatusFilters,
+  (searchResults, statusFilters) => searchResults.filter(truck => statusFilters.includes(truck.status))
+);

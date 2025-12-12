@@ -13,6 +13,7 @@ import { Truck, TruckStatus } from '../../models/truck.model';
 import { GPSPositionEvent } from '../../models/gps-position.model';
 import { environment } from '../../../environments/environment';
 import { SearchBarComponent } from '../../core/components/search-bar/search-bar.component';
+import { FilterPanelComponent } from './filter-panel/filter-panel.component';
 
 /**
  * MapComponent - Main map view for displaying live truck locations
@@ -23,7 +24,7 @@ import { SearchBarComponent } from '../../core/components/search-bar/search-bar.
 @Component({
   selector: 'app-map',
   standalone: true,
-  imports: [CommonModule, MatProgressSpinnerModule, MatIconModule, MatSnackBarModule, SearchBarComponent],
+  imports: [CommonModule, MatProgressSpinnerModule, MatIconModule, MatSnackBarModule, SearchBarComponent, FilterPanelComponent],
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -42,6 +43,9 @@ export class MapComponent implements OnInit {
 
   // Use store signals for state
   trucks = this.facade.trucks;
+  // T108: Use filtered trucks for map display
+  filteredTrucks = this.facade.filteredTrucks;
+  hasActiveFilters = this.facade.hasActiveFilters;
   isLoading = this.facade.trucksLoading;
   isConnected = signal(false);
   errorMessage = signal('');
@@ -81,16 +85,17 @@ export class MapComponent implements OnInit {
         }
       });
 
-    // Effect to re-render markers ONLY when truck count changes (not on position updates)
-    let previousTruckCount = 0;
+    // Effect to re-render markers when filtered trucks change
+    // T108: Update MapComponent to handle filter changes
+    let previousFilteredTruckIds = '';
     effect(() => {
-      const trucks = this.trucks();
-      const currentCount = trucks.length;
+      const filtered = this.filteredTrucks();
+      const currentIds = filtered.map(t => t.id).sort().join(',');
 
-      // Only re-render if truck count changed or initial load
-      if (this.map && (currentCount !== previousTruckCount)) {
+      // Re-render if filtered trucks changed (count or composition)
+      if (this.map && currentIds !== previousFilteredTruckIds) {
         this.renderTruckMarkers();
-        previousTruckCount = currentCount;
+        previousFilteredTruckIds = currentIds;
       }
     });
 
@@ -200,6 +205,7 @@ export class MapComponent implements OnInit {
    * Render truck markers on map
    * T081: Implement truck marker rendering
    * T082: Implement custom truck marker icons
+   * T108: Use filtered trucks for rendering (respects status filters)
    */
   private renderTruckMarkers(): void {
     // Set flag to prevent deselect during re-render
@@ -217,7 +223,8 @@ export class MapComponent implements OnInit {
     this.markerClusterGroup.clearLayers();
     this.markers.clear();
 
-    this.trucks().forEach(truck => {
+    // T108: Use filteredTrucks instead of all trucks
+    this.filteredTrucks().forEach(truck => {
       if (truck.currentLatitude && truck.currentLongitude) {
         const marker = this.createTruckMarker(truck);
         this.markers.set(truck.id, marker);
@@ -225,7 +232,7 @@ export class MapComponent implements OnInit {
       }
     });
 
-    // Reopen popup if it was open before re-render
+    // Reopen popup if it was open before re-render (only if truck still visible)
     if (openPopupTruckId) {
       const marker = this.markers.get(openPopupTruckId);
       if (marker) {
@@ -236,7 +243,7 @@ export class MapComponent implements OnInit {
       }
     }
 
-    console.log(`Rendered ${this.markers.size} truck markers`);
+    console.log(`Rendered ${this.markers.size} of ${this.trucks().length} truck markers (filtered)`);
 
     // Reset flag after render
     this.isRenderingMarkers = false;

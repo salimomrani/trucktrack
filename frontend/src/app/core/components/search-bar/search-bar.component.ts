@@ -39,8 +39,9 @@ export class SearchBarComponent {
   // Search query signal
   searchQuery = signal('');
 
-  // Search results from store
-  searchResults = this.facade.searchResults;
+  // Search results from store - filtered by status filters
+  // If user deselects "Active" in filters, active trucks won't appear in search results
+  searchResults = this.facade.filteredSearchResults;
   isSearching = this.facade.isSearching;
 
   private searchTimeout: any;

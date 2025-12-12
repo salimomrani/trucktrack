@@ -23,9 +23,13 @@
         <span>{{ isConnected() ? 'Live Updates Active' : 'Connecting...' }}</span>
       </div>
 
-      <!-- Truck count -->
+      <!-- Truck count - T108: Show filtered count when filters active -->
       <div class="status-item">
-        <span class="truck-count">{{ trucks().length }} trucks</span>
+        @if (hasActiveFilters()) {
+          <span class="truck-count filtered">{{ filteredTrucks().length }} of {{ trucks().length }} trucks</span>
+        } @else {
+          <span class="truck-count">{{ trucks().length }} trucks</span>
+        }
       </div>
       </div>
     </div>
@@ -38,6 +42,11 @@
       <span>{{ errorMessage() }}</span>
     </div>
   }
+
+  <!-- T104: Filter Panel - positioned on map -->
+  <div class="filter-panel-container">
+    <app-filter-panel />
+  </div>
 
   <!-- Map container -->
   <div id="map" class="map-container"></div>

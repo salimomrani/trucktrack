@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Truck } from '../../models/truck.model';
+import { Truck, TruckStatus } from '../../models/truck.model';
 
 export const loadTrucks = createAction('[Trucks] Load Trucks');
 
@@ -42,3 +42,11 @@ export const searchTrucksFailure = createAction(
 );
 
 export const clearSearch = createAction('[Trucks] Clear Search');
+
+// T106: Status Filter Actions for US2
+export const setStatusFilters = createAction(
+  '[Trucks] Set Status Filters',
+  props<{ statuses: TruckStatus[] }>()
+);
+
+export const clearStatusFilters = createAction('[Trucks] Clear Status Filters');

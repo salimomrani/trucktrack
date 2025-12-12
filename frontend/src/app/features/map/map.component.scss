@@ -6,6 +6,7 @@
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
+  position: relative; // For absolute positioned filter panel
 }
 
 .map-header {
@@ -108,6 +109,11 @@
 .truck-count {
   font-weight: 600;
   color: #333;
+
+  // T108: Style for filtered truck count
+  &.filtered {
+    color: #1976d2;
+  }
 }
 
 .error-banner {
@@ -122,6 +128,14 @@
   mat-icon {
     color: #c62828;
   }
+}
+
+// T104: Filter panel positioned on map
+.filter-panel-container {
+  position: absolute;
+  top: 100px; // Below header
+  right: 16px;
+  z-index: 1000;
 }
 
 .map-container {

@@ -1,6 +1,7 @@
 import { createReducer, on } from '@ngrx/store';
 import * as TrucksActions from './trucks.actions';
 import { trucksAdapter, initialTrucksState } from './trucks.state';
+import { TruckStatus } from '../../models/truck.model';
 
 export const trucksReducer = createReducer(
   initialTrucksState,
@@ -72,5 +73,16 @@ export const trucksReducer = createReducer(
     ...state,
     searchResults: [],
     isSearching: false
+  })),
+
+  // T106: Status Filter Reducers for US2
+  on(TrucksActions.setStatusFilters, (state, { statuses }) => ({
+    ...state,
+    statusFilters: statuses
+  })),
+
+  on(TrucksActions.clearStatusFilters, (state) => ({
+    ...state,
+    statusFilters: [TruckStatus.ACTIVE, TruckStatus.IDLE, TruckStatus.OFFLINE]
   }))
 );

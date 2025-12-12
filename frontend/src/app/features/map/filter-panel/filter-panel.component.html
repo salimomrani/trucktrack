@@ -1,0 +1,86 @@
+<div class="filter-panel">
+  <div class="filter-header">
+    <span class="filter-title">Filter by Status</span>
+    @if (hasActiveFilters()) {
+      <button
+        mat-icon-button
+        (click)="clearFilters()"
+        matTooltip="Clear all filters"
+        aria-label="Clear all filters">
+        <mat-icon>filter_alt_off</mat-icon>
+      </button>
+    }
+  </div>
+
+  <div class="filter-options">
+    <!-- ACTIVE Filter -->
+    <div
+      class="filter-option"
+      tabindex="0"
+      role="checkbox"
+      [attr.aria-checked]="activeFilter()"
+      [attr.aria-label]="'Filter by active status, ' + activeCount() + ' trucks'"
+      (keydown)="onKeydown($event, 'active')">
+      <mat-checkbox
+        [checked]="activeFilter()"
+        (change)="toggleActive()"
+        color="primary"
+        aria-hidden="true">
+        <span class="status-label">
+          <span class="status-dot active"></span>
+          Active
+          <span class="status-count">({{ activeCount() }})</span>
+        </span>
+      </mat-checkbox>
+    </div>
+
+    <!-- IDLE Filter -->
+    <div
+      class="filter-option"
+      tabindex="0"
+      role="checkbox"
+      [attr.aria-checked]="idleFilter()"
+      [attr.aria-label]="'Filter by idle status, ' + idleCount() + ' trucks'"
+      (keydown)="onKeydown($event, 'idle')">
+      <mat-checkbox
+        [checked]="idleFilter()"
+        (change)="toggleIdle()"
+        color="accent"
+        aria-hidden="true">
+        <span class="status-label">
+          <span class="status-dot idle"></span>
+          Idle
+          <span class="status-count">({{ idleCount() }})</span>
+        </span>
+      </mat-checkbox>
+    </div>
+
+    <!-- OFFLINE Filter -->
+    <div
+      class="filter-option"
+      tabindex="0"
+      role="checkbox"
+      [attr.aria-checked]="offlineFilter()"
+      [attr.aria-label]="'Filter by offline status, ' + offlineCount() + ' trucks'"
+      (keydown)="onKeydown($event, 'offline')">
+      <mat-checkbox
+        [checked]="offlineFilter()"
+        (change)="toggleOffline()"
+        color="warn"
+        aria-hidden="true">
+        <span class="status-label">
+          <span class="status-dot offline"></span>
+          Offline
+          <span class="status-count">({{ offlineCount() }})</span>
+        </span>
+      </mat-checkbox>
+    </div>
+  </div>
+
+  <!-- Filter Summary -->
+  @if (hasActiveFilters()) {
+    <div class="filter-summary">
+      Showing {{ filteredCount() }} of {{ trucks().length }} trucks
+    </div>
+  }
+</div>

@@ -1,5 +1,5 @@
 import { EntityState, EntityAdapter, createEntityAdapter } from '@ngrx/entity';
-import { Truck } from '../../models/truck.model';
+import { Truck, TruckStatus } from '../../models/truck.model';
 
 export interface TrucksState extends EntityState<Truck> {
   selectedTruckId: string | null;
@@ -7,6 +7,8 @@ export interface TrucksState extends EntityState<Truck> {
   error: string | null;
   searchResults: Truck[];
   isSearching: boolean;
+  // T106: Status filters for US2
+  statusFilters: TruckStatus[];
 }
 
 export const trucksAdapter: EntityAdapter<Truck> = createEntityAdapter<Truck>({
@@ -18,5 +20,7 @@ export const initialTrucksState: TrucksState = trucksAdapter.getInitialState({
   loading: false,
   error: null,
   searchResults: [],
-  isSearching: false
+  isSearching: false,
+  // All statuses selected by default (show all trucks)
+  statusFilters: [TruckStatus.ACTIVE, TruckStatus.IDLE, TruckStatus.OFFLINE]
 });
