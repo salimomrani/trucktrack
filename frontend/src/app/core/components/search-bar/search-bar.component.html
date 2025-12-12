@@ -1,0 +1,46 @@
+<div class="search-bar">
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-icon matPrefix>search</mat-icon>
+    <input
+      matInput
+      type="text"
+      placeholder="Search trucks or drivers..."
+      [(ngModel)]="searchQuery"
+      (ngModelChange)="onSearchChange($event)"
+      [matAutocomplete]="auto"
+    />
+    @if (searchQuery().length > 0) {
+      <button mat-icon-button matSuffix (click)="clearSearch()" aria-label="Clear search">
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+  </mat-form-field>
+
+  <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectTruck($event.option.value)">
+    @if (isSearching()) {
+      <mat-option disabled>
+        <mat-icon>hourglass_empty</mat-icon>
+        Searching...
+      </mat-option>
+    } @else if (searchResults().length > 0) {
+      @for (truck of searchResults(); track truck.id) {
+        <mat-option [value]="truck.id">
+          <div class="truck-option">
+            <div class="truck-info">
+              <span class="truck-id">{{ truck.truckId }}</span>
+              <span class="driver-name">{{ truck.driverName }}</span>
+            </div>
+            <span class="truck-status" [class.active]="truck.status === 'ACTIVE'">
+              {{ truck.status }}
+            </span>
+          </div>
+        </mat-option>
+      }
+    } @else if (searchQuery().length >= 2) {
+      <mat-option disabled>
+        <mat-icon>search_off</mat-icon>
+        No trucks found
+      </mat-option>
+    }
+  </mat-autocomplete>
+</div>

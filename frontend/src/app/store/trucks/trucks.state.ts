@@ -5,6 +5,8 @@ export interface TrucksState extends EntityState<Truck> {
   selectedTruckId: string | null;
   loading: boolean;
   error: string | null;
+  searchResults: Truck[];
+  isSearching: boolean;
 }
 
 export const trucksAdapter: EntityAdapter<Truck> = createEntityAdapter<Truck>({
@@ -14,5 +16,7 @@ export const trucksAdapter: EntityAdapter<Truck> = createEntityAdapter<Truck>({
 export const initialTrucksState: TrucksState = trucksAdapter.getInitialState({
   selectedTruckId: null,
   loading: false,
-  error: null
+  error: null,
+  searchResults: [],
+  isSearching: false
 });

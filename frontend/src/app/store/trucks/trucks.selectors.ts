@@ -29,3 +29,13 @@ export const selectTrucksError = createSelector(
   selectTrucksState,
   (state) => state.error
 );
+
+export const selectSearchResults = createSelector(
+  selectTrucksState,
+  (state) => state.searchResults
+);
+
+export const selectIsSearching = createSelector(
+  selectTrucksState,
+  (state) => state.isSearching
+);

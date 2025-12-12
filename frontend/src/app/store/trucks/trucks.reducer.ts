@@ -43,5 +43,29 @@ export const trucksReducer = createReducer(
       },
       state
     )
-  )
+  ),
+
+  // Search Reducers
+  on(TrucksActions.searchTrucks, (state) => ({
+    ...state,
+    isSearching: true
+  })),
+
+  on(TrucksActions.searchTrucksSuccess, (state, { results }) => ({
+    ...state,
+    searchResults: results,
+    isSearching: false
+  })),
+
+  on(TrucksActions.searchTrucksFailure, (state, { error }) => ({
+    ...state,
+    isSearching: false,
+    error
+  })),
+
+  on(TrucksActions.clearSearch, (state) => ({
+    ...state,
+    searchResults: [],
+    isSearching: false
+  }))
 );

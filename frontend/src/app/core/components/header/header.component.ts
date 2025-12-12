@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { StoreFacade } from '../../../store/store.facade';
+import { SearchBarComponent } from '../search-bar/search-bar.component';
 
 /**
  * Header Component - Application navigation header
@@ -25,7 +26,8 @@ import { StoreFacade } from '../../../store/store.facade';
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
-    MatDividerModule
+    MatDividerModule,
+    SearchBarComponent
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',

@@ -69,7 +69,7 @@ export class WebSocketService {
 
     this.client.onStompError = (frame) => {
       console.error('STOMP error', frame);
-      const errorMsg = frame.headers?.message || 'WebSocket connection error';
+      const errorMsg = frame.headers?.['message'] || 'WebSocket connection error';
       this.errorSubject.next(errorMsg);
       this.connectionStatusSignal.set(false);
     };

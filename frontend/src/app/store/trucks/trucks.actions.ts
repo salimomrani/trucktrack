@@ -22,3 +22,21 @@ export const updateTruckPosition = createAction(
   '[Trucks] Update Truck Position',
   props<{ truckId: string; latitude: number; longitude: number; speed: number; heading: number }>()
 );
+
+// Search Actions
+export const searchTrucks = createAction(
+  '[Trucks] Search Trucks',
+  props<{ query: string }>()
+);
+
+export const searchTrucksSuccess = createAction(
+  '[Trucks] Search Trucks Success',
+  props<{ results: Truck[] }>()
+);
+
+export const searchTrucksFailure = createAction(
+  '[Trucks] Search Trucks Failure',
+  props<{ error: string }>()
+);
+
+export const clearSearch = createAction('[Trucks] Clear Search');

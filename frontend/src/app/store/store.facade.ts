@@ -42,6 +42,12 @@ export class StoreFacade {
   readonly trucksLoading = toSignal(this.store.select(TrucksSelectors.selectTrucksLoading), {
     initialValue: false
   });
+  readonly searchResults = toSignal(this.store.select(TrucksSelectors.selectSearchResults), {
+    initialValue: []
+  });
+  readonly isSearching = toSignal(this.store.select(TrucksSelectors.selectIsSearching), {
+    initialValue: false
+  });
 
   // GPS Signals
   readonly latestPosition = toSignal(this.store.select(GpsSelectors.selectLatestPosition));
@@ -107,6 +113,14 @@ export class StoreFacade {
 
   updateTruckPosition(truckId: string, latitude: number, longitude: number, speed: number, heading: number) {
     this.store.dispatch(TrucksActions.updateTruckPosition({ truckId, latitude, longitude, speed, heading }));
+  }
+
+  searchTrucks(query: string) {
+    this.store.dispatch(TrucksActions.searchTrucks({ query }));
+  }
+
+  clearSearch() {
+    this.store.dispatch(TrucksActions.clearSearch());
   }
 
   // GPS Actions

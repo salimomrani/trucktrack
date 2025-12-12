@@ -23,4 +23,18 @@ export class TrucksEffects {
       )
     )
   );
+
+  searchTrucks$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(TrucksActions.searchTrucks),
+      switchMap(({ query }) =>
+        this.truckService.searchTrucks(query).pipe(
+          map((results) => TrucksActions.searchTrucksSuccess({ results })),
+          catchError((error) =>
+            of(TrucksActions.searchTrucksFailure({ error: error.message || 'Search failed' }))
+          )
+        )
+      )
+    )
+  );
 }
