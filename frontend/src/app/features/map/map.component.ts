@@ -352,6 +352,7 @@ export class MapComponent implements OnInit {
   /**
    * Handle real-time position update from WebSocket
    * Dispatch GPS position to store and update marker
+   * If truck is selected, keep it centered on map
    */
   private handlePositionUpdate(position: GPSPositionEvent): void {
     const truckId = position.truckId;
@@ -374,6 +375,17 @@ export class MapComponent implements OnInit {
       // Update existing marker position with animation
       const newLatLng = L.latLng(position.latitude, position.longitude);
       existingMarker.setLatLng(newLatLng);
+
+      // If this truck is selected, keep map centered on it
+      const selectedTruck = this.facade.selectedTruck();
+      if (selectedTruck && selectedTruck.id === truckId) {
+        // Keep the map centered with a good zoom level (15)
+        const currentZoom = this.map.getZoom();
+        // Use at least zoom level 13 to ensure truck is visible
+        const targetZoom = currentZoom < 13 ? 15 : currentZoom;
+        this.map.setView(newLatLng, targetZoom, { animate: true, duration: 0.5 });
+        console.log(`Recentered map on selected truck ${truckId} at zoom ${targetZoom}`);
+      }
 
       // Update heading if available
       // TODO: Install leaflet-rotatedmarker plugin to enable rotation
