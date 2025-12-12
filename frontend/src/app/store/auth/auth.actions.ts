@@ -27,7 +27,7 @@ export const loadUser = createAction('[Auth] Load User');
 
 export const loadUserSuccess = createAction(
   '[Auth] Load User Success',
-  props<{ user: User; token: string }>()
+  props<{ user: User }>()
 );
 
 export const loadUserFailure = createAction(

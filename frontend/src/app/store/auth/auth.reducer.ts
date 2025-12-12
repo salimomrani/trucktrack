@@ -15,7 +15,6 @@ export const authReducer = createReducer(
   on(AuthActions.loginSuccess, (state, { response, user }) => ({
     ...state,
     user,
-    token: response.token,
     isAuthenticated: true,
     loading: false,
     error: null
@@ -44,10 +43,9 @@ export const authReducer = createReducer(
     error: null
   })),
 
-  on(AuthActions.loadUserSuccess, (state, { user, token }) => ({
+  on(AuthActions.loadUserSuccess, (state, { user }) => ({
     ...state,
     user,
-    token,
     isAuthenticated: true,
     loading: false
   })),
@@ -66,10 +64,8 @@ export const authReducer = createReducer(
     loading: true
   })),
 
-  on(AuthActions.refreshTokenSuccess, (state, { token, refreshToken }) => ({
+  on(AuthActions.refreshTokenSuccess, (state) => ({
     ...state,
-    token,
-    refreshToken,
     loading: false
   })),
 
