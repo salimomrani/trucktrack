@@ -117,6 +117,12 @@
     opacity: 0.5;
   }
 
+  // T089: Visual indicator for stale data (>5 minutes old)
+  .truck-marker-stale {
+    opacity: 0.5;
+    filter: grayscale(50%);
+  }
+
   // Truck popup styles
   .truck-popup {
     h3 {

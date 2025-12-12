@@ -291,6 +291,13 @@ body {
   box-shadow: theme.$shadow-xl !important;
 }
 
+// T092: Error snackbar styling
+.error-snackbar {
+  --mdc-snackbar-container-color: #f44336 !important;
+  --mat-snack-bar-button-color: #fff !important;
+  --mdc-snackbar-supporting-text-color: #fff !important;
+}
+
 // ============================================
 // ANIMATIONS
 // ============================================

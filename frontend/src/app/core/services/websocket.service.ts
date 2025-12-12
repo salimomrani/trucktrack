@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { GPSPositionEvent } from '../../models/gps-position.model';
 
@@ -24,6 +24,10 @@ export class WebSocketService {
   // Connection status using signals
   private connectionStatusSignal = signal<boolean>(false);
   public connectionStatus = this.connectionStatusSignal.asReadonly();
+
+  // T092: Error handling
+  private errorSubject = new Subject<string>();
+  public error$ = this.errorSubject.asObservable();
 
   // Backward compatibility: Observable streams from signals
   public positionUpdates$: Observable<GPSPositionEvent | null> = toObservable(this.positionUpdates);
@@ -65,6 +69,8 @@ export class WebSocketService {
 
     this.client.onStompError = (frame) => {
       console.error('STOMP error', frame);
+      const errorMsg = frame.headers?.message || 'WebSocket connection error';
+      this.errorSubject.next(errorMsg);
       this.connectionStatusSignal.set(false);
     };
 

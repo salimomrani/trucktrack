@@ -2,7 +2,9 @@ import { Component, OnInit, signal, inject, effect, ChangeDetectionStrategy } fr
 import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { interval } from 'rxjs';
 import * as L from 'leaflet';
 import 'leaflet.markercluster';
 import { WebSocketService } from '../../core/services/websocket.service';
@@ -20,7 +22,7 @@ import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-map',
   standalone: true,
-  imports: [CommonModule, MatProgressSpinnerModule, MatIconModule],
+  imports: [CommonModule, MatProgressSpinnerModule, MatIconModule, MatSnackBarModule],
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -29,6 +31,7 @@ export class MapComponent implements OnInit {
   // Inject dependencies using inject()
   private readonly facade = inject(StoreFacade);
   private readonly webSocketService = inject(WebSocketService);
+  private readonly snackBar = inject(MatSnackBar);
 
   // Map and marker state
   private map!: L.Map;
@@ -59,6 +62,23 @@ export class MapComponent implements OnInit {
         }
       });
 
+    // T092: Subscribe to WebSocket errors
+    this.webSocketService.error$
+      .pipe(takeUntilDestroyed())
+      .subscribe(error => {
+        this.showError(`Real-time updates error: ${error}`);
+      });
+
+    // T089: Check for stale data every 30 seconds and re-render markers
+    interval(30000)
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        if (this.map && this.trucks().length > 0) {
+          this.renderTruckMarkers();
+          console.log('Periodic stale data check completed');
+        }
+      });
+
     // Effect to re-render markers when trucks change in store
     effect(() => {
       const trucks = this.trucks();
@@ -82,6 +102,33 @@ export class MapComponent implements OnInit {
     this.initMap();
     this.loadTrucks();
     this.connectWebSocket();
+  }
+
+  /**
+   * Check if truck data is stale (older than 5 minutes)
+   * T089: Implement stale data detection
+   */
+  private isDataStale(lastUpdate: string | Date | null | undefined): boolean {
+    if (!lastUpdate) {
+      return true;
+    }
+    const lastUpdateTime = new Date(lastUpdate).getTime();
+    const now = Date.now();
+    const fiveMinutesMs = 5 * 60 * 1000;
+    return (now - lastUpdateTime) > fiveMinutesMs;
+  }
+
+  /**
+   * Show error message using Material Snackbar
+   * T092: Implement error handling
+   */
+  private showError(message: string): void {
+    this.snackBar.open(message, 'Dismiss', {
+      duration: 5000,
+      horizontalPosition: 'center',
+      verticalPosition: 'top',
+      panelClass: ['error-snackbar']
+    });
   }
 
   /**
@@ -149,9 +196,10 @@ export class MapComponent implements OnInit {
 
   /**
    * Create marker for a truck
+   * T089: Pass truck to getTruckIcon for stale data detection
    */
   private createTruckMarker(truck: Truck): L.Marker {
-    const icon = this.getTruckIcon(truck.status);
+    const icon = this.getTruckIcon(truck);
     const marker = L.marker(
       [truck.currentLatitude!, truck.currentLongitude!],
       { icon }
@@ -173,11 +221,15 @@ export class MapComponent implements OnInit {
   /**
    * Get icon based on truck status
    * T082: Custom truck marker icons color-coded by status
+   * T089: Add stale data indicator class
    */
-  private getTruckIcon(status: TruckStatus): L.DivIcon {
-    const color = this.getStatusColor(status);
+  private getTruckIcon(truck: Truck): L.DivIcon {
+    const color = this.getStatusColor(truck.status);
+    const isStale = this.isDataStale(truck.lastUpdate);
+    const staleClass = isStale ? 'truck-marker-stale' : '';
+
     const iconHtml = `
-      <div class="truck-marker truck-marker-${status.toLowerCase()}"
+      <div class="truck-marker truck-marker-${truck.status.toLowerCase()} ${staleClass}"
            style="background-color: ${color};">
         <i class="material-icons">local_shipping</i>
       </div>
