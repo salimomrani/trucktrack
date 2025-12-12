@@ -46,6 +46,7 @@ spring:
         spring.json.trusted.packages: "*"
         spring.json.type.mapping: GPSPositionEvent:com.trucktrack.common.event.GPSPositionEvent
         spring.json.value.default.type: com.trucktrack.common.event.GPSPositionEvent
+        spring.json.use.type.headers: false
     producer:
       acks: all
       compression-type: snappy

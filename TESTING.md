@@ -15,8 +15,8 @@ pip3 install requests
 
 The script uses the following default configurations:
 
-- **GPS Ingestion Service**: `http://localhost:8081/gps/v1/positions`
-- **Location Service**: `http://localhost:8082/location/v1/trucks`
+- **GPS Ingestion Service**: `http://localhost:8080/gps/v1/positions`
+- **Location Service**: `http://localhost:8081/location/v1/trucks`
 - **Truck IDs**: Uses 3 predefined UUIDs (must exist in database)
 - **Starting Positions**: Paris area coordinates
 
@@ -53,8 +53,8 @@ The script uses the following default configurations:
 ================================================================================
 🚛 GPS TRUCK MOVEMENT SIMULATOR
 ================================================================================
-📍 GPS Ingestion Service: http://localhost:8081/gps/v1/positions
-📊 Location Service: http://localhost:8082/location/v1/trucks
+📍 GPS Ingestion Service: http://localhost:8080/gps/v1/positions
+📊 Location Service: http://localhost:8081/location/v1/trucks
 🚚 Simulating 3 trucks
 ================================================================================
 ✓ Initialized truck 11111111... at Paris Center
@@ -96,8 +96,8 @@ The simulation tests:
 **Connection Refused**:
 ```bash
 # Check if services are running
-curl http://localhost:8081/gps/v1/health
-curl http://localhost:8082/location/v1/health
+curl http://localhost:8080/gps/v1/health
+curl http://localhost:8081/location/v1/health
 ```
 
 **Validation Errors**:
@@ -115,7 +115,7 @@ curl http://localhost:8082/location/v1/health
 ### Send Single GPS Position
 
 ```bash
-curl -X POST http://localhost:8081/gps/v1/positions \
+curl -X POST http://localhost:8080/gps/v1/positions \
   -H "Content-Type: application/json" \
   -d '{
     "truckId": "11111111-1111-1111-1111-111111111111",
@@ -133,13 +133,13 @@ curl -X POST http://localhost:8081/gps/v1/positions \
 ### Check Truck Status
 
 ```bash
-curl http://localhost:8082/location/v1/trucks/11111111-1111-1111-1111-111111111111/current-position
+curl http://localhost:8081/location/v1/trucks/11111111-1111-1111-1111-111111111111/current-position
 ```
 
 ### List All Trucks
 
 ```bash
-curl http://localhost:8082/location/v1/trucks
+curl http://localhost:8081/location/v1/trucks
 ```
 
 ## Performance Testing

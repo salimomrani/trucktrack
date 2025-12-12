@@ -79,23 +79,12 @@ check_service "API Gateway" "http://localhost:8000/actuator/health" 8000
 
 echo ""
 
-# Check frontend
-echo -e "${BLUE}Frontend:${NC}"
-
-check_service "Angular Frontend" "http://localhost:4200" 4200
-
-echo ""
-
 # System resources
 echo -e "${BLUE}System Resources:${NC}"
 
 # Count Java processes
 JAVA_COUNT=$(ps aux | grep java | grep -v grep | wc -l | xargs)
 echo -e "  Java processes: ${JAVA_COUNT}"
-
-# Count Node processes
-NODE_COUNT=$(ps aux | grep node | grep -v grep | wc -l | xargs)
-echo -e "  Node processes: ${NODE_COUNT}"
 
 # Docker containers
 DOCKER_COUNT=$(docker ps -q | wc -l | xargs)
@@ -105,7 +94,6 @@ echo ""
 
 # URLs
 echo -e "${BLUE}Access URLs:${NC}"
-echo -e "  Frontend:     ${GREEN}http://localhost:4200${NC}"
 echo -e "  API Gateway:  ${GREEN}http://localhost:8000${NC}"
 echo -e "  Health Check: ${GREEN}http://localhost:8000/actuator/health${NC}"
 

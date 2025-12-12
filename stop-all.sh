@@ -59,7 +59,6 @@ if [ -f "$PID_FILE" ]; then
 
   source "$PID_FILE"
 
-  kill_process_tree "$FRONTEND_PID" "Frontend"
   kill_process_tree "$API_GATEWAY_PID" "API Gateway"
   kill_process_tree "$AUTH_PID" "Auth Service"
   kill_process_tree "$NOTIFICATION_PID" "Notification Service"
@@ -76,8 +75,8 @@ fi
 # Kill any remaining processes on known ports
 echo -e "${BLUE}Checking for remaining processes on ports...${NC}"
 
-PORTS=(8080 8081 8082 8083 8000 4200)
-PORT_NAMES=("GPS Ingestion (8080)" "Location (8081)" "Notification (8082)" "Auth (8083)" "API Gateway (8000)" "Frontend (4200)")
+PORTS=(8080 8081 8082 8083 8000)
+PORT_NAMES=("GPS Ingestion (8080)" "Location (8081)" "Notification (8082)" "Auth (8083)" "API Gateway (8000)")
 
 for i in "${!PORTS[@]}"; do
   PID=$(lsof -ti:${PORTS[$i]} 2>/dev/null || true)

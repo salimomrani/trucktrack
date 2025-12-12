@@ -12,14 +12,14 @@ import random
 import math
 
 # Configuration
-GPS_INGESTION_URL = "http://localhost:8081/gps/v1/positions"
-LOCATION_SERVICE_URL = "http://localhost:8082/location/v1/trucks"
+GPS_INGESTION_URL = "http://localhost:8080/gps/v1/positions"
+LOCATION_SERVICE_URL = "http://localhost:8081/location/v1/trucks"
 
-# Truck IDs (must exist in database)
+# Truck IDs (must exist in database) - Real UUIDs from database
 TRUCK_IDS = [
-    "11111111-1111-1111-1111-111111111111",
-    "22222222-2222-2222-2222-222222222222",
-    "33333333-3333-3333-3333-333333333333"
+    "00000000-0000-0000-0000-000000000010",  # TRK-001 - Michael Johnson
+    "00000000-0000-0000-0000-000000000011",  # TRK-002 - Sarah Williams
+    "00000000-0000-0000-0000-000000000013"   # TRK-004 - Jennifer Davis
 ]
 
 # Starting positions (Paris area)

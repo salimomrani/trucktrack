@@ -19,18 +19,18 @@ if ! nc -z localhost 9092 2>/dev/null; then
 fi
 echo "✓ Kafka is running"
 
-# Check API Gateway
-if ! curl -s http://localhost:8000/actuator/health > /dev/null 2>&1; then
-    echo "❌ API Gateway is not running on localhost:8000"
-    echo "   Please start the API Gateway first"
+# Check GPS Ingestion Service
+if ! curl -s http://localhost:8080/gps/v1/health > /dev/null 2>&1; then
+    echo "❌ GPS Ingestion Service is not running on localhost:8080"
+    echo "   Please start the services first: ./start-all.sh"
     exit 1
 fi
-echo "✓ API Gateway is running"
+echo "✓ GPS Ingestion Service is running"
 
 # Check Location Service
-if ! curl -s http://localhost:8081/actuator/health > /dev/null 2>&1; then
+if ! curl -s http://localhost:8081/location/v1/health > /dev/null 2>&1; then
     echo "⚠️  Location Service is not responding on localhost:8081"
-    echo "   The simulation will send events, but they may not be processed"
+    echo "   The simulation will continue, but truck positions may not be stored"
 fi
 echo "✓ Location Service is ready"
 
