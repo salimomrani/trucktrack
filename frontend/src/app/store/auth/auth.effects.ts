@@ -87,9 +87,9 @@ export class AuthEffects {
           return of(AuthActions.loadUserFailure({ error: 'Token expired' }));
         }
 
-        // Fetch user from backend
+        // Fetch user from backend and pass token to store
         return this.authService.getCurrentUserFromBackend().pipe(
-          map(user => AuthActions.loadUserSuccess({ user })),
+          map(user => AuthActions.loadUserSuccess({ user, token })),
           catchError(error => of(AuthActions.loadUserFailure({ error: error.message || 'Failed to load user' })))
         );
       })
