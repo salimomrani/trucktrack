@@ -7,9 +7,11 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   token: string;
+  refreshToken: string;
   type: string;
   email: string;
   role: string;
+  expiresIn: number;
 }
 
 export interface User {

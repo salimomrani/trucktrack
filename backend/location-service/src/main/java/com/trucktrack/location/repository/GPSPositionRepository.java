@@ -94,10 +94,11 @@ public interface GPSPositionRepository extends JpaRepository<GPSPosition, UUID> 
      * Find sampled GPS positions for historical route (reduce points for large datasets)
      * Samples every Nth position based on modulo operation
      * Used when route has >500 points to reduce frontend payload
+     * Note: CAST syntax used instead of :: to avoid Spring Data parameter parsing issues
      */
     @Query(value = "SELECT * FROM gps_positions WHERE truck_id = :truckId " +
                    "AND timestamp BETWEEN :startTime AND :endTime " +
-                   "AND MOD(EXTRACT(EPOCH FROM timestamp)::integer, :sampleRate) = 0 " +
+                   "AND MOD(CAST(EXTRACT(EPOCH FROM timestamp) AS integer), :sampleRate) = 0 " +
                    "ORDER BY timestamp ASC",
            nativeQuery = true)
     List<GPSPosition> findSampledPositions(

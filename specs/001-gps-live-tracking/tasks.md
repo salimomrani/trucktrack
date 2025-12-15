@@ -87,7 +87,7 @@
 
 ---
 
-## 📊 Current Implementation Status (Updated: 2025-12-12 - US2 complete)
+## 📊 Current Implementation Status (Updated: 2025-12-12 - US3 complete)
 
 ### ✅ Completed Phases
 - **Phase 1: Setup** (T001-T013) - 100% complete
@@ -112,14 +112,16 @@
 - ✅ All tests (T048-T055)
 - ✅ Accessibility & UX (T093-T095)
 
-### 🚧 In Progress
-
-#### User Story 3 (History): ~65% complete (Frontend only)
+#### User Story 3 (History): 100% complete ✅
 - ✅ History page with Material table
 - ✅ Truck selection & date range filters
 - ✅ Mock data with export functionality
-- ❌ Backend history API (T117-T120)
-- ❌ Map polyline integration (T128-T129)
+- ✅ Backend history API with sampling (T117-T120)
+- ✅ Map polyline integration with tooltips (T126, T128-T129)
+- ✅ "View History" button in truck popup
+- ✅ "Clear History" button panel
+
+### 🚧 In Progress
 
 #### User Story 4 (Alerts): ~50% complete (Frontend only)
 - ✅ Alerts page with stats cards
@@ -146,9 +148,9 @@
 - Phase 7 (Polish)
 
 ### 🎯 Next Steps
-1. Complete User Story 3 backend (T117-T120) + map integration (T128-T129)
-2. Complete User Story 4 backend (T139-T151) + WebSocket alerts (T166-T167)
-3. Add tests for US 1 and US 2
+1. Complete User Story 4 backend (T139-T151) + WebSocket alerts (T166-T167)
+2. Add tests for US 1, US 2, US 3
+3. Phase 7 Polish
 
 ---
 
@@ -288,10 +290,10 @@
 
 #### Backend - Location Service
 
-- [ ] T117 [US3] Implement TruckController GET /location/v1/trucks/{truckId}/history in backend/location-service/src/main/java/com/trucktrack/location/controller/TruckController.java
-- [ ] T118 [US3] Add historical query method to GPSPositionRepository in backend/location-service/src/main/java/com/trucktrack/location/repository/GPSPositionRepository.java (SELECT WHERE truck_id = ? AND timestamp BETWEEN ? AND ? ORDER BY timestamp, use partition pruning)
-- [ ] T119 [US3] Implement route sampling logic in LocationService (if >500 points, sample to reduce payload) in backend/location-service/src/main/java/com/trucktrack/location/service/LocationService.java
-- [ ] T120 [US3] Add query performance optimization (verify composite index idx_gps_positions_truck_time exists from Phase 2)
+- [X] T117 [US3] Implement TruckController GET /location/v1/trucks/{truckId}/history in backend/location-service/src/main/java/com/trucktrack/location/controller/TruckController.java
+- [X] T118 [US3] Add historical query method to GPSPositionRepository in backend/location-service/src/main/java/com/trucktrack/location/repository/GPSPositionRepository.java (SELECT WHERE truck_id = ? AND timestamp BETWEEN ? AND ? ORDER BY timestamp, use partition pruning)
+- [X] T119 [US3] Implement route sampling logic in TruckController (if >500 points, sample to reduce payload)
+- [X] T120 [US3] Add query performance optimization (composite index idx_gps_positions_truck_time exists from Phase 2)
 
 #### Frontend - History Component
 
@@ -302,10 +304,10 @@
 - [X] T123 [P] [US3] Create HistoryPanelComponent in frontend/src/app/features/map/history-panel/history-panel.component.ts (Material select for time range, date pickers for custom range)
 - [X] T124 [US3] Implement time range selector in HistoryPanelComponent (preset options: Last Hour, Last 24h, Last 7 Days, Custom)
 - [X] T125 [US3] Implement custom date range picker in HistoryPanelComponent (Angular Material Datepicker, validate startTime < endTime)
-- [ ] T126 [US3] Implement "View History" button handler in MapComponent (when truck marker clicked, show HistoryPanelComponent)
+- [X] T126 [US3] Implement "View History" button handler in MapComponent (when truck marker clicked, triggers viewTruckHistory)
 - [X] T127 [US3] Implement historical route API call in TruckService.getHistory(truckId, startTime, endTime) in frontend/src/app/services/truck.service.ts
-- [ ] T128 [US3] Implement polyline rendering in MapComponent (Leaflet polyline from route array, styled blue)
-- [ ] T129 [US3] Implement hover tooltips on route polyline (show timestamp + location on mouse hover) in MapComponent
+- [X] T128 [US3] Implement polyline rendering in MapComponent (Leaflet polyline from route array, styled blue)
+- [X] T129 [US3] Implement hover tooltips on route polyline (show timestamp + speed on mouse hover) in MapComponent
 - [X] T130 [US3] Implement "Clear History" button in HistoryPanelComponent (remove polyline from map, return to live view)
 - [X] T131 [US3] Implement loading spinner while fetching historical data in HistoryPanelComponent
 - [X] T132 [US3] Implement "No data available" message if truck has no GPS data for selected period in HistoryPanelComponent

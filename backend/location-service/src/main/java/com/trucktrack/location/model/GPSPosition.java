@@ -1,5 +1,6 @@
 package com.trucktrack.location.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -53,7 +54,9 @@ public class GPSPosition {
     /**
      * PostGIS Point geometry for spatial queries
      * SRID 4326 (WGS84) - standard GPS coordinate system
+     * Note: Ignored in JSON serialization to avoid infinite recursion
      */
+    @JsonIgnore
     @Column(name = "geom", columnDefinition = "geometry(Point, 4326)")
     private Point location;
 

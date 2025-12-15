@@ -21,8 +21,6 @@ export const authGuard: CanActivateFn = (): Observable<boolean | UrlTree> => {
       if (isAuthenticated) {
         return true;
       }
-      // User is not authenticated, redirect to login
-      console.log('User not authenticated, redirecting to login');
       return router.createUrlTree(['/login']);
     })
   );
@@ -44,8 +42,6 @@ export const guestOnlyGuard: CanActivateFn = (): Observable<boolean | UrlTree> =
       if (!isAuthenticated) {
         return true;
       }
-      // User is already authenticated, redirect to map
-      console.log('User already authenticated, redirecting to map');
       return router.createUrlTree(['/map']);
     })
   );

@@ -2,6 +2,8 @@ package com.trucktrack.auth.controller;
 
 import com.trucktrack.auth.dto.LoginRequest;
 import com.trucktrack.auth.dto.LoginResponse;
+import com.trucktrack.auth.dto.RefreshTokenRequest;
+import com.trucktrack.auth.dto.RefreshTokenResponse;
 import com.trucktrack.auth.dto.UserResponse;
 import com.trucktrack.auth.service.AuthService;
 import jakarta.validation.Valid;
@@ -35,20 +37,32 @@ public class AuthController {
         if ("admin@trucktrack.com".equals(loginRequest.getEmail()) &&
             "AdminPass123!".equals(loginRequest.getPassword())) {
 
-            // Generate JWT token
+            String userId = UUID.randomUUID().toString();
+            String role = "FLEET_MANAGER";
+
+            // Generate JWT access token
             String token = authService.generateToken(
                     loginRequest.getEmail(),
-                    UUID.randomUUID().toString(),
-                    "FLEET_MANAGER"
+                    userId,
+                    role
+            );
+
+            // Generate refresh token
+            String refreshToken = authService.generateRefreshToken(
+                    loginRequest.getEmail(),
+                    userId,
+                    role
             );
 
             log.info("User logged in successfully: {}", loginRequest.getEmail());
 
             LoginResponse response = new LoginResponse();
             response.setToken(token);
+            response.setRefreshToken(refreshToken);
             response.setType("Bearer");
             response.setEmail(loginRequest.getEmail());
-            response.setRole("FLEET_MANAGER");
+            response.setRole(role);
+            response.setExpiresIn(authService.getExpirationInSeconds());
 
             return ResponseEntity.ok(response);
         }
@@ -56,6 +70,39 @@ public class AuthController {
         log.warn("Invalid credentials for user: {}", loginRequest.getEmail());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body("Invalid credentials");
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+        log.info("Token refresh attempt");
+
+        String refreshToken = request.getRefreshToken();
+
+        // Validate refresh token
+        if (!authService.validateRefreshToken(refreshToken)) {
+            log.warn("Invalid refresh token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid or expired refresh token");
+        }
+
+        // Extract user info from refresh token
+        String username = authService.getUsernameFromToken(refreshToken);
+        String userId = authService.getUserIdFromToken(refreshToken);
+        String role = authService.getRoleFromToken(refreshToken);
+
+        // Generate new tokens
+        String newAccessToken = authService.generateToken(username, userId, role);
+        String newRefreshToken = authService.generateRefreshToken(username, userId, role);
+
+        log.info("Token refreshed successfully for user: {}", username);
+
+        RefreshTokenResponse response = new RefreshTokenResponse();
+        response.setAccessToken(newAccessToken);
+        response.setRefreshToken(newRefreshToken);
+        response.setTokenType("Bearer");
+        response.setExpiresIn(authService.getExpirationInSeconds());
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/me")

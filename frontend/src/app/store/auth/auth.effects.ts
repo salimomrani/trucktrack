@@ -18,8 +18,11 @@ export class AuthEffects {
       switchMap(({ credentials }) =>
         this.authService.login(credentials).pipe(
           switchMap((response) => {
-            // Store access token in localStorage
+            // Store access token and refresh token in localStorage
             this.tokenStorage.setAccessToken(response.token);
+            if (response.refreshToken) {
+              this.tokenStorage.setRefreshToken(response.refreshToken);
+            }
 
             // Fetch user details from backend
             return this.authService.getCurrentUserFromBackend().pipe(
@@ -84,10 +87,38 @@ export class AuthEffects {
 
         // Check if token is expired
         if (this.tokenStorage.isTokenExpired(token)) {
-          return of(AuthActions.loadUserFailure({ error: 'Token expired' }));
+          console.log('Access token expired, attempting refresh...');
+
+          // Try to refresh using refresh token
+          const refreshToken = this.tokenStorage.getRefreshToken();
+          if (!refreshToken) {
+            console.log('No refresh token available');
+            return of(AuthActions.loadUserFailure({ error: 'Token expired and no refresh token' }));
+          }
+
+          // Attempt to refresh tokens
+          return this.authService.refreshToken(refreshToken).pipe(
+            switchMap((response) => {
+              // Store new tokens
+              this.tokenStorage.setAccessToken(response.accessToken);
+              this.tokenStorage.setRefreshToken(response.refreshToken);
+              console.log('Token refreshed successfully');
+
+              // Now fetch user with new token
+              return this.authService.getCurrentUserFromBackend().pipe(
+                map(user => AuthActions.loadUserSuccess({ user })),
+                catchError(error => of(AuthActions.loadUserFailure({ error: error.message || 'Failed to load user after refresh' })))
+              );
+            }),
+            catchError(error => {
+              console.error('Token refresh failed:', error);
+              this.tokenStorage.clearTokens();
+              return of(AuthActions.loadUserFailure({ error: 'Token refresh failed' }));
+            })
+          );
         }
 
-        // Fetch user from backend
+        // Token is valid, fetch user from backend
         return this.authService.getCurrentUserFromBackend().pipe(
           map(user => AuthActions.loadUserSuccess({ user })),
           catchError(error => of(AuthActions.loadUserFailure({ error: error.message || 'Failed to load user' })))
@@ -133,6 +164,20 @@ export class AuthEffects {
           // Clear tokens and navigate to login on refresh failure
           this.tokenStorage.clearTokens();
           this.authService.navigateToLogin();
+        })
+      ),
+    { dispatch: false }
+  );
+
+  loadUserFailure$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.loadUserFailure),
+        tap(() => {
+          // Clear any remaining tokens
+          // Navigation is handled by route guards - they will redirect to login
+          // when they see isAuthenticated: false in the store
+          this.tokenStorage.clearTokens();
         })
       ),
     { dispatch: false }

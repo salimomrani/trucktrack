@@ -5,7 +5,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideStore, Store } from '@ngrx/store';
 import { provideEffects, Actions, ofType } from '@ngrx/effects';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timeout, catchError, of } from 'rxjs';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
@@ -21,15 +21,23 @@ import * as AuthActions from './store/auth/auth.actions';
  */
 function initializeAuth(store: Store<AppState>, actions$: Actions) {
   return () => {
-    // Dispatch loadUser action
-    store.dispatch(AuthActions.loadUser());
-
-    // Wait for either success or failure before continuing app bootstrap
-    return firstValueFrom(
+    // IMPORTANT: Subscribe FIRST, then dispatch
+    // Otherwise we miss the action if it's emitted synchronously
+    const result = firstValueFrom(
       actions$.pipe(
-        ofType(AuthActions.loadUserSuccess, AuthActions.loadUserFailure)
+        ofType(AuthActions.loadUserSuccess, AuthActions.loadUserFailure),
+        timeout(5000),
+        catchError((err) => {
+          console.warn('Auth initialization timeout, continuing without auth:', err);
+          return of(null);
+        })
       )
     );
+
+    // Now dispatch the action - the subscription above will catch the response
+    store.dispatch(AuthActions.loadUser());
+
+    return result;
   };
 }
 

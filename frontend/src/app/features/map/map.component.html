@@ -48,6 +48,28 @@
     <app-filter-panel />
   </div>
 
+  <!-- T126: History controls panel -->
+  @if (historyMode()) {
+    <div class="history-panel">
+      <div class="history-header">
+        <mat-icon>route</mat-icon>
+        <span>Truck History (24h)</span>
+      </div>
+      <button mat-raised-button color="warn" (click)="clearHistory()">
+        <mat-icon>close</mat-icon>
+        Clear History
+      </button>
+    </div>
+  }
+
+  <!-- History loading indicator -->
+  @if (historyLoading()) {
+    <div class="history-loading">
+      <mat-spinner diameter="30"></mat-spinner>
+      <span>Loading history...</span>
+    </div>
+  }
+
   <!-- Map container -->
   <div id="map" class="map-container"></div>
 </div>

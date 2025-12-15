@@ -1,16 +1,18 @@
-import { Component, OnInit, signal, inject, effect, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, inject, effect, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatButtonModule } from '@angular/material/button';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { interval } from 'rxjs';
 import * as L from 'leaflet';
 import 'leaflet.markercluster';
 import { WebSocketService } from '../../core/services/websocket.service';
+import { TruckService } from '../../services/truck.service';
 import { StoreFacade } from '../../store/store.facade';
 import { Truck, TruckStatus } from '../../models/truck.model';
-import { GPSPositionEvent } from '../../models/gps-position.model';
+import { GPSPosition, GPSPositionEvent } from '../../models/gps-position.model';
 import { environment } from '../../../environments/environment';
 import { SearchBarComponent } from '../../core/components/search-bar/search-bar.component';
 import { FilterPanelComponent } from './filter-panel/filter-panel.component';
@@ -24,7 +26,7 @@ import { FilterPanelComponent } from './filter-panel/filter-panel.component';
 @Component({
   selector: 'app-map',
   standalone: true,
-  imports: [CommonModule, MatProgressSpinnerModule, MatIconModule, MatSnackBarModule, SearchBarComponent, FilterPanelComponent],
+  imports: [CommonModule, MatProgressSpinnerModule, MatIconModule, MatSnackBarModule, MatButtonModule, SearchBarComponent, FilterPanelComponent],
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -33,6 +35,7 @@ export class MapComponent implements OnInit {
   // Inject dependencies using inject()
   private readonly facade = inject(StoreFacade);
   private readonly webSocketService = inject(WebSocketService);
+  private readonly truckService = inject(TruckService);
   private readonly snackBar = inject(MatSnackBar);
 
   // Map and marker state
@@ -40,6 +43,10 @@ export class MapComponent implements OnInit {
   private markers: Map<string, L.Marker> = new Map();
   private markerClusterGroup!: L.MarkerClusterGroup;
   private isRenderingMarkers = false; // Flag to prevent deselect during re-render
+
+  // T128: History polyline state
+  private historyPolyline: L.Polyline | null = null;
+  private historyMarkers: L.CircleMarker[] = [];
 
   // Use store signals for state
   trucks = this.facade.trucks;
@@ -49,6 +56,11 @@ export class MapComponent implements OnInit {
   isLoading = this.facade.trucksLoading;
   isConnected = signal(false);
   errorMessage = signal('');
+
+  // T126: History mode state
+  historyMode = signal(false);
+  historyTruckId = signal<string | null>(null);
+  historyLoading = signal(false);
 
   constructor() {
     // Setup WebSocket connection status subscription with automatic cleanup
@@ -122,6 +134,7 @@ export class MapComponent implements OnInit {
     this.initMap();
     this.loadTrucks();
     this.connectWebSocket();
+    this.setupHistoryEventListener();
   }
 
   /**
@@ -331,6 +344,7 @@ export class MapComponent implements OnInit {
 
   /**
    * Create popup content with truck details
+   * T126: Add "View History" button
    */
   private createPopupContent(truck: Truck): string {
     const lastUpdate = truck.lastUpdate
@@ -344,6 +358,9 @@ export class MapComponent implements OnInit {
         ${truck.driverName ? `<p><strong>Driver:</strong> ${truck.driverName}</p>` : ''}
         ${truck.currentSpeed !== null && truck.currentSpeed !== undefined ? `<p><strong>Speed:</strong> ${truck.currentSpeed.toFixed(1)} km/h</p>` : ''}
         <p><strong>Last Update:</strong> ${lastUpdate}</p>
+        <button class="view-history-btn" onclick="window.dispatchEvent(new CustomEvent('viewTruckHistory', {detail: '${truck.id}'}))">
+          📍 View History (24h)
+        </button>
       </div>
     `;
   }
@@ -437,6 +454,137 @@ export class MapComponent implements OnInit {
       }
     }, 400);
   }
+
+  /**
+   * Setup history event listener
+   * T126: Listen for "View History" button clicks from popup
+   */
+  private setupHistoryEventListener(): void {
+    window.addEventListener('viewTruckHistory', ((event: CustomEvent) => {
+      const truckId = event.detail;
+      this.viewTruckHistory(truckId);
+    }) as EventListener);
+  }
+
+  /**
+   * View truck history for the last 24 hours
+   * T126, T128: Fetch history and render polyline
+   */
+  viewTruckHistory(truckId: string): void {
+    console.log(`Viewing history for truck: ${truckId}`);
+    this.historyLoading.set(true);
+    this.historyTruckId.set(truckId);
+
+    // Calculate time range (last 24 hours)
+    const endTime = new Date().toISOString();
+    const startTime = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+    this.truckService.getTruckHistory(truckId, startTime, endTime)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (positions) => {
+          this.historyLoading.set(false);
+          if (positions.length > 0) {
+            this.renderHistoryPolyline(positions);
+            this.historyMode.set(true);
+            this.snackBar.open(`Showing ${positions.length} positions for last 24h`, 'OK', { duration: 3000 });
+          } else {
+            this.snackBar.open('No history data available for this truck', 'OK', { duration: 3000 });
+          }
+        },
+        error: (err) => {
+          this.historyLoading.set(false);
+          console.error('Error fetching history:', err);
+          this.snackBar.open('Failed to load truck history', 'Dismiss', { duration: 5000 });
+        }
+      });
+  }
+
+  /**
+   * Render history polyline on map
+   * T128: Implement polyline rendering
+   * T129: Add hover tooltips
+   */
+  private renderHistoryPolyline(positions: GPSPosition[]): void {
+    // Clear existing history
+    this.clearHistoryFromMap();
+
+    // Create polyline from positions
+    const latLngs: L.LatLngExpression[] = positions.map(p => [p.latitude, p.longitude]);
+
+    // T128: Create styled polyline
+    this.historyPolyline = L.polyline(latLngs, {
+      color: '#2196F3',
+      weight: 4,
+      opacity: 0.8,
+      smoothFactor: 1
+    }).addTo(this.map);
+
+    // T129: Add markers with tooltips at key points (start, end, and sampled points)
+    const markerInterval = Math.max(1, Math.floor(positions.length / 10)); // Show ~10 markers max
+
+    positions.forEach((position, index) => {
+      // Show marker at start, end, and every Nth position
+      if (index === 0 || index === positions.length - 1 || index % markerInterval === 0) {
+        const isStart = index === 0;
+        const isEnd = index === positions.length - 1;
+
+        const marker = L.circleMarker([position.latitude, position.longitude], {
+          radius: isStart || isEnd ? 8 : 5,
+          fillColor: isStart ? '#4CAF50' : (isEnd ? '#F44336' : '#2196F3'),
+          color: '#fff',
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.8
+        }).addTo(this.map);
+
+        // T129: Add tooltip with timestamp
+        const time = new Date(position.timestamp).toLocaleString();
+        const label = isStart ? 'Start' : (isEnd ? 'End' : `Point ${index + 1}`);
+        marker.bindTooltip(`
+          <strong>${label}</strong><br>
+          Time: ${time}<br>
+          Speed: ${position.speed?.toFixed(1) ?? 'N/A'} km/h
+        `, { permanent: false, direction: 'top' });
+
+        this.historyMarkers.push(marker);
+      }
+    });
+
+    // Fit map to polyline bounds
+    this.map.fitBounds(this.historyPolyline.getBounds(), { padding: [50, 50] });
+
+    console.log(`Rendered history polyline with ${positions.length} points`);
+  }
+
+  /**
+   * Clear history from map
+   * T130: Clear history button handler
+   */
+  clearHistory(): void {
+    this.clearHistoryFromMap();
+    this.historyMode.set(false);
+    this.historyTruckId.set(null);
+    console.log('History cleared');
+  }
+
+  /**
+   * Remove history polyline and markers from map
+   */
+  private clearHistoryFromMap(): void {
+    if (this.historyPolyline) {
+      this.map.removeLayer(this.historyPolyline);
+      this.historyPolyline = null;
+    }
+
+    this.historyMarkers.forEach(marker => {
+      this.map.removeLayer(marker);
+    });
+    this.historyMarkers = [];
+  }
+
+  // DestroyRef for manual subscription cleanup
+  private readonly destroyRef = inject(DestroyRef);
 }
 
 // TODO: Add Leaflet Marker rotation plugin

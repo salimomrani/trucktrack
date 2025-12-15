@@ -1,18 +1,22 @@
 package com.trucktrack.location.controller;
 
 import com.trucktrack.common.event.GPSPositionEvent;
+import com.trucktrack.location.model.GPSPosition;
 import com.trucktrack.location.model.Truck;
 import com.trucktrack.location.model.TruckStatus;
+import com.trucktrack.location.repository.GPSPositionRepository;
 import com.trucktrack.location.repository.TruckRepository;
 import com.trucktrack.location.service.RedisCacheService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,7 +33,11 @@ import java.util.UUID;
 public class TruckController {
 
     private final TruckRepository truckRepository;
+    private final GPSPositionRepository gpsPositionRepository;
     private final RedisCacheService redisCacheService;
+
+    // T119: Maximum points before sampling kicks in
+    private static final int MAX_POINTS_THRESHOLD = 500;
 
     /**
      * List all trucks with optional filters
@@ -146,6 +154,48 @@ public class TruckController {
 
         List<Truck> trucks = truckRepository.findTrucksInBoundingBox(minLat, maxLat, minLng, maxLng);
         return ResponseEntity.ok(trucks);
+    }
+
+    /**
+     * T117: Get truck's historical GPS positions
+     * GET /location/v1/trucks/{truckId}/history?startTime=2024-01-01T00:00:00Z&endTime=2024-01-02T00:00:00Z
+     *
+     * User Story 3: View Truck Movement History
+     * Returns GPS positions within time range, with automatic sampling if >500 points
+     */
+    @GetMapping("/trucks/{truckId}/history")
+    public ResponseEntity<List<GPSPosition>> getTruckHistory(
+            @PathVariable UUID truckId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant startTime,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endTime) {
+
+        log.debug("Getting history for truck {} from {} to {}", truckId, startTime, endTime);
+
+        // Verify truck exists
+        if (!truckRepository.existsById(truckId)) {
+            log.warn("Truck not found: {}", truckId);
+            return ResponseEntity.notFound().build();
+        }
+
+        // T119: Check point count and apply sampling if needed
+        long pointCount = gpsPositionRepository.countByTruckIdAndTimestampBetween(truckId, startTime, endTime);
+        log.debug("Found {} GPS positions for truck {}", pointCount, truckId);
+
+        List<GPSPosition> positions;
+
+        if (pointCount > MAX_POINTS_THRESHOLD) {
+            // T119: Apply sampling to reduce payload
+            // Calculate sample rate to get approximately MAX_POINTS_THRESHOLD points
+            int sampleRate = (int) Math.ceil((double) pointCount / MAX_POINTS_THRESHOLD);
+            log.info("Sampling {} points with rate {} for truck {}", pointCount, sampleRate, truckId);
+            positions = gpsPositionRepository.findSampledPositions(truckId, startTime, endTime, sampleRate);
+        } else {
+            // Return all positions
+            positions = gpsPositionRepository.findByTruckIdAndTimestampBetween(truckId, startTime, endTime);
+        }
+
+        log.debug("Returning {} positions for truck {}", positions.size(), truckId);
+        return ResponseEntity.ok(positions);
     }
 
     /**
