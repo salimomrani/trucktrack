@@ -62,7 +62,7 @@
       color: #f44336;
     }
 
-    &.high .stat-icon {
+    &.warning .stat-icon {
       background-color: #fff9c4;
       color: #ff9800;
     }
@@ -135,24 +135,19 @@
         height: 24px;
       }
 
-      &[data-severity="critical"] {
+      &.severity-critical {
         background-color: #ffebee;
         color: #f44336;
       }
 
-      &[data-severity="high"] {
+      &.severity-warning {
         background-color: #fff9c4;
         color: #ff9800;
       }
 
-      &[data-severity="medium"] {
+      &.severity-info {
         background-color: #e3f2fd;
         color: #2196f3;
-      }
-
-      &[data-severity="low"] {
-        background-color: #e8f5e9;
-        color: #4caf50;
       }
     }
 
@@ -215,24 +210,19 @@
           height: 24px;
           min-height: 24px;
 
-          &[data-severity="critical"] {
+          &.severity-critical {
             background-color: #ffebee;
             color: #f44336;
           }
 
-          &[data-severity="high"] {
+          &.severity-warning {
             background-color: #fff9c4;
             color: #ff9800;
           }
 
-          &[data-severity="medium"] {
+          &.severity-info {
             background-color: #e3f2fd;
             color: #2196f3;
-          }
-
-          &[data-severity="low"] {
-            background-color: #e8f5e9;
-            color: #4caf50;
           }
         }
       }

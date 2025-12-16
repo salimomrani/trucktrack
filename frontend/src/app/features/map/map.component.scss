@@ -233,67 +233,193 @@
 
   // Truck popup styles
   .truck-popup {
-    h3 {
-      margin: 0 0 12px 0;
-      font-size: 16px;
-      font-weight: 600;
-      color: #333;
+    min-width: 250px;
+    max-width: 320px;
+    padding: 4px 0;
+
+    .popup-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 14px;
     }
 
-    p {
-      margin: 6px 0;
-      font-size: 14px;
-      color: #666;
+    .truck-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
 
-      strong {
-        color: #333;
+      .material-icons {
+        font-size: 26px;
+        color: white;
+      }
+
+      &.status-active {
+        background: #4caf50;
+      }
+
+      &.status-idle {
+        background: #ff9800;
+      }
+
+      &.status-offline {
+        background: #9e9e9e;
       }
     }
 
-    .status-active {
-      color: #4caf50;
-      font-weight: 600;
+    .truck-info {
+      flex: 1;
+      min-width: 0;
+
+      h3 {
+        margin: 0 0 6px 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
     }
 
-    .status-idle {
-      color: #ff9800;
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
       font-weight: 600;
+      text-transform: uppercase;
+
+      &.status-active {
+        background: #e8f5e9;
+        color: #2e7d32;
+      }
+
+      &.status-idle {
+        background: #fff3e0;
+        color: #e65100;
+      }
+
+      &.status-offline {
+        background: #f5f5f5;
+        color: #757575;
+      }
     }
 
-    .status-offline {
-      color: #9e9e9e;
-      font-weight: 600;
+    .popup-details {
+      margin-bottom: 16px;
+
+      .detail-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 0;
+        font-size: 14px;
+        color: #555;
+
+        .material-icons {
+          font-size: 20px;
+          color: #888;
+          flex-shrink: 0;
+        }
+
+        span:last-child {
+          flex: 1;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
     }
 
-    // T126: View History button in popup
+    .popup-actions {
+      padding-top: 12px;
+      border-top: 1px solid #eee;
+    }
+
     .view-history-btn {
-      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       width: 100%;
-      padding: 8px 16px;
+      padding: 12px 16px;
       background: #2196F3;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 500;
-      transition: background 0.2s ease;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+
+      .material-icons {
+        font-size: 20px;
+      }
 
       &:hover {
         background: #1976D2;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+      }
+
+      &:active {
+        transform: translateY(0);
       }
     }
   }
 
   // Leaflet popup customization
   .leaflet-popup-content-wrapper {
-    border-radius: 8px;
+    border-radius: 12px;
     padding: 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    overflow: visible;
   }
 
   .leaflet-popup-content {
-    margin: 16px;
-    min-width: 200px;
+    margin: 20px !important;
+    min-width: 250px;
+    max-width: 320px;
+    min-height: 180px;
+  }
+
+  .leaflet-popup-tip {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  // Close button positioning - inside the popup
+  .leaflet-popup-close-button {
+    top: 8px !important;
+    right: 8px !important;
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 20px !important;
+    line-height: 28px !important;
+    text-align: center;
+    color: #666 !important;
+    background: #f5f5f5 !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    transition: all 0.2s ease;
+    z-index: 10;
+
+    &:hover {
+      background: #e0e0e0 !important;
+      color: #333 !important;
+    }
+  }
+
+  // Force Leaflet to not constrain popup height
+  .leaflet-popup {
+    max-height: none !important;
   }
 }
 

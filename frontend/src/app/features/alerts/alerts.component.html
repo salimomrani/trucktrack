@@ -37,14 +37,14 @@
       </mat-card-content>
     </mat-card>
 
-    <mat-card class="stat-card high">
+    <mat-card class="stat-card warning">
       <mat-card-content>
         <div class="stat-icon">
           <mat-icon>warning</mat-icon>
         </div>
         <div class="stat-info">
-          <div class="stat-value">{{ stats().high }}</div>
-          <div class="stat-label">High</div>
+          <div class="stat-value">{{ stats().warning }}</div>
+          <div class="stat-label">Warning</div>
         </div>
       </mat-card-content>
     </mat-card>
@@ -58,28 +58,24 @@
           <button mat-button [class.active]="selectedSeverity() === null" (click)="filterBySeverity(null)">
             All
           </button>
-          <button mat-button [class.active]="selectedSeverity() === 'critical'" (click)="filterBySeverity('critical')">
+          <button mat-button [class.active]="selectedSeverity() === 'CRITICAL'" (click)="filterBySeverity('CRITICAL')">
             <mat-icon>error</mat-icon>
             Critical
           </button>
-          <button mat-button [class.active]="selectedSeverity() === 'high'" (click)="filterBySeverity('high')">
+          <button mat-button [class.active]="selectedSeverity() === 'WARNING'" (click)="filterBySeverity('WARNING')">
             <mat-icon>warning</mat-icon>
-            High
+            Warning
           </button>
-          <button mat-button [class.active]="selectedSeverity() === 'medium'" (click)="filterBySeverity('medium')">
+          <button mat-button [class.active]="selectedSeverity() === 'INFO'" (click)="filterBySeverity('INFO')">
             <mat-icon>info</mat-icon>
-            Medium
-          </button>
-          <button mat-button [class.active]="selectedSeverity() === 'low'" (click)="filterBySeverity('low')">
-            <mat-icon>check_circle</mat-icon>
-            Low
+            Info
           </button>
         </div>
 
         <div class="actions">
-          <button mat-stroked-button (click)="toggleShowResolved()">
-            <mat-icon>{{ showResolved() ? 'visibility_off' : 'visibility' }}</mat-icon>
-            {{ showResolved() ? 'Hide' : 'Show' }} Resolved
+          <button mat-stroked-button (click)="toggleShowRead()">
+            <mat-icon>{{ showRead() ? 'visibility_off' : 'visibility' }}</mat-icon>
+            {{ showRead() ? 'Hide' : 'Show' }} Read
           </button>
           <button mat-raised-button color="primary" (click)="markAllAsRead()" [disabled]="stats().unread === 0">
             <mat-icon>done_all</mat-icon>
@@ -90,62 +86,59 @@
     </mat-card-content>
   </mat-card>
 
-  <!-- Alerts List -->
+  <!-- Notifications List -->
   <div class="alerts-list">
     @if (isLoading()) {
       <div class="loading-spinner">
         <mat-spinner />
-        <p>Loading alerts...</p>
+        <p>Loading notifications...</p>
       </div>
-    } @else if (filteredAlerts().length === 0) {
+    } @else if (filteredNotifications().length === 0) {
       <mat-card class="no-alerts">
         <mat-card-content>
           <mat-icon>check_circle_outline</mat-icon>
-          <h3>No alerts found</h3>
-          <p>Great! There are no alerts matching your filters.</p>
+          <h3>No notifications found</h3>
+          <p>Great! There are no notifications matching your filters.</p>
         </mat-card-content>
       </mat-card>
     } @else {
-      @for (alert of filteredAlerts(); track alert.id) {
-        <mat-card class="alert-card" [class.unread]="!alert.isRead" [class.resolved]="alert.isResolved" [attr.data-severity]="alert.severity">
+      @for (notification of filteredNotifications(); track notification.id) {
+        <mat-card class="alert-card" [class.unread]="!notification.isRead" [class]="getSeverityClass(notification.severity)">
           <mat-card-content>
-            <div class="alert-icon" [attr.data-severity]="alert.severity">
-              <mat-icon>{{ getSeverityIcon(alert.severity) }}</mat-icon>
+            <div class="alert-icon" [class]="getSeverityClass(notification.severity)">
+              <mat-icon>{{ getSeverityIcon(notification.severity) }}</mat-icon>
             </div>
 
             <div class="alert-content">
               <div class="alert-header">
                 <div class="alert-title">
-                  <mat-icon class="type-icon">{{ getTypeIcon(alert.type) }}</mat-icon>
-                  <strong>{{ alert.title }}</strong>
-                  @if (!alert.isRead) {
+                  <mat-icon class="type-icon">{{ getTypeIcon(notification.notificationType) }}</mat-icon>
+                  <strong>{{ notification.title }}</strong>
+                  @if (!notification.isRead) {
                     <mat-chip class="unread-badge">New</mat-chip>
                   }
-                  @if (alert.isResolved) {
-                    <mat-chip class="resolved-badge">Resolved</mat-chip>
-                  }
                 </div>
-                <div class="alert-time">{{ alert.timestamp | date:'short' }}</div>
+                <div class="alert-time">{{ formatDate(notification.triggeredAt) }}</div>
               </div>
 
-              <div class="alert-message">{{ alert.message }}</div>
+              <div class="alert-message">{{ notification.message }}</div>
 
               <div class="alert-meta">
-                <mat-chip>{{ alert.truckId }}</mat-chip>
-                <mat-chip [attr.data-severity]="alert.severity">{{ alert.severity }}</mat-chip>
-                <mat-chip>{{ alert.type }}</mat-chip>
+                <mat-chip>{{ notification.truckId }}</mat-chip>
+                <mat-chip [class]="getSeverityClass(notification.severity)">{{ notification.severity }}</mat-chip>
+                <mat-chip>{{ notification.notificationType }}</mat-chip>
               </div>
             </div>
 
             <div class="alert-actions">
-              @if (!alert.isRead) {
-                <button mat-icon-button (click)="markAsRead(alert)" matTooltip="Mark as read">
-                  <mat-icon>mark_email_read</mat-icon>
+              @if (notification.latitude && notification.longitude) {
+                <button mat-icon-button color="accent" (click)="viewOnMap(notification)" matTooltip="View on map">
+                  <mat-icon>map</mat-icon>
                 </button>
               }
-              @if (!alert.isResolved) {
-                <button mat-icon-button color="primary" (click)="markAsResolved(alert)" matTooltip="Mark as resolved">
-                  <mat-icon>check_circle</mat-icon>
+              @if (!notification.isRead) {
+                <button mat-icon-button (click)="markAsRead(notification)" matTooltip="Mark as read">
+                  <mat-icon>mark_email_read</mat-icon>
                 </button>
               }
             </div>

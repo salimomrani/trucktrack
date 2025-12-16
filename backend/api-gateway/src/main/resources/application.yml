@@ -43,10 +43,10 @@ spring:
         - id: notification-service
           uri: http://localhost:8082
           predicates:
-            - Path=/notifications/**
+            - Path=/notification/**
           filters:
             - name: JwtAuthenticationFilter
-            - RewritePath=/notifications/(?<segment>.*), /notifications/$\{segment}
+            - RewritePath=/notification/(?<segment>.*), /notification/$\{segment}
 
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin

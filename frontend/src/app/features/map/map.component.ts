@@ -400,16 +400,33 @@ export class MapComponent implements OnInit {
       ? new Date(truck.lastUpdate).toLocaleString()
       : 'Unknown';
 
+    const statusClass = truck.status.toLowerCase();
+    const speedText = truck.currentSpeed !== null && truck.currentSpeed !== undefined
+      ? `${truck.currentSpeed.toFixed(1)} km/h`
+      : 'N/A';
+
     return `
       <div class="truck-popup">
-        <h3>${truck.truckId}</h3>
-        <p><strong>Status:</strong> <span class="status-${truck.status.toLowerCase()}">${truck.status}</span></p>
-        ${truck.driverName ? `<p><strong>Driver:</strong> ${truck.driverName}</p>` : ''}
-        ${truck.currentSpeed !== null && truck.currentSpeed !== undefined ? `<p><strong>Speed:</strong> ${truck.currentSpeed.toFixed(1)} km/h</p>` : ''}
-        <p><strong>Last Update:</strong> ${lastUpdate}</p>
-        <button class="view-history-btn" onclick="window.dispatchEvent(new CustomEvent('viewTruckHistory', {detail: '${truck.id}'}))">
-          📍 View History (24h)
-        </button>
+        <div class="popup-header">
+          <div class="truck-icon status-${statusClass}">
+            <span class="material-icons">local_shipping</span>
+          </div>
+          <div class="truck-info">
+            <h3>${truck.truckId}</h3>
+            <span class="status-badge status-${statusClass}">${truck.status}</span>
+          </div>
+        </div>
+        <div class="popup-details">
+          ${truck.driverName ? `<div class="detail-row"><span class="material-icons">person</span><span>${truck.driverName}</span></div>` : ''}
+          <div class="detail-row"><span class="material-icons">speed</span><span>${speedText}</span></div>
+          <div class="detail-row"><span class="material-icons">schedule</span><span>${lastUpdate}</span></div>
+        </div>
+        <div class="popup-actions">
+          <button class="view-history-btn" onclick="window.dispatchEvent(new CustomEvent('viewTruckHistory', {detail: '${truck.id}'}))">
+            <span class="material-icons">history</span>
+            View History
+          </button>
+        </div>
       </div>
     `;
   }
