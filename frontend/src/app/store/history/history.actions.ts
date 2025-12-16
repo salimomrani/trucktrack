@@ -1,8 +1,11 @@
 import { createAction, props } from '@ngrx/store';
 import { TruckHistoryEntry } from './history.state';
 
-// Load History
-export const loadHistory = createAction('[History] Load History');
+// Load History with optional truckId (single endpoint)
+export const loadHistory = createAction(
+  '[History] Load History',
+  props<{ startTime: string; endTime: string; truckId?: string | null }>()
+);
 
 export const loadHistorySuccess = createAction(
   '[History] Load History Success',

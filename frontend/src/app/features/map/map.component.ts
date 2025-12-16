@@ -479,10 +479,10 @@ export class MapComponent implements OnInit {
     const endTime = new Date().toISOString();
     const startTime = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
-    this.truckService.getTruckHistory(truckId, startTime, endTime)
+    this.truckService.getTrucksHistory(startTime, endTime, truckId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (positions) => {
+        next: (positions: GPSPosition[]) => {
           this.historyLoading.set(false);
           if (positions.length > 0) {
             this.renderHistoryPolyline(positions);
@@ -492,7 +492,7 @@ export class MapComponent implements OnInit {
             this.snackBar.open('No history data available for this truck', 'OK', { duration: 3000 });
           }
         },
-        error: (err) => {
+        error: (err: Error) => {
           this.historyLoading.set(false);
           console.error('Error fetching history:', err);
           this.snackBar.open('Failed to load truck history', 'Dismiss', { duration: 5000 });

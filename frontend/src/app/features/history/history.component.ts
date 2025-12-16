@@ -11,6 +11,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
 import { StoreFacade } from '../../store/store.facade';
 
@@ -26,6 +27,7 @@ interface TruckHistory {
 
 /**
  * HistoryComponent - View for displaying truck movement history
+ * Now uses REAL DATA from the backend API
  * Angular 17+ with signals, OnPush, Material UI
  */
 @Component({
@@ -44,6 +46,7 @@ interface TruckHistory {
     MatInputModule,
     MatNativeDateModule,
     MatChipsModule,
+    MatSnackBarModule,
     FormsModule
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,14 +55,40 @@ interface TruckHistory {
 })
 export class HistoryComponent implements OnInit {
   private readonly facade = inject(StoreFacade);
+  private readonly snackBar = inject(MatSnackBar);
 
   // State signals
   trucks = this.facade.trucks;
   historyData = this.facade.historyEntries;
   isLoading = this.facade.historyLoading;
+  historyError = this.facade.historyError;
+
   selectedTruckId = signal<string | null>(null);
-  startDate = signal<Date | null>(null);
-  endDate = signal<Date | null>(null);
+
+  // Default: today (start of day to end of day)
+  private getStartOfToday(): Date {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+  }
+
+  private getEndOfToday(): Date {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+  }
+
+  startDate = signal<Date>(this.getStartOfToday());
+  endDate = signal<Date>(this.getEndOfToday());
+
+  // Preset time ranges
+  timeRanges = [
+    { label: 'Today', hours: -1 }, // Special value for today
+    { label: 'Last Hour', hours: 1 },
+    { label: 'Last 6 Hours', hours: 6 },
+    { label: 'Last 24 Hours', hours: 24 },
+    { label: 'Last 7 Days', hours: 168 },
+    { label: 'Custom', hours: 0 }
+  ];
+  selectedTimeRange = signal<number>(-1); // Default: Today
 
   // Computed signals
   selectedTruck = computed(() => {
@@ -71,23 +100,15 @@ export class HistoryComponent implements OnInit {
   filteredHistory = computed(() => {
     let data = this.historyData();
     const truckId = this.selectedTruckId();
-    const start = this.startDate();
-    const end = this.endDate();
 
     if (truckId) {
       data = data.filter(h => h.truckId === truckId);
     }
 
-    if (start) {
-      data = data.filter(h => h.timestamp >= start);
-    }
-
-    if (end) {
-      data = data.filter(h => h.timestamp <= end);
-    }
-
     return data;
   });
+
+  hasData = computed(() => this.historyData().length > 0);
 
   // Table columns
   displayedColumns: string[] = ['timestamp', 'truckId', 'location', 'speed', 'heading', 'status', 'actions'];
@@ -95,33 +116,98 @@ export class HistoryComponent implements OnInit {
   ngOnInit(): void {
     // Load trucks from store
     this.facade.loadTrucks();
-    // Load history from store
-    this.facade.loadHistory();
+    // Auto-load history for today
+    this.loadHistory();
+  }
+
+  /**
+   * Load history for selected truck or all trucks (single API endpoint)
+   */
+  loadHistory(): void {
+    const truckId = this.selectedTruckId();
+    const start = this.startDate();
+    const end = this.endDate();
+
+    if (!start || !end) {
+      this.snackBar.open('Please select a date range', 'OK', { duration: 3000 });
+      return;
+    }
+
+    const startTime = start.toISOString();
+    const endTime = end.toISOString();
+
+    console.log(`Loading history from ${startTime} to ${endTime}${truckId ? ` for truck ${truckId}` : ' for all trucks'}`);
+    this.facade.loadHistory(startTime, endTime, truckId);
   }
 
   onTruckSelect(truckId: string): void {
-    this.selectedTruckId.set(truckId);
+    this.selectedTruckId.set(truckId || null);
   }
 
-  onDateRangeChange(): void {
-    // Trigger recomputation of filtered history
+  onTimeRangeChange(hours: number): void {
+    this.selectedTimeRange.set(hours);
+    if (hours === -1) {
+      // Today: start of day to end of day
+      this.startDate.set(this.getStartOfToday());
+      this.endDate.set(this.getEndOfToday());
+    } else if (hours > 0) {
+      const end = new Date();
+      const start = new Date(Date.now() - hours * 60 * 60 * 1000);
+      this.startDate.set(start);
+      this.endDate.set(end);
+    }
+  }
+
+  onDateChange(): void {
+    // Mark as custom range
+    this.selectedTimeRange.set(0);
   }
 
   clearFilters(): void {
     this.selectedTruckId.set(null);
-    this.startDate.set(null);
-    this.endDate.set(null);
+    this.selectedTimeRange.set(-1); // Reset to Today
+    this.startDate.set(this.getStartOfToday());
+    this.endDate.set(this.getEndOfToday());
+    this.facade.clearHistory();
   }
 
   viewOnMap(history: TruckHistory): void {
     // TODO: Navigate to map with this location centered
     console.log('View on map:', history);
+    this.snackBar.open(`Location: ${history.latitude.toFixed(4)}, ${history.longitude.toFixed(4)}`, 'OK', { duration: 3000 });
   }
 
   exportHistory(): void {
     const data = this.filteredHistory();
-    console.log('Exporting history data:', data);
-    // TODO: Implement CSV export
+    if (data.length === 0) {
+      this.snackBar.open('No data to export', 'OK', { duration: 3000 });
+      return;
+    }
+
+    // Create CSV content
+    const headers = ['Timestamp', 'Truck ID', 'Latitude', 'Longitude', 'Speed (km/h)', 'Heading', 'Status'];
+    const rows = data.map(h => [
+      new Date(h.timestamp).toISOString(),
+      h.truckId,
+      h.latitude.toFixed(6),
+      h.longitude.toFixed(6),
+      h.speed.toFixed(1),
+      h.heading.toFixed(0),
+      h.status
+    ]);
+
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+
+    // Download file
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `truck-history-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+
+    this.snackBar.open(`Exported ${data.length} records`, 'OK', { duration: 3000 });
   }
 
   formatLocation(lat: number, lon: number): string {

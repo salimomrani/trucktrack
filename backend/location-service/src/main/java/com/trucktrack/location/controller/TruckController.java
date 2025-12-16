@@ -157,44 +157,59 @@ public class TruckController {
     }
 
     /**
-     * T117: Get truck's historical GPS positions
-     * GET /location/v1/trucks/{truckId}/history?startTime=2024-01-01T00:00:00Z&endTime=2024-01-02T00:00:00Z
+     * Get trucks' historical GPS positions
+     * GET /location/v1/trucks/history?startTime=...&endTime=...&truckId=... (optional)
      *
-     * User Story 3: View Truck Movement History
-     * Returns GPS positions within time range, with automatic sampling if >500 points
+     * If truckId is provided, returns history for that specific truck
+     * If truckId is omitted, returns history for all trucks
+     * Automatic sampling if >500 points
      */
-    @GetMapping("/trucks/{truckId}/history")
-    public ResponseEntity<List<GPSPosition>> getTruckHistory(
-            @PathVariable UUID truckId,
+    @GetMapping("/trucks/history")
+    public ResponseEntity<List<GPSPosition>> getTrucksHistory(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant startTime,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endTime) {
-
-        log.debug("Getting history for truck {} from {} to {}", truckId, startTime, endTime);
-
-        // Verify truck exists
-        if (!truckRepository.existsById(truckId)) {
-            log.warn("Truck not found: {}", truckId);
-            return ResponseEntity.notFound().build();
-        }
-
-        // T119: Check point count and apply sampling if needed
-        long pointCount = gpsPositionRepository.countByTruckIdAndTimestampBetween(truckId, startTime, endTime);
-        log.debug("Found {} GPS positions for truck {}", pointCount, truckId);
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endTime,
+            @RequestParam(required = false) UUID truckId) {
 
         List<GPSPosition> positions;
+        long pointCount;
 
-        if (pointCount > MAX_POINTS_THRESHOLD) {
-            // T119: Apply sampling to reduce payload
-            // Calculate sample rate to get approximately MAX_POINTS_THRESHOLD points
-            int sampleRate = (int) Math.ceil((double) pointCount / MAX_POINTS_THRESHOLD);
-            log.info("Sampling {} points with rate {} for truck {}", pointCount, sampleRate, truckId);
-            positions = gpsPositionRepository.findSampledPositions(truckId, startTime, endTime, sampleRate);
+        if (truckId != null) {
+            // Specific truck history
+            log.debug("Getting history for truck {} from {} to {}", truckId, startTime, endTime);
+
+            // Verify truck exists
+            if (!truckRepository.existsById(truckId)) {
+                log.warn("Truck not found: {}", truckId);
+                return ResponseEntity.notFound().build();
+            }
+
+            pointCount = gpsPositionRepository.countByTruckIdAndTimestampBetween(truckId, startTime, endTime);
+            log.debug("Found {} GPS positions for truck {}", pointCount, truckId);
+
+            if (pointCount > MAX_POINTS_THRESHOLD) {
+                int sampleRate = (int) Math.ceil((double) pointCount / MAX_POINTS_THRESHOLD);
+                log.info("Sampling {} points with rate {} for truck {}", pointCount, sampleRate, truckId);
+                positions = gpsPositionRepository.findSampledPositions(truckId, startTime, endTime, sampleRate);
+            } else {
+                positions = gpsPositionRepository.findByTruckIdAndTimestampBetween(truckId, startTime, endTime);
+            }
         } else {
-            // Return all positions
-            positions = gpsPositionRepository.findByTruckIdAndTimestampBetween(truckId, startTime, endTime);
+            // All trucks history
+            log.debug("Getting history for all trucks from {} to {}", startTime, endTime);
+
+            pointCount = gpsPositionRepository.countAllByTimestampBetween(startTime, endTime);
+            log.debug("Found {} GPS positions for all trucks", pointCount);
+
+            if (pointCount > MAX_POINTS_THRESHOLD) {
+                int sampleRate = (int) Math.ceil((double) pointCount / MAX_POINTS_THRESHOLD);
+                log.info("Sampling {} points with rate {} for all trucks", pointCount, sampleRate);
+                positions = gpsPositionRepository.findAllSampledPositions(startTime, endTime, sampleRate);
+            } else {
+                positions = gpsPositionRepository.findAllByTimestampBetween(startTime, endTime);
+            }
         }
 
-        log.debug("Returning {} positions for truck {}", positions.size(), truckId);
+        log.debug("Returning {} positions", positions.size());
         return ResponseEntity.ok(positions);
     }
 

@@ -7,10 +7,22 @@
       </mat-card-title>
     </mat-card-header>
     <mat-card-content>
+      <!-- Time Range Presets -->
+      <div class="time-range-presets">
+        <span class="preset-label">Quick Select:</span>
+        @for (range of timeRanges; track range.hours) {
+          <button mat-stroked-button
+                  [class.selected]="selectedTimeRange() === range.hours"
+                  (click)="onTimeRangeChange(range.hours)">
+            {{ range.label }}
+          </button>
+        }
+      </div>
+
       <div class="filters">
         <mat-form-field appearance="outline">
           <mat-label>Select Truck</mat-label>
-          <mat-select [(ngModel)]="selectedTruckId" (selectionChange)="onTruckSelect($event.value)">
+          <mat-select [value]="selectedTruckId()" (selectionChange)="onTruckSelect($event.value)">
             <mat-option [value]="null">All Trucks</mat-option>
             @for (truck of trucks(); track truck.id) {
               <mat-option [value]="truck.id">{{ truck.id }}</mat-option>
@@ -20,31 +32,46 @@
 
         <mat-form-field appearance="outline">
           <mat-label>Start Date</mat-label>
-          <input matInput [matDatepicker]="startPicker" [(ngModel)]="startDate" (dateChange)="onDateRangeChange()">
+          <input matInput [matDatepicker]="startPicker" [value]="startDate()" (dateChange)="startDate.set($event.value); onDateChange()">
           <mat-datepicker-toggle matIconSuffix [for]="startPicker" />
           <mat-datepicker #startPicker />
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>End Date</mat-label>
-          <input matInput [matDatepicker]="endPicker" [(ngModel)]="endDate" (dateChange)="onDateRangeChange()">
+          <input matInput [matDatepicker]="endPicker" [value]="endDate()" (dateChange)="endDate.set($event.value); onDateChange()">
           <mat-datepicker-toggle matIconSuffix [for]="endPicker" />
           <mat-datepicker #endPicker />
         </mat-form-field>
 
-        <button mat-raised-button (click)="clearFilters()">
-          <mat-icon>clear</mat-icon>
-          Clear Filters
+        <button mat-raised-button color="primary" (click)="loadHistory()">
+          <mat-icon>search</mat-icon>
+          Load History
         </button>
 
-        <button mat-raised-button color="primary" (click)="exportHistory()">
+        <button mat-raised-button (click)="clearFilters()">
+          <mat-icon>clear</mat-icon>
+          Clear
+        </button>
+
+        <button mat-raised-button color="accent" (click)="exportHistory()" [disabled]="!hasData()">
           <mat-icon>download</mat-icon>
           Export
         </button>
       </div>
 
+      @if (historyError()) {
+        <div class="error-message">
+          <mat-icon>error</mat-icon>
+          {{ historyError() }}
+        </div>
+      }
+
       <div class="results-info">
         <mat-chip>{{ filteredHistory().length }} records found</mat-chip>
+        @if (selectedTruck()) {
+          <mat-chip color="primary">Truck: {{ selectedTruck()?.id }}</mat-chip>
+        }
       </div>
     </mat-card-content>
   </mat-card>

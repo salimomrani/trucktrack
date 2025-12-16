@@ -89,18 +89,24 @@ export class TruckService {
 
   /**
    * Get truck history for a time range
+   * If truckId is provided, returns history for that specific truck
+   * If truckId is omitted or null, returns history for all trucks
    */
-  getTruckHistory(
-    truckId: string,
+  getTrucksHistory(
     startTime: string,
-    endTime: string
+    endTime: string,
+    truckId?: string | null
   ): Observable<GPSPosition[]> {
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('startTime', startTime)
       .set('endTime', endTime);
 
+    if (truckId) {
+      params = params.set('truckId', truckId);
+    }
+
     return this.http.get<GPSPosition[]>(
-      `${this.baseUrl}/trucks/${truckId}/history`,
+      `${this.baseUrl}/trucks/history`,
       { params }
     );
   }

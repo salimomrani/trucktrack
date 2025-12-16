@@ -178,8 +178,8 @@ export class StoreFacade {
   }
 
   // History Actions
-  loadHistory() {
-    this.store.dispatch(HistoryActions.loadHistory());
+  loadHistory(startTime: string, endTime: string, truckId?: string | null) {
+    this.store.dispatch(HistoryActions.loadHistory({ startTime, endTime, truckId }));
   }
 
   clearHistory() {

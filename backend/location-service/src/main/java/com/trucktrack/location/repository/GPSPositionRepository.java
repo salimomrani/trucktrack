@@ -160,4 +160,37 @@ public interface GPSPositionRepository extends JpaRepository<GPSPosition, UUID> 
         @Param("startTime") Instant startTime,
         @Param("endTime") Instant endTime
     );
+
+    /**
+     * Find all GPS positions within a time range (for all trucks)
+     * Used for global history view
+     */
+    @Query("SELECT g FROM GPSPosition g WHERE g.timestamp BETWEEN :startTime AND :endTime " +
+           "ORDER BY g.timestamp DESC")
+    List<GPSPosition> findAllByTimestampBetween(
+        @Param("startTime") Instant startTime,
+        @Param("endTime") Instant endTime
+    );
+
+    /**
+     * Count all GPS positions within a time range
+     */
+    @Query("SELECT COUNT(g) FROM GPSPosition g WHERE g.timestamp BETWEEN :startTime AND :endTime")
+    long countAllByTimestampBetween(
+        @Param("startTime") Instant startTime,
+        @Param("endTime") Instant endTime
+    );
+
+    /**
+     * Find sampled GPS positions for all trucks (reduce points for large datasets)
+     */
+    @Query(value = "SELECT * FROM gps_positions WHERE timestamp BETWEEN :startTime AND :endTime " +
+                   "AND MOD(CAST(EXTRACT(EPOCH FROM timestamp) AS integer), :sampleRate) = 0 " +
+                   "ORDER BY timestamp DESC",
+           nativeQuery = true)
+    List<GPSPosition> findAllSampledPositions(
+        @Param("startTime") Instant startTime,
+        @Param("endTime") Instant endTime,
+        @Param("sampleRate") int sampleRate
+    );
 }

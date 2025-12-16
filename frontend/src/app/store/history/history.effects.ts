@@ -1,55 +1,56 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { Store } from '@ngrx/store';
 import { of } from 'rxjs';
-import { map, catchError, withLatestFrom } from 'rxjs/operators';
+import { map, catchError, switchMap } from 'rxjs/operators';
 import * as HistoryActions from './history.actions';
-import { selectAllTrucks } from '../trucks/trucks.selectors';
 import { TruckHistoryEntry } from './history.state';
-import { Truck } from '../../models/truck.model';
+import { TruckService } from '../../services/truck.service';
+import { GPSPosition } from '../../models/gps-position.model';
 
 @Injectable()
 export class HistoryEffects {
   private actions$ = inject(Actions);
-  private store = inject(Store);
+  private truckService = inject(TruckService);
 
+  /**
+   * Load history with optional truckId (single API endpoint)
+   * GET /location/v1/trucks/history?startTime=...&endTime=...&truckId=... (optional)
+   */
   loadHistory$ = createEffect(() =>
     this.actions$.pipe(
       ofType(HistoryActions.loadHistory),
-      withLatestFrom(this.store.select(selectAllTrucks)),
-      map(([_, trucks]) => {
-        try {
-          const mockEntries = this.generateMockHistory(trucks);
-          return HistoryActions.loadHistorySuccess({ entries: mockEntries });
-        } catch (error: any) {
-          return HistoryActions.loadHistoryFailure({ error: error.message || 'Failed to generate history' });
-        }
-      }),
-      catchError((error) =>
-        of(HistoryActions.loadHistoryFailure({ error: error.message || 'Failed to load history' }))
+      switchMap(({ startTime, endTime, truckId }) =>
+        this.truckService.getTrucksHistory(startTime, endTime, truckId).pipe(
+          map((positions: GPSPosition[]) => {
+            const entries = this.mapPositionsToEntries(positions);
+            // Sort by timestamp descending
+            entries.sort((a, b) =>
+              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+            );
+            return HistoryActions.loadHistorySuccess({ entries });
+          }),
+          catchError((error) =>
+            of(HistoryActions.loadHistoryFailure({
+              error: error.message || 'Failed to load history'
+            }))
+          )
+        )
       )
     )
   );
 
-  private generateMockHistory(trucks: Truck[]): TruckHistoryEntry[] {
-    const mockData: TruckHistoryEntry[] = [];
-    const now = new Date();
-
-    trucks.forEach(truck => {
-      for (let i = 0; i < 20; i++) {
-        const timestamp = new Date(now.getTime() - (i * 30 * 60 * 1000)); // 30 min intervals
-        mockData.push({
-          truckId: truck.truckId,
-          timestamp,
-          latitude: (truck.currentLatitude || 40.7128) + (Math.random() - 0.5) * 0.1,
-          longitude: (truck.currentLongitude || -74.0060) + (Math.random() - 0.5) * 0.1,
-          speed: Math.random() * 80,
-          heading: Math.random() * 360,
-          status: Math.random() > 0.8 ? 'stopped' : 'moving'
-        });
-      }
-    });
-
-    return mockData;
+  /**
+   * Map GPS positions from API to TruckHistoryEntry format
+   */
+  private mapPositionsToEntries(positions: GPSPosition[]): TruckHistoryEntry[] {
+    return positions.map(pos => ({
+      truckId: pos.truckId,
+      timestamp: new Date(pos.timestamp),
+      latitude: pos.latitude,
+      longitude: pos.longitude,
+      speed: pos.speed || 0,
+      heading: pos.heading || 0,
+      status: (pos.speed && pos.speed > 5) ? 'moving' : 'stopped'
+    }));
   }
 }
