@@ -87,70 +87,184 @@
 
 ---
 
-## 📊 Current Implementation Status (Updated: 2025-12-12 - US3 complete)
+## 📊 Current Implementation Status (Updated: 2025-12-15)
+
+### 🏗️ Architecture Overview
+
+**Backend Stack:**
+- Java 17 + Spring Boot 3.x
+- PostgreSQL 15 + PostGIS 3.4 (spatial data)
+- Apache Kafka (KRaft mode, no Zookeeper)
+- Redis 7 (caching)
+- 5 microservices: api-gateway, auth-service, gps-ingestion-service, location-service, notification-service
+
+**Frontend Stack:**
+- Angular 17+ (standalone components)
+- NgRx Store with StoreFacade pattern + Angular Signals
+- Angular Material
+- Leaflet.js + leaflet.markercluster
+
+**Infrastructure:**
+- Docker Compose (dev environment)
+- Kafka UI for debugging
+- GitHub Actions CI/CD
 
 ### ✅ Completed Phases
-- **Phase 1: Setup** (T001-T013) - 100% complete
-- **Phase 2: Foundational** (T014-T047) - 100% complete
-  - Includes APP_INITIALIZER for auth (beyond specs)
-  - NgRx Store with StoreFacade pattern implemented
+
+#### Phase 1: Setup (T001-T013) - 100% complete ✅
+- Multi-module Maven project
+- All 5 microservice modules created
+- Angular 17 frontend initialized
+- Docker Compose with Kafka, PostgreSQL+PostGIS, Redis
+- Checkstyle, ESLint, Prettier configured
+- GitHub Actions CI/CD pipeline
+
+#### Phase 2: Foundational (T014-T047) - 100% complete ✅
+- PostgreSQL+PostGIS database with Flyway migrations
+- 8 database tables: users, trucks, gps_positions (partitioned), truck_groups, user_truck_groups, geofences, alert_rules, notifications
+- Kafka topics configured (3 topics)
+- Redis caching configured
+- JWT authentication (auth-service + api-gateway filter)
+- Spring Security with BCrypt + CORS
+- API Gateway routes configured
+- Shared library (DTOs, events, exceptions)
+- Angular Material + environment configs
+- AuthService, AuthGuard, AuthInterceptor
+- Login component + routing
+- **BONUS**: NgRx Store with StoreFacade pattern (beyond specs)
+- **BONUS**: APP_INITIALIZER for auth state restoration
 
 ### ✅ Completed User Stories
 
 #### User Story 1 (MVP - Live Map): 100% complete ✅
-- ✅ Backend entities (Truck, GPSPosition, TruckGroup, User)
-- ✅ Backend repositories (TruckRepository, GPSPositionRepository)
-- ✅ TruckController with GET endpoints
-- ✅ WebSocket configuration & handler
-- ✅ Frontend map with Leaflet, markers, clustering
-- ✅ WebSocket live updates
-- ✅ Truck models and services
-- ✅ GPS Ingestion Service (T062-T065)
-- ✅ Kafka consumer (T066)
-- ✅ Redis cache service (T068)
-- ✅ Status calculation service (T069)
-- ✅ All tests (T048-T055)
-- ✅ Accessibility & UX (T093-T095)
+**Backend:**
+- ✅ Entities: Truck, GPSPosition, TruckGroup, User (T056-T059)
+- ✅ Repositories: TruckRepository, GPSPositionRepository (T060-T061)
+- ✅ GPS Ingestion: GPSIngestionController, KafkaProducerService, GPSValidationService (T062-T065)
+- ✅ Location Service: LocationKafkaConsumer, LocationService (T066-T067)
+- ✅ Redis caching: RedisCacheService (T068)
+- ✅ Status calculation: TruckStatusService (T069)
+- ✅ TruckController: GET /location/v1/trucks, /trucks/{id}, /trucks/{id}/current-position (T070-T071)
+- ✅ WebSocket: WebSocketConfig, LocationWebSocketHandler (T072-T073)
+- ✅ Authorization logic in TruckController (T074)
+
+**Frontend:**
+- ✅ Models: Truck, GPSPosition (T075-T076)
+- ✅ Services: TruckService, WebSocketService (T077-T078)
+- ✅ MapComponent with Leaflet initialization (T079-T080)
+- ✅ Truck markers color-coded by status (T081-T082)
+- ✅ Marker clustering with leaflet.markercluster (T083)
+- ✅ Direction indicator (heading rotation) (T084)
+- ✅ Marker click popup with truck details (T085)
+- ✅ WebSocket subscription for live updates (T086-T087)
+- ✅ Pulsing animation for active trucks (T088)
+- ✅ Stale data indicator (gray out if >5min old) (T089)
+- ✅ Connection status indicator (T090)
+- ✅ Loading spinner (T091)
+- ✅ Error handling with Material snackbar (T092)
+- ✅ ARIA labels for accessibility (T093)
+- ✅ Keyboard navigation for truck selection (T094)
+- ✅ WCAG 2.1 AA color contrast (T095)
+- ✅ Tests (T048-T055) - TDD completed
+
+#### User Story 2 (Search & Filter): 100% complete ✅
+**Backend:**
+- ✅ Search endpoint: GET /location/v1/trucks/search?q= (T100)
+- ✅ Repository search query (LIKE on truckId + driverName) (T101)
+- ✅ Database index on driver_name (T102)
+
+**Frontend:**
+- ✅ SearchBarComponent with Material autocomplete (T103)
+- ✅ FilterPanelComponent with status checkboxes (T104)
+- ✅ Search logic with NgRx (T105)
+- ✅ Filter logic with NgRx store (T106)
+- ✅ Map centering on search selection (T107)
+- ✅ Filter changes update map markers (T108)
+- ✅ Clear filters button (T109)
+- ✅ "No results" message (T110)
+- ✅ Debounce 300ms on search input (T111)
+- ✅ ARIA labels on search/filter components (T112)
+- ✅ Keyboard navigation (Space/Enter) (T113)
+- ❌ Tests (T096-T099) - NOT DONE (TDD skipped)
 
 #### User Story 3 (History): 100% complete ✅
-- ✅ History page with Material table
-- ✅ Truck selection & date range filters
-- ✅ Mock data with export functionality
-- ✅ Backend history API with sampling (T117-T120)
-- ✅ Map polyline integration with tooltips (T126, T128-T129)
-- ✅ "View History" button in truck popup
-- ✅ "Clear History" button panel
+**Backend:**
+- ✅ History endpoint: GET /location/v1/trucks/history?startTime=...&endTime=...&truckId=... (unified endpoint)
+- ✅ Repository query with time range filter (T118)
+- ✅ Route sampling logic (max 500 points) (T119)
+- ✅ Query optimization with composite index (T120)
+- ✅ All trucks history in single API call (truckId optional)
+
+**Frontend:**
+- ✅ History models (T121-T122)
+- ✅ HistoryComponent (standalone page with Material table) (T123-T125)
+- ✅ "View History" button in truck popup (T126)
+- ✅ TruckService.getTrucksHistory() unified API call (T127)
+- ✅ Polyline rendering on map (blue styled line) (T128)
+- ✅ Hover tooltips with timestamp + speed (T129)
+- ✅ "Clear History" button + panel (T130)
+- ✅ Loading spinner while fetching (T131)
+- ✅ "No data available" message (T132)
+- ✅ Auto-load history on page navigation (default: today)
+- ✅ "View on Map" action in history table (navigate + center + marker)
+- ❌ ARIA labels for history panel (T133) - NOT DONE
+- ❌ Keyboard navigation for history buttons (T134) - NOT DONE
+- ❌ Tests (T114-T116) - NOT DONE
 
 ### 🚧 In Progress
 
-#### User Story 4 (Alerts): ~50% complete (Frontend only)
-- ✅ Alerts page with stats cards
-- ✅ Severity filtering & alert list
-- ✅ Mark as read/resolved functionality
-- ✅ Mock alert data
-- ❌ Backend notification service (T139-T151)
-- ❌ WebSocket real-time alerts (T166-T167)
+#### User Story 4 (Alerts): ~40% complete (Frontend UI only)
+**Frontend (DONE):**
+- ✅ AlertRule model (T155)
+- ✅ Notification model (T156)
+- ✅ AlertsComponent with stats cards (T159-T161)
+- ✅ NotificationListComponent (T160, T163)
+- ✅ Mark as read functionality (T168)
+- ✅ Enable/Disable toggle (T169)
 
-#### User Story 2 (Search & Filter): 100% complete ✅
-- ✅ Backend search endpoint (T100)
-- ✅ Repository search query (T101)
-- ✅ SearchBarComponent with autocomplete (T103)
-- ✅ Search logic with debounce (T105, T111)
-- ✅ Map centering on search selection (T107)
-- ✅ "No results" message (T110)
-- ✅ FilterPanelComponent with status filters (T104)
-- ✅ Status filter logic with NgRx (T106, T108, T109)
-- ✅ Keyboard navigation for filters (T113)
-- ✅ Search results filtered by status (search respects filter panel selections)
-- ❌ Tests (T096-T099) - TDD skipped
+**Backend (NOT DONE):**
+- ❌ AlertRule entity (T139)
+- ❌ Geofence entity (T140)
+- ❌ Notification entity (T141)
+- ❌ Repositories (T142-T144)
+- ❌ AlertRuleController (T145)
+- ❌ NotificationController (T146)
+- ❌ AlertKafkaConsumer (T147)
+- ❌ AlertRuleEngine (T148-T150)
+- ❌ NotificationService (T151)
+- ❌ GeofenceController (T152-T153)
+
+**Frontend Integration (NOT DONE):**
+- ❌ AlertRuleService (T157)
+- ❌ NotificationService (T158)
+- ❌ Alert rule form submission (T162)
+- ❌ Notification click → center map (T164)
+- ❌ Notification badge in header (T165)
+- ❌ WebSocket real-time notifications (T166-T167)
+- ❌ Tests (T135-T138)
 
 ### ❌ Not Started
-- Phase 7 (Polish)
+- Phase 7 (Polish) - T172-T197
 
-### 🎯 Next Steps
-1. Complete User Story 4 backend (T139-T151) + WebSocket alerts (T166-T167)
-2. Add tests for US 1, US 2, US 3
-3. Phase 7 Polish
+### 📈 Progress Summary
+
+| Phase | Tasks | Completed | Progress |
+|-------|-------|-----------|----------|
+| Phase 1: Setup | 13 | 13 | 100% |
+| Phase 2: Foundational | 34 | 34 | 100% |
+| Phase 3: US1 (Live Map) | 48 | 48 | 100% |
+| Phase 4: US2 (Search/Filter) | 18 | 14 | 78% |
+| Phase 5: US3 (History) | 21 | 17 | 81% |
+| Phase 6: US4 (Alerts) | 37 | 8 | 22% |
+| Phase 7: Polish | 26 | 0 | 0% |
+| **TOTAL** | **197** | **134** | **68%** |
+
+### 🎯 Next Steps (Priority Order)
+1. **Fix environment config** - apiUrl changed to 8081 ✅
+2. **US4 Backend** - Implement notification-service (T139-T151)
+3. **US4 Frontend Integration** - Connect to backend (T157-T167)
+4. **Missing Tests** - T096-T099, T114-T116, T133-T138
+5. **Phase 7 Polish** - i18n, dark mode, load tests, Kubernetes
 
 ---
 
