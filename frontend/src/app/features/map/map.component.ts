@@ -64,6 +64,11 @@ export class MapComponent implements OnInit {
   historyTruckId = signal<string | null>(null);
   historyLoading = signal(false);
 
+  // Flag to track if initial auto-focus has been done
+  private initialFocusDone = false;
+  // Flag to track if we have query params (skip auto-focus in that case)
+  private hasQueryParams = false;
+
   constructor() {
     // Setup WebSocket connection status subscription with automatic cleanup
     this.webSocketService.connectionStatus$
@@ -121,6 +126,21 @@ export class MapComponent implements OnInit {
       }
     });
 
+    // Effect to auto-focus on trucks area when trucks first load
+    effect(() => {
+      const allTrucks = this.trucks();
+      const loading = this.isLoading();
+
+      // Only auto-focus once, when trucks are loaded and we have data
+      if (!this.initialFocusDone && !loading && allTrucks.length > 0 && this.map && !this.hasQueryParams) {
+        // Small delay to ensure markers are rendered
+        setTimeout(() => {
+          this.fitMapToTrucks();
+          this.initialFocusDone = true;
+        }, 100);
+      }
+    });
+
     // Effect to cleanup map on component destruction
     effect((onCleanup) => {
       onCleanup(() => {
@@ -152,6 +172,9 @@ export class MapComponent implements OnInit {
       const truckId = params['truckId'];
 
       if (lat && lng) {
+        // Set flag to skip auto-focus when we have query params
+        this.hasQueryParams = true;
+
         const latitude = parseFloat(lat);
         const longitude = parseFloat(lng);
         const zoomLevel = zoom ? parseInt(zoom, 10) : 15;
@@ -519,6 +542,45 @@ export class MapComponent implements OnInit {
         console.warn(`Marker not found for truck ${truck.id} - available markers:`, Array.from(this.markers.keys()));
       }
     }, 400);
+  }
+
+  /**
+   * Fit map to show all trucks with positions
+   * Prioritizes active trucks for better initial view
+   */
+  private fitMapToTrucks(): void {
+    const allTrucks = this.trucks();
+
+    // Get all trucks with valid positions
+    const trucksWithPositions = allTrucks.filter(
+      truck => truck.currentLatitude !== null &&
+               truck.currentLatitude !== undefined &&
+               truck.currentLongitude !== null &&
+               truck.currentLongitude !== undefined
+    );
+
+    if (trucksWithPositions.length === 0) {
+      console.log('No trucks with positions available for auto-focus');
+      return;
+    }
+
+    // Prioritize active trucks for the view
+    const activeTrucks = trucksWithPositions.filter(truck => truck.status === TruckStatus.ACTIVE);
+    const trucksToFocus = activeTrucks.length > 0 ? activeTrucks : trucksWithPositions;
+
+    // Create bounds from truck positions
+    const bounds = L.latLngBounds(
+      trucksToFocus.map(truck => [truck.currentLatitude!, truck.currentLongitude!] as L.LatLngTuple)
+    );
+
+    // Fit map to bounds with padding
+    this.map.fitBounds(bounds, {
+      padding: [50, 50],
+      maxZoom: 14, // Don't zoom in too close
+      animate: true
+    });
+
+    console.log(`Auto-focused map on ${trucksToFocus.length} ${activeTrucks.length > 0 ? 'active' : 'total'} trucks`);
   }
 
   /**
