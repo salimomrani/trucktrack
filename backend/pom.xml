@@ -354,12 +354,44 @@
         <profile>
             <id>sonar</id>
             <properties>
-                <sonar.host.url>http://localhost:9000</sonar.host.url>
+                <!-- SonarQube Server (port 9001 to avoid conflicts) -->
+                <sonar.host.url>http://localhost:9001</sonar.host.url>
+
+                <!-- Project Configuration -->
+                <sonar.projectKey>truck-track</sonar.projectKey>
+                <sonar.projectName>TruckTrack - GPS Live Tracking</sonar.projectName>
+                <sonar.projectVersion>${project.version}</sonar.projectVersion>
+                <sonar.moduleKey>${project.groupId}:${project.artifactId}</sonar.moduleKey>
+
+                <!-- Source Configuration -->
+                <sonar.java.source>${java.version}</sonar.java.source>
+                <sonar.sourceEncoding>UTF-8</sonar.sourceEncoding>
+
+                <!-- Coverage -->
                 <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
                 <sonar.coverage.jacoco.xmlReportPaths>
                     ${project.build.directory}/site/jacoco/jacoco.xml
                 </sonar.coverage.jacoco.xmlReportPaths>
+
+                <!-- Exclusions (generated code, config classes) -->
+                <sonar.exclusions>
+                    **/config/**,
+                    **/dto/**,
+                    **/model/**,
+                    **/*Application.java
+                </sonar.exclusions>
+
+                <!-- Quality Gate -->
+                <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
             </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonarsource.scanner.maven</groupId>
+                        <artifactId>sonar-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>
