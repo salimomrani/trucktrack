@@ -1,5 +1,6 @@
 import { Component, OnInit, signal, inject, effect, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -37,6 +38,7 @@ export class MapComponent implements OnInit {
   private readonly webSocketService = inject(WebSocketService);
   private readonly truckService = inject(TruckService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly route = inject(ActivatedRoute);
 
   // Map and marker state
   private map!: L.Map;
@@ -135,6 +137,53 @@ export class MapComponent implements OnInit {
     this.loadTrucks();
     this.connectWebSocket();
     this.setupHistoryEventListener();
+    this.handleQueryParams();
+  }
+
+  /**
+   * Handle query params from history page navigation
+   * Centers map on coordinates and selects truck if provided
+   */
+  private handleQueryParams(): void {
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
+      const lat = params['lat'];
+      const lng = params['lng'];
+      const zoom = params['zoom'];
+      const truckId = params['truckId'];
+
+      if (lat && lng) {
+        const latitude = parseFloat(lat);
+        const longitude = parseFloat(lng);
+        const zoomLevel = zoom ? parseInt(zoom, 10) : 15;
+
+        // Center map on coordinates
+        this.map.setView([latitude, longitude], zoomLevel);
+
+        // Add a temporary marker to show the exact position
+        const marker = L.circleMarker([latitude, longitude], {
+          radius: 10,
+          fillColor: '#ff4444',
+          color: '#cc0000',
+          weight: 2,
+          fillOpacity: 0.8
+        }).addTo(this.map);
+
+        // Add popup with coordinates
+        marker.bindPopup(`<b>History Position</b><br>Lat: ${latitude.toFixed(6)}<br>Lng: ${longitude.toFixed(6)}`).openPopup();
+
+        // Remove marker after 10 seconds
+        setTimeout(() => {
+          this.map.removeLayer(marker);
+        }, 10000);
+
+        // Select truck if provided
+        if (truckId) {
+          this.facade.selectTruck(truckId);
+        }
+
+        this.snackBar.open('Centered on history position', 'OK', { duration: 3000 });
+      }
+    });
   }
 
   /**

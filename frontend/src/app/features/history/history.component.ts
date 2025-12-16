@@ -1,5 +1,6 @@
 import { Component, OnInit, signal, inject, ChangeDetectionStrategy, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -56,6 +57,7 @@ interface TruckHistory {
 export class HistoryComponent implements OnInit {
   private readonly facade = inject(StoreFacade);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly router = inject(Router);
 
   // State signals
   trucks = this.facade.trucks;
@@ -172,9 +174,15 @@ export class HistoryComponent implements OnInit {
   }
 
   viewOnMap(history: TruckHistory): void {
-    // TODO: Navigate to map with this location centered
-    console.log('View on map:', history);
-    this.snackBar.open(`Location: ${history.latitude.toFixed(4)}, ${history.longitude.toFixed(4)}`, 'OK', { duration: 3000 });
+    // Navigate to map with location centered and truck selected
+    this.router.navigate(['/map'], {
+      queryParams: {
+        lat: history.latitude,
+        lng: history.longitude,
+        truckId: history.truckId,
+        zoom: 15
+      }
+    });
   }
 
   exportHistory(): void {
