@@ -269,9 +269,9 @@
 | Phase 3: US1 (Live Map) | 48 | 48 | 100% |
 | Phase 4: US2 (Search/Filter) | 18 | 14 | 78% |
 | Phase 5: US3 (History) | 21 | 17 | 81% |
-| Phase 6: US4 (Alerts) | 37 | 28 | 76% |
+| Phase 6: US4 (Alerts) | 37 | 29 | 78% |
 | Phase 7: Polish | 26 | 1 | 4% |
-| **TOTAL** | **197** | **155** | **79%** |
+| **TOTAL** | **197** | **156** | **79%** |
 
 ### 🎯 Next Steps (Priority Order)
 1. ~~**Fix environment config** - apiUrl changed to 8081~~ ✅
@@ -281,10 +281,11 @@
 5. ~~**Geofence implementation** - T140, T143, T152-T153~~ ✅ (implemented in location-service)
 6. ~~**CORS fix** - API Gateway JwtAuthenticationFilter allows OPTIONS preflight~~ ✅
 7. ~~**Geofence evaluation in alerts** - T150~~ ✅ (AlertRuleEngine + LocationServiceClient + GeofenceStateCache)
-8. **Geofence drawing UI** - T154 (Leaflet.draw plugin for polygon creation)
+8. ~~**Geofence drawing UI** - T154~~ ✅ (GeofencePanelComponent with Leaflet.draw)
 9. **US4 Frontend Integration** - WebSocket notifications (T166-T167)
-10. **Missing Tests** - T096-T099, T114-T116, T133-T138
-11. **Phase 7 Polish** - i18n, dark mode, load tests, Kubernetes
+10. **Alert rule submission** - T162, T165 (frontend alert form + notification badge)
+11. **Missing Tests** - T096-T099, T114-T116, T133-T138
+12. **Phase 7 Polish** - i18n, dark mode, load tests, Kubernetes
 
 ---
 
@@ -490,7 +491,7 @@
 
 - [X] T152 [US4] Implement GeofenceController POST /location/v1/geofences in backend/location-service/src/main/java/com/trucktrack/location/controller/GeofenceController.java (create geofence with polygon coordinates)
 - [X] T153 [US4] Implement GeofenceController GET /location/v1/geofences in backend/location-service/src/main/java/com/trucktrack/location/controller/GeofenceController.java (list user's geofences)
-- [ ] T154 [US4] Implement geofence drawing UI using Leaflet.draw plugin in MapComponent (draw polygon or circle on map)
+- [X] T154 [US4] Implement geofence drawing UI using Leaflet.draw plugin in GeofencePanelComponent (draw polygon/rectangle on map)
 
 #### Frontend - Alert & Notification Components
 
