@@ -4,6 +4,7 @@ import com.trucktrack.common.event.AlertTriggeredEvent;
 import com.trucktrack.common.event.GPSPositionEvent;
 import com.trucktrack.notification.client.LocationServiceClient;
 import com.trucktrack.notification.model.*;
+import com.trucktrack.notification.websocket.NotificationWebSocketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +31,7 @@ public class AlertRuleEngine {
     private final LocationServiceClient locationServiceClient;
     private final GeofenceStateCache geofenceStateCache;
     private final KafkaTemplate<String, AlertTriggeredEvent> kafkaTemplate;
+    private final NotificationWebSocketService webSocketService;
 
     @Value("${kafka.topics.alert:truck-track.notification.alert}")
     private String alertTopic;
@@ -217,8 +219,12 @@ public class AlertRuleEngine {
                 .isRead(false)
                 .build();
 
-        notificationService.createNotification(notification);
+        Notification savedNotification = notificationService.createNotification(notification);
         log.info("Created notification for user {} - type: {}", userId, notificationType);
+
+        // T166: Broadcast notification via WebSocket for real-time updates
+        webSocketService.sendToUser(userId.toString(), savedNotification);
+        webSocketService.broadcastNotification(savedNotification);
     }
 
     private String generateTitle(AlertTriggeredEvent event) {

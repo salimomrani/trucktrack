@@ -269,9 +269,9 @@
 | Phase 3: US1 (Live Map) | 48 | 48 | 100% |
 | Phase 4: US2 (Search/Filter) | 18 | 14 | 78% |
 | Phase 5: US3 (History) | 21 | 17 | 81% |
-| Phase 6: US4 (Alerts) | 37 | 29 | 78% |
+| Phase 6: US4 (Alerts) | 37 | 31 | 84% |
 | Phase 7: Polish | 26 | 1 | 4% |
-| **TOTAL** | **197** | **156** | **79%** |
+| **TOTAL** | **197** | **158** | **80%** |
 
 ### 🎯 Next Steps (Priority Order)
 1. ~~**Fix environment config** - apiUrl changed to 8081~~ ✅
@@ -282,7 +282,7 @@
 6. ~~**CORS fix** - API Gateway JwtAuthenticationFilter allows OPTIONS preflight~~ ✅
 7. ~~**Geofence evaluation in alerts** - T150~~ ✅ (AlertRuleEngine + LocationServiceClient + GeofenceStateCache)
 8. ~~**Geofence drawing UI** - T154~~ ✅ (GeofencePanelComponent with Leaflet.draw)
-9. **US4 Frontend Integration** - WebSocket notifications (T166-T167)
+9. ~~**WebSocket notifications** - T166-T167~~ ✅ (NotificationService + snackbar alerts)
 10. **Alert rule submission** - T162, T165 (frontend alert form + notification badge)
 11. **Missing Tests** - T096-T099, T114-T116, T133-T138
 12. **Phase 7 Polish** - i18n, dark mode, load tests, Kubernetes
@@ -508,8 +508,8 @@
 - [X] T163 [US4] Implement notification list display in NotificationListComponent (show title, message, timestamp, read/unread status)
 - [X] T164 [US4] Implement notification click handler in AlertsComponent (viewOnMap navigates to map with coordinates)
 - [ ] T165 [US4] Implement notification badge in app header (Material badge showing unread count)
-- [ ] T166 [US4] Implement WebSocket subscription for real-time notifications in NotificationService
-- [ ] T167 [US4] Implement notification sound/visual alert (Material snackbar) when new notification received
+- [X] T166 [US4] Implement WebSocket subscription for real-time notifications in NotificationService
+- [X] T167 [US4] Implement notification sound/visual alert (Material snackbar) when new notification received
 - [X] T168 [US4] Implement "Mark as Read" functionality in NotificationListComponent
 - [X] T169 [US4] Implement "Enable/Disable Alert Rule" toggle in AlertConfigComponent
 

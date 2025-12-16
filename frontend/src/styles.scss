@@ -298,6 +298,27 @@ body {
   --mdc-snackbar-supporting-text-color: #fff !important;
 }
 
+// T167: Notification snackbar styling
+.notification-snackbar {
+  &.snackbar-critical {
+    --mdc-snackbar-container-color: #d32f2f !important;
+    --mat-snack-bar-button-color: #fff !important;
+    --mdc-snackbar-supporting-text-color: #fff !important;
+  }
+
+  &.snackbar-warning {
+    --mdc-snackbar-container-color: #f57c00 !important;
+    --mat-snack-bar-button-color: #fff !important;
+    --mdc-snackbar-supporting-text-color: #fff !important;
+  }
+
+  &.snackbar-info {
+    --mdc-snackbar-container-color: #1976d2 !important;
+    --mat-snack-bar-button-color: #fff !important;
+    --mdc-snackbar-supporting-text-color: #fff !important;
+  }
+}
+
 // ============================================
 // ANIMATIONS
 // ============================================
