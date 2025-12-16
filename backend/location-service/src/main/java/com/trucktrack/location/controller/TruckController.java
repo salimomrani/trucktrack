@@ -25,6 +25,14 @@ import java.util.UUID;
  * T070: Implement TruckController GET /location/v1/trucks (list trucks with filters)
  * T071: Implement TruckController GET /location/v1/trucks/{truckId}/current-position (read from Redis cache)
  * Refactored with Lombok best practices
+ *
+ * Note: User identity is passed via headers from API Gateway:
+ * - X-User-Id: UUID of the authenticated user
+ * - X-Username: Username/email of the user
+ * - X-User-Role: Role (FLEET_MANAGER, DISPATCHER, DRIVER, ADMIN)
+ *
+ * Currently all authenticated users can access all trucks.
+ * TODO: Implement user-based filtering by truck groups for production
  */
 @Slf4j
 @RestController
@@ -39,19 +47,27 @@ public class TruckController {
     // T119: Maximum points before sampling kicks in
     private static final int MAX_POINTS_THRESHOLD = 500;
 
+    // Header names from API Gateway
+    private static final String HEADER_USER_ID = "X-User-Id";
+    private static final String HEADER_USERNAME = "X-Username";
+    private static final String HEADER_USER_ROLE = "X-User-Role";
+
     /**
      * List all trucks with optional filters
      * GET /location/v1/trucks?status=ACTIVE&truckGroupId=xxx&page=0&size=20
      */
     @GetMapping("/trucks")
     public ResponseEntity<Page<Truck>> listTrucks(
+            @RequestHeader(value = HEADER_USER_ID, required = false) String userId,
+            @RequestHeader(value = HEADER_USERNAME, required = false) String username,
+            @RequestHeader(value = HEADER_USER_ROLE, required = false) String userRole,
             @RequestParam(required = false) TruckStatus status,
             @RequestParam(required = false) UUID truckGroupId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
-        log.debug("Listing trucks - status: {}, groupId: {}, page: {}, size: {}",
-                status, truckGroupId, page, size);
+        log.info("User [{}] ({}) with role [{}] listing trucks - status: {}, groupId: {}",
+                username, userId, userRole, status, truckGroupId);
 
         Page<Truck> trucks;
         PageRequest pageRequest = PageRequest.of(page, size);
@@ -78,8 +94,11 @@ public class TruckController {
      * GET /location/v1/trucks/{truckId}
      */
     @GetMapping("/trucks/{truckId}")
-    public ResponseEntity<Truck> getTruckById(@PathVariable UUID truckId) {
-        log.debug("Getting truck by ID: {}", truckId);
+    public ResponseEntity<Truck> getTruckById(
+            @RequestHeader(value = HEADER_USER_ID, required = false) String userId,
+            @RequestHeader(value = HEADER_USERNAME, required = false) String username,
+            @PathVariable UUID truckId) {
+        log.info("User [{}] ({}) getting truck by ID: {}", username, userId, truckId);
 
         Truck truck = truckRepository.findById(truckId)
                 .orElseThrow(() -> new IllegalArgumentException("Truck not found: " + truckId));
@@ -95,8 +114,11 @@ public class TruckController {
      * Falls back to database if cache miss
      */
     @GetMapping("/trucks/{truckId}/current-position")
-    public ResponseEntity<GPSPositionEvent> getCurrentPosition(@PathVariable UUID truckId) {
-        log.debug("Getting current position for truck: {}", truckId);
+    public ResponseEntity<GPSPositionEvent> getCurrentPosition(
+            @RequestHeader(value = HEADER_USER_ID, required = false) String userId,
+            @RequestHeader(value = HEADER_USERNAME, required = false) String username,
+            @PathVariable UUID truckId) {
+        log.debug("User [{}] getting current position for truck: {}", username, truckId);
 
         // Try Redis cache first (fastest)
         GPSPositionEvent cachedPosition = redisCacheService.getCurrentPosition(truckId);
@@ -131,8 +153,11 @@ public class TruckController {
      * GET /location/v1/trucks/search?q=TRUCK-001
      */
     @GetMapping("/trucks/search")
-    public ResponseEntity<List<Truck>> searchTrucks(@RequestParam String q) {
-        log.debug("Searching trucks with query: {}", q);
+    public ResponseEntity<List<Truck>> searchTrucks(
+            @RequestHeader(value = HEADER_USER_ID, required = false) String userId,
+            @RequestHeader(value = HEADER_USERNAME, required = false) String username,
+            @RequestParam String q) {
+        log.info("User [{}] ({}) searching trucks with query: {}", username, userId, q);
 
         List<Truck> trucks = truckRepository.searchByTruckIdOrDriverName(q);
         return ResponseEntity.ok(trucks);
@@ -144,13 +169,15 @@ public class TruckController {
      */
     @GetMapping("/trucks/bbox")
     public ResponseEntity<List<Truck>> getTrucksInBoundingBox(
+            @RequestHeader(value = HEADER_USER_ID, required = false) String userId,
+            @RequestHeader(value = HEADER_USERNAME, required = false) String username,
             @RequestParam Double minLat,
             @RequestParam Double maxLat,
             @RequestParam Double minLng,
             @RequestParam Double maxLng) {
 
-        log.debug("Getting trucks in bounding box: ({}, {}) to ({}, {})",
-                minLat, minLng, maxLat, maxLng);
+        log.debug("User [{}] getting trucks in bounding box: ({}, {}) to ({}, {})",
+                username, minLat, minLng, maxLat, maxLng);
 
         List<Truck> trucks = truckRepository.findTrucksInBoundingBox(minLat, maxLat, minLng, maxLng);
         return ResponseEntity.ok(trucks);
@@ -166,6 +193,8 @@ public class TruckController {
      */
     @GetMapping("/trucks/history")
     public ResponseEntity<List<GPSPosition>> getTrucksHistory(
+            @RequestHeader(value = HEADER_USER_ID, required = false) String userId,
+            @RequestHeader(value = HEADER_USERNAME, required = false) String username,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant startTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endTime,
             @RequestParam(required = false) UUID truckId) {
@@ -175,7 +204,8 @@ public class TruckController {
 
         if (truckId != null) {
             // Specific truck history
-            log.debug("Getting history for truck {} from {} to {}", truckId, startTime, endTime);
+            log.info("User [{}] ({}) getting history for truck {} from {} to {}",
+                    username, userId, truckId, startTime, endTime);
 
             // Verify truck exists
             if (!truckRepository.existsById(truckId)) {
@@ -195,7 +225,8 @@ public class TruckController {
             }
         } else {
             // All trucks history
-            log.debug("Getting history for all trucks from {} to {}", startTime, endTime);
+            log.info("User [{}] ({}) getting history for all trucks from {} to {}",
+                    username, userId, startTime, endTime);
 
             pointCount = gpsPositionRepository.countAllByTimestampBetween(startTime, endTime);
             log.debug("Found {} GPS positions for all trucks", pointCount);
