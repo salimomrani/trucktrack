@@ -87,7 +87,7 @@
 
 ---
 
-## 📊 Current Implementation Status (Updated: 2025-12-16)
+## 📊 Current Implementation Status (Updated: 2025-12-16 21:20)
 
 ### 🏗️ Architecture Overview
 
@@ -239,11 +239,11 @@
 - ✅ NotificationService (T151)
 - ✅ KafkaConfig (producer + consumer)
 
-**Backend (NOT DONE):**
-- ❌ Geofence entity (T140)
-- ❌ GeofenceRepository (T143)
-- ❌ Geofence evaluation logic (T150)
-- ❌ GeofenceController (T152-T153)
+**Backend - Geofence (DONE in location-service):**
+- ✅ Geofence entity with PostGIS Polygon (T140 equivalent - implemented in location-service)
+- ✅ GeofenceRepository with spatial queries (T143 equivalent)
+- ✅ GeofenceController CRUD + spatial queries (T152-T153 equivalent)
+- ❌ Geofence evaluation logic in notification-service (T150)
 
 **Frontend Integration (DONE):**
 - ✅ AlertRuleService (T157)
@@ -269,19 +269,22 @@
 | Phase 3: US1 (Live Map) | 48 | 48 | 100% |
 | Phase 4: US2 (Search/Filter) | 18 | 14 | 78% |
 | Phase 5: US3 (History) | 21 | 17 | 81% |
-| Phase 6: US4 (Alerts) | 37 | 24 | 65% |
+| Phase 6: US4 (Alerts) | 37 | 27 | 73% |
 | Phase 7: Polish | 26 | 1 | 4% |
-| **TOTAL** | **197** | **151** | **77%** |
+| **TOTAL** | **197** | **154** | **78%** |
 
 ### 🎯 Next Steps (Priority Order)
 1. ~~**Fix environment config** - apiUrl changed to 8081~~ ✅
 2. ~~**US4 Backend** - Implement notification-service (T139-T151)~~ ✅ (except Geofence)
 3. ~~**US4 API Gateway routes** - Add notification-service routes~~ ✅
 4. ~~**SonarQube setup** - Code quality analysis~~ ✅
-5. **Geofence implementation** - T140, T143, T150, T152-T154
-6. **US4 Frontend Integration** - WebSocket notifications (T166-T167)
-7. **Missing Tests** - T096-T099, T114-T116, T133-T138
-8. **Phase 7 Polish** - i18n, dark mode, load tests, Kubernetes
+5. ~~**Geofence implementation** - T140, T143, T152-T153~~ ✅ (implemented in location-service)
+6. ~~**CORS fix** - API Gateway JwtAuthenticationFilter allows OPTIONS preflight~~ ✅
+7. **Geofence evaluation in alerts** - T150 (notification-service evaluates geofence breaches)
+8. **Geofence drawing UI** - T154 (Leaflet.draw plugin for polygon creation)
+9. **US4 Frontend Integration** - WebSocket notifications (T166-T167)
+10. **Missing Tests** - T096-T099, T114-T116, T133-T138
+11. **Phase 7 Polish** - i18n, dark mode, load tests, Kubernetes
 
 ---
 
@@ -470,10 +473,10 @@
 #### Backend - Notification Service
 
 - [X] T139 [P] [US4] Create AlertRule entity in backend/notification-service/src/main/java/com/trucktrack/notification/model/AlertRule.java (JPA + validation)
-- [ ] T140 [P] [US4] Create Geofence entity in backend/notification-service/src/main/java/com/trucktrack/notification/model/Geofence.java (PostGIS polygon)
+- [X] T140 [P] [US4] Create Geofence entity in backend/location-service/src/main/java/com/trucktrack/location/model/Geofence.java (PostGIS polygon) - **Implemented in location-service**
 - [X] T141 [P] [US4] Create Notification entity in backend/notification-service/src/main/java/com/trucktrack/notification/model/Notification.java (JPA)
 - [X] T142 [US4] Create AlertRuleRepository in backend/notification-service/src/main/java/com/trucktrack/notification/repository/AlertRuleRepository.java
-- [ ] T143 [US4] Create GeofenceRepository in backend/notification-service/src/main/java/com/trucktrack/notification/repository/GeofenceRepository.java
+- [X] T143 [US4] Create GeofenceRepository in backend/location-service/src/main/java/com/trucktrack/location/repository/GeofenceRepository.java - **Implemented in location-service**
 - [X] T144 [US4] Create NotificationRepository in backend/notification-service/src/main/java/com/trucktrack/notification/repository/NotificationRepository.java
 - [X] T145 [US4] Implement AlertRuleController POST /notification/v1/alert-rules in backend/notification-service/src/main/java/com/trucktrack/notification/controller/AlertRuleController.java (create/update/delete alert rules)
 - [X] T146 [US4] Implement NotificationController GET /notification/v1/notifications in backend/notification-service/src/main/java/com/trucktrack/notification/controller/NotificationController.java (list user notifications)
@@ -485,8 +488,8 @@
 
 #### Backend - Location Service (Geofence API)
 
-- [ ] T152 [US4] Implement GeofenceController POST /location/v1/geofences in backend/location-service/src/main/java/com/trucktrack/location/controller/GeofenceController.java (create geofence with polygon coordinates)
-- [ ] T153 [US4] Implement GeofenceController GET /location/v1/geofences in backend/location-service/src/main/java/com/trucktrack/location/controller/GeofenceController.java (list user's geofences)
+- [X] T152 [US4] Implement GeofenceController POST /location/v1/geofences in backend/location-service/src/main/java/com/trucktrack/location/controller/GeofenceController.java (create geofence with polygon coordinates)
+- [X] T153 [US4] Implement GeofenceController GET /location/v1/geofences in backend/location-service/src/main/java/com/trucktrack/location/controller/GeofenceController.java (list user's geofences)
 - [ ] T154 [US4] Implement geofence drawing UI using Leaflet.draw plugin in MapComponent (draw polygon or circle on map)
 
 #### Frontend - Alert & Notification Components
