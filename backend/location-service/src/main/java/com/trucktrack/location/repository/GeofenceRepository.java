@@ -148,8 +148,8 @@ public interface GeofenceRepository extends JpaRepository<Geofence, UUID> {
      */
     @Query(value = """
         SELECT ST_Distance(
-            g.boundary::geography,
-            ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)::geography
+            CAST(g.boundary AS geography),
+            CAST(ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326) AS geography)
         ) FROM geofences g
         WHERE g.id = :geofenceId
         """, nativeQuery = true)
@@ -172,8 +172,8 @@ public interface GeofenceRepository extends JpaRepository<Geofence, UUID> {
         WHERE g.is_active = true
         AND g.zone_type = 'RESTRICTED_ZONE'
         AND ST_DWithin(
-            g.boundary::geography,
-            ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)::geography,
+            CAST(g.boundary AS geography),
+            CAST(ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326) AS geography),
             :distanceMeters
         )
         """, nativeQuery = true)

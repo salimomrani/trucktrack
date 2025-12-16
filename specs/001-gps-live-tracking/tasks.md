@@ -239,11 +239,11 @@
 - ✅ NotificationService (T151)
 - ✅ KafkaConfig (producer + consumer)
 
-**Backend - Geofence (DONE in location-service):**
-- ✅ Geofence entity with PostGIS Polygon (T140 equivalent - implemented in location-service)
-- ✅ GeofenceRepository with spatial queries (T143 equivalent)
-- ✅ GeofenceController CRUD + spatial queries (T152-T153 equivalent)
-- ❌ Geofence evaluation logic in notification-service (T150)
+**Backend - Geofence (DONE):**
+- ✅ Geofence entity with PostGIS Polygon (T140 - implemented in location-service)
+- ✅ GeofenceRepository with spatial queries (T143)
+- ✅ GeofenceController CRUD + /check endpoint (T152-T153)
+- ✅ Geofence evaluation logic (T150) - AlertRuleEngine + LocationServiceClient + GeofenceStateCache
 
 **Frontend Integration (DONE):**
 - ✅ AlertRuleService (T157)
@@ -269,18 +269,18 @@
 | Phase 3: US1 (Live Map) | 48 | 48 | 100% |
 | Phase 4: US2 (Search/Filter) | 18 | 14 | 78% |
 | Phase 5: US3 (History) | 21 | 17 | 81% |
-| Phase 6: US4 (Alerts) | 37 | 27 | 73% |
+| Phase 6: US4 (Alerts) | 37 | 28 | 76% |
 | Phase 7: Polish | 26 | 1 | 4% |
-| **TOTAL** | **197** | **154** | **78%** |
+| **TOTAL** | **197** | **155** | **79%** |
 
 ### 🎯 Next Steps (Priority Order)
 1. ~~**Fix environment config** - apiUrl changed to 8081~~ ✅
-2. ~~**US4 Backend** - Implement notification-service (T139-T151)~~ ✅ (except Geofence)
+2. ~~**US4 Backend** - Implement notification-service (T139-T151)~~ ✅
 3. ~~**US4 API Gateway routes** - Add notification-service routes~~ ✅
 4. ~~**SonarQube setup** - Code quality analysis~~ ✅
 5. ~~**Geofence implementation** - T140, T143, T152-T153~~ ✅ (implemented in location-service)
 6. ~~**CORS fix** - API Gateway JwtAuthenticationFilter allows OPTIONS preflight~~ ✅
-7. **Geofence evaluation in alerts** - T150 (notification-service evaluates geofence breaches)
+7. ~~**Geofence evaluation in alerts** - T150~~ ✅ (AlertRuleEngine + LocationServiceClient + GeofenceStateCache)
 8. **Geofence drawing UI** - T154 (Leaflet.draw plugin for polygon creation)
 9. **US4 Frontend Integration** - WebSocket notifications (T166-T167)
 10. **Missing Tests** - T096-T099, T114-T116, T133-T138
@@ -483,7 +483,7 @@
 - [X] T147 [US4] Implement AlertKafkaConsumer in backend/notification-service/src/main/java/com/trucktrack/notification/kafka/AlertKafkaConsumer.java (consume GPS events and alert topics)
 - [X] T148 [US4] Implement AlertRuleEngine in backend/notification-service/src/main/java/com/trucktrack/notification/service/AlertRuleEngine.java (evaluate rules: offline, idle, geofence breach)
 - [X] T149 [US4] Implement AlertRuleService in backend/notification-service/src/main/java/com/trucktrack/notification/service/AlertRuleService.java (CRUD operations for alert rules)
-- [ ] T150 [US4] Implement geofence evaluation logic (PostGIS ST_Contains query) in AlertRuleEngine.evaluateGeofenceRule()
+- [X] T150 [US4] Implement geofence evaluation logic (PostGIS ST_Contains query) in AlertRuleEngine.evaluateGeofenceRule()
 - [X] T151 [US4] Implement NotificationService in backend/notification-service/src/main/java/com/trucktrack/notification/service/NotificationService.java (create notification, save to database)
 
 #### Backend - Location Service (Geofence API)
