@@ -133,4 +133,25 @@ public class AlertRuleService {
     public List<AlertRule> getEnabledSpeedLimitRules() {
         return alertRuleRepository.findEnabledSpeedLimitRules();
     }
+
+    /**
+     * Get enabled geofence enter rules
+     */
+    public List<AlertRule> getEnabledGeofenceEnterRules() {
+        return alertRuleRepository.findEnabledGeofenceEnterRules();
+    }
+
+    /**
+     * Get enabled geofence exit rules
+     */
+    public List<AlertRule> getEnabledGeofenceExitRules() {
+        return alertRuleRepository.findEnabledGeofenceExitRules();
+    }
+
+    /**
+     * Get all enabled geofence rules (enter and exit)
+     */
+    public List<AlertRule> getEnabledGeofenceRules() {
+        return alertRuleRepository.findEnabledGeofenceRules();
+    }
 }

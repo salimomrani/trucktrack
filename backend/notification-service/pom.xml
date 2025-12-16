@@ -49,6 +49,12 @@
             <artifactId>spring-kafka</artifactId>
         </dependency>
 
+        <!-- Spring WebFlux (for WebClient) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+
         <!-- Validation -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

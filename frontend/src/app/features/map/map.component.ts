@@ -17,6 +17,7 @@ import { GPSPosition, GPSPositionEvent } from '../../models/gps-position.model';
 import { environment } from '../../../environments/environment';
 import { SearchBarComponent } from '../../core/components/search-bar/search-bar.component';
 import { FilterPanelComponent } from './filter-panel/filter-panel.component';
+import { GeofencePanelComponent } from './geofence-panel/geofence-panel.component';
 
 /**
  * MapComponent - Main map view for displaying live truck locations
@@ -27,7 +28,7 @@ import { FilterPanelComponent } from './filter-panel/filter-panel.component';
 @Component({
   selector: 'app-map',
   standalone: true,
-  imports: [CommonModule, MatProgressSpinnerModule, MatIconModule, MatSnackBarModule, MatButtonModule, SearchBarComponent, FilterPanelComponent],
+  imports: [CommonModule, MatProgressSpinnerModule, MatIconModule, MatSnackBarModule, MatButtonModule, SearchBarComponent, FilterPanelComponent, GeofencePanelComponent],
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -41,8 +42,13 @@ export class MapComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   // Map and marker state
-  private map!: L.Map;
+  private _map!: L.Map;
   private markers: Map<string, L.Marker> = new Map();
+
+  // Expose map for geofence panel
+  get map(): L.Map {
+    return this._map;
+  }
   private markerClusterGroup!: L.MarkerClusterGroup;
   private isRenderingMarkers = false; // Flag to prevent deselect during re-render
 
@@ -98,7 +104,7 @@ export class MapComponent implements OnInit {
     interval(30000)
       .pipe(takeUntilDestroyed())
       .subscribe(() => {
-        if (this.map && this.trucks().length > 0) {
+        if (this._map && this.trucks().length > 0) {
           this.renderTruckMarkers();
           console.log('Periodic stale data check completed');
         }
@@ -112,7 +118,7 @@ export class MapComponent implements OnInit {
       const currentIds = filtered.map(t => t.id).sort().join(',');
 
       // Re-render if filtered trucks changed (count or composition)
-      if (this.map && currentIds !== previousFilteredTruckIds) {
+      if (this._map && currentIds !== previousFilteredTruckIds) {
         this.renderTruckMarkers();
         previousFilteredTruckIds = currentIds;
       }
@@ -121,7 +127,7 @@ export class MapComponent implements OnInit {
     // Effect to focus on selected truck
     effect(() => {
       const selectedTruck = this.facade.selectedTruck();
-      if (selectedTruck && this.map) {
+      if (selectedTruck && this._map) {
         this.focusOnTruck(selectedTruck);
       }
     });
@@ -132,7 +138,7 @@ export class MapComponent implements OnInit {
       const loading = this.isLoading();
 
       // Only auto-focus once, when trucks are loaded and we have data
-      if (!this.initialFocusDone && !loading && allTrucks.length > 0 && this.map && !this.hasQueryParams) {
+      if (!this.initialFocusDone && !loading && allTrucks.length > 0 && this._map && !this.hasQueryParams) {
         // Small delay to ensure markers are rendered
         setTimeout(() => {
           this.fitMapToTrucks();
@@ -145,8 +151,8 @@ export class MapComponent implements OnInit {
     effect((onCleanup) => {
       onCleanup(() => {
         this.webSocketService.disconnect();
-        if (this.map) {
-          this.map.remove();
+        if (this._map) {
+          this._map.remove();
         }
       });
     });
@@ -180,7 +186,7 @@ export class MapComponent implements OnInit {
         const zoomLevel = zoom ? parseInt(zoom, 10) : 15;
 
         // Center map on coordinates
-        this.map.setView([latitude, longitude], zoomLevel);
+        this._map.setView([latitude, longitude], zoomLevel);
 
         // Add a temporary marker to show the exact position
         const marker = L.circleMarker([latitude, longitude], {
@@ -189,14 +195,14 @@ export class MapComponent implements OnInit {
           color: '#cc0000',
           weight: 2,
           fillOpacity: 0.8
-        }).addTo(this.map);
+        }).addTo(this._map);
 
         // Add popup with coordinates
         marker.bindPopup(`<b>History Position</b><br>Lat: ${latitude.toFixed(6)}<br>Lng: ${longitude.toFixed(6)}`).openPopup();
 
         // Remove marker after 10 seconds
         setTimeout(() => {
-          this.map.removeLayer(marker);
+          this._map.removeLayer(marker);
         }, 10000);
 
         // Select truck if provided
@@ -242,7 +248,7 @@ export class MapComponent implements OnInit {
    */
   private initMap(): void {
     // Create map centered on default location
-    this.map = L.map('map', {
+    this._map = L.map('map', {
       center: [environment.map.defaultCenter.lat, environment.map.defaultCenter.lng],
       zoom: environment.map.defaultZoom,
       zoomControl: true
@@ -252,7 +258,7 @@ export class MapComponent implements OnInit {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '© OpenStreetMap contributors'
-    }).addTo(this.map);
+    }).addTo(this._map);
 
     // Initialize marker cluster group
     // T083: Implement marker clustering
@@ -263,10 +269,10 @@ export class MapComponent implements OnInit {
       zoomToBoundsOnClick: true
     });
 
-    this.map.addLayer(this.markerClusterGroup);
+    this._map.addLayer(this.markerClusterGroup);
 
     // T103: Click on map background to deselect truck
-    this.map.on('click', () => {
+    this._map.on('click', () => {
       if (this.facade.selectedTruck()) {
         console.log('Map clicked - deselecting truck');
         this.facade.deselectTruck();
@@ -493,10 +499,10 @@ export class MapComponent implements OnInit {
       const selectedTruck = this.facade.selectedTruck();
       if (selectedTruck && selectedTruck.id === truckId) {
         // Keep the map centered with a good zoom level (15)
-        const currentZoom = this.map.getZoom();
+        const currentZoom = this._map.getZoom();
         // Use at least zoom level 13 to ensure truck is visible
         const targetZoom = currentZoom < 13 ? 15 : currentZoom;
-        this.map.setView(newLatLng, targetZoom, { animate: true, duration: 0.5 });
+        this._map.setView(newLatLng, targetZoom, { animate: true, duration: 0.5 });
         console.log(`Recentered map on selected truck ${truckId} at zoom ${targetZoom}`);
       }
 
@@ -525,7 +531,7 @@ export class MapComponent implements OnInit {
     }
 
     // Center map on truck with zoom level 15
-    this.map.setView(
+    this._map.setView(
       [truck.currentLatitude, truck.currentLongitude],
       15,
       { animate: true }
@@ -574,7 +580,7 @@ export class MapComponent implements OnInit {
     );
 
     // Fit map to bounds with padding
-    this.map.fitBounds(bounds, {
+    this._map.fitBounds(bounds, {
       padding: [50, 50],
       maxZoom: 14, // Don't zoom in too close
       animate: true
@@ -646,7 +652,7 @@ export class MapComponent implements OnInit {
       weight: 4,
       opacity: 0.8,
       smoothFactor: 1
-    }).addTo(this.map);
+    }).addTo(this._map);
 
     // T129: Add markers with tooltips at key points (start, end, and sampled points)
     const markerInterval = Math.max(1, Math.floor(positions.length / 10)); // Show ~10 markers max
@@ -664,7 +670,7 @@ export class MapComponent implements OnInit {
           weight: 2,
           opacity: 1,
           fillOpacity: 0.8
-        }).addTo(this.map);
+        }).addTo(this._map);
 
         // T129: Add tooltip with timestamp
         const time = new Date(position.timestamp).toLocaleString();
@@ -680,7 +686,7 @@ export class MapComponent implements OnInit {
     });
 
     // Fit map to polyline bounds
-    this.map.fitBounds(this.historyPolyline.getBounds(), { padding: [50, 50] });
+    this._map.fitBounds(this.historyPolyline.getBounds(), { padding: [50, 50] });
 
     console.log(`Rendered history polyline with ${positions.length} points`);
   }
@@ -701,12 +707,12 @@ export class MapComponent implements OnInit {
    */
   private clearHistoryFromMap(): void {
     if (this.historyPolyline) {
-      this.map.removeLayer(this.historyPolyline);
+      this._map.removeLayer(this.historyPolyline);
       this.historyPolyline = null;
     }
 
     this.historyMarkers.forEach(marker => {
-      this.map.removeLayer(marker);
+      this._map.removeLayer(marker);
     });
     this.historyMarkers = [];
   }

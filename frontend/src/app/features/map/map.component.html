@@ -72,4 +72,9 @@
 
   <!-- Map container -->
   <div id="map" class="map-container"></div>
+
+  <!-- T154: Geofence Panel -->
+  @if (map) {
+    <app-geofence-panel [map]="map" />
+  }
 </div>

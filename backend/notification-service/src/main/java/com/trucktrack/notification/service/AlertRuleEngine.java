@@ -2,6 +2,7 @@ package com.trucktrack.notification.service;
 
 import com.trucktrack.common.event.AlertTriggeredEvent;
 import com.trucktrack.common.event.GPSPositionEvent;
+import com.trucktrack.notification.client.LocationServiceClient;
 import com.trucktrack.notification.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +18,7 @@ import java.util.UUID;
 /**
  * Engine for evaluating alert rules against GPS events
  * T149: Create AlertRuleEngine
- * T150: Implement rule evaluation logic
+ * T150: Implement rule evaluation logic (with geofence support)
  */
 @Slf4j
 @Service
@@ -26,6 +27,8 @@ public class AlertRuleEngine {
 
     private final AlertRuleService alertRuleService;
     private final NotificationService notificationService;
+    private final LocationServiceClient locationServiceClient;
+    private final GeofenceStateCache geofenceStateCache;
     private final KafkaTemplate<String, AlertTriggeredEvent> kafkaTemplate;
 
     @Value("${kafka.topics.alert:truck-track.notification.alert}")
@@ -43,8 +46,8 @@ public class AlertRuleEngine {
         // Check speed limit rules
         evaluateSpeedLimitRules(event);
 
-        // Check geofence rules (if we have geofence data)
-        // This would require geofence boundary checks - simplified for now
+        // Check geofence rules
+        evaluateGeofenceRules(event);
     }
 
     /**
@@ -70,6 +73,70 @@ public class AlertRuleEngine {
                         AlertTriggeredEvent.Severity.WARNING,
                         String.format("Truck %s exceeded speed limit: %.1f km/h (limit: %d km/h)",
                                 event.getTruckIdReadable(), event.getSpeed(), threshold));
+            }
+        }
+    }
+
+    /**
+     * Evaluate geofence rules (enter/exit detection)
+     * T150: Implement geofence evaluation in AlertRuleEngine
+     */
+    private void evaluateGeofenceRules(GPSPositionEvent event) {
+        if (event.getLatitude() == null || event.getLongitude() == null) {
+            return;
+        }
+
+        List<AlertRule> geofenceRules = alertRuleService.getEnabledGeofenceRules();
+        if (geofenceRules.isEmpty()) {
+            return;
+        }
+
+        UUID truckId = UUID.fromString(event.getTruckId());
+
+        for (AlertRule rule : geofenceRules) {
+            if (rule.getGeofenceId() == null) {
+                continue;
+            }
+
+            try {
+                // Check if truck is currently inside the geofence
+                boolean isInside = locationServiceClient.isPointInsideGeofence(
+                        rule.getGeofenceId(),
+                        event.getLatitude(),
+                        event.getLongitude());
+
+                // Check for state change
+                GeofenceStateCache.StateChange stateChange = geofenceStateCache.checkStateChange(
+                        truckId, rule.getGeofenceId(), isInside);
+
+                if (stateChange != null) {
+                    // State changed - check if it matches the rule type
+                    boolean shouldTrigger = switch (rule.getRuleType()) {
+                        case GEOFENCE_ENTER ->
+                                stateChange.changeType() == GeofenceStateCache.StateChangeType.ENTERED;
+                        case GEOFENCE_EXIT ->
+                                stateChange.changeType() == GeofenceStateCache.StateChangeType.EXITED;
+                        default -> false;
+                    };
+
+                    if (shouldTrigger) {
+                        AlertTriggeredEvent.AlertType alertType =
+                                rule.getRuleType() == AlertRuleType.GEOFENCE_ENTER
+                                        ? AlertTriggeredEvent.AlertType.GEOFENCE_ENTER
+                                        : AlertTriggeredEvent.AlertType.GEOFENCE_EXIT;
+
+                        String action = alertType == AlertTriggeredEvent.AlertType.GEOFENCE_ENTER
+                                ? "entered" : "exited";
+
+                        triggerAlert(rule, event, alertType,
+                                AlertTriggeredEvent.Severity.INFO,
+                                String.format("Truck %s %s geofence '%s'",
+                                        event.getTruckIdReadable(), action, rule.getName()));
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Error evaluating geofence rule {} for truck {}: {}",
+                        rule.getId(), event.getTruckId(), e.getMessage());
             }
         }
     }

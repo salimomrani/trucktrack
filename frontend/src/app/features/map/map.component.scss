@@ -130,11 +130,11 @@
   }
 }
 
-// T104: Filter panel positioned on map
+// T104: Filter panel positioned on map - left side below zoom controls
 .filter-panel-container {
   position: absolute;
-  top: 100px; // Below header
-  right: 16px;
+  top: 160px; // Below zoom buttons (zoom buttons are ~80px tall starting at ~70px)
+  left: 10px;
   z-index: 1000;
 }
 

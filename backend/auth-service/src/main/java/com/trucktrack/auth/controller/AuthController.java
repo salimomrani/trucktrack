@@ -14,8 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 /**
  * Authentication controller for login/register endpoints
  * Simplified version for testing - validates only the test admin user
@@ -33,11 +31,13 @@ public class AuthController {
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
         log.info("Login attempt for user: {}", loginRequest.getEmail());
 
-        // For testing purposes, accept the admin user credentials from seed data
+        // For testing: validate against seed data credentials
+        // and use the actual user ID from the database
         if ("admin@trucktrack.com".equals(loginRequest.getEmail()) &&
             "AdminPass123!".equals(loginRequest.getPassword())) {
 
-            String userId = UUID.randomUUID().toString();
+            // Use the actual admin user ID from the database (from seed data)
+            String userId = "00000000-0000-0000-0000-000000000002";
             String role = "FLEET_MANAGER";
 
             // Generate JWT access token
@@ -48,6 +48,38 @@ public class AuthController {
             );
 
             // Generate refresh token
+            String refreshToken = authService.generateRefreshToken(
+                    loginRequest.getEmail(),
+                    userId,
+                    role
+            );
+
+            log.info("User logged in successfully: {}", loginRequest.getEmail());
+
+            LoginResponse response = new LoginResponse();
+            response.setToken(token);
+            response.setRefreshToken(refreshToken);
+            response.setType("Bearer");
+            response.setEmail(loginRequest.getEmail());
+            response.setRole(role);
+            response.setExpiresIn(authService.getExpirationInSeconds());
+
+            return ResponseEntity.ok(response);
+        }
+
+        // Also support dispatcher user
+        if ("dispatcher@trucktrack.com".equals(loginRequest.getEmail()) &&
+            "DispatcherPass123!".equals(loginRequest.getPassword())) {
+
+            String userId = "00000000-0000-0000-0000-000000000003";
+            String role = "DISPATCHER";
+
+            String token = authService.generateToken(
+                    loginRequest.getEmail(),
+                    userId,
+                    role
+            );
+
             String refreshToken = authService.generateRefreshToken(
                     loginRequest.getEmail(),
                     userId,

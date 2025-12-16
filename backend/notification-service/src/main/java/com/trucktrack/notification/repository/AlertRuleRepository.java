@@ -63,4 +63,22 @@ public interface AlertRuleRepository extends JpaRepository<AlertRule, UUID> {
      * Check if user has any alert rules
      */
     boolean existsByCreatedBy(UUID userId);
+
+    /**
+     * Find enabled geofence enter rules
+     */
+    @Query("SELECT a FROM AlertRule a WHERE a.ruleType = 'GEOFENCE_ENTER' AND a.isEnabled = true AND a.geofenceId IS NOT NULL")
+    List<AlertRule> findEnabledGeofenceEnterRules();
+
+    /**
+     * Find enabled geofence exit rules
+     */
+    @Query("SELECT a FROM AlertRule a WHERE a.ruleType = 'GEOFENCE_EXIT' AND a.isEnabled = true AND a.geofenceId IS NOT NULL")
+    List<AlertRule> findEnabledGeofenceExitRules();
+
+    /**
+     * Find enabled geofence rules (both enter and exit)
+     */
+    @Query("SELECT a FROM AlertRule a WHERE (a.ruleType = 'GEOFENCE_ENTER' OR a.ruleType = 'GEOFENCE_EXIT') AND a.isEnabled = true AND a.geofenceId IS NOT NULL")
+    List<AlertRule> findEnabledGeofenceRules();
 }
