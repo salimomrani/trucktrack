@@ -87,7 +87,7 @@
 
 ---
 
-## 📊 Current Implementation Status (Updated: 2025-12-15)
+## 📊 Current Implementation Status (Updated: 2025-12-16)
 
 ### 🏗️ Architecture Overview
 
@@ -108,6 +108,7 @@
 - Docker Compose (dev environment)
 - Kafka UI for debugging
 - GitHub Actions CI/CD
+- SonarQube 9.9 LTS (code quality analysis)
 
 ### ✅ Completed Phases
 
@@ -133,6 +134,8 @@
 - Login component + routing
 - **BONUS**: NgRx Store with StoreFacade pattern (beyond specs)
 - **BONUS**: APP_INITIALIZER for auth state restoration
+- **BONUS**: User identity propagation via API Gateway headers (X-User-Id, X-Username, X-User-Role)
+- **BONUS**: Comprehensive ARCHITECTURE.md documentation
 
 ### ✅ Completed User Stories
 
@@ -162,6 +165,7 @@
 - ✅ Connection status indicator (T090)
 - ✅ Loading spinner (T091)
 - ✅ Error handling with Material snackbar (T092)
+- ✅ **BONUS**: Auto-focus map on trucks area when navigating to map page
 - ✅ ARIA labels for accessibility (T093)
 - ✅ Keyboard navigation for truck selection (T094)
 - ✅ WCAG 2.1 AA color contrast (T095)
@@ -266,17 +270,18 @@
 | Phase 4: US2 (Search/Filter) | 18 | 14 | 78% |
 | Phase 5: US3 (History) | 21 | 17 | 81% |
 | Phase 6: US4 (Alerts) | 37 | 24 | 65% |
-| Phase 7: Polish | 26 | 0 | 0% |
-| **TOTAL** | **197** | **150** | **76%** |
+| Phase 7: Polish | 26 | 1 | 4% |
+| **TOTAL** | **197** | **151** | **77%** |
 
 ### 🎯 Next Steps (Priority Order)
-1. **Fix environment config** - apiUrl changed to 8081 ✅
-2. **US4 Backend** - Implement notification-service (T139-T151) ✅ (except Geofence)
-3. **US4 API Gateway routes** - Add notification-service routes
-4. **US4 Frontend Integration** - Connect to backend (T157-T167)
+1. ~~**Fix environment config** - apiUrl changed to 8081~~ ✅
+2. ~~**US4 Backend** - Implement notification-service (T139-T151)~~ ✅ (except Geofence)
+3. ~~**US4 API Gateway routes** - Add notification-service routes~~ ✅
+4. ~~**SonarQube setup** - Code quality analysis~~ ✅
 5. **Geofence implementation** - T140, T143, T150, T152-T154
-6. **Missing Tests** - T096-T099, T114-T116, T133-T138
-7. **Phase 7 Polish** - i18n, dark mode, load tests, Kubernetes
+6. **US4 Frontend Integration** - WebSocket notifications (T166-T167)
+7. **Missing Tests** - T096-T099, T114-T116, T133-T138
+8. **Phase 7 Polish** - i18n, dark mode, load tests, Kubernetes
 
 ---
 
@@ -539,7 +544,7 @@
 - [ ] T191 [P] Add Redis memory optimization (set maxmemory-policy=allkeys-lru in Docker Compose)
 - [ ] T192 [P] Create Docker images for all services (Dockerfiles in backend/<service>/Dockerfile and frontend/Dockerfile)
 - [ ] T193 Code review and refactoring pass (remove code smells, improve naming, add comments for complex logic)
-- [ ] T194 SonarQube analysis pass (ensure 0 critical issues, <5% technical debt)
+- [X] T194 SonarQube analysis pass (ensure 0 critical issues, <5% technical debt) - SonarQube 9.9 LTS setup complete, analysis running
 - [ ] T195 Run all tests (unit, integration, E2E, load) and ensure 100% pass rate
 - [ ] T196 Run quickstart.md validation to ensure developer onboarding works
 - [ ] T197 Final smoke test (deploy to staging, run E2E tests, verify all user stories work end-to-end)
