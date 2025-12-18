@@ -1,4 +1,159 @@
 <div class="alerts-container">
+  <!-- Alert Rules Management Section (T162) -->
+  <mat-card class="rules-section">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>rule</mat-icon>
+        Alert Rules
+      </mat-card-title>
+      <button mat-raised-button color="primary" (click)="toggleRuleForm()"
+              [attr.aria-expanded]="showRuleForm()"
+              aria-controls="alert-rule-form">
+        <mat-icon>{{ showRuleForm() ? 'close' : 'add' }}</mat-icon>
+        {{ showRuleForm() ? 'Cancel' : 'New Rule' }}
+      </button>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Alert Rule Form -->
+      @if (showRuleForm()) {
+        <div class="rule-form" id="alert-rule-form" role="region" aria-label="Create new alert rule form">
+          <form [formGroup]="alertRuleForm" (ngSubmit)="createAlertRule()" aria-label="Alert rule configuration">
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Rule Name</mat-label>
+                <input matInput formControlName="name" placeholder="e.g., Speed Alert"
+                       aria-required="true"
+                       aria-describedby="name-hint">
+                <mat-hint id="name-hint">Enter a descriptive name for this alert rule</mat-hint>
+                @if (alertRuleForm.get('name')?.hasError('required') && alertRuleForm.get('name')?.touched) {
+                  <mat-error>Name is required</mat-error>
+                }
+                @if (alertRuleForm.get('name')?.hasError('minlength')) {
+                  <mat-error>Name must be at least 3 characters</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Rule Type</mat-label>
+                <mat-select formControlName="ruleType"
+                            aria-required="true"
+                            aria-describedby="type-hint">
+                  @for (type of ruleTypes; track type.value) {
+                    <mat-option [value]="type.value">
+                      <mat-icon>{{ type.icon }}</mat-icon>
+                      {{ type.label }}
+                    </mat-option>
+                  }
+                </mat-select>
+                <mat-hint id="type-hint">Select the type of condition to monitor</mat-hint>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Description (optional)</mat-label>
+                <textarea matInput formControlName="description" rows="2" placeholder="Describe this alert rule"
+                          aria-describedby="desc-hint"></textarea>
+                <mat-hint id="desc-hint">Optional description to explain this rule's purpose</mat-hint>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              @if (requiresThreshold(alertRuleForm.get('ruleType')?.value)) {
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ getThresholdLabel(alertRuleForm.get('ruleType')?.value) }}</mat-label>
+                  <input matInput type="number" formControlName="thresholdValue" min="0"
+                         aria-describedby="threshold-hint">
+                  <mat-hint id="threshold-hint">Set the threshold value to trigger the alert</mat-hint>
+                </mat-form-field>
+              }
+
+              @if (requiresGeofence(alertRuleForm.get('ruleType')?.value)) {
+                <mat-form-field appearance="outline">
+                  <mat-label>Select Geofence</mat-label>
+                  <mat-select formControlName="geofenceId"
+                              aria-describedby="geofence-hint">
+                    @for (geofence of geofences(); track geofence.id) {
+                      <mat-option [value]="geofence.id">
+                        {{ geofence.name }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                  <mat-hint id="geofence-hint">Select an existing geofence to monitor</mat-hint>
+                </mat-form-field>
+              }
+
+              <mat-slide-toggle formControlName="isEnabled" color="primary"
+                                aria-label="Enable or disable this alert rule">
+                Enabled
+              </mat-slide-toggle>
+            </div>
+
+            <div class="form-actions" role="group" aria-label="Form actions">
+              <button mat-button type="button" (click)="toggleRuleForm()" aria-label="Cancel creating alert rule">Cancel</button>
+              <button mat-raised-button color="primary" type="submit"
+                      [disabled]="alertRuleForm.invalid || isCreatingRule()"
+                      [attr.aria-busy]="isCreatingRule()"
+                      aria-label="Create new alert rule">
+                @if (isCreatingRule()) {
+                  <mat-spinner diameter="20" aria-label="Creating rule"></mat-spinner>
+                } @else {
+                  <mat-icon>add</mat-icon>
+                  Create Rule
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+        <mat-divider></mat-divider>
+      }
+
+      <!-- Existing Alert Rules List -->
+      <div class="rules-list" role="list" aria-label="Configured alert rules">
+        @if (alertRules().length === 0) {
+          <div class="no-rules" role="status" aria-live="polite">
+            <mat-icon>rule_folder</mat-icon>
+            <p>No alert rules configured yet. Create your first rule to get started!</p>
+          </div>
+        } @else {
+          @for (rule of alertRules(); track rule.id) {
+            <div class="rule-item" [class.disabled]="!rule.isEnabled"
+                 role="listitem"
+                 [attr.aria-label]="rule.name + ' - ' + rule.ruleType + (rule.isEnabled ? ' (enabled)' : ' (disabled)')">
+              <div class="rule-icon" aria-hidden="true">
+                <mat-icon>{{ getRuleTypeIcon(rule.ruleType) }}</mat-icon>
+              </div>
+              <div class="rule-info">
+                <div class="rule-name">{{ rule.name }}</div>
+                <div class="rule-meta">
+                  <mat-chip>{{ rule.ruleType }}</mat-chip>
+                  @if (rule.thresholdValue) {
+                    <span class="threshold">Threshold: {{ rule.thresholdValue }}</span>
+                  }
+                </div>
+              </div>
+              <div class="rule-actions" role="group" [attr.aria-label]="'Actions for ' + rule.name">
+                <mat-slide-toggle
+                  [checked]="rule.isEnabled"
+                  (change)="toggleRuleEnabled(rule)"
+                  color="primary"
+                  [attr.aria-label]="(rule.isEnabled ? 'Disable' : 'Enable') + ' rule ' + rule.name"
+                  matTooltip="{{ rule.isEnabled ? 'Disable' : 'Enable' }} rule">
+                </mat-slide-toggle>
+                <button mat-icon-button color="warn" (click)="deleteAlertRule(rule)"
+                        [attr.aria-label]="'Delete rule ' + rule.name"
+                        matTooltip="Delete rule">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
+
   <!-- Stats Cards -->
   <div class="stats-grid">
     <mat-card class="stat-card total">
@@ -86,15 +241,26 @@
     </mat-card-content>
   </mat-card>
 
+  <!-- Notifications List Header with Count -->
+  <div class="list-header">
+    <h3>
+      <mat-icon>notifications</mat-icon>
+      Recent Notifications
+      @if (totalNotifications() > 0) {
+        <span class="count-badge">({{ filteredNotifications().length }} of {{ totalNotifications() }})</span>
+      }
+    </h3>
+  </div>
+
   <!-- Notifications List -->
-  <div class="alerts-list">
+  <div class="alerts-list" #notificationList role="list" aria-label="Notifications list">
     @if (isLoading()) {
-      <div class="loading-spinner">
-        <mat-spinner />
+      <div class="loading-spinner" role="status" aria-live="polite">
+        <mat-spinner aria-label="Loading notifications" />
         <p>Loading notifications...</p>
       </div>
     } @else if (filteredNotifications().length === 0) {
-      <mat-card class="no-alerts">
+      <mat-card class="no-alerts" role="status" aria-live="polite">
         <mat-card-content>
           <mat-icon>check_circle_outline</mat-icon>
           <h3>No notifications found</h3>
@@ -102,20 +268,24 @@
         </mat-card-content>
       </mat-card>
     } @else {
-      @for (notification of filteredNotifications(); track notification.id) {
-        <mat-card class="alert-card" [class.unread]="!notification.isRead" [class]="getSeverityClass(notification.severity)">
+      @for (notification of filteredNotifications(); track notification.id; let i = $index) {
+        <mat-card class="alert-card" [class.unread]="!notification.isRead" [class]="getSeverityClass(notification.severity)"
+                  role="listitem"
+                  tabindex="0"
+                  [attr.aria-label]="getNotificationAriaLabel(notification)"
+                  (keydown)="onNotificationKeydown($event, notification)">
           <mat-card-content>
-            <div class="alert-icon" [class]="getSeverityClass(notification.severity)">
+            <div class="alert-icon" [class]="getSeverityClass(notification.severity)" aria-hidden="true">
               <mat-icon>{{ getSeverityIcon(notification.severity) }}</mat-icon>
             </div>
 
             <div class="alert-content">
               <div class="alert-header">
                 <div class="alert-title">
-                  <mat-icon class="type-icon">{{ getTypeIcon(notification.notificationType) }}</mat-icon>
+                  <mat-icon class="type-icon" aria-hidden="true">{{ getTypeIcon(notification.notificationType) }}</mat-icon>
                   <strong>{{ notification.title }}</strong>
                   @if (!notification.isRead) {
-                    <mat-chip class="unread-badge">New</mat-chip>
+                    <mat-chip class="unread-badge" aria-label="Unread notification">New</mat-chip>
                   }
                 </div>
                 <div class="alert-time">{{ formatDate(notification.triggeredAt) }}</div>
@@ -130,14 +300,18 @@
               </div>
             </div>
 
-            <div class="alert-actions">
+            <div class="alert-actions" role="group" [attr.aria-label]="'Actions for notification: ' + notification.title">
               @if (notification.latitude && notification.longitude) {
-                <button mat-icon-button color="accent" (click)="viewOnMap(notification)" matTooltip="View on map">
+                <button mat-icon-button color="accent" (click)="viewOnMap(notification)"
+                        [attr.aria-label]="'View ' + notification.title + ' on map'"
+                        matTooltip="View on map">
                   <mat-icon>map</mat-icon>
                 </button>
               }
               @if (!notification.isRead) {
-                <button mat-icon-button (click)="markAsRead(notification)" matTooltip="Mark as read">
+                <button mat-icon-button (click)="markAsRead(notification)"
+                        [attr.aria-label]="'Mark ' + notification.title + ' as read'"
+                        matTooltip="Mark as read">
                   <mat-icon>mark_email_read</mat-icon>
                 </button>
               }
@@ -145,6 +319,26 @@
           </mat-card-content>
         </mat-card>
       }
+
+      <!-- Infinite Scroll Sentinel & Loading More Indicator -->
+      <div id="scroll-sentinel" class="scroll-sentinel">
+        @if (isLoadingMore()) {
+          <div class="loading-more" role="status" aria-live="polite">
+            <mat-spinner diameter="30" aria-label="Loading more notifications" />
+            <span>Loading more notifications...</span>
+          </div>
+        } @else if (hasMorePages()) {
+          <button mat-stroked-button (click)="loadMoreNotifications()" class="load-more-btn">
+            <mat-icon>expand_more</mat-icon>
+            Load More
+          </button>
+        } @else if (filteredNotifications().length > 0) {
+          <div class="end-of-list">
+            <mat-icon>check_circle</mat-icon>
+            <span>You've reached the end</span>
+          </div>
+        }
+      </div>
     }
   </div>
 </div>

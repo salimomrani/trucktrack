@@ -32,6 +32,8 @@ public class AlertRuleEngine {
     private final GeofenceStateCache geofenceStateCache;
     private final KafkaTemplate<String, AlertTriggeredEvent> kafkaTemplate;
     private final NotificationWebSocketService webSocketService;
+    private final TruckLookupService truckLookupService;
+    private final AlertCooldownCache alertCooldownCache;
 
     @Value("${kafka.topics.alert:truck-track.notification.alert}")
     private String alertTopic;
@@ -68,13 +70,20 @@ public class AlertRuleEngine {
                     : defaultSpeedLimit;
 
             if (event.getSpeed() > threshold) {
+                // Check cooldown before triggering alert
+                if (!alertCooldownCache.checkAndRecord(event.getTruckId(), rule.getId())) {
+                    log.debug("Speed alert suppressed for truck {} - in cooldown period", event.getTruckId());
+                    continue;
+                }
+
+                String truckName = getTruckName(event);
                 log.info("Speed limit exceeded for truck {}: {} km/h (limit: {})",
-                        event.getTruckId(), event.getSpeed(), threshold);
+                        truckName, event.getSpeed(), threshold);
 
                 triggerAlert(rule, event, AlertTriggeredEvent.AlertType.SPEED_LIMIT,
                         AlertTriggeredEvent.Severity.WARNING,
                         String.format("Truck %s exceeded speed limit: %.1f km/h (limit: %d km/h)",
-                                event.getTruckIdReadable(), event.getSpeed(), threshold));
+                                truckName, event.getSpeed(), threshold));
             }
         }
     }
@@ -122,6 +131,12 @@ public class AlertRuleEngine {
                     };
 
                     if (shouldTrigger) {
+                        // Check cooldown before triggering geofence alert
+                        if (!alertCooldownCache.checkAndRecord(event.getTruckId(), rule.getId())) {
+                            log.debug("Geofence alert suppressed for truck {} - in cooldown period", event.getTruckId());
+                            continue;
+                        }
+
                         AlertTriggeredEvent.AlertType alertType =
                                 rule.getRuleType() == AlertRuleType.GEOFENCE_ENTER
                                         ? AlertTriggeredEvent.AlertType.GEOFENCE_ENTER
@@ -130,10 +145,12 @@ public class AlertRuleEngine {
                         String action = alertType == AlertTriggeredEvent.AlertType.GEOFENCE_ENTER
                                 ? "entered" : "exited";
 
+                        String truckName = getTruckName(event);
+
                         triggerAlert(rule, event, alertType,
                                 AlertTriggeredEvent.Severity.INFO,
                                 String.format("Truck %s %s geofence '%s'",
-                                        event.getTruckIdReadable(), action, rule.getName()));
+                                        truckName, action, rule.getName()));
                     }
                 }
             } catch (Exception e) {
@@ -151,11 +168,15 @@ public class AlertRuleEngine {
                               AlertTriggeredEvent.Severity severity,
                               String message) {
 
+        String truckIdReadable = event.getTruckIdReadable() != null
+                ? event.getTruckIdReadable()
+                : event.getTruckId().substring(0, 8);
+
         AlertTriggeredEvent alertEvent = new AlertTriggeredEvent();
         alertEvent.setEventId(UUID.randomUUID().toString());
         alertEvent.setAlertRuleId(rule.getId().toString());
         alertEvent.setTruckId(event.getTruckId());
-        alertEvent.setTruckIdReadable(event.getTruckIdReadable());
+        alertEvent.setTruckIdReadable(truckIdReadable);
         alertEvent.setAlertType(alertType);
         alertEvent.setSeverity(severity);
         alertEvent.setMessage(message);
@@ -253,5 +274,17 @@ public class AlertRuleEngine {
             case WARNING -> NotificationSeverity.WARNING;
             case CRITICAL -> NotificationSeverity.CRITICAL;
         };
+    }
+
+    /**
+     * Get truck readable name from event or lookup from database
+     */
+    private String getTruckName(GPSPositionEvent event) {
+        // First try to use the readable ID from the event
+        if (event.getTruckIdReadable() != null && !event.getTruckIdReadable().isBlank()) {
+            return event.getTruckIdReadable();
+        }
+        // Fall back to database lookup
+        return truckLookupService.getTruckReadableId(event.getTruckId());
     }
 }

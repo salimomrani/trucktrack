@@ -78,3 +78,6 @@ alert:
   offline-threshold-minutes: 5
   # Default speed limit in km/h
   default-speed-limit: 120
+  # Cooldown period in minutes - after an alert, suppress duplicates for this duration
+  # This prevents alert flooding when trucks continuously exceed thresholds
+  cooldown-minutes: 5

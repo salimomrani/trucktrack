@@ -1,5 +1,8 @@
 package com.trucktrack.notification.kafka;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.trucktrack.common.event.AlertTriggeredEvent;
 import com.trucktrack.common.event.GPSPositionEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -75,12 +78,25 @@ public class KafkaConfig {
     // Alert Triggered Event Consumer Factory
     @Bean
     public ConsumerFactory<String, AlertTriggeredEvent> alertConsumerFactory() {
-        Map<String, Object> props = baseConsumerConfig();
-        props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class);
-        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, AlertTriggeredEvent.class.getName());
-        props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
-        return new DefaultKafkaConsumerFactory<>(props);
+        Map<String, Object> props = new HashMap<>();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "notification-service-alert-consumer");
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+
+        // Create ObjectMapper with JavaTimeModule for proper Instant deserialization
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+
+        JsonDeserializer<AlertTriggeredEvent> deserializer = new JsonDeserializer<>(AlertTriggeredEvent.class, objectMapper);
+        deserializer.addTrustedPackages("*");
+        deserializer.setUseTypeHeaders(false);
+
+        return new DefaultKafkaConsumerFactory<>(
+                props,
+                new StringDeserializer(),
+                deserializer
+        );
     }
 
     @Bean

@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -41,7 +43,8 @@ public class Notification {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "notification_type", nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "notification_type", nullable = false, columnDefinition = "notification_type")
     private NotificationType notificationType;
 
     @NotBlank
@@ -55,7 +58,8 @@ public class Notification {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(nullable = false, columnDefinition = "notification_severity")
     private NotificationSeverity severity;
 
     @NotNull

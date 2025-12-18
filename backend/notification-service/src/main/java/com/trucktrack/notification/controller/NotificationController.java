@@ -118,15 +118,32 @@ public class NotificationController {
     }
 
     /**
-     * Get recent notifications (last 24 hours)
-     * GET /notification/v1/notifications/recent
+     * Get recent notifications (last 24 hours) - LIMITED to prevent memory issues
+     * GET /notification/v1/notifications/recent?limit=100
+     * Default: 100, Max: 500
      */
     @GetMapping("/recent")
     public ResponseEntity<List<Notification>> getRecentNotifications(
-            @RequestHeader("X-User-Id") UUID userId) {
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestParam(defaultValue = "100") int limit) {
 
-        log.debug("Getting recent notifications for user: {}", userId);
-        List<Notification> notifications = notificationService.getRecentNotifications(userId);
+        log.debug("Getting recent notifications for user: {}, limit: {}", userId, limit);
+        List<Notification> notifications = notificationService.getRecentNotifications(userId, limit);
+        return ResponseEntity.ok(notifications);
+    }
+
+    /**
+     * Get recent notifications - PAGINATED for infinite scroll
+     * GET /notification/v1/notifications/recent/paged?page=0&size=20
+     */
+    @GetMapping("/recent/paged")
+    public ResponseEntity<Page<Notification>> getRecentNotificationsPaged(
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+
+        log.debug("Getting recent notifications paged for user: {}, page: {}, size: {}", userId, page, size);
+        Page<Notification> notifications = notificationService.getRecentNotificationsPaged(userId, page, size);
         return ResponseEntity.ok(notifications);
     }
 

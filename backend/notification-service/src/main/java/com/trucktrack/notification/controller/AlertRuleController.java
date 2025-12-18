@@ -67,8 +67,12 @@ public class AlertRuleController {
      * POST /notification/v1/alert-rules
      */
     @PostMapping
-    public ResponseEntity<AlertRule> createAlertRule(@Valid @RequestBody AlertRule alertRule) {
-        log.info("Creating alert rule: {}", alertRule.getName());
+    public ResponseEntity<AlertRule> createAlertRule(
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestBody AlertRule alertRule) {
+        log.info("Creating alert rule '{}' for user: {}", alertRule.getName(), userId);
+        // Set the createdBy from authenticated user
+        alertRule.setCreatedBy(userId);
         AlertRule created = alertRuleService.createAlertRule(alertRule);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }

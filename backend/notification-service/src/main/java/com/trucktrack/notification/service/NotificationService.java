@@ -6,6 +6,7 @@ import com.trucktrack.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -109,11 +110,29 @@ public class NotificationService {
     }
 
     /**
-     * Get recent notifications (last 24 hours)
+     * Get recent notifications (last 24 hours) - LIMITED to prevent memory issues
+     * Default limit: 100 notifications max
      */
     public List<Notification> getRecentNotifications(UUID userId) {
+        return getRecentNotifications(userId, 100);
+    }
+
+    /**
+     * Get recent notifications with custom limit
+     */
+    public List<Notification> getRecentNotifications(UUID userId, int limit) {
         Instant since = Instant.now().minus(24, ChronoUnit.HOURS);
-        return notificationRepository.findRecentByUserId(userId, since);
+        Pageable pageable = PageRequest.of(0, Math.min(limit, 500)); // Cap at 500 max
+        return notificationRepository.findRecentByUserId(userId, since, pageable);
+    }
+
+    /**
+     * Get recent notifications - paginated for infinite scroll
+     */
+    public Page<Notification> getRecentNotificationsPaged(UUID userId, int page, int size) {
+        Instant since = Instant.now().minus(24, ChronoUnit.HOURS);
+        Pageable pageable = PageRequest.of(page, Math.min(size, 50)); // Cap page size at 50
+        return notificationRepository.findRecentByUserIdPaged(userId, since, pageable);
     }
 
     /**

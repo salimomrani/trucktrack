@@ -17,9 +17,14 @@
           <mat-icon>history</mat-icon>
           <span>History</span>
         </a>
-        <a mat-button routerLink="/alerts" routerLinkActive="active-link">
+        <a mat-button routerLink="/alerts" routerLinkActive="active-link" class="alerts-link">
           <mat-icon>notifications</mat-icon>
           <span>Alerts</span>
+          @if (unreadCount() > 0) {
+            <span class="notification-badge" [class.pulse]="unreadCount() > 0">
+              {{ unreadCount() > 99 ? '99+' : unreadCount() }}
+            </span>
+          }
         </a>
       </nav>
 

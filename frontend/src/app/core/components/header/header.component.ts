@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -8,6 +8,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { StoreFacade } from '../../../store/store.facade';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
+import { NotificationService } from '../../../services/notification.service';
 
 /**
  * Header Component - Application navigation header
@@ -33,13 +34,44 @@ import { SearchBarComponent } from '../search-bar/search-bar.component';
   styleUrl: './header.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit, OnDestroy {
   private readonly facade = inject(StoreFacade);
   private readonly router = inject(Router);
+  private readonly notificationService = inject(NotificationService);
 
   // Store signals
   currentUser = this.facade.currentUser;
   isAuthenticated = this.facade.isAuthenticated;
+
+  // T165: Notification badge - unread count from NotificationService
+  unreadCount = this.notificationService.unreadCount;
+
+  ngOnInit(): void {
+    if (this.isAuthenticated()) {
+      // Load initial unread count
+      this.loadUnreadCount();
+      // Connect to notification WebSocket for real-time updates
+      this.notificationService.connectWebSocket();
+    }
+  }
+
+  /**
+   * Load unread notification count from backend
+   */
+  private loadUnreadCount(): void {
+    this.notificationService.getUnreadCount().subscribe({
+      next: (response) => {
+        this.notificationService.unreadCount.set(response.count);
+      },
+      error: (err) => {
+        console.error('Failed to load unread count:', err);
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.notificationService.disconnectWebSocket();
+  }
 
   /**
    * Handle user logout

@@ -87,7 +87,7 @@
 
 ---
 
-## 📊 Current Implementation Status (Updated: 2025-12-16 21:20)
+## 📊 Current Implementation Status (Updated: 2025-12-17 20:30)
 
 ### 🏗️ Architecture Overview
 
@@ -251,10 +251,11 @@
 - ✅ AlertRule model
 - ✅ Notification model
 - ✅ AlertsComponent connected to backend APIs
-- ❌ Alert rule form submission (T162)
+- ✅ Alert rule form submission (T162)
 - ✅ Notification click → center map (T164) - viewOnMap() implemented
-- ❌ Notification badge in header (T165)
-- ❌ WebSocket real-time notifications (T166-T167)
+- ✅ Notification badge in header (T165)
+- ✅ WebSocket real-time notifications (T166-T167)
+- ✅ Accessibility: ARIA labels (T170) + keyboard navigation (T171)
 - ❌ Tests (T135-T138)
 
 ### ❌ Not Started
@@ -269,9 +270,9 @@
 | Phase 3: US1 (Live Map) | 48 | 48 | 100% |
 | Phase 4: US2 (Search/Filter) | 18 | 14 | 78% |
 | Phase 5: US3 (History) | 21 | 17 | 81% |
-| Phase 6: US4 (Alerts) | 37 | 31 | 84% |
+| Phase 6: US4 (Alerts) | 37 | 35 | 95% |
 | Phase 7: Polish | 26 | 1 | 4% |
-| **TOTAL** | **197** | **158** | **80%** |
+| **TOTAL** | **197** | **162** | **82%** |
 
 ### 🎯 Next Steps (Priority Order)
 1. ~~**Fix environment config** - apiUrl changed to 8081~~ ✅
@@ -283,9 +284,10 @@
 7. ~~**Geofence evaluation in alerts** - T150~~ ✅ (AlertRuleEngine + LocationServiceClient + GeofenceStateCache)
 8. ~~**Geofence drawing UI** - T154~~ ✅ (GeofencePanelComponent with Leaflet.draw)
 9. ~~**WebSocket notifications** - T166-T167~~ ✅ (NotificationService + snackbar alerts)
-10. **Alert rule submission** - T162, T165 (frontend alert form + notification badge)
-11. **Missing Tests** - T096-T099, T114-T116, T133-T138
-12. **Phase 7 Polish** - i18n, dark mode, load tests, Kubernetes
+10. ~~**Alert rule submission** - T162~~ ✅ + ~~**Notification badge** - T165~~ ✅ (header badge with unread count)
+11. ~~**Accessibility** - T170, T171~~ ✅ (ARIA labels + keyboard navigation)
+12. **Missing Tests** - T096-T099, T114-T116, T133-T134, T135-T138
+13. **Phase 7 Polish** - i18n, dark mode, load tests, Kubernetes
 
 ---
 
@@ -504,10 +506,10 @@
 - [X] T159 [P] [US4] Create AlertConfigComponent in frontend/src/app/features/alerts/alert-config/alert-config.component.ts (Material form for creating alert rules)
 - [X] T160 [P] [US4] Create NotificationListComponent in frontend/src/app/features/alerts/notification-list/notification-list.component.ts (Material list of notifications)
 - [X] T161 [US4] Implement alert rule form in AlertConfigComponent (rule type dropdown, threshold input, geofence selector)
-- [ ] T162 [US4] Implement alert rule submission in AlertConfigComponent.onSubmit() (call AlertRuleService.createAlertRule())
+- [X] T162 [US4] Implement alert rule submission in AlertConfigComponent.onSubmit() (call AlertRuleService.createAlertRule())
 - [X] T163 [US4] Implement notification list display in NotificationListComponent (show title, message, timestamp, read/unread status)
 - [X] T164 [US4] Implement notification click handler in AlertsComponent (viewOnMap navigates to map with coordinates)
-- [ ] T165 [US4] Implement notification badge in app header (Material badge showing unread count)
+- [X] T165 [US4] Implement notification badge in app header (Material badge showing unread count)
 - [X] T166 [US4] Implement WebSocket subscription for real-time notifications in NotificationService
 - [X] T167 [US4] Implement notification sound/visual alert (Material snackbar) when new notification received
 - [X] T168 [US4] Implement "Mark as Read" functionality in NotificationListComponent
@@ -515,8 +517,8 @@
 
 #### Accessibility
 
-- [ ] T170 [P] [US4] Add ARIA labels to alert rule form fields and notification list items
-- [ ] T171 [P] [US4] Ensure keyboard navigation for notification list (Tab to navigate, Enter to open)
+- [X] T170 [P] [US4] Add ARIA labels to alert rule form fields and notification list items
+- [X] T171 [P] [US4] Ensure keyboard navigation for notification list (Tab to navigate, Enter to open)
 
 **Checkpoint**: All 4 user stories are now complete. System provides live tracking, search/filter, historical routes, and real-time alerts.
 

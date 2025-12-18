@@ -65,10 +65,16 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
     int markAllAsReadForUser(@Param("userId") UUID userId, @Param("readAt") Instant readAt);
 
     /**
-     * Find recent notifications for a user (last 24 hours)
+     * Find recent notifications for a user (last 24 hours) - with limit
      */
     @Query("SELECT n FROM Notification n WHERE n.userId = :userId AND n.triggeredAt >= :since ORDER BY n.triggeredAt DESC")
-    List<Notification> findRecentByUserId(@Param("userId") UUID userId, @Param("since") Instant since);
+    List<Notification> findRecentByUserId(@Param("userId") UUID userId, @Param("since") Instant since, Pageable pageable);
+
+    /**
+     * Find recent notifications for a user (last 24 hours) - paginated
+     */
+    @Query("SELECT n FROM Notification n WHERE n.userId = :userId AND n.triggeredAt >= :since ORDER BY n.triggeredAt DESC")
+    Page<Notification> findRecentByUserIdPaged(@Param("userId") UUID userId, @Param("since") Instant since, Pageable pageable);
 
     /**
      * Find notifications triggered within a time range

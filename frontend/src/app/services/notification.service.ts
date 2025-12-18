@@ -91,10 +91,21 @@ export class NotificationService {
   }
 
   /**
-   * Get recent notifications (last 24 hours)
+   * Get recent notifications (last 24 hours) - with limit
    */
-  getRecentNotifications(): Observable<Notification[]> {
-    return this.http.get<Notification[]>(`${this.baseUrl}/recent`);
+  getRecentNotifications(limit: number = 100): Observable<Notification[]> {
+    const params = new HttpParams().set('limit', limit.toString());
+    return this.http.get<Notification[]>(`${this.baseUrl}/recent`, { params });
+  }
+
+  /**
+   * Get recent notifications - PAGINATED for infinite scroll
+   */
+  getRecentNotificationsPaged(page: number = 0, size: number = 20): Observable<NotificationPage> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    return this.http.get<NotificationPage>(`${this.baseUrl}/recent/paged`, { params });
   }
 
   /**

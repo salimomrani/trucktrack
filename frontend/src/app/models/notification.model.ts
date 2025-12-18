@@ -29,6 +29,9 @@ export interface NotificationPage {
   totalPages: number;
   size: number;
   number: number;
+  last: boolean;      // true if this is the last page
+  first: boolean;     // true if this is the first page
+  empty: boolean;     // true if content is empty
 }
 
 export interface NotificationStats {

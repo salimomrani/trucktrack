@@ -4,6 +4,166 @@
   margin: 0 auto;
 }
 
+// T162: Alert Rules Section Styles
+.rules-section {
+  margin-bottom: 24px;
+
+  mat-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #e0e0e0;
+
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      font-size: 20px;
+      font-weight: 500;
+    }
+  }
+
+  mat-card-content {
+    padding: 16px;
+  }
+}
+
+.rule-form {
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+
+  .form-row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+
+    mat-form-field {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    &.full-width mat-form-field,
+    mat-form-field.full-width {
+      flex: 1 1 100%;
+    }
+
+    mat-slide-toggle {
+      margin-top: 16px;
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid #e0e0e0;
+
+    button {
+      mat-spinner {
+        display: inline-block;
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+.rules-list {
+  .no-rules {
+    text-align: center;
+    padding: 32px;
+    color: #666;
+
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      color: #bdbdbd;
+      margin-bottom: 12px;
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .rule-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    &.disabled {
+      opacity: 0.6;
+      background-color: #fafafa;
+    }
+
+    .rule-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #e3f2fd;
+      color: #2196f3;
+
+      mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+    }
+
+    .rule-info {
+      flex: 1;
+
+      .rule-name {
+        font-weight: 500;
+        font-size: 16px;
+        margin-bottom: 4px;
+      }
+
+      .rule-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        mat-chip {
+          font-size: 12px;
+          height: 24px;
+          min-height: 24px;
+        }
+
+        .threshold {
+          font-size: 13px;
+          color: #666;
+        }
+      }
+    }
+
+    .rule-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -105,10 +265,31 @@
 
   .alert-card {
     transition: all 0.2s ease;
+    cursor: pointer;
+
+    // T171: Keyboard navigation focus styles
+    &:focus {
+      outline: 2px solid #2196f3;
+      outline-offset: 2px;
+      box-shadow: 0 2px 12px rgba(33, 150, 243, 0.3);
+    }
+
+    &:focus-visible {
+      outline: 2px solid #2196f3;
+      outline-offset: 2px;
+    }
+
+    &:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
 
     &.unread {
       border-left: 4px solid #2196f3;
       box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
+
+      &:focus {
+        box-shadow: 0 2px 12px rgba(33, 150, 243, 0.4);
+      }
     }
 
     &.resolved {
@@ -236,6 +417,31 @@
   }
 }
 
+// List header with count
+.list-header {
+  margin-bottom: 16px;
+
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+
+    mat-icon {
+      color: #2196f3;
+    }
+
+    .count-badge {
+      font-size: 14px;
+      font-weight: normal;
+      color: #666;
+    }
+  }
+}
+
 .loading-spinner, .no-alerts {
   display: flex;
   flex-direction: column;
@@ -260,5 +466,46 @@
   p {
     margin: 0;
     color: #666;
+  }
+}
+
+// Infinite scroll sentinel and indicators
+.scroll-sentinel {
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60px;
+}
+
+.loading-more {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #666;
+
+  span {
+    font-size: 14px;
+  }
+}
+
+.load-more-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.end-of-list {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #9e9e9e;
+  font-size: 14px;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #4caf50;
   }
 }

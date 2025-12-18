@@ -40,7 +40,8 @@ public class AlertRule {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "rule_type", nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "rule_type", nullable = false, columnDefinition = "alert_rule_type")
     private AlertRuleType ruleType;
 
     @Positive
@@ -63,7 +64,7 @@ public class AlertRule {
     @Builder.Default
     private List<String> notificationChannels = List.of("IN_APP");
 
-    @NotNull
+    // createdBy is set by controller from X-User-Id header, not from request body
     @Column(name = "created_by", nullable = false)
     private UUID createdBy;
 
@@ -75,8 +76,5 @@ public class AlertRule {
     @Builder.Default
     private Instant updatedAt = Instant.now();
 
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = Instant.now();
-    }
+    // @PreUpdate removed - database trigger handles updated_at
 }

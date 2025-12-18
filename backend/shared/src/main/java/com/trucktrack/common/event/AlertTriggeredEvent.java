@@ -1,5 +1,11 @@
 package com.trucktrack.common.event;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.InstantDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
+
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
@@ -21,6 +27,7 @@ public class AlertTriggeredEvent implements Serializable {
     private String message;
     private Double latitude;
     private Double longitude;
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     private Instant triggeredAt;
     private List<String> affectedUserIds;
 
