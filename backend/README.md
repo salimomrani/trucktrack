@@ -131,8 +131,22 @@ The backend follows a microservices architecture pattern with event-driven commu
 - [X] Structured JSON logging
 - [X] Common DTOs, events, exceptions
 
-### Phase 3: User Story 1 (Next Phase)
-Coming next: GPS ingestion, location tracking, live map visualization
+### Phase 3-6: User Stories ✅ COMPLETE
+- [X] GPS ingestion with real-time Kafka streaming
+- [X] Location tracking with PostGIS spatial queries
+- [X] WebSocket live updates
+- [X] Historical route retrieval with playback
+- [X] Geofence management (CRUD + spatial queries)
+- [X] Alert rule engine with multiple alert types
+- [X] Real-time notifications via WebSocket
+
+### Phase 7: Observability ✅ COMPLETE
+- [X] Prometheus metrics collection
+- [X] Grafana dashboard with business metrics
+- [X] Jaeger distributed tracing
+- [X] OpenTelemetry integration (Micrometer Tracing Bridge)
+- [X] Prometheus alert rules
+- [X] Trace context propagation (traceId/spanId in logs)
 
 ## Development
 
@@ -198,17 +212,43 @@ mvn flyway:migrate -P local
 - `truck-track.location.status-change` - Truck status changes (5 partitions)
 - `truck-track.notification.alert` - Alert notifications (3 partitions)
 
-## Monitoring
+## Monitoring & Observability
+
+### Service Endpoints
 
 - **Health checks**: `http://localhost:{port}/actuator/health`
 - **Metrics**: `http://localhost:{port}/actuator/metrics`
 - **Prometheus**: `http://localhost:{port}/actuator/prometheus`
 
-## Next Steps
+### Monitoring Stack
+
+| Tool | URL | Description |
+|------|-----|-------------|
+| **Prometheus** | http://localhost:9090 | Metrics collection & alerting |
+| **Grafana** | http://localhost:3000 | Dashboards (admin/admin) |
+| **Jaeger** | http://localhost:16686 | Distributed tracing |
+
+### Distributed Tracing
+
+All services are instrumented with OpenTelemetry via Micrometer Tracing Bridge:
+- Automatic trace context propagation across HTTP calls
+- Kafka header propagation for async tracing
+- TraceId/SpanId included in all log entries
+
+### Prometheus Alert Rules
+
+Configured alerts in `infra/monitoring/prometheus/alerts.yml`:
+- Service availability (ServiceDown)
+- High API latency (HighAPILatency)
+- Kafka consumer lag (HighKafkaConsumerLag)
+- JVM heap usage (JVMHeapUsageHigh)
+- HTTP error rate (HighErrorRate)
+
+## Quick Start
 
 1. Start Docker infrastructure: `cd infra/docker && docker-compose up -d`
 2. Run Flyway migrations: `mvn flyway:migrate -P local`
-3. Start all services
-4. Implement User Story 1 (GPS ingestion + live map)
+3. Start all services: `./start-all.sh`
+4. Access monitoring: http://localhost:3000 (Grafana)
 
 See `/specs/001-gps-live-tracking/tasks.md` for detailed task breakdown.

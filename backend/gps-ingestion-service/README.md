@@ -296,30 +296,40 @@ spring:
       acks: 1  # Balance between performance and durability
 ```
 
-## Monitoring
+## Monitoring & Observability
 
 ### Metrics
 
-Available at `/actuator/metrics`:
+Available at `/actuator/metrics` and `/actuator/prometheus`:
 
 - `gps.ingestion.received` - Total GPS positions received
 - `gps.ingestion.published` - Total events published to Kafka
 - `gps.ingestion.failed` - Total failed ingestions
 - `gps.ingestion.latency` - Processing latency histogram
+- `http_server_requests_seconds` - HTTP request metrics
+- `kafka_producer_*` - Kafka producer metrics
+
+### Distributed Tracing
+
+OpenTelemetry tracing is enabled via Micrometer Tracing Bridge:
+- HTTP requests traced automatically
+- Kafka message headers include trace context
+- Traces exported to Jaeger at http://localhost:16686
+
+### Monitoring Stack
+
+| Tool | URL | Description |
+|------|-----|-------------|
+| Prometheus | http://localhost:9090 | Metrics collection |
+| Grafana | http://localhost:3000 | Dashboards (admin/admin) |
+| Jaeger | http://localhost:16686 | Distributed tracing |
 
 ### Logging
 
-Structured JSON logging configured via Logback:
+Structured logging with trace correlation (traceId, spanId):
 
-```json
-{
-  "timestamp": "2025-12-09T10:30:00.123Z",
-  "level": "INFO",
-  "logger": "com.trucktrack.gps.service.GPSIngestionService",
-  "message": "GPS position ingested",
-  "truckId": "550e8400-e29b-41d4-a716-446655440000",
-  "eventId": "evt_123456789"
-}
+```
+2025-12-19 10:30:00.123 [kafka-producer-1] [abc123,def456] INFO GPSIngestionService - GPS position ingested, truckId=TRUCK-001
 ```
 
 ## Testing

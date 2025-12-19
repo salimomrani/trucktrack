@@ -118,17 +118,33 @@ Attendez 30-60 secondes que tous les services démarrent, puis accédez à:
 
 ## 🛠️ Services
 
+### Backend Services
+
 | Service | Port | Description | Status |
 |---------|------|-------------|--------|
-| **Frontend** | 4200 | Angular 17 UI | ✅ Phase 2 |
-| **API Gateway** | 8000 | Entry point, routing | ✅ Phase 2 |
-| **Auth Service** | 8083 | JWT authentication | ✅ Phase 2 |
-| **GPS Ingestion** | 8080 | GPS data ingestion | ✅ Phase 2 |
-| **Location Service** | 8081 | Truck positions, WebSocket | ✅ Phase 2 |
-| **Notification Service** | 8082 | Alerts & notifications | ✅ Phase 2 |
-| **PostgreSQL** | 5432 | Database + PostGIS | ✅ Phase 2 |
-| **Kafka** | 9092 | Event streaming | ✅ Phase 2 |
-| **Redis** | 6379 | Caching | ✅ Phase 2 |
+| **Frontend** | 4200 | Angular 17 UI | ✅ Complete |
+| **API Gateway** | 8000 | Entry point, routing | ✅ Complete |
+| **Auth Service** | 8083 | JWT authentication | ✅ Complete |
+| **GPS Ingestion** | 8080 | GPS data ingestion | ✅ Complete |
+| **Location Service** | 8081 | Truck positions, WebSocket | ✅ Complete |
+| **Notification Service** | 8082 | Alerts & notifications | ✅ Complete |
+
+### Infrastructure
+
+| Service | Port | Description | Status |
+|---------|------|-------------|--------|
+| **PostgreSQL** | 5432 | Database + PostGIS | ✅ Complete |
+| **Kafka** | 9092 | Event streaming | ✅ Complete |
+| **Redis** | 6379 | Caching | ✅ Complete |
+| **Kafka UI** | 8088 | Kafka administration | ✅ Complete |
+
+### Monitoring Stack (Observability)
+
+| Service | Port | Description | Status |
+|---------|------|-------------|--------|
+| **Prometheus** | 9090 | Metrics collection & alerting | ✅ Complete |
+| **Grafana** | 3000 | Dashboards & visualization | ✅ Complete |
+| **Jaeger** | 16686 | Distributed tracing | ✅ Complete |
 
 ## 📁 Structure du Projet
 
@@ -152,7 +168,8 @@ truck_track/
 │       │   └── features/ # Login, map, history, alerts
 │       └── environments/
 ├── infra/
-│   └── docker/          # Docker Compose (Kafka, PostgreSQL, Redis)
+│   ├── docker/          # Docker Compose (Kafka, PostgreSQL, Redis)
+│   └── monitoring/      # Prometheus, Grafana configs & dashboards
 ├── logs/                # Logs des services (créé automatiquement)
 └── specs/
     └── 001-gps-live-tracking/
@@ -252,23 +269,50 @@ npm run e2e                 # Tests E2E
 - API Gateway
 - Angular Material
 - Service d'authentification frontend
-- Formulaire de connexion
 
-### 🔄 Phase 3: User Story 1 - PROCHAINE ÉTAPE
-- Ingestion GPS en temps réel
-- Service de localisation
-- WebSocket pour les mises à jour live
-- Carte Leaflet avec marqueurs
-- Mise à jour des marqueurs en temps réel
+### ✅ Phase 3-6: User Stories (COMPLETE)
+- **US1**: Carte temps réel avec positions GPS live
+- **US2**: Recherche et filtres de camions
+- **US3**: Historique des trajets avec playback
+- **US4**: Système d'alertes et notifications
 
-**Progression globale: 47/197 tâches (24%)**
+### ✅ Phase 7: Observabilité (COMPLETE)
+- Prometheus metrics collection
+- Grafana dashboard avec métriques business
+- Jaeger distributed tracing
+- OpenTelemetry intégration
+- Alert rules (Prometheus)
 
-## 🚀 Prochaines Étapes
+**Progression globale: 178/178 tâches (100%)**
 
-1. Implémenter l'ingestion GPS (T048-T065)
-2. Créer le service de localisation (T066-T074)
-3. Développer le composant de carte (T075-T092)
-4. Ajouter les fonctionnalités d'accessibilité (T093-T095)
+## 📈 Monitoring & Observabilité
+
+### Accès aux outils de monitoring
+
+| Outil | URL | Credentials |
+|-------|-----|-------------|
+| **Prometheus** | http://localhost:9090 | - |
+| **Grafana** | http://localhost:3000 | admin / admin |
+| **Jaeger** | http://localhost:16686 | - |
+
+### Dashboard Grafana
+
+Le dashboard "TruckTrack Overview" inclut:
+- Taux d'ingestion GPS
+- Latence API (p50/p95/p99)
+- Consumer lag Kafka
+- Santé des services
+- Métriques JVM
+- Taux d'erreurs HTTP
+
+### Alertes Prometheus
+
+Alertes configurées pour:
+- Service indisponible (critical)
+- Latence API élevée (warning)
+- Consumer lag Kafka élevé (warning)
+- Utilisation mémoire JVM élevée (warning)
+- Taux d'erreurs HTTP > 5% (critical)
 
 ## 📚 Documentation
 

@@ -549,11 +549,11 @@ private static final String PASSWORD_PATTERN =
 - Rounds: 12
 - Salt: Automatically generated per password
 
-## Monitoring
+## Monitoring & Observability
 
 ### Metrics
 
-Available at `/actuator/metrics`:
+Available at `/actuator/metrics` and `/actuator/prometheus`:
 
 - `auth.login.attempts` - Total login attempts
 - `auth.login.success` - Successful logins
@@ -562,28 +562,34 @@ Available at `/actuator/metrics`:
 - `auth.token.issued` - JWT tokens issued
 - `auth.token.refreshed` - Tokens refreshed
 
+### Distributed Tracing
+
+OpenTelemetry tracing is enabled via Micrometer Tracing Bridge:
+- All HTTP requests are traced automatically
+- TraceId/SpanId propagated in headers
+- Logs include trace context: `[traceId, spanId]`
+- Traces exported to Jaeger at http://localhost:16686
+
+### Monitoring Stack
+
+| Tool | URL | Description |
+|------|-----|-------------|
+| Prometheus | http://localhost:9090 | Metrics collection |
+| Grafana | http://localhost:3000 | Dashboards (admin/admin) |
+| Jaeger | http://localhost:16686 | Distributed tracing |
+
 ### Logging
 
-Structured JSON logging for:
+Structured JSON logging with trace correlation:
 - Login attempts (success and failure)
 - User registration
 - Password changes
 - Token generation and validation
 - Authorization failures
 
-### Security Audit Log
-
-Consider implementing audit logging to separate file:
-
-```java
-@Slf4j
-public class AuditLogger {
-    private static final Logger AUDIT = LoggerFactory.getLogger("AUDIT");
-
-    public static void logLogin(String username, boolean success, String ipAddress) {
-        AUDIT.info("LOGIN: user={}, success={}, ip={}", username, success, ipAddress);
-    }
-}
+Log format includes trace context:
+```
+2025-12-19 10:30:00.123 [http-nio-8083-exec-1] [abc123,def456] INFO AuthService - Login successful for user: admin@trucktrack.com
 ```
 
 ## Testing

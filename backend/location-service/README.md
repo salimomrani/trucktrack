@@ -515,25 +515,46 @@ FOR VALUES FROM ('2025-12-01') TO ('2026-01-01');
 - Composite indexes on (truck_id, timestamp)
 - Materialized views for dashboard queries (to be implemented)
 
-## Monitoring
+## Monitoring & Observability
 
 ### Metrics
 
-Available at `/actuator/metrics`:
+Available at `/actuator/metrics` and `/actuator/prometheus`:
 
 - `location.positions.stored` - Total positions stored
 - `location.cache.hits` - Redis cache hit rate
 - `location.cache.misses` - Redis cache miss rate
 - `location.geofence.checks` - Geofence boundary checks performed
 - `location.query.latency` - Database query latency
+- `http_server_requests_seconds` - HTTP request metrics
+- `kafka_consumer_*` - Kafka consumer metrics
+
+### Distributed Tracing
+
+OpenTelemetry tracing is enabled via Micrometer Tracing Bridge:
+- HTTP requests traced automatically
+- Kafka consumer messages include trace context
+- Database queries traced
+- Redis operations traced
+- Traces exported to Jaeger at http://localhost:16686
+
+### Monitoring Stack
+
+| Tool | URL | Description |
+|------|-----|-------------|
+| Prometheus | http://localhost:9090 | Metrics collection |
+| Grafana | http://localhost:3000 | Dashboards (admin/admin) |
+| Jaeger | http://localhost:16686 | Distributed tracing |
 
 ### Logging
 
-Structured JSON logging for:
+Structured logging with trace correlation (traceId, spanId):
 - GPS position processing
 - Status changes
 - Geofence entry/exit events
 - Cache operations
+
+Log format: `[timestamp] [thread] [traceId,spanId] LEVEL logger - message`
 
 ## Testing
 

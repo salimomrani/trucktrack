@@ -18,6 +18,7 @@
 10. [Comment Lancer le Projet](#10-comment-lancer-le-projet)
 11. [API Reference](#11-api-reference)
 12. [Glossaire](#12-glossaire)
+13. [Observabilité et Monitoring](#13-observabilité-et-monitoring)
 
 ---
 
@@ -143,6 +144,8 @@ L'application est construite en **architecture microservices**. Au lieu d'avoir 
 
 ### 2.3 Les Ports Utilisés
 
+#### Services Applicatifs
+
 | Port | Service | Description |
 |------|---------|-------------|
 | 4200 | Frontend Angular | Interface utilisateur |
@@ -151,10 +154,25 @@ L'application est construite en **architecture microservices**. Au lieu d'avoir 
 | 8081 | Location Service | Données des camions + WebSocket |
 | 8082 | Notification Service | Alertes et notifications |
 | 8083 | Auth Service | Authentification |
+
+#### Infrastructure
+
+| Port | Service | Description |
+|------|---------|-------------|
 | 9092 | Kafka | Message broker |
 | 5432 | PostgreSQL | Base de données |
 | 6379 | Redis | Cache |
 | 8088 | Kafka UI | Interface admin Kafka |
+
+#### Stack de Monitoring (Observabilité)
+
+| Port | Service | Description |
+|------|---------|-------------|
+| 9090 | Prometheus | Collecte de métriques |
+| 3000 | Grafana | Dashboards (admin/admin) |
+| 16686 | Jaeger | Distributed tracing |
+| 4317 | Jaeger OTLP gRPC | Export traces (gRPC) |
+| 4318 | Jaeger OTLP HTTP | Export traces (HTTP) |
 
 ---
 
@@ -1279,6 +1297,140 @@ Crée une nouvelle règle d'alerte.
 
 ---
 
+## 13. Observabilité et Monitoring
+
+### 13.1 Stack de Monitoring
+
+TruckTrack utilise une stack d'observabilité complète :
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                                                             │
+│                    📊 GRAFANA (Dashboards & Visualisation)                  │
+│                         http://localhost:3000                               │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+                     ▲                                    ▲
+                     │                                    │
+          ┌──────────┴──────────┐             ┌──────────┴──────────┐
+          │                     │             │                     │
+          │    PROMETHEUS       │             │      JAEGER         │
+          │    (Métriques)      │             │     (Traces)        │
+          │   :9090             │             │    :16686           │
+          │                     │             │                     │
+          └──────────┬──────────┘             └──────────┬──────────┘
+                     │                                    │
+                     │ scrape /actuator/prometheus        │ OTLP HTTP :4318
+                     │                                    │
+    ┌────────────────┼────────────────────────────────────┼────────────────┐
+    │                │                                    │                │
+    │  ┌─────────────▼─────────────┐    ┌────────────────▼────────────┐   │
+    │  │   GPS Ingestion :8080     │    │   Location Service :8081    │   │
+    │  │   - http_server_requests  │    │   - http_server_requests    │   │
+    │  │   - kafka_producer_*      │    │   - kafka_consumer_*        │   │
+    │  │   - jvm_*                 │    │   - jvm_*                   │   │
+    │  └───────────────────────────┘    └─────────────────────────────┘   │
+    │                                                                      │
+    │  ┌───────────────────────────┐    ┌─────────────────────────────┐   │
+    │  │   Notification :8082      │    │   Auth Service :8083        │   │
+    │  │   - http_server_requests  │    │   - http_server_requests    │   │
+    │  │   - kafka_consumer_*      │    │   - auth_login_*            │   │
+    │  │   - jvm_*                 │    │   - jvm_*                   │   │
+    │  └───────────────────────────┘    └─────────────────────────────┘   │
+    │                                                                      │
+    │  ┌───────────────────────────┐                                      │
+    │  │   API Gateway :8000       │                                      │
+    │  │   - http_server_requests  │                                      │
+    │  │   - jvm_*                 │                                      │
+    │  └───────────────────────────┘                                      │
+    │                                                                      │
+    │                          MICROSERVICES                               │
+    └──────────────────────────────────────────────────────────────────────┘
+```
+
+### 13.2 Prometheus - Métriques
+
+**C'est quoi ?** Système de collecte et stockage de métriques time-series.
+
+**Comment ça marche ?**
+1. Chaque service expose des métriques sur `/actuator/prometheus`
+2. Prometheus scrape ces endpoints toutes les 15 secondes
+3. Les métriques sont stockées et peuvent être requêtées en PromQL
+
+**Types de métriques collectées :**
+- `http_server_requests_seconds` - Latence des requêtes HTTP
+- `kafka_consumer_fetch_manager_records_lag_max` - Consumer lag Kafka
+- `jvm_memory_used_bytes` - Utilisation mémoire JVM
+- `jvm_gc_pause_seconds` - Durée des garbage collections
+
+**Alertes configurées :**
+| Alerte | Condition | Sévérité |
+|--------|-----------|----------|
+| ServiceDown | service indisponible > 30s | critical |
+| HighAPILatency | p99 > 500ms pendant 3min | warning |
+| HighKafkaConsumerLag | lag > 1000 pendant 2min | warning |
+| JVMHeapUsageHigh | heap > 85% pendant 5min | warning |
+| HighErrorRate | 5xx > 5% pendant 2min | critical |
+
+### 13.3 Grafana - Dashboards
+
+**C'est quoi ?** Plateforme de visualisation de données.
+
+**Dashboard TruckTrack Overview :**
+- **GPS Ingestion Rate** - Positions GPS reçues par minute
+- **API Latency** - Distribution de latence (p50/p95/p99)
+- **Kafka Consumer Lag** - Retard de traitement par consumer group
+- **Service Health** - État de santé de chaque service
+- **JVM Metrics** - Mémoire, threads, GC
+- **Error Rate** - Taux d'erreurs HTTP par service
+
+**Accès :** http://localhost:3000 (admin/admin)
+
+### 13.4 Jaeger - Distributed Tracing
+
+**C'est quoi ?** Système de tracing distribué pour suivre les requêtes à travers les services.
+
+**Comment ça marche ?**
+1. Un `traceId` unique est généré pour chaque requête
+2. Chaque service crée des `spans` pour les opérations
+3. Les spans sont exportés vers Jaeger via OTLP
+4. Jaeger agrège et visualise les traces
+
+**Exemple de trace :**
+```
+[Frontend] → [API Gateway] → [Location Service] → [PostgreSQL]
+   │              │                  │                  │
+   │              │                  │                  └── span: db.query
+   │              │                  └── span: getTrucks
+   │              └── span: route
+   └── span: HTTP GET /location/trucks
+```
+
+**Accès :** http://localhost:16686
+
+### 13.5 Configuration OpenTelemetry
+
+Les services utilisent Micrometer Tracing Bridge avec OpenTelemetry :
+
+```yaml
+# application.yml
+management:
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0  # 100% des traces en dev
+  otlp:
+    tracing:
+      endpoint: http://localhost:4318/v1/traces
+```
+
+**Propagation de contexte :**
+- HTTP : Headers `traceparent` et `tracestate` (W3C Trace Context)
+- Kafka : Headers de message avec contexte de trace
+- Logs : Format `[traceId,spanId]` pour corrélation
+
+---
+
 ## Conclusion
 
 TruckTrack est une application moderne basée sur :
@@ -1287,9 +1439,10 @@ TruckTrack est une application moderne basée sur :
 - **WebSocket** pour le temps réel
 - **Angular + NgRx** pour une interface réactive
 - **PostgreSQL + PostGIS** pour les données géographiques
+- **Prometheus + Grafana + Jaeger** pour l'observabilité complète
 
 Cette architecture permet de gérer des milliers de camions avec des mises à jour en temps réel tout en restant maintenable et évolutive.
 
 ---
 
-*Document généré le 16 décembre 2024*
+*Document mis à jour le 19 décembre 2024*

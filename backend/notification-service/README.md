@@ -526,11 +526,11 @@ notification:
 - **Batch Processing**: Process multiple GPS events in batches
 - **Async Delivery**: Notification delivery runs asynchronously
 
-## Monitoring
+## Monitoring & Observability
 
 ### Metrics
 
-Available at `/actuator/metrics`:
+Available at `/actuator/metrics` and `/actuator/prometheus`:
 
 - `notification.alerts.triggered` - Total alerts triggered
 - `notification.alerts.delivered` - Total notifications delivered
@@ -538,14 +538,35 @@ Available at `/actuator/metrics`:
 - `notification.sms.sent` - SMS notifications sent
 - `notification.rule.evaluations` - Total rule evaluations
 - `notification.rule.evaluation.latency` - Rule evaluation latency
+- `http_server_requests_seconds` - HTTP request metrics
+- `kafka_consumer_*` - Kafka consumer metrics
+
+### Distributed Tracing
+
+OpenTelemetry tracing is enabled via Micrometer Tracing Bridge:
+- HTTP requests traced automatically
+- Kafka consumer messages include trace context
+- Alert rule evaluation traced
+- Notification delivery traced
+- Traces exported to Jaeger at http://localhost:16686
+
+### Monitoring Stack
+
+| Tool | URL | Description |
+|------|-----|-------------|
+| Prometheus | http://localhost:9090 | Metrics collection |
+| Grafana | http://localhost:3000 | Dashboards (admin/admin) |
+| Jaeger | http://localhost:16686 | Distributed tracing |
 
 ### Logging
 
-Structured JSON logging for:
+Structured logging with trace correlation (traceId, spanId):
 - Alert triggers
 - Notification delivery status
 - Rule evaluation results
 - Delivery failures
+
+Log format: `[timestamp] [thread] [traceId,spanId] LEVEL logger - message`
 
 ## Testing
 
