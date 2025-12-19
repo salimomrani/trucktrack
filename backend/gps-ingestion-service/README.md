@@ -1,6 +1,8 @@
 # GPS Ingestion Service
 
-Ingests GPS positions from trucks and publishes to Kafka.
+Point d'entrée pour les données GPS des camions.
+
+Reçoit les positions GPS via REST API, valide les coordonnées et publie les événements dans Kafka. Conçu pour supporter un haut débit d'ingestion avec batching et compression Snappy.
 
 **Port:** 8080
 

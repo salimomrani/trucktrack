@@ -1,6 +1,8 @@
 # Notification Service
 
-Alert detection and notification delivery.
+Moteur d'alertes et système de notifications.
+
+Évalue les règles d'alerte sur chaque position GPS reçue : dépassement de vitesse, entrée/sortie de geofence, camion offline ou idle. Les alertes déclenchées sont persistées et diffusées en temps réel via WebSocket. Un système de cooldown évite le spam de notifications.
 
 **Port:** 8082
 

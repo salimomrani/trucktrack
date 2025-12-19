@@ -1,6 +1,13 @@
 # Truck Track - GPS Fleet Tracking System
 
-Real-time GPS tracking for fleet management with live maps, historical routes, and alerts.
+Système de suivi GPS en temps réel pour la gestion de flottes de camions.
+
+**Fonctionnalités principales :**
+- Carte temps réel avec positions GPS live (WebSocket)
+- Historique des trajets avec playback
+- Geofences (zones géographiques) avec alertes entrée/sortie
+- Alertes configurables (vitesse, offline, idle)
+- Dashboard de monitoring (Prometheus/Grafana)
 
 ## Quick Start
 

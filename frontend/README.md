@@ -1,6 +1,13 @@
 # TruckTrack Frontend
 
-Angular 17 application for GPS fleet tracking.
+Interface utilisateur Angular 17 pour le suivi GPS de flottes de camions en temps réel.
+
+L'application permet aux gestionnaires de flotte de :
+- Visualiser tous les camions sur une carte interactive (Leaflet)
+- Suivre les positions en temps réel via WebSocket
+- Consulter l'historique des trajets avec playback
+- Gérer les geofences (zones géographiques)
+- Configurer et recevoir des alertes (vitesse, geofence, offline)
 
 ## Quick Start
 

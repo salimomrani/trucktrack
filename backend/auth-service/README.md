@@ -1,6 +1,8 @@
 # Auth Service
 
-JWT authentication service for TruckTrack.
+Service d'authentification JWT pour TruckTrack.
+
+Gère l'inscription, la connexion, et la validation des tokens JWT. Les tokens sont signés avec HS512 et contiennent le rôle utilisateur pour l'autorisation. Le refresh token permet de renouveler la session sans re-authentification.
 
 **Port:** 8083
 

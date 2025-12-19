@@ -1,6 +1,8 @@
 # Location Service
 
-Manages truck positions, history, and geofences with PostGIS.
+Service central de gestion des positions et données géographiques.
+
+Consomme les événements GPS depuis Kafka, stocke les positions dans PostgreSQL/PostGIS, maintient un cache Redis pour les positions courantes, et diffuse les mises à jour en temps réel via WebSocket. Gère également les geofences avec des requêtes spatiales (ST_Contains, ST_Distance).
 
 **Port:** 8081
 

@@ -1,6 +1,8 @@
 # TruckTrack Backend
 
-Java 17 / Spring Boot 3.2 microservices for GPS fleet tracking.
+Backend microservices en Java 17 / Spring Boot 3.2 pour le système de suivi GPS.
+
+Architecture event-driven avec Kafka pour la communication asynchrone entre services. Les positions GPS sont ingérées, stockées dans PostgreSQL avec PostGIS pour les requêtes spatiales, et diffusées en temps réel via WebSocket.
 
 ## Services
 
