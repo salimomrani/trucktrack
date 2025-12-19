@@ -1,390 +1,88 @@
-# Truck Track - GPS Live Tracking System
+# Truck Track - GPS Fleet Tracking System
 
-Real-time GPS tracking application for fleet management with live map visualization, historical route analysis, and alert notifications.
+Real-time GPS tracking for fleet management with live maps, historical routes, and alerts.
 
-## 🚀 Quick Start (Une seule commande!)
-
-### Prérequis
-
-⚠️ **Docker doit être démarré avant de lancer les services!**
+## Quick Start
 
 ```bash
-# Option 1: Démarrer Docker automatiquement
-./start-docker.sh
+# Start Docker first
+open -a Docker  # macOS
 
-# Option 2: Démarrer Docker manuellement
-# Sur macOS: Ouvrir Docker Desktop depuis Applications
-# ou: open -a Docker
-```
-
-### Démarrage rapide
-
-```bash
-# Démarrer TOUS les services en une seule commande
+# Start all services
 ./start-all.sh
-```
 
-Attendez 30-60 secondes que tous les services démarrent, puis accédez à:
-- **Frontend**: http://localhost:4200
-- **API Gateway**: http://localhost:8000
-
-**Identifiants par défaut:**
-- Email: `admin@trucktrack.com`
-- Password: `AdminPass123!`
-
-### Arrêter tous les services
-
-```bash
+# Stop all services
 ./stop-all.sh
-```
 
-### Voir le statut des services
-
-```bash
+# Check status
 ./status.sh
 ```
 
-### Redémarrer tous les services
+**Access:**
+- Frontend: http://localhost:4200
+- API Gateway: http://localhost:8000
+- Login: `admin@trucktrack.com` / `AdminPass123!`
+
+## Architecture
+
+```
+Frontend :4200 → API Gateway :8000 → Microservices
+                                    ├── Auth :8083
+                                    ├── GPS Ingestion :8080 → Kafka :9092
+                                    ├── Location :8081 → PostgreSQL :5432
+                                    └── Notification :8082    Redis :6379
+```
+
+## Services
+
+| Service | Port | Description |
+|---------|------|-------------|
+| Frontend | 4200 | Angular 17 UI |
+| API Gateway | 8000 | Routing, auth |
+| Auth | 8083 | JWT authentication |
+| GPS Ingestion | 8080 | GPS data intake |
+| Location | 8081 | Positions, WebSocket |
+| Notification | 8082 | Alerts |
+
+## Monitoring
+
+| Tool | URL | Credentials |
+|------|-----|-------------|
+| Grafana | http://localhost:3000 | admin / admin |
+| Prometheus | http://localhost:9090 | - |
+| Jaeger | http://localhost:16686 | - |
+
+## Development
 
 ```bash
-./restart-all.sh
+# Manual start
+cd infra/docker && docker-compose up -d
+cd backend && mvn flyway:migrate -P local
+cd backend/<service> && mvn spring-boot:run
+cd frontend && npm install && npm start
+
+# Tests
+cd backend && mvn test
+cd frontend && npm test
 ```
 
-## 📋 Scripts de Gestion
-
-| Script | Description | Usage |
-|--------|-------------|-------|
-| `./start-docker.sh` | Démarre Docker Desktop | `./start-docker.sh` |
-| `./start-all.sh` | Démarre tous les services | `./start-all.sh [--build] [--logs]` |
-| `./stop-all.sh` | Arrête tous les services | `./stop-all.sh` |
-| `./status.sh` | Affiche le statut des services | `./status.sh` |
-| `./restart-all.sh` | Redémarre tous les services | `./restart-all.sh [--build]` |
-
-### Options disponibles
-
-- `--build` : Recompile les services backend avant de démarrer
-- `--logs` : Affiche les logs en temps réel (bloque le terminal)
-
-### Exemples
+## Logs
 
 ```bash
-# Démarrer avec recompilation
-./start-all.sh --build
-
-# Démarrer et afficher les logs
-./start-all.sh --logs
-
-# Redémarrer avec recompilation
-./restart-all.sh --build
+tail -f logs/*.log              # All services
+tail -f logs/location.log       # Specific service
 ```
 
-## 📊 Architecture
-
-```
-┌─────────────────────────────────────────────────────┐
-│                   Frontend (Angular)                │
-│                  http://localhost:4200              │
-└────────────────────┬────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────┐
-│                  API Gateway :8000                  │
-└──────┬──────────────────────────────────────┬───────┘
-       │                                      │
-   ┌───▼───────┐  ┌───────────┐  ┌──────────▼──┐
-   │   Auth    │  │ Location  │  │     GPS     │
-   │  Service  │  │  Service  │  │  Ingestion  │
-   │   :8083   │  │   :8081   │  │   :8080     │
-   └───────────┘  └─────┬─────┘  └──────┬──────┘
-                        │                │
-                        │   ┌────────┐   │
-                        └───►  Kafka ◄───┘
-                            │ :9092  │
-                            └────┬───┘
-                                 │
-                    ┌────────────┴────────────┐
-                    │                         │
-            ┌───────▼────────┐    ┌──────────▼──────┐
-            │  Notification  │    │   PostgreSQL    │
-            │    Service     │    │   + PostGIS     │
-            │     :8082      │    │     :5432       │
-            └────────────────┘    └─────────────────┘
-                                           │
-                                    ┌──────▼──────┐
-                                    │    Redis    │
-                                    │    :6379    │
-                                    └─────────────┘
-```
-
-## 🛠️ Services
-
-### Backend Services
-
-| Service | Port | Description | Status |
-|---------|------|-------------|--------|
-| **Frontend** | 4200 | Angular 17 UI | ✅ Complete |
-| **API Gateway** | 8000 | Entry point, routing | ✅ Complete |
-| **Auth Service** | 8083 | JWT authentication | ✅ Complete |
-| **GPS Ingestion** | 8080 | GPS data ingestion | ✅ Complete |
-| **Location Service** | 8081 | Truck positions, WebSocket | ✅ Complete |
-| **Notification Service** | 8082 | Alerts & notifications | ✅ Complete |
-
-### Infrastructure
-
-| Service | Port | Description | Status |
-|---------|------|-------------|--------|
-| **PostgreSQL** | 5432 | Database + PostGIS | ✅ Complete |
-| **Kafka** | 9092 | Event streaming | ✅ Complete |
-| **Redis** | 6379 | Caching | ✅ Complete |
-| **Kafka UI** | 8088 | Kafka administration | ✅ Complete |
-
-### Monitoring Stack (Observability)
-
-| Service | Port | Description | Status |
-|---------|------|-------------|--------|
-| **Prometheus** | 9090 | Metrics collection & alerting | ✅ Complete |
-| **Grafana** | 3000 | Dashboards & visualization | ✅ Complete |
-| **Jaeger** | 16686 | Distributed tracing | ✅ Complete |
-
-## 📁 Structure du Projet
-
-```
-truck_track/
-├── start-all.sh          # 🚀 Démarrer tous les services
-├── stop-all.sh           # 🛑 Arrêter tous les services
-├── status.sh             # 📊 Statut des services
-├── restart-all.sh        # 🔄 Redémarrer tous les services
-├── backend/              # Services Java Spring Boot
-│   ├── api-gateway/
-│   ├── auth-service/
-│   ├── gps-ingestion-service/
-│   ├── location-service/
-│   ├── notification-service/
-│   └── shared/
-├── frontend/             # Application Angular 17
-│   └── src/
-│       ├── app/
-│       │   ├── core/    # Services, guards, interceptors
-│       │   └── features/ # Login, map, history, alerts
-│       └── environments/
-├── infra/
-│   ├── docker/          # Docker Compose (Kafka, PostgreSQL, Redis)
-│   └── monitoring/      # Prometheus, Grafana configs & dashboards
-├── logs/                # Logs des services (créé automatiquement)
-└── specs/
-    └── 001-gps-live-tracking/
-        ├── tasks.md     # Liste des tâches
-        ├── plan.md      # Plan technique
-        └── data-model.md # Modèle de données
-```
-
-## 📝 Logs
-
-Les logs de tous les services sont stockés dans le répertoire `logs/`:
-
-```bash
-# Voir tous les logs
-tail -f logs/*.log
-
-# Voir un service spécifique
-tail -f logs/gps-ingestion.log
-tail -f logs/location.log
-tail -f logs/frontend.log
-tail -f logs/api-gateway.log
-```
-
-## 🔧 Développement Manuel
-
-Si vous préférez démarrer les services manuellement:
-
-### 1. Infrastructure Docker
-
-```bash
-cd infra/docker
-docker-compose up -d
-```
-
-### 2. Migrations de base de données
-
-```bash
-cd backend
-mvn flyway:migrate -P local
-```
-
-### 3. Services Backend (5 terminaux)
-
-```bash
-# Terminal 1: GPS Ingestion
-cd backend/gps-ingestion-service && mvn spring-boot:run
-
-# Terminal 2: Location Service
-cd backend/location-service && mvn spring-boot:run
-
-# Terminal 3: Notification Service
-cd backend/notification-service && mvn spring-boot:run
-
-# Terminal 4: Auth Service
-cd backend/auth-service && mvn spring-boot:run
-
-# Terminal 5: API Gateway
-cd backend/api-gateway && mvn spring-boot:run
-```
-
-### 4. Frontend
-
-```bash
-cd frontend
-npm install
-npm start
-```
-
-## 🧪 Tests
-
-```bash
-# Tests backend
-cd backend
-mvn test                    # Tests unitaires
-mvn verify                  # Tests d'intégration
-
-# Tests frontend
-cd frontend
-npm test                    # Tests unitaires
-npm run e2e                 # Tests E2E
-```
-
-## 🎯 État d'Implémentation
-
-### ✅ Phase 1: Setup (COMPLETE)
-- Maven multi-module
-- 5 microservices
-- Docker Compose
-- CI/CD pipeline
-
-### ✅ Phase 2: Infrastructure Fondamentale (COMPLETE)
-- Base de données PostgreSQL + PostGIS
-- Migrations Flyway (8 tables)
-- Configuration Kafka (3 topics)
-- Configuration Redis
-- Authentification JWT
-- API Gateway
-- Angular Material
-- Service d'authentification frontend
-
-### ✅ Phase 3-6: User Stories (COMPLETE)
-- **US1**: Carte temps réel avec positions GPS live
-- **US2**: Recherche et filtres de camions
-- **US3**: Historique des trajets avec playback
-- **US4**: Système d'alertes et notifications
-
-### ✅ Phase 7: Observabilité (COMPLETE)
-- Prometheus metrics collection
-- Grafana dashboard avec métriques business
-- Jaeger distributed tracing
-- OpenTelemetry intégration
-- Alert rules (Prometheus)
-
-**Progression globale: 178/178 tâches (100%)**
-
-## 📈 Monitoring & Observabilité
-
-### Accès aux outils de monitoring
-
-| Outil | URL | Credentials |
-|-------|-----|-------------|
-| **Prometheus** | http://localhost:9090 | - |
-| **Grafana** | http://localhost:3000 | admin / admin |
-| **Jaeger** | http://localhost:16686 | - |
-
-### Dashboard Grafana
-
-Le dashboard "TruckTrack Overview" inclut:
-- Taux d'ingestion GPS
-- Latence API (p50/p95/p99)
-- Consumer lag Kafka
-- Santé des services
-- Métriques JVM
-- Taux d'erreurs HTTP
-
-### Alertes Prometheus
-
-Alertes configurées pour:
-- Service indisponible (critical)
-- Latence API élevée (warning)
-- Consumer lag Kafka élevé (warning)
-- Utilisation mémoire JVM élevée (warning)
-- Taux d'erreurs HTTP > 5% (critical)
-
-## 📚 Documentation
-
-- [Backend README](backend/README.md)
-- [Frontend README](frontend/README.md)
-- [Quickstart Guide](specs/001-gps-live-tracking/quickstart.md)
-- [Tasks List](specs/001-gps-live-tracking/tasks.md)
-- [Technical Plan](specs/001-gps-live-tracking/plan.md)
-- [Data Model](specs/001-gps-live-tracking/data-model.md)
-
-## 🐛 Dépannage
-
-### Docker n'est pas démarré
-
-```bash
-# Erreur: Cannot connect to the Docker daemon
-# Solution: Démarrer Docker
-
-# Méthode automatique
-./start-docker.sh
-
-# Méthode manuelle (macOS)
-open -a Docker
-
-# Vérifier que Docker fonctionne
-docker info
-docker ps
-```
-
-### Les services ne démarrent pas
-
-```bash
-# Vérifier le statut
-./status.sh
-
-# Voir les logs
-tail -f logs/*.log
-
-# Arrêter et redémarrer
-./stop-all.sh
-./start-all.sh --build
-```
-
-### Port déjà utilisé
-
-```bash
-# Trouver le processus qui utilise le port
-lsof -i :8080
-
-# Tuer le processus
-kill -9 <PID>
-```
-
-### Docker ne démarre pas
-
-```bash
-# Redémarrer Docker
-docker-compose down
-docker-compose up -d
-```
-
-## 🤝 Contribution
-
-1. Créer une branche: `git checkout -b feature/ma-fonctionnalite`
-2. Committer: `git commit -m "feat: ma fonctionnalité"`
-3. Pousser: `git push origin feature/ma-fonctionnalite`
-4. Créer une Pull Request
-
-## 📄 License
-
-Proprietary - Truck Track System
-
----
-
-**Développé avec [Claude Code](https://claude.com/claude-code)**
+## Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| Docker not running | `open -a Docker` |
+| Port in use | `lsof -i :8080` then `kill -9 <PID>` |
+| Services won't start | `./stop-all.sh && ./start-all.sh --build` |
+
+## Documentation
+
+- [Backend](backend/README.md)
+- [Frontend](frontend/README.md)
+- [Architecture](docs/ARCHITECTURE.md)
