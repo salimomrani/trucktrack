@@ -5,23 +5,26 @@ Real-time GPS tracking for fleet management with live maps, historical routes, a
 ## Quick Start
 
 ```bash
-# Start Docker first
+# 1. Start Docker
 open -a Docker  # macOS
 
-# Start all services
+# 2. Start backend services
 ./start-all.sh
 
-# Stop all services
-./stop-all.sh
-
-# Check status
-./status.sh
+# 3. Start frontend (separate terminal)
+cd frontend && npm install && npm start
 ```
 
 **Access:**
 - Frontend: http://localhost:4200
 - API Gateway: http://localhost:8000
 - Login: `admin@trucktrack.com` / `AdminPass123!`
+
+**Management:**
+```bash
+./stop-all.sh   # Stop backend
+./status.sh     # Check status
+```
 
 ## Architecture
 
