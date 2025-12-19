@@ -53,11 +53,52 @@ cd frontend && npm install && npm start
 ## Architecture
 
 ```
-Frontend :4200 → API Gateway :8000 → Microservices
-                                    ├── Auth :8083
-                                    ├── GPS Ingestion :8080 → Kafka :9092
-                                    ├── Location :8081 → PostgreSQL :5432
-                                    └── Notification :8082    Redis :6379
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                              FRONTEND                                         │
+│                         Angular 17 + Leaflet                                  │
+│                           localhost:4200                                      │
+└──────────────────────────────────┬───────────────────────────────────────────┘
+                                   │ HTTP / WebSocket
+                                   ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                            API GATEWAY :8000                                  │
+│                      JWT Validation • Routing • CORS                          │
+└─────────┬─────────────────┬─────────────────┬─────────────────┬──────────────┘
+          │                 │                 │                 │
+          ▼                 ▼                 ▼                 ▼
+    ┌───────────┐     ┌───────────┐     ┌───────────┐     ┌───────────┐
+    │   AUTH    │     │    GPS    │     │ LOCATION  │     │  NOTIF    │
+    │  :8083    │     │ INGESTION │     │  :8081    │     │  :8082    │
+    │           │     │  :8080    │     │           │     │           │
+    │  Login    │     │  Receive  │     │  Trucks   │     │  Alerts   │
+    │  JWT      │     │  Validate │     │  History  │     │  Rules    │
+    │  Users    │     │  Publish  │     │  Geofence │     │  WebSocket│
+    └─────┬─────┘     └─────┬─────┘     └─────┬─────┘     └─────┬─────┘
+          │                 │                 │                 │
+          │                 │    ┌────────────┴────────────┐    │
+          │                 │    │                         │    │
+          │                 ▼    ▼                         ▼    ▼
+          │           ┌─────────────────────────────────────────────┐
+          │           │              KAFKA :9092                     │
+          │           │                                              │
+          │           │  📨 truck-track.gps.position                │
+          │           │  📨 truck-track.location.status-change      │
+          │           │  📨 truck-track.notification.alert          │
+          │           └─────────────────────────────────────────────┘
+          │
+          ▼
+    ┌───────────┐     ┌───────────┐     ┌───────────┐     ┌───────────┐
+    │ POSTGRES  │     │   REDIS   │     │ PROMETHEUS│     │  JAEGER   │
+    │  :5432    │     │  :6379    │     │  :9090    │     │  :16686   │
+    │           │     │           │     │           │     │           │
+    │ + PostGIS │     │  Cache    │     │  Metrics  │     │  Tracing  │
+    └───────────┘     └───────────┘     └───────────┘     └───────────┘
+```
+
+**Flux de données :**
+```
+🚛 Camion → GPS Ingestion → Kafka → Location Service → PostgreSQL
+                                  → Notification Service → Alertes → WebSocket → 📱 UI
 ```
 
 ## Services
