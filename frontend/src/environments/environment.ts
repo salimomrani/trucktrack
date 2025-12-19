@@ -5,9 +5,7 @@ export const environment = {
   wsUrl: 'ws://localhost:8081/ws',
   auth: {
     tokenKey: 'truck_track_token',
-    refreshTokenKey: 'truck_track_refresh_token',
-    tokenExpiry: 900000, // 15 minutes in milliseconds
-    refreshTokenExpiry: 2592000000 // 30 days in milliseconds
+    refreshTokenKey: 'truck_track_refresh_token'
   },
   map: {
     defaultCenter: {

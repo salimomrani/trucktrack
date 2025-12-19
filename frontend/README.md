@@ -120,9 +120,8 @@ export const environment = {
   wsUrl: 'ws://localhost:8081/ws',       // WebSocket URL for real-time updates
   auth: {
     tokenKey: 'truck_track_token',
-    refreshTokenKey: 'truck_track_refresh_token',
-    tokenExpiry: 900000,                  // 15 minutes
-    refreshTokenExpiry: 2592000000        // 30 days
+    refreshTokenKey: 'truck_track_refresh_token'
+    // Token expiry is managed by the backend (JWT claims)
   },
   map: {
     defaultCenter: { lat: 37.7749, lng: -122.4194 },
