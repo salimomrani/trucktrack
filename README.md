@@ -9,16 +9,33 @@ Système de suivi GPS en temps réel pour la gestion de flottes de camions.
 - Alertes configurables (vitesse, offline, idle)
 - Dashboard de monitoring (Prometheus/Grafana)
 
+## Prérequis
+
+| Outil | Version | Installation |
+|-------|---------|--------------|
+| Docker Desktop | 4.x+ | [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop) |
+| Java JDK | 17+ | `brew install openjdk@17` (macOS) |
+| Maven | 3.9+ | `brew install maven` (macOS) |
+| Node.js | 18+ | `brew install node` (macOS) |
+
+**Vérifier l'installation :**
+```bash
+docker --version    # Docker version 24.x+
+java -version       # openjdk 17.x+
+mvn -version        # Apache Maven 3.9+
+node --version      # v18.x+
+```
+
 ## Quick Start
 
 ```bash
 # 1. Start Docker
-open -a Docker  # macOS
+open -a Docker  # macOS (attendre que Docker soit prêt)
 
-# 2. Start backend services
+# 2. Start backend (infrastructure + services)
 ./start-all.sh
 
-# 3. Start frontend (separate terminal)
+# 3. Start frontend (nouveau terminal)
 cd frontend && npm install && npm start
 ```
 
