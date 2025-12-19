@@ -1,0 +1,222 @@
+# Prometheus Alert Rules for TruckTrack
+# ======================================
+# T177: Alert rules for high Kafka lag, API latency spike, service down
+
+groups:
+  # =============================================================================
+  # SERVICE AVAILABILITY ALERTS
+  # =============================================================================
+  - name: truck-track-availability
+    rules:
+      # Service Down - instance not responding for 30s
+      - alert: ServiceDown
+        expr: up{job=~"truck-track-.*"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Instance {{ $labels.instance }} of service {{ $labels.job }} has been down for more than 30 seconds."
+          runbook_url: "https://wiki.trucktrack.com/runbooks/service-down"
+
+      # Multiple Services Down
+      - alert: MultipleServicesDown
+        expr: count(up{job=~"truck-track-.*"} == 0) > 1
+        for: 1m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Multiple TruckTrack services are down"
+          description: "{{ $value }} services are currently down. Check infrastructure immediately."
+
+  # =============================================================================
+  # API PERFORMANCE ALERTS
+  # =============================================================================
+  - name: truck-track-api-performance
+    rules:
+      # API Latency Spike - p99 > 500ms
+      - alert: HighAPILatency
+        expr: |
+          histogram_quantile(0.99,
+            sum(rate(http_server_requests_seconds_bucket{job=~"truck-track-.*"}[5m])) by (le, application, uri)
+          ) > 0.5
+        for: 3m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "High API latency on {{ $labels.application }}"
+          description: "p99 latency for {{ $labels.uri }} on {{ $labels.application }} is {{ $value | printf \"%.2f\" }}s (threshold: 500ms)"
+
+      # Critical API Latency - p99 > 2s
+      - alert: CriticalAPILatency
+        expr: |
+          histogram_quantile(0.99,
+            sum(rate(http_server_requests_seconds_bucket{job=~"truck-track-.*"}[5m])) by (le, application, uri)
+          ) > 2
+        for: 2m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "Critical API latency on {{ $labels.application }}"
+          description: "p99 latency for {{ $labels.uri }} on {{ $labels.application }} is {{ $value | printf \"%.2f\" }}s (threshold: 2s)"
+
+      # High Error Rate - >5% 5xx responses
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate(http_server_requests_seconds_count{job=~"truck-track-.*", status=~"5.."}[5m])) by (application)
+            /
+            sum(rate(http_server_requests_seconds_count{job=~"truck-track-.*"}[5m])) by (application)
+          ) * 100 > 5
+        for: 2m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "High error rate on {{ $labels.application }}"
+          description: "Error rate for {{ $labels.application }} is {{ $value | printf \"%.2f\" }}% (threshold: 5%)"
+
+      # High 4xx Error Rate - >10% client errors
+      - alert: HighClientErrorRate
+        expr: |
+          (
+            sum(rate(http_server_requests_seconds_count{job=~"truck-track-.*", status=~"4.."}[5m])) by (application)
+            /
+            sum(rate(http_server_requests_seconds_count{job=~"truck-track-.*"}[5m])) by (application)
+          ) * 100 > 10
+        for: 5m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "High client error rate on {{ $labels.application }}"
+          description: "4xx error rate for {{ $labels.application }} is {{ $value | printf \"%.2f\" }}% (threshold: 10%)"
+
+  # =============================================================================
+  # KAFKA ALERTS
+  # =============================================================================
+  - name: truck-track-kafka
+    rules:
+      # High Kafka Consumer Lag - >1000 messages
+      - alert: HighKafkaConsumerLag
+        expr: kafka_consumer_fetch_manager_records_lag_max{job=~"truck-track-.*"} > 1000
+        for: 2m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "High Kafka consumer lag on {{ $labels.application }}"
+          description: "Consumer {{ $labels.client_id }} has lag of {{ $value }} messages on topic {{ $labels.topic }}"
+
+      # Critical Kafka Consumer Lag - >10000 messages
+      - alert: CriticalKafkaConsumerLag
+        expr: kafka_consumer_fetch_manager_records_lag_max{job=~"truck-track-.*"} > 10000
+        for: 2m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "Critical Kafka consumer lag on {{ $labels.application }}"
+          description: "Consumer {{ $labels.client_id }} has lag of {{ $value }} messages - processing is severely behind"
+
+      # GPS Ingestion Stalled - no messages for 5 minutes
+      - alert: GPSIngestionStalled
+        expr: |
+          rate(http_server_requests_seconds_count{application="gps-ingestion-service", uri=~"/gps/.*"}[5m]) == 0
+        for: 5m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "GPS ingestion has stalled"
+          description: "No GPS positions received in the last 5 minutes. Check device connectivity or ingestion service."
+
+  # =============================================================================
+  # JVM RESOURCE ALERTS
+  # =============================================================================
+  - name: truck-track-jvm
+    rules:
+      # JVM Heap Usage High - >85%
+      - alert: JVMHeapUsageHigh
+        expr: |
+          (jvm_memory_used_bytes{job=~"truck-track-.*", area="heap"}
+           / jvm_memory_max_bytes{job=~"truck-track-.*", area="heap"}) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "High JVM heap usage on {{ $labels.application }}"
+          description: "Heap usage for {{ $labels.application }} is {{ $value | printf \"%.1f\" }}% (threshold: 85%)"
+
+      # JVM Heap Usage Critical - >95%
+      - alert: JVMHeapUsageCritical
+        expr: |
+          (jvm_memory_used_bytes{job=~"truck-track-.*", area="heap"}
+           / jvm_memory_max_bytes{job=~"truck-track-.*", area="heap"}) * 100 > 95
+        for: 2m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Critical JVM heap usage on {{ $labels.application }}"
+          description: "Heap usage for {{ $labels.application }} is {{ $value | printf \"%.1f\" }}% - OOM risk imminent"
+
+      # High GC Pause Time
+      - alert: HighGCPauseTime
+        expr: |
+          rate(jvm_gc_pause_seconds_sum{job=~"truck-track-.*"}[5m])
+          / rate(jvm_gc_pause_seconds_count{job=~"truck-track-.*"}[5m]) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "High GC pause time on {{ $labels.application }}"
+          description: "Average GC pause time for {{ $labels.application }} is {{ $value | printf \"%.2f\" }}s"
+
+      # Thread Pool Exhaustion
+      - alert: ThreadPoolExhaustion
+        expr: |
+          jvm_threads_live_threads{job=~"truck-track-.*"}
+          / jvm_threads_peak_threads{job=~"truck-track-.*"} > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Thread pool near exhaustion on {{ $labels.application }}"
+          description: "Live threads ({{ $value | printf \"%.0f\" }}) approaching peak on {{ $labels.application }}"
+
+  # =============================================================================
+  # DATABASE ALERTS
+  # =============================================================================
+  - name: truck-track-database
+    rules:
+      # Database Connection Pool Near Exhaustion
+      - alert: DBConnectionPoolNearExhaustion
+        expr: |
+          hikaricp_connections_active{job=~"truck-track-.*"}
+          / hikaricp_connections_max{job=~"truck-track-.*"} > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "Database connection pool near exhaustion on {{ $labels.application }}"
+          description: "Active connections ({{ $value | printf \"%.0f\" }}) approaching max on {{ $labels.application }}"
+
+      # Database Connection Timeout
+      - alert: DBConnectionTimeout
+        expr: rate(hikaricp_connections_timeout_total{job=~"truck-track-.*"}[5m]) > 0
+        for: 2m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "Database connection timeouts on {{ $labels.application }}"
+          description: "Connection timeouts occurring on {{ $labels.application }} - possible connection pool exhaustion"

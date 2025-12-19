@@ -68,6 +68,32 @@ fi
 
 echo ""
 
+# Check monitoring services
+echo -e "${BLUE}Monitoring Stack:${NC}"
+
+# Check Prometheus
+if docker-compose ps prometheus 2>/dev/null | grep -q "Up"; then
+  echo -e "  ${GREEN}✓${NC} Prometheus - ${GREEN}RUNNING${NC} (http://localhost:9090)"
+else
+  echo -e "  ${RED}✗${NC} Prometheus - ${RED}NOT RUNNING${NC}"
+fi
+
+# Check Grafana
+if docker-compose ps grafana 2>/dev/null | grep -q "Up"; then
+  echo -e "  ${GREEN}✓${NC} Grafana - ${GREEN}RUNNING${NC} (http://localhost:3000)"
+else
+  echo -e "  ${RED}✗${NC} Grafana - ${RED}NOT RUNNING${NC}"
+fi
+
+# Check Jaeger
+if docker-compose ps jaeger 2>/dev/null | grep -q "Up"; then
+  echo -e "  ${GREEN}✓${NC} Jaeger - ${GREEN}RUNNING${NC} (http://localhost:16686)"
+else
+  echo -e "  ${RED}✗${NC} Jaeger - ${RED}NOT RUNNING${NC}"
+fi
+
+echo ""
+
 # Check backend services
 echo -e "${BLUE}Backend Services:${NC}"
 
@@ -96,6 +122,12 @@ echo ""
 echo -e "${BLUE}Access URLs:${NC}"
 echo -e "  API Gateway:  ${GREEN}http://localhost:8000${NC}"
 echo -e "  Health Check: ${GREEN}http://localhost:8000/actuator/health${NC}"
+echo ""
+echo -e "${BLUE}Monitoring URLs:${NC}"
+echo -e "  Prometheus:   ${GREEN}http://localhost:9090${NC}"
+echo -e "  Grafana:      ${GREEN}http://localhost:3000${NC} (admin/admin)"
+echo -e "  Jaeger:       ${GREEN}http://localhost:16686${NC}"
+echo -e "  Kafka UI:     ${GREEN}http://localhost:8088${NC}"
 
 echo ""
 

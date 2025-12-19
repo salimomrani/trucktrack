@@ -61,6 +61,7 @@
 
         <!-- Observability -->
         <micrometer.version>1.12.1</micrometer.version>
+        <micrometer-tracing.version>1.2.1</micrometer-tracing.version>
         <opentelemetry.version>1.34.1</opentelemetry.version>
 
         <!-- Testing -->
@@ -154,6 +155,24 @@
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-registry-prometheus</artifactId>
                 <version>${micrometer.version}</version>
+            </dependency>
+
+            <!-- Micrometer Tracing BOM -->
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-tracing-bom</artifactId>
+                <version>${micrometer-tracing.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- OpenTelemetry BOM -->
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom</artifactId>
+                <version>${opentelemetry.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <!-- Testing -->

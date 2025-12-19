@@ -135,6 +135,82 @@ services:
       - truck-track-network
 
   # =============================================================================
+  # MONITORING STACK
+  # =============================================================================
+
+  # Prometheus - Metrics Collection
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../monitoring/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - truck-track-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Grafana - Metrics Visualization
+  grafana:
+    image: grafana/grafana:10.2.2
+    container_name: grafana
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+      GF_SERVER_ROOT_URL: http://localhost:3000
+    volumes:
+      - ../monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ../monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ../monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    networks:
+      - truck-track-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Jaeger - Distributed Tracing
+  jaeger:
+    image: jaegertracing/all-in-one:1.52
+    container_name: jaeger
+    ports:
+      - "16686:16686"   # Jaeger UI
+      - "4317:4317"     # OTLP gRPC receiver
+      - "4318:4318"     # OTLP HTTP receiver
+      - "14250:14250"   # Model-proto/jaeger-proto
+    environment:
+      COLLECTOR_OTLP_ENABLED: 'true'
+    networks:
+      - truck-track-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:16686"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # =============================================================================
   # DEVELOPMENT TOOLS
   # =============================================================================
 
@@ -195,3 +271,5 @@ volumes:
   sonarqube-extensions:
   sonarqube-logs:
   sonarqube-db-data:
+  prometheus-data:
+  grafana-data:

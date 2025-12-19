@@ -1,0 +1,17 @@
+# Grafana Dashboard Provisioning for TruckTrack
+# ==============================================
+
+apiVersion: 1
+
+providers:
+  - name: 'TruckTrack Dashboards'
+    orgId: 1
+    folder: 'TruckTrack'
+    folderUid: 'truck-track'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false
