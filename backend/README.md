@@ -2,78 +2,198 @@
 
 Backend microservices en Java 17 / Spring Boot 3.2 pour le système de suivi GPS.
 
-Architecture event-driven avec Kafka pour la communication asynchrone entre services. Les positions GPS sont ingérées, stockées dans PostgreSQL avec PostGIS pour les requêtes spatiales, et diffusées en temps réel via WebSocket.
+## Architecture
+
+```
+                                    ┌─────────────────┐
+                                    │   Frontend      │
+                                    │   Angular       │
+                                    └────────┬────────┘
+                                             │ HTTP
+                                             ▼
+┌────────────────────────────────────────────────────────────────────────────┐
+│                           API Gateway :8000                                 │
+│                    (JWT validation, routing, CORS)                         │
+└───────┬───────────────────┬───────────────────┬───────────────────┬───────┘
+        │                   │                   │                   │
+        ▼                   ▼                   ▼                   ▼
+┌───────────────┐   ┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+│ Auth Service  │   │ GPS Ingestion │   │   Location    │   │ Notification  │
+│    :8083      │   │    :8080      │   │   Service     │   │   Service     │
+│               │   │               │   │    :8081      │   │    :8082      │
+│ - Login       │   │ - Validation  │   │ - CRUD trucks │   │ - Alert rules │
+│ - JWT tokens  │   │ - Publish GPS │   │ - History     │   │ - Evaluation  │
+│ - Users CRUD  │   │               │   │ - Geofences   │   │ - WebSocket   │
+└───────────────┘   └───────┬───────┘   └───────┬───────┘   └───────┬───────┘
+                            │                   │                   │
+                            │ produce           │ consume           │ consume
+                            ▼                   ▼                   ▼
+                    ┌─────────────────────────────────────────────────────┐
+                    │                    KAFKA :9092                       │
+                    │                                                      │
+                    │  truck-track.gps.position      (GPS events)         │
+                    │  truck-track.location.status   (Status changes)     │
+                    │  truck-track.notification.alert (Alerts)            │
+                    └─────────────────────────────────────────────────────┘
+                                             │
+                    ┌────────────────────────┼────────────────────────┐
+                    │                        │                        │
+                    ▼                        ▼                        ▼
+            ┌───────────────┐        ┌───────────────┐        ┌───────────────┐
+            │  PostgreSQL   │        │     Redis     │        │    Jaeger     │
+            │    :5432      │        │    :6379      │        │   :16686      │
+            │               │        │               │        │               │
+            │ + PostGIS     │        │ Cache positions│       │ Tracing       │
+            │ Spatial queries│       │ TTL 5min      │        │               │
+            └───────────────┘        └───────────────┘        └───────────────┘
+```
+
+## Flux de données
+
+### 1. Ingestion GPS
+```
+Truck Device → GPS Ingestion → Kafka → Location Service → PostgreSQL
+                    │                        │
+                    │                        └→ Redis (cache)
+                    │                        └→ WebSocket (frontend)
+                    │
+                    └────────────→ Kafka → Notification Service → Alertes
+```
+
+### 2. Pourquoi Kafka ?
+
+| Problème | Solution Kafka |
+|----------|----------------|
+| Pics de trafic GPS | Buffer les messages, consommation à son rythme |
+| Couplage fort entre services | Découplage total via topics |
+| Perte de données si service down | Persistence des messages, replay possible |
+| Scaling | Partitionnement par truckId, consumers parallèles |
+
+### 3. Partitionnement Kafka
+
+Les messages GPS sont partitionnés par `truckId` :
+- Garantit l'ordre des positions pour un même camion
+- Permet de scaler les consumers horizontalement
+- Un camion = toujours la même partition
 
 ## Services
 
-| Service | Port | Description |
-|---------|------|-------------|
-| api-gateway | 8000 | Routing, JWT validation, CORS |
-| auth-service | 8083 | Login, JWT generation |
-| gps-ingestion-service | 8080 | GPS position intake → Kafka |
-| location-service | 8081 | Positions, history, geofences |
-| notification-service | 8082 | Alerts, notifications |
-| shared | - | Common DTOs, events, exceptions |
+| Service | Port | Rôle | Dépendances |
+|---------|------|------|-------------|
+| **api-gateway** | 8000 | Point d'entrée, JWT validation, routing | auth-service |
+| **auth-service** | 8083 | Authentification, gestion users | PostgreSQL |
+| **gps-ingestion-service** | 8080 | Réception GPS, validation, publish Kafka | Kafka |
+| **location-service** | 8081 | Stockage positions, history, geofences, WebSocket | Kafka, PostgreSQL, Redis |
+| **notification-service** | 8082 | Règles d'alerte, notifications temps réel | Kafka, PostgreSQL |
+| **shared** | - | DTOs, events, exceptions partagés | - |
 
 ## Quick Start
 
 ```bash
-# Prerequisites: Docker running
+# 1. Infrastructure (Kafka, PostgreSQL, Redis)
 cd infra/docker && docker-compose up -d
 
-# Build
+# 2. Build tous les services
 cd backend && mvn clean install -DskipTests
 
-# Run migrations
+# 3. Migrations base de données
 mvn flyway:migrate -P local
 
-# Start a service
+# 4. Lancer un service
 cd backend/location-service && mvn spring-boot:run
+
+# Ou tout lancer d'un coup (depuis la racine)
+./start-all.sh
 ```
 
 ## Kafka Topics
 
-| Topic | Description |
-|-------|-------------|
-| truck-track.gps.position | GPS position events |
-| truck-track.location.status-change | Truck status changes |
-| truck-track.notification.alert | Alert notifications |
+| Topic | Producteur | Consommateurs | Partitions |
+|-------|------------|---------------|------------|
+| `truck-track.gps.position` | gps-ingestion | location, notification | 10 |
+| `truck-track.location.status-change` | location | notification | 5 |
+| `truck-track.notification.alert` | notification | - | 3 |
+
+**Format des messages :**
+
+```json
+// truck-track.gps.position
+{
+  "truckId": "uuid",
+  "latitude": 48.8566,
+  "longitude": 2.3522,
+  "speed": 65.5,
+  "heading": 180,
+  "timestamp": "2025-12-19T10:30:00Z"
+}
+```
+
+## Base de données
+
+PostgreSQL avec extension **PostGIS** pour les requêtes spatiales.
+
+**Tables principales :**
+- `trucks` - Informations camions
+- `gps_positions` - Historique positions (partitionné par mois)
+- `geofences` - Zones géographiques (polygones)
+- `users` - Utilisateurs et rôles
+- `alert_rules` - Règles d'alertes configurées
+- `notifications` - Historique des alertes
+
+**Requêtes spatiales utilisées :**
+```sql
+-- Camions dans un geofence
+SELECT * FROM trucks WHERE ST_Contains(geofence.zone, truck.position);
+
+-- Camions dans un rayon de 5km
+SELECT * FROM trucks WHERE ST_DWithin(position, point, 5000);
+```
 
 ## API Endpoints
 
 ### Auth Service (:8083)
-- `POST /auth/v1/login` - Login
-- `POST /auth/v1/refresh` - Refresh token
-- `POST /auth/v1/logout` - Logout
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/auth/v1/login` | Login, retourne JWT |
+| POST | `/auth/v1/refresh` | Refresh token |
+| POST | `/auth/v1/register` | Inscription |
+| GET | `/auth/v1/me` | User courant |
 
 ### Location Service (:8081)
-- `GET /location/v1/trucks` - List trucks
-- `GET /location/v1/trucks/{id}/history` - Position history
-- `WS /ws/locations` - Live position updates
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/location/v1/trucks` | Liste des camions |
+| GET | `/location/v1/trucks/{id}` | Détail camion |
+| GET | `/location/v1/trucks/{id}/history` | Historique positions |
+| GET | `/location/v1/geofences` | Liste geofences |
+| POST | `/location/v1/geofences` | Créer geofence |
+| WS | `/ws/locations` | WebSocket positions live |
 
 ### Notification Service (:8082)
-- `GET /notification/v1/notifications` - List notifications
-- `POST /notification/v1/alert-rules` - Create alert rule
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/notification/v1/notifications` | Liste notifications |
+| GET | `/notification/v1/alert-rules` | Liste règles |
+| POST | `/notification/v1/alert-rules` | Créer règle |
+| WS | `/ws/notifications` | WebSocket alertes live |
 
 ## Monitoring
 
-```bash
-# Health
-curl http://localhost:8081/actuator/health
+| Outil | URL | Usage |
+|-------|-----|-------|
+| Prometheus | http://localhost:9090 | Métriques |
+| Grafana | http://localhost:3000 | Dashboards (admin/admin) |
+| Jaeger | http://localhost:16686 | Distributed tracing |
+| Kafka UI | http://localhost:8088 | Topics, messages, consumers |
 
-# Metrics
-curl http://localhost:8081/actuator/prometheus
+**Health check :**
+```bash
+curl http://localhost:8081/actuator/health
 ```
 
-| Tool | URL |
-|------|-----|
-| Prometheus | http://localhost:9090 |
-| Grafana | http://localhost:3000 |
-| Jaeger | http://localhost:16686 |
-
-## Testing
+## Tests
 
 ```bash
-mvn test           # Unit tests
-mvn verify         # Integration tests
+mvn test           # Tests unitaires
+mvn verify         # Tests d'intégration
 ```
