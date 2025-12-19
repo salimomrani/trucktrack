@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment';
 
 /**
  * TokenStorageService - Manages JWT tokens in localStorage
@@ -9,14 +8,15 @@ import { environment } from '../../../environments/environment';
  * - Token validation and expiry checking
  * - Clearing tokens on logout
  *
+ * Token expiry is managed by the backend via JWT claims (exp field).
  * Used by NgRx Effects and HTTP Interceptor
  */
 @Injectable({
   providedIn: 'root'
 })
 export class TokenStorageService {
-  private readonly TOKEN_KEY = environment.auth.tokenKey;
-  private readonly REFRESH_TOKEN_KEY = environment.auth.refreshTokenKey;
+  private readonly TOKEN_KEY = 'truck_track_token';
+  private readonly REFRESH_TOKEN_KEY = 'truck_track_refresh_token';
 
   /**
    * Get current access token from localStorage

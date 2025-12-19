@@ -118,11 +118,6 @@ export const environment = {
   production: false,
   apiUrl: 'http://localhost:8000',       // API Gateway URL
   wsUrl: 'ws://localhost:8081/ws',       // WebSocket URL for real-time updates
-  auth: {
-    tokenKey: 'truck_track_token',
-    refreshTokenKey: 'truck_track_refresh_token'
-    // Token expiry is managed by the backend (JWT claims)
-  },
   map: {
     defaultCenter: { lat: 37.7749, lng: -122.4194 },
     defaultZoom: 12,
@@ -135,6 +130,8 @@ export const environment = {
   }
 };
 ```
+
+**Note:** Token storage keys are hardcoded in `TokenStorageService`. Token expiry is managed by the backend via JWT claims.
 
 ## Implementation Status
 

@@ -3,10 +3,6 @@ export const environment = {
   production: false,
   apiUrl: 'http://localhost:8000',
   wsUrl: 'ws://localhost:8081/ws',
-  auth: {
-    tokenKey: 'truck_track_token',
-    refreshTokenKey: 'truck_track_refresh_token'
-  },
   map: {
     defaultCenter: {
       lat: 37.7749,
