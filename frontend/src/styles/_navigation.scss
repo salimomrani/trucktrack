@@ -1,6 +1,14 @@
 // Navigation shared variables and mixins
 // Used across header and sidenav components
 
+// Z-index stack for proper layering
+$z-index-header: 1000;
+$z-index-backdrop: 1100;
+$z-index-sidenav: 1200;
+$z-index-dropdown: 1300;
+$z-index-tooltip: 1400;
+$z-index-modal: 1500;
+
 // Breakpoints
 $breakpoint-mobile: 768px;
 $breakpoint-tablet: 1024px;

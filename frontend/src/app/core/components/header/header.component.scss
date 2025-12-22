@@ -111,6 +111,23 @@ $nav-animation-easing: cubic-bezier(0.4, 0, 0.2, 1);
   mat-icon {
     font-size: 24px;
   }
+
+  // Pulse animation for badge when alerts are present
+  ::ng-deep .mat-badge-content {
+    animation: pulse-badge 2s ease-in-out infinite;
+  }
+}
+
+// Pulse animation keyframes for alerts badge
+@keyframes pulse-badge {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.4);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 4px rgba(244, 67, 54, 0);
+  }
 }
 
 // User menu button
