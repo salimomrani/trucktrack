@@ -34,4 +34,38 @@ Java 17 (backend), TypeScript 5.x with Angular 17+ (frontend): Follow standard c
 
 
 <!-- MANUAL ADDITIONS START -->
+
+## Angular Frontend Conventions (OBLIGATOIRE)
+
+**IMPORTANT**: Pour tout développement frontend Angular, TOUJOURS consulter et respecter:
+- `frontend/ANGULAR_CONVENTIONS.md`
+
+### Résumé des règles clés:
+
+1. **Signal Inputs**: Utiliser `input()` au lieu de `@Input()`
+   ```typescript
+   readonly items = input<Item[]>([]);
+   readonly id = input.required<string>();
+   ```
+
+2. **Signal Outputs**: Utiliser `output()` au lieu de `@Output()` + EventEmitter
+   ```typescript
+   readonly clicked = output<void>();
+   ```
+
+3. **Modern Control Flow**: Utiliser `@if`, `@for`, `@switch` au lieu de `*ngIf`, `*ngFor`, `*ngSwitch`
+   ```html
+   @if (condition()) { ... }
+   @for (item of items(); track item.id) { ... }
+   ```
+
+4. **Injection**: Utiliser `inject()` au lieu de constructor injection
+   ```typescript
+   private readonly http = inject(HttpClient);
+   ```
+
+5. **Standalone Components**: Tous les composants doivent être `standalone: true`
+
+6. **OnPush**: Utiliser `ChangeDetectionStrategy.OnPush` avec les signals
+
 <!-- MANUAL ADDITIONS END -->

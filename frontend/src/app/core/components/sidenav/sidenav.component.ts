@@ -1,8 +1,7 @@
 import {
   Component,
-  Input,
-  Output,
-  EventEmitter,
+  input,
+  output,
   inject,
   ChangeDetectionStrategy,
   HostListener,
@@ -39,26 +38,26 @@ export class SidenavComponent {
   private readonly router = inject(Router);
 
   /** Navigation items to display */
-  @Input() navItems: NavItem[] = [];
+  readonly navItems = input<NavItem[]>([]);
 
   /** Whether sidenav is open */
-  @Input() isOpen = false;
+  readonly isOpen = input<boolean>(false);
 
   /** Mini mode - icons only (desktop) */
-  @Input() miniMode = false;
+  readonly miniMode = input<boolean>(false);
 
   /** Emit when sidenav should close */
-  @Output() closed = new EventEmitter<void>();
+  readonly closed = output<void>();
 
   /** Emit when a nav item is clicked */
-  @Output() itemClicked = new EventEmitter<NavItem>();
+  readonly itemClicked = output<NavItem>();
 
   /**
    * Handle keyboard Escape to close sidenav
    */
   @HostListener('document:keydown.escape')
   onEscapeKey(): void {
-    if (this.isOpen) {
+    if (this.isOpen()) {
       this.close();
     }
   }
@@ -82,7 +81,7 @@ export class SidenavComponent {
    * Get operations items only (filter out admin and alerts - alerts are in header)
    */
   getOperationsItems(): NavItem[] {
-    return this.navItems.filter(item =>
+    return this.navItems().filter(item =>
       item.category === 'operations' && item.route !== '/alerts'
     );
   }

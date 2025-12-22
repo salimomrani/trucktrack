@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy, OnInit, OnDestroy, computed, signal, Output, EventEmitter } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, OnInit, OnDestroy, computed, signal, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -83,7 +83,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   });
 
   // Output event for mobile sidenav toggle
-  @Output() toggleSidenavEvent = new EventEmitter<void>();
+  readonly toggleSidenavEvent = output<void>();
 
   ngOnInit(): void {
     if (this.isAuthenticated()) {
