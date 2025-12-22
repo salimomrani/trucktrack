@@ -41,6 +41,31 @@ export const routes: Routes = [
     title: 'Alerts - Truck Track'
   },
 
+  // Geofences route - redirects to map with geofences panel
+  // 003-nav-optimization: Added geofences navigation link
+  // Note: redirectTo handles auth via the target route's guard
+  {
+    path: 'geofences',
+    redirectTo: '/map',
+    pathMatch: 'full'
+  },
+
+  // Profile route - placeholder, redirects to map for now
+  {
+    path: 'profile',
+    redirectTo: '/map',
+    pathMatch: 'full'
+  },
+
+  // Admin routes - protected by adminGuard, lazy loaded
+  // T020: Add admin route to AppRoutingModule
+  // Feature: 002-admin-panel
+  {
+    path: 'admin',
+    loadChildren: () => import('./admin/admin.routes').then(m => m.adminRoutes),
+    title: 'Admin - Truck Track'
+  },
+
   // Unauthorized route - shown when user doesn't have required role
   {
     path: 'unauthorized',

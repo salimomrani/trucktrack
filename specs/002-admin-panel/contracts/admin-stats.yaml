@@ -1,0 +1,301 @@
+openapi: 3.0.3
+info:
+  title: Admin Statistics API
+  description: Fleet statistics and dashboard endpoints
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000/location/v1/admin
+    description: API Gateway (local)
+
+security:
+  - bearerAuth: []
+
+paths:
+  /stats/dashboard:
+    get:
+      summary: Get dashboard statistics
+      operationId: getDashboardStats
+      tags: [Statistics]
+      parameters:
+        - name: period
+          in: query
+          schema:
+            $ref: '#/components/schemas/Period'
+          description: Time period for statistics
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Custom period start (when period=CUSTOM)
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Custom period end (when period=CUSTOM)
+      responses:
+        '200':
+          description: Dashboard statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardStats'
+        '400':
+          description: Invalid date range
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /stats/trucks:
+    get:
+      summary: Get truck status summary
+      operationId: getTruckStats
+      tags: [Statistics]
+      parameters:
+        - name: groupId
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Filter by truck group
+      responses:
+        '200':
+          description: Truck status counts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TruckStatusStats'
+
+  /stats/mileage:
+    get:
+      summary: Get fleet mileage statistics
+      operationId: getMileageStats
+      tags: [Statistics]
+      parameters:
+        - $ref: '#/components/parameters/period'
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - name: groupId
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Mileage statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MileageStats'
+
+  /stats/alerts:
+    get:
+      summary: Get alert statistics
+      operationId: getAlertStats
+      tags: [Statistics]
+      parameters:
+        - $ref: '#/components/parameters/period'
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+      responses:
+        '200':
+          description: Alert statistics by type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertStats'
+
+  /stats/activity:
+    get:
+      summary: Get fleet activity timeline
+      operationId: getActivityTimeline
+      tags: [Statistics]
+      parameters:
+        - $ref: '#/components/parameters/period'
+        - name: interval
+          in: query
+          schema:
+            type: string
+            enum: [HOUR, DAY, WEEK]
+            default: DAY
+      responses:
+        '200':
+          description: Activity data points
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivityTimeline'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    period:
+      name: period
+      in: query
+      schema:
+        $ref: '#/components/schemas/Period'
+    startDate:
+      name: startDate
+      in: query
+      schema:
+        type: string
+        format: date
+    endDate:
+      name: endDate
+      in: query
+      schema:
+        type: string
+        format: date
+
+  schemas:
+    Period:
+      type: string
+      enum: [TODAY, WEEK, MONTH, CUSTOM]
+      default: TODAY
+
+    DashboardStats:
+      type: object
+      properties:
+        period:
+          $ref: '#/components/schemas/Period'
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        trucks:
+          $ref: '#/components/schemas/TruckStatusStats'
+        mileage:
+          $ref: '#/components/schemas/MileageStats'
+        alerts:
+          $ref: '#/components/schemas/AlertStats'
+        users:
+          $ref: '#/components/schemas/UserStats'
+
+    TruckStatusStats:
+      type: object
+      properties:
+        total:
+          type: integer
+        active:
+          type: integer
+          description: Currently moving (speed > 0)
+        idle:
+          type: integer
+          description: Stopped (speed = 0)
+        offline:
+          type: integer
+          description: No GPS signal
+        outOfService:
+          type: integer
+          description: Admin marked inactive
+
+    MileageStats:
+      type: object
+      properties:
+        totalKilometers:
+          type: number
+          format: double
+        averagePerTruck:
+          type: number
+          format: double
+        topTrucks:
+          type: array
+          items:
+            $ref: '#/components/schemas/TruckMileage'
+          maxItems: 5
+
+    TruckMileage:
+      type: object
+      properties:
+        truckId:
+          type: string
+        licensePlate:
+          type: string
+        kilometers:
+          type: number
+          format: double
+
+    AlertStats:
+      type: object
+      properties:
+        total:
+          type: integer
+        byType:
+          type: object
+          properties:
+            speedLimit:
+              type: integer
+            geofenceEnter:
+              type: integer
+            geofenceExit:
+              type: integer
+            offline:
+              type: integer
+            idle:
+              type: integer
+
+    UserStats:
+      type: object
+      properties:
+        total:
+          type: integer
+        active:
+          type: integer
+        byRole:
+          type: object
+          properties:
+            admin:
+              type: integer
+            fleetManager:
+              type: integer
+            driver:
+              type: integer
+            viewer:
+              type: integer
+
+    ActivityTimeline:
+      type: object
+      properties:
+        interval:
+          type: string
+        dataPoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActivityDataPoint'
+
+    ActivityDataPoint:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        activeTrucks:
+          type: integer
+        totalPositions:
+          type: integer
+        alertsTriggered:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid JWT token
+    Forbidden:
+      description: User does not have ADMIN role

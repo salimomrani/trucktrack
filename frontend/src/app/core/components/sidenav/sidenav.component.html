@@ -1,0 +1,37 @@
+<!-- Sidenav Panel - Navigation opérationnelle (sans alertes, déjà dans header) -->
+<aside
+  class="sidenav-panel"
+  [class.mini]="miniMode"
+  role="navigation"
+  aria-label="Menu de navigation">
+
+  <!-- Navigation Items -->
+  <nav class="sidenav-nav">
+    @for (item of getOperationsItems(); track item.route) {
+      @if (miniMode) {
+        <!-- Mini mode: centered icon buttons -->
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active-link"
+          (click)="onNavItemClick(item)"
+          [attr.aria-label]="item.label"
+          [matTooltip]="item.label"
+          matTooltipPosition="right"
+          class="nav-item-mini">
+          <mat-icon>{{ item.icon }}</mat-icon>
+        </a>
+      } @else {
+        <!-- Full mode: list items with labels -->
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active-link"
+          (click)="onNavItemClick(item)"
+          [attr.aria-label]="item.label"
+          class="nav-item-full">
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    }
+  </nav>
+</aside>

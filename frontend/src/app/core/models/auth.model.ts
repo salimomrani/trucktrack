@@ -25,7 +25,9 @@ export interface User {
 }
 
 export enum UserRole {
+  ADMIN = 'ADMIN',
   FLEET_MANAGER = 'FLEET_MANAGER',
+  DRIVER = 'DRIVER',
   DISPATCHER = 'DISPATCHER',
   VIEWER = 'VIEWER'
 }

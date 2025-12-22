@@ -1,2 +1,37 @@
-<app-header />
-<router-outlet />
+<!-- Skip link for accessibility -->
+<a class="skip-link" href="#main-content">Aller au contenu principal</a>
+
+@if (isAuthenticated()) {
+  <div class="app-layout">
+    <!-- Header compact -->
+    <app-header (toggleSidenavEvent)="toggleSidenav()" />
+
+    <!-- Main container with sidenav -->
+    <mat-sidenav-container class="main-container">
+      <!-- Sidenav - Operations navigation only (alerts in header) -->
+      <mat-sidenav
+        #sidenav
+        [mode]="sidenavMode()"
+        [opened]="sidenavOpen()"
+        (closed)="onSidenavClosed()"
+        [class.mini-sidenav]="miniMode()">
+        <app-sidenav
+          [navItems]="filteredNavItems()"
+          [isOpen]="sidenavOpen()"
+          [miniMode]="miniMode()"
+          (closed)="closeSidenav()"
+          (itemClicked)="onNavItemClicked()" />
+      </mat-sidenav>
+
+      <!-- Main content -->
+      <mat-sidenav-content>
+        <main role="main" id="main-content">
+          <router-outlet />
+        </main>
+      </mat-sidenav-content>
+    </mat-sidenav-container>
+  </div>
+} @else {
+  <!-- Not authenticated: just show router outlet (login page) -->
+  <router-outlet />
+}

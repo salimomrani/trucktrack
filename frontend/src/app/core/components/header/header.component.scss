@@ -1,134 +1,148 @@
+// Navigation optimization - Header compact styles
+// Pattern: Hamburger + Logo + Indicators + User menu
+
+$breakpoint-mobile: 768px;
+$nav-animation-duration: 250ms;
+$nav-animation-easing: cubic-bezier(0.4, 0, 0.2, 1);
+
 .app-header {
   position: sticky;
   top: 0;
   z-index: 1000;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 64px;
 }
 
 .header-container {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 0 8px;
+  gap: 4px;
+
+  @media (min-width: 1920px) {
+    max-width: 1600px;
+  }
+}
+
+// Hamburger button - always visible
+.hamburger-button {
+  display: flex;
+  margin-right: 4px;
+
+  &:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 2px;
+  }
 }
 
 .logo-section {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: opacity $nav-animation-duration $nav-animation-easing;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
 
   .logo-icon {
-    font-size: 32px;
-    width: 32px;
-    height: 32px;
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
   }
 
   .app-title {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 500;
     letter-spacing: 0.5px;
+
+    @media (max-width: #{$breakpoint-mobile - 1px}) {
+      display: none;
+    }
   }
 }
 
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+// Spacer - pushes right-side elements to the end
+.spacer {
   flex: 1;
-  justify-content: center;
+}
 
-  a {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    border-radius: 4px;
-    transition: background-color 0.2s;
+// Admin button - visible for admin users
+.admin-button {
+  color: inherit;
+  text-decoration: none;
 
-    mat-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-    }
+  &:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 2px;
+  }
 
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
+  &.admin-active {
+    background-color: rgba(255, 255, 255, 0.15);
+  }
 
-    &.active-link {
-      background-color: rgba(255, 255, 255, 0.15);
-      font-weight: 500;
-    }
-
-    // T165: Notification badge styling - improved visibility
-    &.alerts-link {
-      position: relative;
-      overflow: visible;
-      margin-right: 20px; // Space for badge outside
-
-      .notification-badge {
-        position: absolute;
-        top: 0px;
-        right: -22px;
-        min-width: 18px;
-        height: 18px;
-        padding: 0 5px;
-        border-radius: 9px;
-        background: linear-gradient(135deg, #ff5252 0%, #f44336 100%);
-        color: white;
-        font-size: 10px;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 6px rgba(244, 67, 54, 0.5);
-        z-index: 1;
-
-        // Pulse animation for attention
-        &.pulse {
-          animation: badge-pulse 2s ease-in-out infinite;
-        }
-      }
-    }
+  mat-icon {
+    font-size: 24px;
   }
 }
 
-// Badge pulse animation
-@keyframes badge-pulse {
+// Alerts button with Material badge
+.alerts-button {
+  color: inherit;
+  text-decoration: none;
+
+  &:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 2px;
+  }
+
+  mat-icon {
+    font-size: 24px;
+  }
+
+  // Pulse animation for badge when alerts are present
+  ::ng-deep .mat-badge-content {
+    animation: pulse-badge 2s ease-in-out infinite;
+  }
+}
+
+// Pulse animation keyframes for alerts badge
+@keyframes pulse-badge {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 2px 6px rgba(244, 67, 54, 0.5);
+    box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.4);
   }
   50% {
     transform: scale(1.1);
-    box-shadow: 0 3px 10px rgba(244, 67, 54, 0.7);
+    box-shadow: 0 0 0 4px rgba(244, 67, 54, 0);
   }
 }
 
-.user-section {
-  .user-button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
+// User menu button
+.user-menu-button {
+  &:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 2px;
+  }
 
-    .user-email {
-      max-width: 180px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .dropdown-icon {
-      margin-left: -4px;
-    }
+  mat-icon {
+    font-size: 28px;
   }
 }
 
+// User menu panel styles
 .user-menu-header {
   display: flex;
   align-items: center;
@@ -150,28 +164,19 @@
     .user-role {
       font-size: 12px;
       color: #666;
-      text-transform: capitalize;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
   }
 }
 
-// Responsive design
-@media (max-width: 768px) {
-  .nav-links {
-    gap: 4px;
-
-    a span {
-      display: none;
-    }
+// Logout item red styling
+.logout-item {
+  mat-icon {
+    color: #f44336;
   }
 
-  .user-section .user-email {
-    display: none;
-  }
-}
-
-@media (max-width: 480px) {
-  .logo-section .app-title {
-    display: none;
+  &:hover {
+    background-color: rgba(244, 67, 54, 0.08);
   }
 }

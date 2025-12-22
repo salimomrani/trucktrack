@@ -1,0 +1,219 @@
+openapi: 3.0.3
+info:
+  title: Admin Configuration API
+  description: System configuration management endpoints
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000/location/v1/admin
+    description: API Gateway (local)
+
+security:
+  - bearerAuth: []
+
+paths:
+  /config:
+    get:
+      summary: Get all system configurations
+      operationId: getAllConfig
+      tags: [Configuration]
+      responses:
+        '200':
+          description: List of all configurations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConfigResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /config/{configKey}:
+    get:
+      summary: Get configuration by key
+      operationId: getConfig
+      tags: [Configuration]
+      parameters:
+        - $ref: '#/components/parameters/configKey'
+      responses:
+        '200':
+          description: Configuration value
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: Update configuration value
+      operationId: updateConfig
+      tags: [Configuration]
+      parameters:
+        - $ref: '#/components/parameters/configKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateConfigRequest'
+      responses:
+        '200':
+          description: Configuration updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Optimistic locking conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /config/{configKey}/history:
+    get:
+      summary: Get configuration change history
+      operationId: getConfigHistory
+      tags: [Configuration]
+      parameters:
+        - $ref: '#/components/parameters/configKey'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/size'
+      responses:
+        '200':
+          description: Configuration change history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedConfigHistory'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    configKey:
+      name: configKey
+      in: path
+      required: true
+      schema:
+        type: string
+      examples:
+        speedLimit:
+          value: alert.speed_limit_default
+        offlineThreshold:
+          value: alert.offline_threshold_minutes
+        idleThreshold:
+          value: alert.idle_threshold_minutes
+    page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 0
+    size:
+      name: size
+      in: query
+      schema:
+        type: integer
+        default: 25
+
+  schemas:
+    UpdateConfigRequest:
+      type: object
+      required: [value, version]
+      properties:
+        value:
+          type: string
+          description: New configuration value
+        version:
+          type: integer
+          description: Current version for optimistic locking
+
+    ConfigResponse:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+        description:
+          type: string
+        version:
+          type: integer
+        updatedBy:
+          type: string
+          format: uuid
+        updatedByName:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+
+    ConfigHistoryEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        configKey:
+          type: string
+        oldValue:
+          type: string
+        newValue:
+          type: string
+        changedBy:
+          type: string
+          format: uuid
+        changedByName:
+          type: string
+        changedAt:
+          type: string
+          format: date-time
+
+    PagedConfigHistory:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConfigHistoryEntry'
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+        size:
+          type: integer
+        number:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid JWT token
+    Forbidden:
+      description: User does not have ADMIN role
+    NotFound:
+      description: Resource not found
+    ValidationError:
+      description: Validation failed
