@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, signal, inject } from '@angular/core';
+import { Component, input, OnInit, OnChanges, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
@@ -247,9 +247,9 @@ interface AuditLogPage {
     }
   `]
 })
-export class AuditLogComponent implements OnInit {
-  @Input() entityType!: string;
-  @Input() entityId!: string;
+export class AuditLogComponent implements OnInit, OnChanges {
+  readonly entityType = input.required<string>();
+  readonly entityId = input.required<string>();
 
   private http = inject(HttpClient);
 
@@ -260,13 +260,13 @@ export class AuditLogComponent implements OnInit {
   private pageSize = 10;
 
   ngOnInit() {
-    if (this.entityType && this.entityId) {
+    if (this.entityType() && this.entityId()) {
       this.loadLogs();
     }
   }
 
   ngOnChanges() {
-    if (this.entityType && this.entityId) {
+    if (this.entityType() && this.entityId()) {
       this.currentPage = 0;
       this.logs.set([]);
       this.loadLogs();
@@ -275,7 +275,7 @@ export class AuditLogComponent implements OnInit {
 
   loadLogs() {
     this.loading.set(true);
-    const url = `${environment.apiUrl}/admin/audit/${this.entityType}/${this.entityId}?page=${this.currentPage}&size=${this.pageSize}`;
+    const url = `${environment.apiUrl}/admin/audit/${this.entityType()}/${this.entityId()}?page=${this.currentPage}&size=${this.pageSize}`;
 
     this.http.get<AuditLogPage>(url).subscribe({
       next: (response) => {

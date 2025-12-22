@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, signal, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, input, output, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -42,9 +42,14 @@ import { Geofence, GeofenceZoneType } from '../../../models/geofence.model';
   styleUrls: ['./geofence-panel.component.scss']
 })
 export class GeofencePanelComponent implements OnInit, OnDestroy {
-  @Input() map!: L.Map;
-  @Output() geofenceCreated = new EventEmitter<Geofence>();
-  @Output() geofenceDeleted = new EventEmitter<string>();
+  /** Leaflet map instance (required) */
+  readonly map = input.required<L.Map>();
+
+  /** Emit when a geofence is created */
+  readonly geofenceCreated = output<Geofence>();
+
+  /** Emit when a geofence is deleted */
+  readonly geofenceDeleted = output<string>();
 
   private readonly geofenceService = inject(GeofenceService);
   private readonly snackBar = inject(MatSnackBar);
@@ -95,7 +100,7 @@ export class GeofencePanelComponent implements OnInit, OnDestroy {
   private initDrawControls(): void {
     // Create feature group for drawn items
     this.drawnItems = new L.FeatureGroup();
-    this.map.addLayer(this.drawnItems);
+    this.map().addLayer(this.drawnItems);
 
     // Configure draw control options
     const drawOptions: L.Control.DrawConstructorOptions = {
@@ -131,12 +136,12 @@ export class GeofencePanelComponent implements OnInit, OnDestroy {
     this.drawControl = new L.Control.Draw(drawOptions);
 
     // Listen for draw events
-    this.map.on(L.Draw.Event.CREATED, (e: L.LeafletEvent) => {
+    this.map().on(L.Draw.Event.CREATED, (e: L.LeafletEvent) => {
       const event = e as L.DrawEvents.Created;
       this.handleDrawCreated(event);
     });
 
-    this.map.on(L.Draw.Event.DELETED, () => {
+    this.map().on(L.Draw.Event.DELETED, () => {
       this.drawnPolygon = null;
       this.drawnCoordinates = [];
     });
@@ -178,7 +183,7 @@ export class GeofencePanelComponent implements OnInit, OnDestroy {
    * Start drawing mode
    */
   startDrawing(): void {
-    this.map.addControl(this.drawControl);
+    this.map().addControl(this.drawControl);
     this.isDrawing.set(true);
     this.snackBar.open('Draw a polygon on the map to create a geofence', 'OK', { duration: 5000 });
   }
@@ -187,7 +192,7 @@ export class GeofencePanelComponent implements OnInit, OnDestroy {
    * Cancel drawing mode
    */
   cancelDrawing(): void {
-    this.map.removeControl(this.drawControl);
+    this.map().removeControl(this.drawControl);
     if (this.drawnPolygon) {
       this.drawnItems.removeLayer(this.drawnPolygon);
       this.drawnPolygon = null;
@@ -262,7 +267,7 @@ export class GeofencePanelComponent implements OnInit, OnDestroy {
   private renderAllGeofences(): void {
     // Clear existing layers
     this.geofenceLayers.forEach(layer => {
-      this.map.removeLayer(layer);
+      this.map().removeLayer(layer);
     });
     this.geofenceLayers.clear();
 
@@ -302,7 +307,7 @@ export class GeofencePanelComponent implements OnInit, OnDestroy {
       </div>
     `);
 
-    polygon.addTo(this.map);
+    polygon.addTo(this.map());
     this.geofenceLayers.set(geofence.id!, polygon);
   }
 
@@ -344,7 +349,7 @@ export class GeofencePanelComponent implements OnInit, OnDestroy {
         this.geofences.update(list => list.filter(g => g.id !== geofence.id));
         const layer = this.geofenceLayers.get(geofence.id!);
         if (layer) {
-          this.map.removeLayer(layer);
+          this.map().removeLayer(layer);
           this.geofenceLayers.delete(geofence.id!);
         }
 
@@ -364,7 +369,7 @@ export class GeofencePanelComponent implements OnInit, OnDestroy {
   focusOnGeofence(geofence: Geofence): void {
     const layer = this.geofenceLayers.get(geofence.id!);
     if (layer) {
-      this.map.fitBounds(layer.getBounds(), { padding: [50, 50] });
+      this.map().fitBounds(layer.getBounds(), { padding: [50, 50] });
       layer.openPopup();
     }
   }
@@ -375,10 +380,10 @@ export class GeofencePanelComponent implements OnInit, OnDestroy {
   toggleGeofenceVisibility(geofence: Geofence): void {
     const layer = this.geofenceLayers.get(geofence.id!);
     if (layer) {
-      if (this.map.hasLayer(layer)) {
-        this.map.removeLayer(layer);
+      if (this.map().hasLayer(layer)) {
+        this.map().removeLayer(layer);
       } else {
-        layer.addTo(this.map);
+        layer.addTo(this.map());
       }
     }
   }
@@ -406,20 +411,21 @@ export class GeofencePanelComponent implements OnInit, OnDestroy {
    * Cleanup on destroy
    */
   private cleanup(): void {
-    if (this.drawControl && this.map) {
+    const mapInstance = this.map();
+    if (this.drawControl && mapInstance) {
       try {
-        this.map.removeControl(this.drawControl);
+        mapInstance.removeControl(this.drawControl);
       } catch {
         // Control may not be on map
       }
     }
 
     this.geofenceLayers.forEach(layer => {
-      this.map.removeLayer(layer);
+      mapInstance?.removeLayer(layer);
     });
 
-    if (this.drawnItems) {
-      this.map.removeLayer(this.drawnItems);
+    if (this.drawnItems && mapInstance) {
+      mapInstance.removeLayer(this.drawnItems);
     }
   }
 }

@@ -1,14 +1,14 @@
 <!-- Sidenav Panel - Navigation opérationnelle (sans alertes, déjà dans header) -->
 <aside
   class="sidenav-panel"
-  [class.mini]="miniMode"
+  [class.mini]="miniMode()"
   role="navigation"
   aria-label="Menu de navigation">
 
   <!-- Navigation Items -->
   <nav class="sidenav-nav">
     @for (item of getOperationsItems(); track item.route) {
-      @if (miniMode) {
+      @if (miniMode()) {
         <!-- Mini mode: centered icon buttons -->
         <a
           [routerLink]="item.route"
