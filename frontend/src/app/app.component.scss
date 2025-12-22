@@ -1,0 +1,71 @@
+// App Layout Styles - Navigation Optimization
+// Pattern: Header compact + Mini-sidenav hybride
+
+$sidenav-mini-width: 56px;
+$sidenav-full-width: 240px;
+$sidenav-mobile-width: 280px;
+$header-height: 64px;
+$breakpoint-mobile: 768px;
+
+// Skip link for accessibility
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  z-index: 9999;
+  background: #fff;
+  padding: 8px 16px;
+  border-radius: 4px;
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+
+  &:focus {
+    left: 50%;
+    transform: translateX(-50%);
+    top: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+}
+
+// Main app layout
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+// Main container with sidenav - mat-sidenav-container handles layout automatically
+.main-container {
+  flex: 1;
+}
+
+// Mat-sidenav styling - fixed width based on mode
+mat-sidenav {
+  width: $sidenav-full-width;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+  background: #fafafa;
+
+  // Mini mode on desktop - icons only
+  &.mini-sidenav {
+    width: $sidenav-mini-width;
+  }
+
+  // Mobile/tablet overlay - full width
+  @media (max-width: #{$breakpoint-mobile - 1px}) {
+    width: $sidenav-mobile-width;
+    max-width: 85vw;
+  }
+}
+
+// Main content area - mat-sidenav-container handles margin automatically
+mat-sidenav-content {
+  overflow-y: auto;
+  background: #fff;
+}
+
+// Main content wrapper
+main {
+  min-height: 100%;
+  padding: 0;
+}

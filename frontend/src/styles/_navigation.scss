@@ -1,0 +1,138 @@
+// Navigation shared variables and mixins
+// Used across header and sidenav components
+
+// Breakpoints
+$breakpoint-mobile: 768px;
+$breakpoint-tablet: 1024px;
+$breakpoint-desktop-large: 1920px;
+$breakpoint-desktop-xlarge: 2560px;
+
+// Animation timings
+$nav-animation-duration: 250ms;
+$nav-animation-easing: cubic-bezier(0.4, 0, 0.2, 1);
+
+// Spacing
+$nav-item-padding: 8px 16px;
+$nav-item-gap: 4px;
+$nav-header-height: 64px;
+$nav-sidenav-width: 280px;
+
+// Colors (using CSS variables for theming)
+$nav-active-indicator-width: 3px;
+
+// Mixins
+@mixin nav-transition($properties: all) {
+  transition: $properties $nav-animation-duration $nav-animation-easing;
+}
+
+@mixin nav-link-base {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: $nav-item-padding;
+  text-decoration: none;
+  border-radius: 4px;
+  @include nav-transition(background-color, color);
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mat-primary-color, #3f51b5);
+    outline-offset: 2px;
+  }
+}
+
+@mixin nav-link-active {
+  background-color: rgba(var(--mat-primary-color-rgb, 63, 81, 181), 0.12);
+  color: var(--mat-primary-color, #3f51b5);
+  font-weight: 500;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: $nav-active-indicator-width;
+    background-color: var(--mat-primary-color, #3f51b5);
+    border-radius: 0 2px 2px 0;
+  }
+}
+
+// Badge styling
+@mixin nav-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+  border-radius: 9px;
+  @include nav-transition(transform, opacity);
+
+  &.pulse {
+    animation: badge-pulse 2s infinite;
+  }
+}
+
+@keyframes badge-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+// Responsive mixins
+@mixin mobile-only {
+  @media (max-width: #{$breakpoint-mobile - 1px}) {
+    @content;
+  }
+}
+
+@mixin desktop-only {
+  @media (min-width: $breakpoint-mobile) {
+    @content;
+  }
+}
+
+@mixin large-desktop {
+  @media (min-width: $breakpoint-desktop-large) {
+    @content;
+  }
+}
+
+// ===========================================
+// Global sidenav mini mode styles
+// Must be global to override Material styles
+// ===========================================
+.sidenav-panel.mini {
+  // Center icons in list items
+  .mat-mdc-list-item {
+    .mdc-list-item__content {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      justify-content: center !important;
+    }
+
+    // Remove icon margin
+    .mdc-list-item__start {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      margin-inline-start: 0 !important;
+      margin-inline-end: 0 !important;
+    }
+
+    // Hide text
+    .mdc-list-item__primary-text {
+      display: none !important;
+    }
+  }
+}
