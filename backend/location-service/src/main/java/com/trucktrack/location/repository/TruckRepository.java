@@ -94,4 +94,35 @@ public interface TruckRepository extends JpaRepository<Truck, UUID> {
      * Find trucks with license plate (exact match)
      */
     Optional<Truck> findByLicensePlate(String licensePlate);
+
+    /**
+     * Check if license plate exists (excluding a specific truck).
+     * Used for uniqueness validation on update.
+     */
+    @Query("SELECT COUNT(t) > 0 FROM Truck t WHERE t.licensePlate = :licensePlate AND t.id != :excludeId")
+    boolean existsByLicensePlateAndIdNot(@Param("licensePlate") String licensePlate, @Param("excludeId") UUID excludeId);
+
+    /**
+     * Check if license plate exists.
+     */
+    boolean existsByLicensePlate(String licensePlate);
+
+    /**
+     * Admin search with filters and pagination.
+     * Searches by truckId, licensePlate, driverName, or vehicleType.
+     */
+    @Query("SELECT t FROM Truck t WHERE " +
+           "(:search IS NULL OR :search = '' OR " +
+           "LOWER(t.truckId) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(t.licensePlate) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(t.driverName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(t.vehicleType) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+           "AND (:status IS NULL OR t.status = :status) " +
+           "AND (:groupId IS NULL OR t.truckGroupId = :groupId)")
+    Page<Truck> searchWithFilters(
+        @Param("search") String search,
+        @Param("status") TruckStatus status,
+        @Param("groupId") UUID groupId,
+        Pageable pageable
+    );
 }

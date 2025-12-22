@@ -1,0 +1,365 @@
+openapi: 3.0.3
+info:
+  title: Admin Trucks API
+  description: Truck management endpoints for administrators
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000/location/v1/admin
+    description: API Gateway (local)
+
+security:
+  - bearerAuth: []
+
+paths:
+  /trucks:
+    get:
+      summary: List all trucks
+      operationId: listTrucks
+      tags: [Trucks]
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/sort'
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search by truckId or licensePlate
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/TruckStatus'
+        - name: groupId
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Paginated list of trucks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedTruckResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      summary: Add a new truck
+      operationId: createTruck
+      tags: [Trucks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTruckRequest'
+      responses:
+        '201':
+          description: Truck created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TruckResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '409':
+          description: Truck ID or license plate already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /trucks/{truckId}:
+    get:
+      summary: Get truck by ID
+      operationId: getTruck
+      tags: [Trucks]
+      parameters:
+        - $ref: '#/components/parameters/truckId'
+      responses:
+        '200':
+          description: Truck details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TruckResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: Update truck
+      operationId: updateTruck
+      tags: [Trucks]
+      parameters:
+        - $ref: '#/components/parameters/truckId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTruckRequest'
+      responses:
+        '200':
+          description: Truck updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TruckResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /trucks/{truckId}/out-of-service:
+    post:
+      summary: Mark truck as out of service
+      operationId: markOutOfService
+      tags: [Trucks]
+      parameters:
+        - $ref: '#/components/parameters/truckId'
+      responses:
+        '200':
+          description: Truck marked as out of service
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TruckResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /trucks/{truckId}/activate:
+    post:
+      summary: Reactivate truck (set to OFFLINE, awaiting GPS)
+      operationId: activateTruck
+      tags: [Trucks]
+      parameters:
+        - $ref: '#/components/parameters/truckId'
+      responses:
+        '200':
+          description: Truck reactivated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TruckResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /trucks/{truckId}/groups:
+    get:
+      summary: Get truck's assigned groups
+      operationId: getTruckGroups
+      tags: [Trucks]
+      parameters:
+        - $ref: '#/components/parameters/truckId'
+      responses:
+        '200':
+          description: List of group assignments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GroupAssignment'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: Update truck's group assignments
+      operationId: updateTruckGroups
+      tags: [Trucks]
+      parameters:
+        - $ref: '#/components/parameters/truckId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+                format: uuid
+      responses:
+        '200':
+          description: Groups updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GroupAssignment'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    truckId:
+      name: truckId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 0
+    size:
+      name: size
+      in: query
+      schema:
+        type: integer
+        default: 25
+        enum: [10, 25, 50, 100]
+    sort:
+      name: sort
+      in: query
+      schema:
+        type: string
+        example: "truckId,asc"
+
+  schemas:
+    TruckStatus:
+      type: string
+      enum: [ACTIVE, IDLE, OFFLINE, OUT_OF_SERVICE]
+
+    CreateTruckRequest:
+      type: object
+      required: [truckId, vehicleType]
+      properties:
+        truckId:
+          type: string
+          maxLength: 50
+          description: Human-readable truck identifier
+        licensePlate:
+          type: string
+          maxLength: 100
+        driverName:
+          type: string
+          maxLength: 100
+        driverPhone:
+          type: string
+          maxLength: 50
+        vehicleType:
+          type: string
+          maxLength: 50
+        groupIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    UpdateTruckRequest:
+      type: object
+      properties:
+        licensePlate:
+          type: string
+          maxLength: 100
+        driverName:
+          type: string
+          maxLength: 100
+        driverPhone:
+          type: string
+          maxLength: 50
+        vehicleType:
+          type: string
+          maxLength: 50
+
+    TruckResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        truckId:
+          type: string
+        licensePlate:
+          type: string
+        driverName:
+          type: string
+        driverPhone:
+          type: string
+        vehicleType:
+          type: string
+        status:
+          $ref: '#/components/schemas/TruckStatus'
+        currentLatitude:
+          type: number
+          format: double
+        currentLongitude:
+          type: number
+          format: double
+        currentSpeed:
+          type: number
+          format: double
+        lastUpdate:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        groupIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    GroupAssignment:
+      type: object
+      properties:
+        groupId:
+          type: string
+          format: uuid
+        groupName:
+          type: string
+        assignedAt:
+          type: string
+          format: date-time
+
+    PagedTruckResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/TruckResponse'
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+        size:
+          type: integer
+        number:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid JWT token
+    Forbidden:
+      description: User does not have ADMIN role
+    NotFound:
+      description: Resource not found
+    ValidationError:
+      description: Validation failed
