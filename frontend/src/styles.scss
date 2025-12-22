@@ -142,6 +142,9 @@ $truck-track-theme: mat.define-light-theme((
 // Include theme styles for core and each component
 @include mat.all-component-themes($truck-track-theme);
 
+// Import navigation styles (sidenav mini mode overrides)
+@import './styles/navigation';
+
 // ============================================
 // GLOBAL STYLES
 // ============================================

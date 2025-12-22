@@ -38,7 +38,7 @@ public class AuthController {
 
             // Use the actual admin user ID from the database (from seed data)
             String userId = "00000000-0000-0000-0000-000000000002";
-            String role = "FLEET_MANAGER";
+            String role = "ADMIN";
 
             // Generate JWT access token
             String token = authService.generateToken(

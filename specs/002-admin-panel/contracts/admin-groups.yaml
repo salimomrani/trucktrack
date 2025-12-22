@@ -1,0 +1,312 @@
+openapi: 3.0.3
+info:
+  title: Admin Groups API
+  description: Truck group management endpoints for administrators
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000/location/v1/admin
+    description: API Gateway (local)
+
+security:
+  - bearerAuth: []
+
+paths:
+  /groups:
+    get:
+      summary: List all truck groups
+      operationId: listGroups
+      tags: [Groups]
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/size'
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search by group name
+      responses:
+        '200':
+          description: Paginated list of groups
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedGroupResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      summary: Create a new truck group
+      operationId: createGroup
+      tags: [Groups]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGroupRequest'
+      responses:
+        '201':
+          description: Group created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
+  /groups/{groupId}:
+    get:
+      summary: Get group by ID
+      operationId: getGroup
+      tags: [Groups]
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          description: Group details with statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupDetailResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: Update group
+      operationId: updateGroup
+      tags: [Groups]
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateGroupRequest'
+      responses:
+        '200':
+          description: Group updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Delete group
+      operationId: deleteGroup
+      tags: [Groups]
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '204':
+          description: Group deleted
+        '400':
+          description: Group has assigned trucks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /groups/{groupId}/trucks:
+    get:
+      summary: Get trucks in group
+      operationId: getGroupTrucks
+      tags: [Groups]
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/size'
+      responses:
+        '200':
+          description: Paginated list of trucks in group
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedTruckSummary'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /groups/{groupId}/users:
+    get:
+      summary: Get users assigned to group
+      operationId: getGroupUsers
+      tags: [Groups]
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          description: List of users with access to this group
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserSummary'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    groupId:
+      name: groupId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 0
+    size:
+      name: size
+      in: query
+      schema:
+        type: integer
+        default: 25
+        enum: [10, 25, 50, 100]
+
+  schemas:
+    CreateGroupRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 500
+
+    UpdateGroupRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 500
+
+    GroupResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    GroupDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/GroupResponse'
+        - type: object
+          properties:
+            truckCount:
+              type: integer
+            userCount:
+              type: integer
+            activeTrucks:
+              type: integer
+            offlineTrucks:
+              type: integer
+
+    PagedGroupResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupDetailResponse'
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+        size:
+          type: integer
+        number:
+          type: integer
+
+    TruckSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        truckId:
+          type: string
+        licensePlate:
+          type: string
+        status:
+          type: string
+        assignedAt:
+          type: string
+          format: date-time
+
+    PagedTruckSummary:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/TruckSummary'
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+
+    UserSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        fullName:
+          type: string
+        role:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid JWT token
+    Forbidden:
+      description: User does not have ADMIN role
+    NotFound:
+      description: Resource not found
+    ValidationError:
+      description: Validation failed

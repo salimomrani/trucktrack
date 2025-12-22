@@ -1,55 +1,82 @@
 @if (isAuthenticated()) {
-  <mat-toolbar color="primary" class="app-header">
+  <mat-toolbar color="primary" class="app-header" role="banner">
     <div class="header-container">
-      <!-- Logo and Title -->
-      <div class="logo-section">
+      <!-- Hamburger menu button - toggles sidenav -->
+      <button
+        mat-icon-button
+        class="hamburger-button"
+        (click)="toggleSidenav()"
+        aria-label="Menu de navigation"
+        aria-controls="sidenav">
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <!-- Logo -->
+      <a routerLink="/map" class="logo-section" aria-label="Truck Track - Accueil">
         <mat-icon class="logo-icon">local_shipping</mat-icon>
         <span class="app-title">Truck Track</span>
-      </div>
+      </a>
 
-      <!-- Navigation Links -->
-      <nav class="nav-links">
-        <a mat-button routerLink="/map" routerLinkActive="active-link">
-          <mat-icon>map</mat-icon>
-          <span>Map</span>
-        </a>
-        <a mat-button routerLink="/history" routerLinkActive="active-link">
-          <mat-icon>history</mat-icon>
-          <span>History</span>
-        </a>
-        <a mat-button routerLink="/alerts" routerLinkActive="active-link" class="alerts-link">
-          <mat-icon>notifications</mat-icon>
-          <span>Alerts</span>
-          @if (unreadCount() > 0) {
-            <span class="notification-badge" [class.pulse]="unreadCount() > 0">
-              {{ unreadCount() > 99 ? '99+' : unreadCount() }}
-            </span>
-          }
-        </a>
-      </nav>
+      <!-- Spacer -->
+      <div class="spacer"></div>
 
-      <!-- User Menu -->
-      <div class="user-section">
-        <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
-          <mat-icon>account_circle</mat-icon>
-          <span class="user-email">{{ currentUser()?.email }}</span>
-          <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
-        </button>
-        <mat-menu #userMenu="matMenu">
-          <div class="user-menu-header">
-            <mat-icon>person</mat-icon>
-            <div class="user-info">
-              <div class="user-name">{{ getUserDisplayName() }}</div>
-              <div class="user-role">{{ currentUser()?.role }}</div>
-            </div>
+      <!-- Admin button - visible for admin users only -->
+      @if (hasAdminAccess()) {
+        <a
+          mat-icon-button
+          routerLink="/admin"
+          routerLinkActive="admin-active"
+          class="admin-button"
+          aria-label="Administration"
+          matTooltip="Administration">
+          <mat-icon>admin_panel_settings</mat-icon>
+        </a>
+      }
+
+      <!-- Alerts indicator - standalone button -->
+      <a
+        mat-icon-button
+        routerLink="/alerts"
+        class="alerts-button"
+        aria-label="Alertes"
+        matTooltip="Alertes">
+        <mat-icon [matBadge]="unreadCount() > 0 ? formatBadge(unreadCount()) : null"
+                  matBadgeColor="warn"
+                  matBadgeSize="small"
+                  [matBadgeHidden]="unreadCount() === 0">
+          notifications
+        </mat-icon>
+      </a>
+
+      <!-- User menu -->
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="userMenu"
+        class="user-menu-button"
+        aria-label="Menu utilisateur">
+        <mat-icon>account_circle</mat-icon>
+      </button>
+      <mat-menu #userMenu="matMenu" class="user-menu-panel">
+        <!-- User info header -->
+        <div class="user-menu-header">
+          <mat-icon>person</mat-icon>
+          <div class="user-info">
+            <div class="user-name">{{ getUserDisplayName() }}</div>
+            <div class="user-role">{{ currentUser()?.role }}</div>
           </div>
-          <mat-divider />
-          <button mat-menu-item (click)="logout()">
-            <mat-icon>logout</mat-icon>
-            <span>Logout</span>
-          </button>
-        </mat-menu>
-      </div>
+        </div>
+        <mat-divider />
+
+        <!-- Profile & Logout only -->
+        <a mat-menu-item routerLink="/profile">
+          <mat-icon>settings</mat-icon>
+          <span>Profil & Paramètres</span>
+        </a>
+        <button mat-menu-item (click)="logout()" class="logout-item">
+          <mat-icon>logout</mat-icon>
+          <span>Déconnexion</span>
+        </button>
+      </mat-menu>
     </div>
   </mat-toolbar>
 }
