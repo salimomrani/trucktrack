@@ -110,26 +110,26 @@ $truck-track-warn-palette: (
 );
 
 // Define the theme
-$truck-track-primary: mat.define-palette($truck-track-primary-palette);
-$truck-track-accent: mat.define-palette($truck-track-accent-palette);
-$truck-track-warn: mat.define-palette($truck-track-warn-palette);
+$truck-track-primary: mat.m2-define-palette($truck-track-primary-palette);
+$truck-track-accent: mat.m2-define-palette($truck-track-accent-palette);
+$truck-track-warn: mat.m2-define-palette($truck-track-warn-palette);
 
 // Define custom typography
-$truck-track-typography: mat.define-typography-config(
+$truck-track-typography: mat.m2-define-typography-config(
   $font-family: theme.$font-family-base,
-  $headline-1: mat.define-typography-level(theme.$font-size-4xl, theme.$line-height-tight, theme.$font-weight-extrabold),
-  $headline-2: mat.define-typography-level(theme.$font-size-3xl, theme.$line-height-tight, theme.$font-weight-bold),
-  $headline-3: mat.define-typography-level(theme.$font-size-2xl, theme.$line-height-tight, theme.$font-weight-bold),
-  $headline-4: mat.define-typography-level(theme.$font-size-xl, theme.$line-height-normal, theme.$font-weight-semibold),
-  $headline-5: mat.define-typography-level(theme.$font-size-lg, theme.$line-height-normal, theme.$font-weight-semibold),
-  $headline-6: mat.define-typography-level(theme.$font-size-base, theme.$line-height-normal, theme.$font-weight-semibold),
-  $body-1: mat.define-typography-level(theme.$font-size-base, theme.$line-height-normal, theme.$font-weight-normal),
-  $body-2: mat.define-typography-level(theme.$font-size-sm, theme.$line-height-normal, theme.$font-weight-normal),
-  $caption: mat.define-typography-level(theme.$font-size-xs, theme.$line-height-normal, theme.$font-weight-normal),
-  $button: mat.define-typography-level(theme.$font-size-sm, theme.$line-height-normal, theme.$font-weight-medium),
+  $headline-1: mat.m2-define-typography-level(theme.$font-size-4xl, theme.$line-height-tight, theme.$font-weight-extrabold),
+  $headline-2: mat.m2-define-typography-level(theme.$font-size-3xl, theme.$line-height-tight, theme.$font-weight-bold),
+  $headline-3: mat.m2-define-typography-level(theme.$font-size-2xl, theme.$line-height-tight, theme.$font-weight-bold),
+  $headline-4: mat.m2-define-typography-level(theme.$font-size-xl, theme.$line-height-normal, theme.$font-weight-semibold),
+  $headline-5: mat.m2-define-typography-level(theme.$font-size-lg, theme.$line-height-normal, theme.$font-weight-semibold),
+  $headline-6: mat.m2-define-typography-level(theme.$font-size-base, theme.$line-height-normal, theme.$font-weight-semibold),
+  $body-1: mat.m2-define-typography-level(theme.$font-size-base, theme.$line-height-normal, theme.$font-weight-normal),
+  $body-2: mat.m2-define-typography-level(theme.$font-size-sm, theme.$line-height-normal, theme.$font-weight-normal),
+  $caption: mat.m2-define-typography-level(theme.$font-size-xs, theme.$line-height-normal, theme.$font-weight-normal),
+  $button: mat.m2-define-typography-level(theme.$font-size-sm, theme.$line-height-normal, theme.$font-weight-medium),
 );
 
-$truck-track-theme: mat.define-light-theme((
+$truck-track-theme: mat.m2-define-light-theme((
   color: (
     primary: $truck-track-primary,
     accent: $truck-track-accent,
