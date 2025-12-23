@@ -1,6 +1,6 @@
 package com.trucktrack.auth.dto;
 
-import com.trucktrack.auth.model.UserRole;
+import com.trucktrack.common.security.UserRole;
 import com.trucktrack.auth.validator.ValidPassword;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

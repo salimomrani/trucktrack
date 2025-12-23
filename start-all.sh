@@ -208,7 +208,7 @@ NOTIFICATION_PID=$!
 echo -e "  Notification Service (PID: $NOTIFICATION_PID) on port 8082"
 
 cd "$BACKEND_DIR/auth-service"
-nohup mvn spring-boot:run > "$PROJECT_ROOT/logs/auth.log" 2>&1 &
+nohup mvn spring-boot:run -Dspring-boot.run.profiles=local > "$PROJECT_ROOT/logs/auth.log" 2>&1 &
 AUTH_PID=$!
 echo -e "  Auth Service (PID: $AUTH_PID) on port 8083"
 

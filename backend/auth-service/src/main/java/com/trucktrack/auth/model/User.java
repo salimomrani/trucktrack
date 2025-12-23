@@ -1,5 +1,6 @@
 package com.trucktrack.auth.model;
 
+import com.trucktrack.common.security.UserRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

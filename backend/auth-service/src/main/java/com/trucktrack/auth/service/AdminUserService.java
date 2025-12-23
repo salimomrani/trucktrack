@@ -5,7 +5,7 @@ import com.trucktrack.auth.dto.UpdateUserRequest;
 import com.trucktrack.auth.dto.UserAdminResponse;
 import com.trucktrack.auth.model.User;
 import com.trucktrack.auth.model.UserGroupAssignment;
-import com.trucktrack.auth.model.UserRole;
+import com.trucktrack.common.security.UserRole;
 import com.trucktrack.auth.repository.UserGroupAssignmentRepository;
 import com.trucktrack.auth.repository.UserRepository;
 import com.trucktrack.common.dto.PageResponse;

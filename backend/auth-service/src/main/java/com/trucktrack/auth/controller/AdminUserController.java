@@ -3,7 +3,7 @@ package com.trucktrack.auth.controller;
 import com.trucktrack.auth.dto.CreateUserRequest;
 import com.trucktrack.auth.dto.UpdateUserRequest;
 import com.trucktrack.auth.dto.UserAdminResponse;
-import com.trucktrack.auth.model.UserRole;
+import com.trucktrack.common.security.UserRole;
 import com.trucktrack.auth.service.AdminUserService;
 import com.trucktrack.auth.service.AuthService;
 import com.trucktrack.common.dto.PageResponse;

@@ -1,8 +1,8 @@
-package com.trucktrack.auth.model;
+package com.trucktrack.common.security;
 
 /**
  * User role enumeration for authorization.
- * Feature: 002-admin-panel
+ * Feature: 002-admin-panel, 008-rbac-permissions
  *
  * ADMIN: Full system access, can manage users and configuration
  * FLEET_MANAGER: Manage assigned truck groups, alerts, and reports

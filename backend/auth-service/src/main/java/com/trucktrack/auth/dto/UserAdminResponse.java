@@ -1,7 +1,7 @@
 package com.trucktrack.auth.dto;
 
 import com.trucktrack.auth.model.User;
-import com.trucktrack.auth.model.UserRole;
+import com.trucktrack.common.security.UserRole;
 
 import java.time.Instant;
 import java.util.List;

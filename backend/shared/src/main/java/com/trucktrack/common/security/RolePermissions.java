@@ -1,7 +1,5 @@
 package com.trucktrack.common.security;
 
-import com.trucktrack.auth.model.UserRole;
-
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
