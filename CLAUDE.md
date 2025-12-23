@@ -9,6 +9,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-09
 - N/A (frontend state only, consumes existing APIs) (003-nav-optimization)
 - TypeScript 5.4 with Angular 17 + Angular Material 17.3.10, RxJS, NgRx (store/signals) (003-nav-optimization)
 - TypeScript 5.4.2 with Angular 17.3.0 + Angular Material 17.3.10, NgRx 17.2.0, RxJS 7.8.0, Leaflet 1.9.4 (004-angular-signals-migration)
+- TypeScript 5.4.2 → 5.6+ (upgraded with Angular 21) (005-angular-21-migration)
+- N/A (frontend only, no storage changes) (005-angular-21-migration)
 
 - Java 17 (backend), TypeScript 5.x with Angular 17+ (frontend) (001-gps-live-tracking)
 
@@ -28,9 +30,9 @@ npm test && npm run lint
 Java 17 (backend), TypeScript 5.x with Angular 17+ (frontend): Follow standard conventions
 
 ## Recent Changes
+- 005-angular-21-migration: Added TypeScript 5.4.2 → 5.6+ (upgraded with Angular 21)
 - 004-angular-signals-migration: Added TypeScript 5.4.2 with Angular 17.3.0 + Angular Material 17.3.10, NgRx 17.2.0, RxJS 7.8.0, Leaflet 1.9.4
 - 003-nav-optimization: Added TypeScript 5.4 with Angular 17 + Angular Material 17.3.10, RxJS, NgRx (store/signals)
-- 003-nav-optimization: Added TypeScript 5.x with Angular 17 (frontend only) + Angular Material 17, RxJS, NgRx (already in use)
 
 
 <!-- MANUAL ADDITIONS START -->
