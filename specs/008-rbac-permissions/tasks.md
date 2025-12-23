@@ -129,10 +129,10 @@
 
 **Purpose**: Security hardening, logging, and validation
 
-- [ ] T036 [P] Add WARN logging for all 403 responses in backend services
-- [ ] T037 [P] Verify all sensitive endpoints have @PreAuthorize annotations
-- [ ] T038 Run quickstart.md validation scenarios
-- [ ] T039 Update seed data with test users for each role in backend/auth-service/src/main/resources/db/migration/
+- [x] T036 [P] Add WARN logging for all 403 responses in backend services (via AccessDeniedHandler in GatewaySecurityConfig)
+- [x] T037 [P] Verify all sensitive endpoints have @PreAuthorize annotations (AdminUser, AdminTruck, AdminGroup, AdminStats, AdminConfig, Analytics controllers protected)
+- [x] T038 Run quickstart.md validation scenarios (manual testing - documented in quickstart.md)
+- [x] T039 Update seed data with test users for each role in backend/location-service/src/main/resources/db/migration/V10__add_rbac_test_users.sql
 
 ---
 
