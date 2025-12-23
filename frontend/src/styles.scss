@@ -7,7 +7,8 @@
 @use '@angular/material' as mat;
 
 // Include the core styles
-@include mat.core();
+@include mat.elevation-classes();
+@include mat.app-background();
 
 // Define custom palettes using our theme colors
 $truck-track-primary-palette: (
