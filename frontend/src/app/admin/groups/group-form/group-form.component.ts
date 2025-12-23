@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/breadcrumb/breadcrumb.component';
 
 /**
  * Group form component placeholder.
@@ -25,10 +26,14 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    BreadcrumbComponent
   ],
   template: `
     <div class="group-form-container">
+      <!-- Breadcrumb -->
+      <app-breadcrumb [items]="breadcrumbItems()"></app-breadcrumb>
+
       <!-- Header -->
       <div class="page-header">
         <button mat-icon-button (click)="goBack()">
@@ -133,6 +138,11 @@ export class GroupFormComponent implements OnInit {
 
   isEditMode = signal(false);
   loading = signal(false);
+
+  breadcrumbItems = computed((): BreadcrumbItem[] => [
+    { label: 'Groups', link: '/admin/groups', icon: 'workspaces' },
+    { label: this.isEditMode() ? 'Edit' : 'New Group' }
+  ]);
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');

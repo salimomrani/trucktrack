@@ -12,7 +12,5 @@ public record UpdateConfigRequest(
     String value,
 
     @NotNull(message = "Version is required for optimistic locking")
-    Long version,
-
-    String reason
+    Integer version
 ) {}

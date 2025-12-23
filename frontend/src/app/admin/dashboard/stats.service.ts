@@ -37,6 +37,7 @@ export interface DashboardStats {
   trucks: TruckStatusStats;
   totalUsers: number;
   activeUsers: number;
+  totalGroups: number;
   alerts: AlertStats;
   mileage: MileageStats;
   generatedAt: string;

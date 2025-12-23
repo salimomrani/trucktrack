@@ -1,5 +1,6 @@
 package com.trucktrack.location.controller;
 
+import com.trucktrack.common.security.GatewayUserPrincipal;
 import com.trucktrack.location.dto.ConfigHistoryResponse;
 import com.trucktrack.location.dto.ConfigResponse;
 import com.trucktrack.location.dto.UpdateConfigRequest;
@@ -9,10 +10,12 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * T110-T113: Admin configuration controller
@@ -34,14 +37,8 @@ public class AdminConfigController {
      * Get all configurations
      */
     @GetMapping
-    public ResponseEntity<List<ConfigResponse>> getAllConfig(
-            @RequestParam(required = false) String category) {
-        List<ConfigResponse> configs;
-        if (category != null && !category.isBlank()) {
-            configs = configService.getConfigByCategory(category);
-        } else {
-            configs = configService.getAllConfig();
-        }
+    public ResponseEntity<List<ConfigResponse>> getAllConfig() {
+        List<ConfigResponse> configs = configService.getAllConfig();
         return ResponseEntity.ok(configs);
     }
 
@@ -64,18 +61,19 @@ public class AdminConfigController {
     public ResponseEntity<?> updateConfig(
             @PathVariable String key,
             @Valid @RequestBody UpdateConfigRequest request,
-            @RequestHeader(value = "X-Username", defaultValue = "system") String username) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
         try {
-            ConfigResponse updated = configService.updateConfig(key, request, username);
+            UUID userId = UUID.fromString(principal.userId());
+            ConfigResponse updated = configService.updateConfig(key, request, userId, principal.username());
             return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
         } catch (OptimisticLockException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Map.of(
                     "error", "CONFLICT",
                     "message", e.getMessage()
                 ));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
         }
     }
 

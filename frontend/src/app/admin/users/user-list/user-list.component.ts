@@ -18,6 +18,7 @@ import { DataTableComponent, ColumnDef, PageInfo } from '../../shared/data-table
 import { UserService } from '../user.service';
 import { UserAdminResponse, UserRole, USER_ROLES, ROLE_COLORS } from '../user.model';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.component';
 
 /**
  * User list component with search, filter, and pagination.
@@ -43,10 +44,14 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
     MatSnackBarModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    DataTableComponent
+    DataTableComponent,
+    BreadcrumbComponent
   ],
   template: `
     <div class="user-list-container">
+      <!-- Breadcrumb -->
+      <app-breadcrumb [items]="[{ label: 'Users', icon: 'people' }]"></app-breadcrumb>
+
       <!-- Header -->
       <div class="page-header">
         <div class="header-left">

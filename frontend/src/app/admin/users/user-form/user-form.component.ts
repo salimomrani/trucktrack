@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -16,6 +16,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { UserService } from '../user.service';
 import { UserAdminResponse, CreateUserRequest, UpdateUserRequest, USER_ROLES, UserRole } from '../user.model';
 import { AuditLogComponent } from '../../shared/audit-log/audit-log.component';
+import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/breadcrumb/breadcrumb.component';
 
 /**
  * User form component for create and edit.
@@ -40,10 +41,14 @@ import { AuditLogComponent } from '../../shared/audit-log/audit-log.component';
     MatSnackBarModule,
     MatProgressSpinnerModule,
     MatDividerModule,
-    AuditLogComponent
+    AuditLogComponent,
+    BreadcrumbComponent
   ],
   template: `
     <div class="user-form-container">
+      <!-- Breadcrumb -->
+      <app-breadcrumb [items]="breadcrumbItems()"></app-breadcrumb>
+
       <!-- Header -->
       <div class="page-header">
         <button mat-icon-button (click)="goBack()">
@@ -309,6 +314,11 @@ export class UserFormComponent implements OnInit {
 
   isEditMode = signal(false);
   roles = USER_ROLES;
+
+  breadcrumbItems = computed((): BreadcrumbItem[] => [
+    { label: 'Users', link: '/admin/users', icon: 'people' },
+    { label: this.isEditMode() ? 'Edit' : 'New User' }
+  ]);
 
   // Password pattern: at least 1 uppercase, 1 lowercase, 1 digit
   private readonly passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;

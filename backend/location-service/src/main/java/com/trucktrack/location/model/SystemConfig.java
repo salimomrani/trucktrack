@@ -2,6 +2,7 @@ package com.trucktrack.location.model;
 
 import jakarta.persistence.*;
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * T100: System configuration entity
@@ -12,40 +13,30 @@ import java.time.Instant;
 public class SystemConfig {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(name = "config_key", unique = true, nullable = false, length = 100)
     private String key;
 
-    @Column(name = "config_value", nullable = false, length = 1000)
+    @Column(name = "config_value", nullable = false, length = 500)
     private String value;
 
     @Column(name = "description", length = 500)
     private String description;
 
-    @Column(name = "category", length = 50)
-    private String category;
-
-    @Column(name = "value_type", length = 20)
-    private String valueType; // STRING, INTEGER, BOOLEAN, JSON
-
     @Version
-    @Column(name = "version")
-    private Long version;
+    @Column(name = "version", nullable = false)
+    private Integer version;
 
-    @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
-
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    @Column(name = "updated_by")
-    private String updatedBy;
+    @Column(name = "updated_by", nullable = false)
+    private UUID updatedBy;
 
     @PrePersist
     protected void onCreate() {
-        createdAt = Instant.now();
         updatedAt = Instant.now();
     }
 
@@ -55,11 +46,11 @@ public class SystemConfig {
     }
 
     // Getters and setters
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -87,36 +78,12 @@ public class SystemConfig {
         this.description = description;
     }
 
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public String getValueType() {
-        return valueType;
-    }
-
-    public void setValueType(String valueType) {
-        this.valueType = valueType;
-    }
-
-    public Long getVersion() {
+    public Integer getVersion() {
         return version;
     }
 
-    public void setVersion(Long version) {
+    public void setVersion(Integer version) {
         this.version = version;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
     }
 
     public Instant getUpdatedAt() {
@@ -127,11 +94,11 @@ public class SystemConfig {
         this.updatedAt = updatedAt;
     }
 
-    public String getUpdatedBy() {
+    public UUID getUpdatedBy() {
         return updatedBy;
     }
 
-    public void setUpdatedBy(String updatedBy) {
+    public void setUpdatedBy(UUID updatedBy) {
         this.updatedBy = updatedBy;
     }
 }

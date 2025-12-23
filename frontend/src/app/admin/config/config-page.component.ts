@@ -14,6 +14,7 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSelectModule } from '@angular/material/select';
 import { ConfigService, ConfigResponse, UpdateConfigRequest } from './config.service';
+import { BreadcrumbComponent } from '../shared/breadcrumb/breadcrumb.component';
 
 /**
  * System configuration page.
@@ -36,10 +37,14 @@ import { ConfigService, ConfigResponse, UpdateConfigRequest } from './config.ser
     MatSnackBarModule,
     MatDialogModule,
     MatExpansionModule,
-    MatSelectModule
+    MatSelectModule,
+    BreadcrumbComponent
   ],
   template: `
     <div class="config-container">
+      <!-- Breadcrumb -->
+      <app-breadcrumb [items]="[{ label: 'Configuration', icon: 'settings' }]"></app-breadcrumb>
+
       <!-- Header -->
       <div class="page-header">
         <h1>System Configuration</h1>

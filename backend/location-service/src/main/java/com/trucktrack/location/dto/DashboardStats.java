@@ -10,6 +10,7 @@ public record DashboardStats(
     TruckStatusStats trucks,
     long totalUsers,
     long activeUsers,
+    long totalGroups,
     AlertStats alerts,
     MileageStats mileage,
     Instant generatedAt,
@@ -18,6 +19,7 @@ public record DashboardStats(
     public static DashboardStats empty(String period) {
         return new DashboardStats(
             TruckStatusStats.empty(),
+            0,
             0,
             0,
             AlertStats.empty(),

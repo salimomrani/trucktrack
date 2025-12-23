@@ -6,12 +6,14 @@ import com.trucktrack.auth.dto.UserAdminResponse;
 import com.trucktrack.auth.model.UserRole;
 import com.trucktrack.auth.service.AdminUserService;
 import com.trucktrack.common.dto.PageResponse;
+import com.trucktrack.common.security.GatewayUserPrincipal;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -59,7 +61,7 @@ public class AdminUserController {
             @RequestParam(defaultValue = "25") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir,
-            @RequestHeader("X-User-Id") String adminUserId) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
 
         log.debug("GET /admin/users - search: {}, role: {}, isActive: {}, page: {}, size: {}",
             search, role, isActive, page, size);
@@ -76,7 +78,7 @@ public class AdminUserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserAdminResponse> getUserById(
             @PathVariable UUID id,
-            @RequestHeader("X-User-Id") String adminUserId) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
 
         log.debug("GET /admin/users/{}", id);
         UserAdminResponse user = adminUserService.getUserById(id);
@@ -90,13 +92,12 @@ public class AdminUserController {
     @PostMapping
     public ResponseEntity<UserAdminResponse> createUser(
             @Valid @RequestBody CreateUserRequest request,
-            @RequestHeader("X-User-Id") String adminUserId,
-            @RequestHeader("X-Username") String adminUsername) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
 
         log.info("POST /admin/users - Creating user: {}", request.email());
 
-        UUID adminId = UUID.fromString(adminUserId);
-        UserAdminResponse user = adminUserService.createUser(request, adminId, adminUsername);
+        UUID adminId = UUID.fromString(principal.userId());
+        UserAdminResponse user = adminUserService.createUser(request, adminId, principal.username());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
@@ -109,13 +110,12 @@ public class AdminUserController {
     public ResponseEntity<UserAdminResponse> updateUser(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateUserRequest request,
-            @RequestHeader("X-User-Id") String adminUserId,
-            @RequestHeader("X-Username") String adminUsername) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
 
         log.info("PUT /admin/users/{}", id);
 
-        UUID adminId = UUID.fromString(adminUserId);
-        UserAdminResponse user = adminUserService.updateUser(id, request, adminId, adminUsername);
+        UUID adminId = UUID.fromString(principal.userId());
+        UserAdminResponse user = adminUserService.updateUser(id, request, adminId, principal.username());
 
         return ResponseEntity.ok(user);
     }
@@ -127,13 +127,12 @@ public class AdminUserController {
     @PostMapping("/{id}/deactivate")
     public ResponseEntity<UserAdminResponse> deactivateUser(
             @PathVariable UUID id,
-            @RequestHeader("X-User-Id") String adminUserId,
-            @RequestHeader("X-Username") String adminUsername) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
 
         log.info("POST /admin/users/{}/deactivate", id);
 
-        UUID adminId = UUID.fromString(adminUserId);
-        UserAdminResponse user = adminUserService.deactivateUser(id, adminId, adminUsername);
+        UUID adminId = UUID.fromString(principal.userId());
+        UserAdminResponse user = adminUserService.deactivateUser(id, adminId, principal.username());
 
         return ResponseEntity.ok(user);
     }
@@ -145,13 +144,12 @@ public class AdminUserController {
     @PostMapping("/{id}/reactivate")
     public ResponseEntity<UserAdminResponse> reactivateUser(
             @PathVariable UUID id,
-            @RequestHeader("X-User-Id") String adminUserId,
-            @RequestHeader("X-Username") String adminUsername) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
 
         log.info("POST /admin/users/{}/reactivate", id);
 
-        UUID adminId = UUID.fromString(adminUserId);
-        UserAdminResponse user = adminUserService.reactivateUser(id, adminId, adminUsername);
+        UUID adminId = UUID.fromString(principal.userId());
+        UserAdminResponse user = adminUserService.reactivateUser(id, adminId, principal.username());
 
         return ResponseEntity.ok(user);
     }
@@ -162,13 +160,12 @@ public class AdminUserController {
     @PostMapping("/{id}/resend-activation")
     public ResponseEntity<Map<String, String>> resendActivationEmail(
             @PathVariable UUID id,
-            @RequestHeader("X-User-Id") String adminUserId,
-            @RequestHeader("X-Username") String adminUsername) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
 
         log.info("POST /admin/users/{}/resend-activation", id);
 
-        UUID adminId = UUID.fromString(adminUserId);
-        adminUserService.resendActivationEmail(id, adminId, adminUsername);
+        UUID adminId = UUID.fromString(principal.userId());
+        adminUserService.resendActivationEmail(id, adminId, principal.username());
 
         return ResponseEntity.ok(Map.of("message", "Activation email sent"));
     }
@@ -180,7 +177,7 @@ public class AdminUserController {
     @GetMapping("/{id}/groups")
     public ResponseEntity<List<UUID>> getUserGroups(
             @PathVariable UUID id,
-            @RequestHeader("X-User-Id") String adminUserId) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
 
         log.debug("GET /admin/users/{}/groups", id);
         List<UUID> groupIds = adminUserService.getUserGroups(id);
@@ -195,8 +192,7 @@ public class AdminUserController {
     public ResponseEntity<List<UUID>> updateUserGroups(
             @PathVariable UUID id,
             @RequestBody List<UUID> groupIds,
-            @RequestHeader("X-User-Id") String adminUserId,
-            @RequestHeader("X-Username") String adminUsername) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
 
         log.info("PUT /admin/users/{}/groups - groups: {}", id, groupIds.size());
 

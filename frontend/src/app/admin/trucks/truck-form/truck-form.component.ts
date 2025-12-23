@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -15,6 +15,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { TruckAdminService } from '../truck-admin.service';
 import { TruckAdminResponse, CreateTruckRequest, UpdateTruckRequest, VEHICLE_TYPES, TRUCK_STATUSES } from '../truck.model';
 import { AuditLogComponent } from '../../shared/audit-log/audit-log.component';
+import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/breadcrumb/breadcrumb.component';
 
 /**
  * Truck form component for create and edit.
@@ -37,10 +38,14 @@ import { AuditLogComponent } from '../../shared/audit-log/audit-log.component';
     MatSnackBarModule,
     MatProgressSpinnerModule,
     MatDividerModule,
-    AuditLogComponent
+    AuditLogComponent,
+    BreadcrumbComponent
   ],
   template: `
     <div class="truck-form-container">
+      <!-- Breadcrumb -->
+      <app-breadcrumb [items]="breadcrumbItems()"></app-breadcrumb>
+
       <!-- Header -->
       <div class="page-header">
         <button mat-icon-button (click)="goBack()">
@@ -316,6 +321,11 @@ export class TruckFormComponent implements OnInit {
   isEditMode = signal(false);
   vehicleTypes = VEHICLE_TYPES;
   statuses = TRUCK_STATUSES;
+
+  breadcrumbItems = computed((): BreadcrumbItem[] => [
+    { label: 'Trucks', link: '/admin/trucks', icon: 'local_shipping' },
+    { label: this.isEditMode() ? 'Edit' : 'New Truck' }
+  ]);
 
   form: FormGroup = this.fb.group({
     truckId: ['', [Validators.required, Validators.maxLength(50)]],

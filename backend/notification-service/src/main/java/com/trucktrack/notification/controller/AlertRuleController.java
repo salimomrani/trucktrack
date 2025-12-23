@@ -1,5 +1,6 @@
 package com.trucktrack.notification.controller;
 
+import com.trucktrack.common.security.GatewayUserPrincipal;
 import com.trucktrack.notification.model.AlertRule;
 import com.trucktrack.notification.model.AlertRuleType;
 import com.trucktrack.notification.service.AlertRuleService;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -68,8 +70,9 @@ public class AlertRuleController {
      */
     @PostMapping
     public ResponseEntity<AlertRule> createAlertRule(
-            @RequestHeader("X-User-Id") UUID userId,
+            @AuthenticationPrincipal GatewayUserPrincipal principal,
             @RequestBody AlertRule alertRule) {
+        UUID userId = UUID.fromString(principal.userId());
         log.info("Creating alert rule '{}' for user: {}", alertRule.getName(), userId);
         // Set the createdBy from authenticated user
         alertRule.setCreatedBy(userId);
@@ -126,8 +129,9 @@ public class AlertRuleController {
      */
     @GetMapping("/my-rules")
     public ResponseEntity<List<AlertRule>> getMyAlertRules(
-            @RequestHeader("X-User-Id") UUID userId) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
 
+        UUID userId = UUID.fromString(principal.userId());
         log.debug("Getting alert rules for user: {}", userId);
         List<AlertRule> rules = alertRuleService.getAlertRulesForUser(userId);
         return ResponseEntity.ok(rules);

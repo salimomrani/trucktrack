@@ -1,6 +1,7 @@
 package com.trucktrack.location.controller;
 
 import com.trucktrack.common.dto.PageResponse;
+import com.trucktrack.common.security.GatewayUserPrincipal;
 import com.trucktrack.location.dto.CreateGroupRequest;
 import com.trucktrack.location.dto.GroupDetailResponse;
 import com.trucktrack.location.dto.UpdateGroupRequest;
@@ -12,6 +13,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -62,9 +64,9 @@ public class AdminGroupController {
     @PostMapping
     public ResponseEntity<?> createGroup(
             @Valid @RequestBody CreateGroupRequest request,
-            @RequestHeader(value = "X-Username", defaultValue = "system") String username) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
         try {
-            GroupDetailResponse created = groupService.createGroup(request, username);
+            GroupDetailResponse created = groupService.createGroup(request, principal.username());
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
@@ -80,9 +82,9 @@ public class AdminGroupController {
     public ResponseEntity<?> updateGroup(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateGroupRequest request,
-            @RequestHeader(value = "X-Username", defaultValue = "system") String username) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
         try {
-            GroupDetailResponse updated = groupService.updateGroup(id, request, username);
+            GroupDetailResponse updated = groupService.updateGroup(id, request, principal.username());
             return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException e) {
             if (e.getMessage().contains("not found")) {
@@ -100,9 +102,9 @@ public class AdminGroupController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteGroup(
             @PathVariable UUID id,
-            @RequestHeader(value = "X-Username", defaultValue = "system") String username) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
         try {
-            groupService.deleteGroup(id, username);
+            groupService.deleteGroup(id, principal.username());
             return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();

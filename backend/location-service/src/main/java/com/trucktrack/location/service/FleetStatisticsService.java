@@ -52,11 +52,13 @@ public class FleetStatisticsService {
         // For now, return placeholder values
         long totalUsers = getUserCount();
         long activeUsers = getActiveUserCount();
+        long totalGroups = getGroupCount();
 
         return new DashboardStats(
             truckStats,
             totalUsers,
             activeUsers,
+            totalGroups,
             alertStats,
             mileageStats,
             Instant.now(),
@@ -235,6 +237,17 @@ public class FleetStatisticsService {
             return count != null ? count : 0;
         } catch (Exception e) {
             log.warn("Error getting active user count", e);
+            return 0;
+        }
+    }
+
+    private long getGroupCount() {
+        try {
+            String sql = "SELECT COUNT(*) FROM truck_groups";
+            Long count = jdbcTemplate.queryForObject(sql, Long.class);
+            return count != null ? count : 0;
+        } catch (Exception e) {
+            log.warn("Error getting group count", e);
             return 0;
         }
     }

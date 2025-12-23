@@ -44,40 +44,44 @@ import { StatsService, DashboardStats } from './stats.service';
       } @else {
         <!-- Quick Stats -->
         <div class="stats-grid">
-          <mat-card class="stat-card">
+          <mat-card class="stat-card clickable" routerLink="/admin/users">
             <mat-icon class="stat-icon users">people</mat-icon>
             <div class="stat-content">
               <span class="stat-value">{{ stats()?.totalUsers ?? 0 }}</span>
               <span class="stat-label">Total Users</span>
               <span class="stat-sub">{{ stats()?.activeUsers ?? 0 }} active</span>
             </div>
+            <mat-icon class="nav-arrow">chevron_right</mat-icon>
           </mat-card>
 
-          <mat-card class="stat-card">
+          <mat-card class="stat-card clickable" routerLink="/admin/trucks">
             <mat-icon class="stat-icon trucks">local_shipping</mat-icon>
             <div class="stat-content">
               <span class="stat-value">{{ stats()?.trucks?.total ?? 0 }}</span>
               <span class="stat-label">Total Trucks</span>
               <span class="stat-sub">{{ stats()?.trucks?.active ?? 0 }} active</span>
             </div>
+            <mat-icon class="nav-arrow">chevron_right</mat-icon>
           </mat-card>
 
-          <mat-card class="stat-card">
-            <mat-icon class="stat-icon active">gps_fixed</mat-icon>
+          <mat-card class="stat-card clickable" routerLink="/admin/groups">
+            <mat-icon class="stat-icon groups">workspaces</mat-icon>
             <div class="stat-content">
-              <span class="stat-value">{{ stats()?.trucks?.active ?? 0 }}</span>
-              <span class="stat-label">Active Now</span>
-              <span class="stat-sub">{{ stats()?.trucks?.idle ?? 0 }} idle</span>
+              <span class="stat-value">{{ stats()?.totalGroups ?? 0 }}</span>
+              <span class="stat-label">Groups</span>
+              <span class="stat-sub">Fleet organization</span>
             </div>
+            <mat-icon class="nav-arrow">chevron_right</mat-icon>
           </mat-card>
 
-          <mat-card class="stat-card">
-            <mat-icon class="stat-icon alerts">notifications</mat-icon>
+          <mat-card class="stat-card clickable" routerLink="/admin/config">
+            <mat-icon class="stat-icon alerts">settings</mat-icon>
             <div class="stat-content">
               <span class="stat-value">{{ stats()?.alerts?.total ?? 0 }}</span>
-              <span class="stat-label">Alerts Today</span>
-              <span class="stat-sub">{{ stats()?.alerts?.unread ?? 0 }} unread</span>
+              <span class="stat-label">Configuration</span>
+              <span class="stat-sub">System settings</span>
             </div>
+            <mat-icon class="nav-arrow">chevron_right</mat-icon>
           </mat-card>
         </div>
 
@@ -206,6 +210,32 @@ import { StatsService, DashboardStats } from './stats.service';
       align-items: center;
       padding: 20px;
       gap: 16px;
+      position: relative;
+    }
+
+    .stat-card.clickable {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .stat-card.clickable:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-card.clickable:active {
+      transform: translateY(0);
+    }
+
+    .nav-arrow {
+      margin-left: auto;
+      color: #bdbdbd;
+      transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .stat-card.clickable:hover .nav-arrow {
+      color: #757575;
+      transform: translateX(4px);
     }
 
     .stat-icon {
@@ -216,8 +246,8 @@ import { StatsService, DashboardStats } from './stats.service';
 
     .stat-icon.users { color: #2196f3; }
     .stat-icon.trucks { color: #ff9800; }
-    .stat-icon.active { color: #4caf50; }
-    .stat-icon.alerts { color: #f44336; }
+    .stat-icon.groups { color: #9c27b0; }
+    .stat-icon.alerts { color: #607d8b; }
 
     .stat-content {
       display: flex;

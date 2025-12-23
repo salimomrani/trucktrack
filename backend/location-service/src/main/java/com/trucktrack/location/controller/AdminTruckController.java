@@ -1,6 +1,7 @@
 package com.trucktrack.location.controller;
 
 import com.trucktrack.common.dto.PageResponse;
+import com.trucktrack.common.security.GatewayUserPrincipal;
 import com.trucktrack.location.dto.CreateTruckRequest;
 import com.trucktrack.location.dto.TruckAdminResponse;
 import com.trucktrack.location.dto.UpdateTruckRequest;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -58,7 +60,7 @@ public class AdminTruckController {
             @RequestParam(defaultValue = "25") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir,
-            @RequestHeader("X-User-Id") String adminUserId) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
 
         log.debug("GET /admin/trucks - search: {}, status: {}, groupId: {}, page: {}, size: {}",
             search, status, groupId, page, size);
@@ -75,7 +77,7 @@ public class AdminTruckController {
     @GetMapping("/{id}")
     public ResponseEntity<TruckAdminResponse> getTruckById(
             @PathVariable UUID id,
-            @RequestHeader("X-User-Id") String adminUserId) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
 
         log.debug("GET /admin/trucks/{}", id);
         TruckAdminResponse truck = adminTruckService.getTruckById(id);
@@ -89,11 +91,11 @@ public class AdminTruckController {
     @PostMapping
     public ResponseEntity<TruckAdminResponse> createTruck(
             @Valid @RequestBody CreateTruckRequest request,
-            @RequestHeader("X-User-Id") String adminUserId) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
 
         log.info("POST /admin/trucks - Creating truck: {}", request.getTruckId());
 
-        UUID adminId = UUID.fromString(adminUserId);
+        UUID adminId = UUID.fromString(principal.userId());
         TruckAdminResponse truck = adminTruckService.createTruck(request, adminId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(truck);
@@ -107,11 +109,11 @@ public class AdminTruckController {
     public ResponseEntity<TruckAdminResponse> updateTruck(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateTruckRequest request,
-            @RequestHeader("X-User-Id") String adminUserId) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
 
         log.info("PUT /admin/trucks/{}", id);
 
-        UUID adminId = UUID.fromString(adminUserId);
+        UUID adminId = UUID.fromString(principal.userId());
         TruckAdminResponse truck = adminTruckService.updateTruck(id, request, adminId);
 
         return ResponseEntity.ok(truck);
@@ -124,11 +126,11 @@ public class AdminTruckController {
     @PostMapping("/{id}/out-of-service")
     public ResponseEntity<TruckAdminResponse> markOutOfService(
             @PathVariable UUID id,
-            @RequestHeader("X-User-Id") String adminUserId) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
 
         log.info("POST /admin/trucks/{}/out-of-service", id);
 
-        UUID adminId = UUID.fromString(adminUserId);
+        UUID adminId = UUID.fromString(principal.userId());
         TruckAdminResponse truck = adminTruckService.markOutOfService(id, adminId);
 
         return ResponseEntity.ok(truck);
@@ -141,11 +143,11 @@ public class AdminTruckController {
     @PostMapping("/{id}/activate")
     public ResponseEntity<TruckAdminResponse> activateTruck(
             @PathVariable UUID id,
-            @RequestHeader("X-User-Id") String adminUserId) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
 
         log.info("POST /admin/trucks/{}/activate", id);
 
-        UUID adminId = UUID.fromString(adminUserId);
+        UUID adminId = UUID.fromString(principal.userId());
         TruckAdminResponse truck = adminTruckService.activateTruck(id, adminId);
 
         return ResponseEntity.ok(truck);
@@ -158,7 +160,7 @@ public class AdminTruckController {
     @GetMapping("/{id}/groups")
     public ResponseEntity<List<UUID>> getTruckGroups(
             @PathVariable UUID id,
-            @RequestHeader("X-User-Id") String adminUserId) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
 
         log.debug("GET /admin/trucks/{}/groups", id);
         List<UUID> groupIds = adminTruckService.getTruckGroups(id);
@@ -173,11 +175,11 @@ public class AdminTruckController {
     public ResponseEntity<List<UUID>> updateTruckGroups(
             @PathVariable UUID id,
             @RequestBody List<UUID> groupIds,
-            @RequestHeader("X-User-Id") String adminUserId) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
 
         log.info("PUT /admin/trucks/{}/groups - groups: {}", id, groupIds.size());
 
-        UUID adminId = UUID.fromString(adminUserId);
+        UUID adminId = UUID.fromString(principal.userId());
         List<UUID> updatedGroups = adminTruckService.updateTruckGroups(id, groupIds, adminId);
         return ResponseEntity.ok(updatedGroups);
     }

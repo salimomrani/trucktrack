@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * T106-T109: System configuration service
@@ -39,17 +40,7 @@ public class SystemConfigService {
      * T107: Get all configurations
      */
     public List<ConfigResponse> getAllConfig() {
-        return configRepository.findAllByOrderByCategoryAscKeyAsc()
-            .stream()
-            .map(ConfigResponse::fromEntity)
-            .toList();
-    }
-
-    /**
-     * Get configurations by category
-     */
-    public List<ConfigResponse> getConfigByCategory(String category) {
-        return configRepository.findByCategory(category)
+        return configRepository.findAllByOrderByKeyAsc()
             .stream()
             .map(ConfigResponse::fromEntity)
             .toList();
@@ -67,7 +58,7 @@ public class SystemConfigService {
      * T108: Update configuration with optimistic locking and history
      */
     @Transactional
-    public ConfigResponse updateConfig(String key, UpdateConfigRequest request, String username) {
+    public ConfigResponse updateConfig(String key, UpdateConfigRequest request, UUID userId, String username) {
         SystemConfig config = configRepository.findByKey(key)
             .orElseThrow(() -> new IllegalArgumentException("Configuration not found: " + key));
 
@@ -87,18 +78,15 @@ public class SystemConfigService {
             history.setConfigKey(key);
             history.setOldValue(oldValue);
             history.setNewValue(newValue);
-            history.setChangedBy(username);
-            history.setReason(request.reason());
+            history.setChangedBy(userId);
             historyRepository.save(history);
 
             // Update config
             config.setValue(newValue);
-            config.setUpdatedBy(username);
+            config.setUpdatedBy(userId);
             config = configRepository.save(config);
 
-            // ConfigHistory already provides audit trail for config changes
-
-            log.info("Configuration {} updated by {}: {} -> {}", key, username, oldValue, newValue);
+            log.info("Configuration {} updated by {} ({}): {} -> {}", key, username, userId, oldValue, newValue);
         }
 
         return ConfigResponse.fromEntity(config);

@@ -2,19 +2,19 @@ package com.trucktrack.location.dto;
 
 import com.trucktrack.location.model.ConfigHistory;
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * Configuration history response DTO
  * Feature: 002-admin-panel (US4 - Config)
  */
 public record ConfigHistoryResponse(
-    Long id,
+    UUID id,
     String configKey,
     String oldValue,
     String newValue,
-    String changedBy,
-    Instant changedAt,
-    String reason
+    UUID changedBy,
+    Instant changedAt
 ) {
     public static ConfigHistoryResponse fromEntity(ConfigHistory history) {
         return new ConfigHistoryResponse(
@@ -23,8 +23,7 @@ public record ConfigHistoryResponse(
             history.getOldValue(),
             history.getNewValue(),
             history.getChangedBy(),
-            history.getChangedAt(),
-            history.getReason()
+            history.getChangedAt()
         );
     }
 }

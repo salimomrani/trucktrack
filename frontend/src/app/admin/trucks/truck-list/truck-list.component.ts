@@ -18,6 +18,7 @@ import { DataTableComponent, ColumnDef, PageInfo } from '../../shared/data-table
 import { TruckAdminService } from '../truck-admin.service';
 import { TruckAdminResponse, TruckStatus, TRUCK_STATUSES, TRUCK_STATUS_COLORS } from '../truck.model';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.component';
 
 /**
  * Truck list component with search, filter, and pagination.
@@ -43,10 +44,14 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
     MatSnackBarModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    DataTableComponent
+    DataTableComponent,
+    BreadcrumbComponent
   ],
   template: `
     <div class="truck-list-container">
+      <!-- Breadcrumb -->
+      <app-breadcrumb [items]="[{ label: 'Trucks', icon: 'local_shipping' }]"></app-breadcrumb>
+
       <!-- Header -->
       <div class="page-header">
         <div class="header-left">

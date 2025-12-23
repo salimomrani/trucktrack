@@ -2,6 +2,7 @@ package com.trucktrack.location.model;
 
 import jakarta.persistence.*;
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * T101: Configuration history entity for audit trail
@@ -12,26 +13,23 @@ import java.time.Instant;
 public class ConfigHistory {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(name = "config_key", nullable = false, length = 100)
     private String configKey;
 
-    @Column(name = "old_value", length = 1000)
+    @Column(name = "old_value", length = 500)
     private String oldValue;
 
-    @Column(name = "new_value", nullable = false, length = 1000)
+    @Column(name = "new_value", nullable = false, length = 500)
     private String newValue;
 
     @Column(name = "changed_by", nullable = false)
-    private String changedBy;
+    private UUID changedBy;
 
     @Column(name = "changed_at", nullable = false)
     private Instant changedAt;
-
-    @Column(name = "reason", length = 500)
-    private String reason;
 
     @PrePersist
     protected void onCreate() {
@@ -39,11 +37,11 @@ public class ConfigHistory {
     }
 
     // Getters and setters
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -71,11 +69,11 @@ public class ConfigHistory {
         this.newValue = newValue;
     }
 
-    public String getChangedBy() {
+    public UUID getChangedBy() {
         return changedBy;
     }
 
-    public void setChangedBy(String changedBy) {
+    public void setChangedBy(UUID changedBy) {
         this.changedBy = changedBy;
     }
 
@@ -85,13 +83,5 @@ public class ConfigHistory {
 
     public void setChangedAt(Instant changedAt) {
         this.changedAt = changedAt;
-    }
-
-    public String getReason() {
-        return reason;
-    }
-
-    public void setReason(String reason) {
-        this.reason = reason;
     }
 }

@@ -2,21 +2,20 @@ package com.trucktrack.location.dto;
 
 import com.trucktrack.location.model.SystemConfig;
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * T104: Configuration response DTO
  * Feature: 002-admin-panel (US4 - Config)
  */
 public record ConfigResponse(
-    Long id,
+    UUID id,
     String key,
     String value,
     String description,
-    String category,
-    String valueType,
-    Long version,
+    Integer version,
     Instant updatedAt,
-    String updatedBy
+    UUID updatedBy
 ) {
     public static ConfigResponse fromEntity(SystemConfig config) {
         return new ConfigResponse(
@@ -24,8 +23,6 @@ public record ConfigResponse(
             config.getKey(),
             config.getValue(),
             config.getDescription(),
-            config.getCategory(),
-            config.getValueType(),
             config.getVersion(),
             config.getUpdatedAt(),
             config.getUpdatedBy()

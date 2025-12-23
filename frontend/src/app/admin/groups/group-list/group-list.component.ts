@@ -15,6 +15,7 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { GroupService, GroupDetailResponse, PageResponse } from '../group.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.component';
 
 /**
  * Group list component.
@@ -36,10 +37,14 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
     MatPaginatorModule,
     MatSnackBarModule,
     MatDialogModule,
-    MatMenuModule
+    MatMenuModule,
+    BreadcrumbComponent
   ],
   template: `
     <div class="group-list-container">
+      <!-- Breadcrumb -->
+      <app-breadcrumb [items]="[{ label: 'Groups', icon: 'workspaces' }]"></app-breadcrumb>
+
       <!-- Header -->
       <div class="page-header">
         <div class="header-left">

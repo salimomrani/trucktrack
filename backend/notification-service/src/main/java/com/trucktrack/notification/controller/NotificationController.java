@@ -1,5 +1,6 @@
 package com.trucktrack.notification.controller;
 
+import com.trucktrack.common.security.GatewayUserPrincipal;
 import com.trucktrack.notification.model.Notification;
 import com.trucktrack.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,10 +33,11 @@ public class NotificationController {
      */
     @GetMapping
     public ResponseEntity<Page<Notification>> getNotifications(
-            @RequestHeader("X-User-Id") UUID userId,
+            @AuthenticationPrincipal GatewayUserPrincipal principal,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
+        UUID userId = UUID.fromString(principal.userId());
         log.debug("Getting notifications for user: {}, page: {}, size: {}", userId, page, size);
         Pageable pageable = PageRequest.of(page, size);
         Page<Notification> notifications = notificationService.getNotificationsForUser(userId, pageable);
@@ -47,8 +50,9 @@ public class NotificationController {
      */
     @GetMapping("/unread")
     public ResponseEntity<List<Notification>> getUnreadNotifications(
-            @RequestHeader("X-User-Id") UUID userId) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
 
+        UUID userId = UUID.fromString(principal.userId());
         log.debug("Getting unread notifications for user: {}", userId);
         List<Notification> notifications = notificationService.getUnreadNotifications(userId);
         return ResponseEntity.ok(notifications);
@@ -60,8 +64,9 @@ public class NotificationController {
      */
     @GetMapping("/unread/count")
     public ResponseEntity<UnreadCountResponse> getUnreadCount(
-            @RequestHeader("X-User-Id") UUID userId) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
 
+        UUID userId = UUID.fromString(principal.userId());
         log.debug("Getting unread count for user: {}", userId);
         long count = notificationService.countUnreadNotifications(userId);
         return ResponseEntity.ok(new UnreadCountResponse(count));
@@ -73,8 +78,9 @@ public class NotificationController {
      */
     @GetMapping("/stats")
     public ResponseEntity<NotificationService.NotificationStats> getStats(
-            @RequestHeader("X-User-Id") UUID userId) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
 
+        UUID userId = UUID.fromString(principal.userId());
         log.debug("Getting notification stats for user: {}", userId);
         NotificationService.NotificationStats stats = notificationService.getNotificationStats(userId);
         return ResponseEntity.ok(stats);
@@ -110,8 +116,9 @@ public class NotificationController {
      */
     @PostMapping("/mark-all-read")
     public ResponseEntity<MarkAllReadResponse> markAllAsRead(
-            @RequestHeader("X-User-Id") UUID userId) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
 
+        UUID userId = UUID.fromString(principal.userId());
         log.info("Marking all notifications as read for user: {}", userId);
         int count = notificationService.markAllAsRead(userId);
         return ResponseEntity.ok(new MarkAllReadResponse(count));
@@ -124,9 +131,10 @@ public class NotificationController {
      */
     @GetMapping("/recent")
     public ResponseEntity<List<Notification>> getRecentNotifications(
-            @RequestHeader("X-User-Id") UUID userId,
+            @AuthenticationPrincipal GatewayUserPrincipal principal,
             @RequestParam(defaultValue = "100") int limit) {
 
+        UUID userId = UUID.fromString(principal.userId());
         log.debug("Getting recent notifications for user: {}, limit: {}", userId, limit);
         List<Notification> notifications = notificationService.getRecentNotifications(userId, limit);
         return ResponseEntity.ok(notifications);
@@ -138,10 +146,11 @@ public class NotificationController {
      */
     @GetMapping("/recent/paged")
     public ResponseEntity<Page<Notification>> getRecentNotificationsPaged(
-            @RequestHeader("X-User-Id") UUID userId,
+            @AuthenticationPrincipal GatewayUserPrincipal principal,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
+        UUID userId = UUID.fromString(principal.userId());
         log.debug("Getting recent notifications paged for user: {}, page: {}, size: {}", userId, page, size);
         Page<Notification> notifications = notificationService.getRecentNotificationsPaged(userId, page, size);
         return ResponseEntity.ok(notifications);
