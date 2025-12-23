@@ -91,9 +91,11 @@ public class AnalyticsRepository {
 
         Map<String, Object> result = jdbcTemplate.queryForMap(sql, truckIdsArray, startDate, endDate);
 
+        Number entries = (Number) result.get("entries");
+        Number exits = (Number) result.get("exits");
         return Map.of(
-            "entries", ((Number) result.getOrDefault("entries", 0)).intValue(),
-            "exits", ((Number) result.getOrDefault("exits", 0)).intValue()
+            "entries", entries != null ? entries.intValue() : 0,
+            "exits", exits != null ? exits.intValue() : 0
         );
     }
 

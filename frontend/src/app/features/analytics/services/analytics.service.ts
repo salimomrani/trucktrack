@@ -23,7 +23,7 @@ import { environment } from '../../../../environments/environment';
 })
 export class AnalyticsService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/api/v1/analytics`;
+  private readonly baseUrl = `${environment.apiUrl}/location/v1/analytics`;
 
   /**
    * Get fleet KPIs for the specified period and entity.

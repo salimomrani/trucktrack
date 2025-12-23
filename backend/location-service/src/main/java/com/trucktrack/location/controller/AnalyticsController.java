@@ -28,14 +28,14 @@ import java.util.stream.Collectors;
  * T015: Create AnalyticsController with 4 endpoints
  *
  * Endpoints:
- * - GET /api/v1/analytics/kpis - Fleet KPIs
- * - GET /api/v1/analytics/daily-metrics - Daily metrics for charts
- * - GET /api/v1/analytics/alert-breakdown - Alert distribution
- * - GET /api/v1/analytics/truck-ranking - Truck ranking by metric
+ * - GET /location/v1/analytics/kpis - Fleet KPIs
+ * - GET /location/v1/analytics/daily-metrics - Daily metrics for charts
+ * - GET /location/v1/analytics/alert-breakdown - Alert distribution
+ * - GET /location/v1/analytics/truck-ranking - Truck ranking by metric
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/analytics")
+@RequestMapping("/location/v1/analytics")
 @RequiredArgsConstructor
 public class AnalyticsController {
 

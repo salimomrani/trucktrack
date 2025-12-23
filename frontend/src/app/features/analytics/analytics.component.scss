@@ -183,6 +183,15 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: theme.$spacing-lg;
+  overflow: visible;
+
+  // Ensure chart cards don't clip their content
+  app-distance-chart,
+  app-alerts-chart,
+  app-trucks-ranking {
+    overflow: visible;
+    min-height: 350px;
+  }
 
   // Full width for ranking chart on desktop
   app-trucks-ranking {

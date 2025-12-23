@@ -19,6 +19,26 @@ DOCKER_DIR="$PROJECT_ROOT/infra/docker"
 BUILD_BACKEND=false
 SHOW_LOGS=false
 
+# ============================================
+# Environment variables for local development
+# ============================================
+# Spring profile (dev = readable logs, debug enabled)
+export SPRING_PROFILES_ACTIVE="${SPRING_PROFILES_ACTIVE:-dev}"
+
+# Database credentials (match docker-compose)
+export DB_HOST="${DB_HOST:-localhost}"
+export DB_PORT="${DB_PORT:-5432}"
+export DB_NAME="${DB_NAME:-trucktrack}"
+export DB_USERNAME="${DB_USERNAME:-trucktrack}"
+export DB_PASSWORD="${DB_PASSWORD:-changeme}"
+
+# JWT Secret for auth-service (must be 64+ bytes for HS512)
+# This is a development-only key - NEVER use in production!
+export JWT_SECRET="${JWT_SECRET:-TruckTrackLocalDevJwt2024KeyForDevelopmentOnlyDoNotUseThisInProdEnv1234567890ABCDEFGHIJ}"
+
+# Java configuration
+export JAVA_HOME="${JAVA_HOME:-$(/usr/libexec/java_home -v 17 2>/dev/null || echo /usr/lib/jvm/java-17)}"
+
 # Parse arguments
 for arg in "$@"; do
   case $arg in
@@ -45,6 +65,12 @@ done
 echo -e "${BLUE}╔════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║   Truck Track - Starting All Services     ║${NC}"
 echo -e "${BLUE}╚════════════════════════════════════════════╝${NC}"
+echo ""
+echo -e "${BLUE}Environment Configuration:${NC}"
+echo -e "  Profile:     ${GREEN}$SPRING_PROFILES_ACTIVE${NC}"
+echo -e "  Database:    ${GREEN}$DB_USERNAME@$DB_HOST:$DB_PORT/$DB_NAME${NC}"
+echo -e "  JWT Secret:  ${GREEN}[${#JWT_SECRET} chars]${NC}"
+echo -e "  JAVA_HOME:   ${GREEN}$JAVA_HOME${NC}"
 echo ""
 
 # Function to check if a port is in use

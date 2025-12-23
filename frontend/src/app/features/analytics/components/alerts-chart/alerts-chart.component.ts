@@ -2,7 +2,7 @@ import { Component, Input, ChangeDetectionStrategy, computed } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { NgxChartsModule, Color, ScaleType, LegendPosition } from '@swimlane/ngx-charts';
+import { NgxChartsModule, Color, ScaleType } from '@swimlane/ngx-charts';
 
 import { AlertTypeCount } from '../../../../core/models/analytics.model';
 
@@ -23,8 +23,6 @@ export class AlertsChartComponent {
   @Input() data: AlertTypeCount[] = [];
   @Input() isLoading = false;
   @Input() chartWidth = 400;
-
-  readonly legendPosition = LegendPosition.Below;
 
   readonly colorScheme: Color = {
     name: 'alerts',

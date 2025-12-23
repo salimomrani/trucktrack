@@ -6,6 +6,7 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -28,14 +29,19 @@ public class AuthService {
     private static final int MIN_SECRET_LENGTH = 64; // 512 bits for HS512
     private static final List<String> INSECURE_SECRETS = List.of(
             "changeme",
-            "secret",
             "password",
             "default",
             "test"
     );
 
+    private final Environment environment;
+
     @Value("${jwt.secret:}")
     private String secret;
+
+    public AuthService(Environment environment) {
+        this.environment = environment;
+    }
 
     @Value("${jwt.access-expiration:3600000}") // 1 hour default
     private Long accessExpiration;
@@ -48,10 +54,19 @@ public class AuthService {
     /**
      * Validates JWT configuration on startup.
      * Fails fast if secret is missing, too short, or obviously insecure.
+     * In dev/local profiles, insecure pattern checks are skipped for convenience.
      */
     @PostConstruct
     public void init() {
         log.info("Initializing JWT authentication service...");
+
+        // Check active profiles
+        List<String> activeProfiles = List.of(environment.getActiveProfiles());
+        boolean isDevMode = activeProfiles.contains("dev") || activeProfiles.contains("local");
+
+        if (isDevMode) {
+            log.warn("Running in development mode - JWT security checks relaxed");
+        }
 
         // Check if secret is set
         if (secret == null || secret.isBlank()) {
@@ -61,14 +76,16 @@ public class AuthService {
             );
         }
 
-        // Check for obviously insecure secrets
-        String lowerSecret = secret.toLowerCase();
-        for (String insecure : INSECURE_SECRETS) {
-            if (lowerSecret.contains(insecure)) {
-                throw new IllegalStateException(
-                        "JWT_SECRET contains insecure pattern '" + insecure + "'. " +
-                        "Use a cryptographically random secret in production!"
-                );
+        // Check for obviously insecure secrets (skip in dev/local mode)
+        if (!isDevMode) {
+            String lowerSecret = secret.toLowerCase();
+            for (String insecure : INSECURE_SECRETS) {
+                if (lowerSecret.contains(insecure)) {
+                    throw new IllegalStateException(
+                            "JWT_SECRET contains insecure pattern '" + insecure + "'. " +
+                            "Use a cryptographically random secret in production!"
+                    );
+                }
             }
         }
 
