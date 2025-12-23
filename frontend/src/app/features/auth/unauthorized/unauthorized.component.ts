@@ -9,11 +9,10 @@ import { MatIconModule } from '@angular/material/icon';
  * UnauthorizedComponent - Displayed when user tries to access a resource they don't have permission for
  */
 @Component({
-  selector: 'app-unauthorized',
-  standalone: true,
-  imports: [CommonModule, RouterModule, MatCardModule, MatButtonModule, MatIconModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
+    selector: 'app-unauthorized',
+    imports: [CommonModule, RouterModule, MatCardModule, MatButtonModule, MatIconModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `
     <div class="unauthorized-container">
       <mat-card class="unauthorized-card">
         <mat-card-content>
@@ -28,7 +27,7 @@ import { MatIconModule } from '@angular/material/icon';
       </mat-card>
     </div>
   `,
-  styles: [`
+    styles: [`
     .unauthorized-container {
       display: flex;
       justify-content: center;

@@ -42,19 +42,18 @@ interface AuditLogPage {
  * Feature: 002-admin-panel
  */
 @Component({
-  selector: 'app-audit-log',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatTableModule,
-    MatIconModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatChipsModule,
-    MatExpansionModule,
-    MatTooltipModule
-  ],
-  template: `
+    selector: 'app-audit-log',
+    imports: [
+        CommonModule,
+        MatTableModule,
+        MatIconModule,
+        MatButtonModule,
+        MatProgressSpinnerModule,
+        MatChipsModule,
+        MatExpansionModule,
+        MatTooltipModule
+    ],
+    template: `
     <div class="audit-log-container">
       <h3 class="section-title">
         <mat-icon>history</mat-icon>
@@ -118,7 +117,7 @@ interface AuditLogPage {
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .audit-log-container {
       padding: 16px;
       background: #fafafa;

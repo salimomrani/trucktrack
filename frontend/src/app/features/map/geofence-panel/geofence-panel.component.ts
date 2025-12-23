@@ -22,24 +22,23 @@ import { Geofence, GeofenceZoneType } from '../../../models/geofence.model';
  * Provides UI for creating, editing, and managing geofences on the map
  */
 @Component({
-  selector: 'app-geofence-panel',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatListModule,
-    MatExpansionModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule
-  ],
-  templateUrl: './geofence-panel.component.html',
-  styleUrls: ['./geofence-panel.component.scss']
+    selector: 'app-geofence-panel',
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatButtonModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatListModule,
+        MatExpansionModule,
+        MatSnackBarModule,
+        MatProgressSpinnerModule,
+        MatTooltipModule
+    ],
+    templateUrl: './geofence-panel.component.html',
+    styleUrls: ['./geofence-panel.component.scss']
 })
 export class GeofencePanelComponent implements OnInit, OnDestroy {
   /** Leaflet map instance (required) */

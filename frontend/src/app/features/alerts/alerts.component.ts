@@ -40,30 +40,29 @@ interface AlertStats {
  * T159-T169: Alert and notification management
  */
 @Component({
-  selector: 'app-alerts',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatCardModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatChipsModule,
-    MatBadgeModule,
-    MatTooltipModule,
-    MatDividerModule,
-    MatSnackBarModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatSlideToggleModule,
-    MatExpansionModule
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './alerts.component.html',
-  styleUrls: ['./alerts.component.scss']
+    selector: 'app-alerts',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatCardModule,
+        MatTableModule,
+        MatButtonModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        MatChipsModule,
+        MatBadgeModule,
+        MatTooltipModule,
+        MatDividerModule,
+        MatSnackBarModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatSlideToggleModule,
+        MatExpansionModule
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    templateUrl: './alerts.component.html',
+    styleUrls: ['./alerts.component.scss']
 })
 export class AlertsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('notificationList') notificationListRef!: ElementRef<HTMLElement>;

@@ -25,26 +25,25 @@ import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/breadcrumb/bre
  * Feature: 002-admin-panel
  */
 @Component({
-  selector: 'app-user-form',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatCheckboxModule,
-    MatChipsModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatDividerModule,
-    AuditLogComponent,
-    BreadcrumbComponent
-  ],
-  template: `
+    selector: 'app-user-form',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatCheckboxModule,
+        MatChipsModule,
+        MatSnackBarModule,
+        MatProgressSpinnerModule,
+        MatDividerModule,
+        AuditLogComponent,
+        BreadcrumbComponent
+    ],
+    template: `
     <div class="user-form-container">
       <!-- Breadcrumb -->
       <app-breadcrumb [items]="breadcrumbItems()"></app-breadcrumb>
@@ -187,7 +186,7 @@ import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/breadcrumb/bre
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .user-form-container {
       padding: 24px;
       max-width: 900px;

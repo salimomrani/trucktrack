@@ -18,20 +18,19 @@ import { StoreFacade } from '../../../store/store.facade';
  * - Clear button
  */
 @Component({
-  selector: 'app-search-bar',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    MatButtonModule,
-    MatAutocompleteModule
-  ],
-  templateUrl: './search-bar.component.html',
-  styleUrl: './search-bar.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-search-bar',
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatIconModule,
+        MatButtonModule,
+        MatAutocompleteModule
+    ],
+    templateUrl: './search-bar.component.html',
+    styleUrl: './search-bar.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SearchBarComponent {
   private readonly facade = inject(StoreFacade);

@@ -20,23 +20,22 @@ import { GroupService, GroupDetailResponse, CreateGroupRequest, UpdateGroupReque
  * Feature: 002-admin-panel
  */
 @Component({
-  selector: 'app-group-form',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatProgressSpinnerModule,
-    MatDividerModule,
-    MatSnackBarModule,
-    MatChipsModule,
-    BreadcrumbComponent
-  ],
-  template: `
+    selector: 'app-group-form',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatProgressSpinnerModule,
+        MatDividerModule,
+        MatSnackBarModule,
+        MatChipsModule,
+        BreadcrumbComponent
+    ],
+    template: `
     <div class="group-form-container">
       <!-- Breadcrumb -->
       <app-breadcrumb [items]="breadcrumbItems()"></app-breadcrumb>
@@ -154,7 +153,7 @@ import { GroupService, GroupDetailResponse, CreateGroupRequest, UpdateGroupReque
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .group-form-container {
       padding: 24px;
       max-width: 900px;

@@ -18,11 +18,10 @@ import { DEFAULT_NAV_CONFIG } from './core/models/navigation.model';
  * 003-nav-optimization: Mobile sidenav integration
  */
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet, HeaderComponent, SidenavComponent, MatSnackBarModule, MatSidenavModule],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+    selector: 'app-root',
+    imports: [RouterOutlet, HeaderComponent, SidenavComponent, MatSnackBarModule, MatSidenavModule],
+    templateUrl: './app.component.html',
+    styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'frontend';

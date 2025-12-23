@@ -27,27 +27,26 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
  * Feature: 002-admin-panel
  */
 @Component({
-  selector: 'app-user-list',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatChipsModule,
-    MatMenuModule,
-    MatDialogModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
-    DataTableComponent,
-    BreadcrumbComponent
-  ],
-  template: `
+    selector: 'app-user-list',
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatChipsModule,
+        MatMenuModule,
+        MatDialogModule,
+        MatSnackBarModule,
+        MatProgressSpinnerModule,
+        MatTooltipModule,
+        DataTableComponent,
+        BreadcrumbComponent
+    ],
+    template: `
     <div class="user-list-container">
       <!-- Breadcrumb -->
       <app-breadcrumb [items]="[{ label: 'Users', icon: 'people' }]"></app-breadcrumb>
@@ -149,7 +148,7 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
       </mat-card>
     </div>
   `,
-  styles: [`
+    styles: [`
     .user-list-container {
       padding: 24px;
       max-width: 1400px;

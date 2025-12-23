@@ -24,24 +24,23 @@ import { UserRole } from '../../models/auth.model';
  * - Integrated with NgRx store
  */
 @Component({
-  selector: 'app-header',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    RouterLinkActive,
-    MatToolbarModule,
-    MatButtonModule,
-    MatIconModule,
-    MatMenuModule,
-    MatDividerModule,
-    MatBadgeModule,
-    MatTooltipModule,
-    SearchBarComponent
-  ],
-  templateUrl: './header.component.html',
-  styleUrl: './header.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-header',
+    imports: [
+        CommonModule,
+        RouterLink,
+        RouterLinkActive,
+        MatToolbarModule,
+        MatButtonModule,
+        MatIconModule,
+        MatMenuModule,
+        MatDividerModule,
+        MatBadgeModule,
+        MatTooltipModule,
+        SearchBarComponent
+    ],
+    templateUrl: './header.component.html',
+    styleUrl: './header.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   private readonly facade = inject(StoreFacade);

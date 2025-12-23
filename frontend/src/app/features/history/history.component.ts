@@ -32,27 +32,26 @@ interface TruckHistory {
  * Angular 17+ with signals, OnPush, Material UI
  */
 @Component({
-  selector: 'app-history',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatCardModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatInputModule,
-    MatNativeDateModule,
-    MatChipsModule,
-    MatSnackBarModule,
-    FormsModule
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './history.component.html',
-  styleUrls: ['./history.component.scss']
+    selector: 'app-history',
+    imports: [
+        CommonModule,
+        MatCardModule,
+        MatTableModule,
+        MatButtonModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatDatepickerModule,
+        MatInputModule,
+        MatNativeDateModule,
+        MatChipsModule,
+        MatSnackBarModule,
+        FormsModule
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    templateUrl: './history.component.html',
+    styleUrls: ['./history.component.scss']
 })
 export class HistoryComponent implements OnInit {
   private readonly facade = inject(StoreFacade);

@@ -23,25 +23,24 @@ import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/breadcrumb/bre
  * Feature: 002-admin-panel
  */
 @Component({
-  selector: 'app-truck-form',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatChipsModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatDividerModule,
-    AuditLogComponent,
-    BreadcrumbComponent
-  ],
-  template: `
+    selector: 'app-truck-form',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatChipsModule,
+        MatSnackBarModule,
+        MatProgressSpinnerModule,
+        MatDividerModule,
+        AuditLogComponent,
+        BreadcrumbComponent
+    ],
+    template: `
     <div class="truck-form-container">
       <!-- Breadcrumb -->
       <app-breadcrumb [items]="breadcrumbItems()"></app-breadcrumb>
@@ -192,7 +191,7 @@ import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/breadcrumb/bre
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .truck-form-container {
       padding: 24px;
       max-width: 900px;

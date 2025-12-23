@@ -41,23 +41,22 @@ export interface PageInfo {
  * Feature: 002-admin-panel
  */
 @Component({
-  selector: 'app-data-table',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
-    MatCheckboxModule
-  ],
-  template: `
+    selector: 'app-data-table',
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatTableModule,
+        MatPaginatorModule,
+        MatSortModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatButtonModule,
+        MatProgressSpinnerModule,
+        MatTooltipModule,
+        MatCheckboxModule
+    ],
+    template: `
     <div class="data-table-container">
       <!-- Search bar -->
       @if (searchable()) {
@@ -190,7 +189,7 @@ export interface PageInfo {
       </mat-paginator>
     </div>
   `,
-  styles: [`
+    styles: [`
     .data-table-container {
       position: relative;
       background: white;

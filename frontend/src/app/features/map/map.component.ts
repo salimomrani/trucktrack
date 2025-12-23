@@ -26,12 +26,11 @@ import { GeofencePanelComponent } from './geofence-panel/geofence-panel.componen
  * Migrated to use NgRx StoreFacade with signals
  */
 @Component({
-  selector: 'app-map',
-  standalone: true,
-  imports: [CommonModule, MatProgressSpinnerModule, MatIconModule, MatSnackBarModule, MatButtonModule, SearchBarComponent, FilterPanelComponent, GeofencePanelComponent],
-  templateUrl: './map.component.html',
-  styleUrls: ['./map.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-map',
+    imports: [CommonModule, MatProgressSpinnerModule, MatIconModule, MatSnackBarModule, MatButtonModule, SearchBarComponent, FilterPanelComponent, GeofencePanelComponent],
+    templateUrl: './map.component.html',
+    styleUrls: ['./map.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MapComponent implements OnInit {
   // Inject dependencies using inject()

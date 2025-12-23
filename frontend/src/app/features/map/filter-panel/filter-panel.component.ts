@@ -18,19 +18,18 @@ import { StoreFacade } from '../../../store/store.facade';
  * - Keyboard accessible (Space to toggle)
  */
 @Component({
-  selector: 'app-filter-panel',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatCheckboxModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule
-  ],
-  templateUrl: './filter-panel.component.html',
-  styleUrl: './filter-panel.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-filter-panel',
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatCheckboxModule,
+        MatButtonModule,
+        MatIconModule,
+        MatTooltipModule
+    ],
+    templateUrl: './filter-panel.component.html',
+    styleUrl: './filter-panel.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FilterPanelComponent {
   private readonly facade = inject(StoreFacade);

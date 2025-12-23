@@ -19,22 +19,21 @@ import { LoginRequest } from '../../../core/models/auth.model';
  * Migrated to use NgRx StoreFacade with Angular 17+ signals
  */
 @Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatCardModule,
-    MatInputModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule
-  ],
-  templateUrl: './login.component.html',
-  styleUrl: './login.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-login',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatCardModule,
+        MatInputModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        MatSnackBarModule
+    ],
+    templateUrl: './login.component.html',
+    styleUrl: './login.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);

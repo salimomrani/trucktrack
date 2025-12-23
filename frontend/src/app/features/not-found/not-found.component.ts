@@ -9,11 +9,10 @@ import { MatIconModule } from '@angular/material/icon';
  * NotFoundComponent - 404 page displayed when route doesn't exist
  */
 @Component({
-  selector: 'app-not-found',
-  standalone: true,
-  imports: [CommonModule, RouterModule, MatCardModule, MatButtonModule, MatIconModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
+    selector: 'app-not-found',
+    imports: [CommonModule, RouterModule, MatCardModule, MatButtonModule, MatIconModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `
     <div class="not-found-container">
       <mat-card class="not-found-card">
         <mat-card-content>
@@ -27,7 +26,7 @@ import { MatIconModule } from '@angular/material/icon';
       </mat-card>
     </div>
   `,
-  styles: [`
+    styles: [`
     .not-found-container {
       display: flex;
       justify-content: center;

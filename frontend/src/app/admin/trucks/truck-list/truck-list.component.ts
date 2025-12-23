@@ -27,27 +27,26 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
  * Feature: 002-admin-panel
  */
 @Component({
-  selector: 'app-truck-list',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatChipsModule,
-    MatMenuModule,
-    MatDialogModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
-    DataTableComponent,
-    BreadcrumbComponent
-  ],
-  template: `
+    selector: 'app-truck-list',
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatChipsModule,
+        MatMenuModule,
+        MatDialogModule,
+        MatSnackBarModule,
+        MatProgressSpinnerModule,
+        MatTooltipModule,
+        DataTableComponent,
+        BreadcrumbComponent
+    ],
+    template: `
     <div class="truck-list-container">
       <!-- Breadcrumb -->
       <app-breadcrumb [items]="[{ label: 'Trucks', icon: 'local_shipping' }]"></app-breadcrumb>
@@ -136,7 +135,7 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
       </mat-card>
     </div>
   `,
-  styles: [`
+    styles: [`
     .truck-list-container {
       padding: 24px;
       max-width: 1400px;

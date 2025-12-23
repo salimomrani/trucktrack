@@ -14,10 +14,9 @@ export interface BreadcrumbItem {
  * Feature: 002-admin-panel
  */
 @Component({
-  selector: 'app-breadcrumb',
-  standalone: true,
-  imports: [CommonModule, RouterModule, MatIconModule],
-  template: `
+    selector: 'app-breadcrumb',
+    imports: [CommonModule, RouterModule, MatIconModule],
+    template: `
     <nav class="breadcrumb" aria-label="Breadcrumb">
       <ol class="breadcrumb-list">
         <!-- Dashboard link (always first) -->
@@ -52,7 +51,7 @@ export interface BreadcrumbItem {
       </ol>
     </nav>
   `,
-  styles: [`
+    styles: [`
     .breadcrumb {
       padding: 12px 0;
       margin-bottom: 16px;
