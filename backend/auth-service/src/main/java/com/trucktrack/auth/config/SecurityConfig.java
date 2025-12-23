@@ -17,7 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class SecurityConfig extends GatewaySecurityConfig {
 
     /**
-     * Password encoder using BCrypt
+     * Password encoder using BCrypt (cost factor 12)
      */
     @Bean
     public PasswordEncoder passwordEncoder() {

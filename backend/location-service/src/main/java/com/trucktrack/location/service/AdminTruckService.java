@@ -39,6 +39,19 @@ public class AdminTruckService {
     private final TruckGroupAssignmentRepository assignmentRepository;
     private final AuditService auditService;
 
+    // Map entity field names to database column names for native query sorting
+    private static final Map<String, String> SORT_FIELD_MAPPING = Map.of(
+        "truckId", "truck_id",
+        "licensePlate", "license_plate",
+        "driverName", "driver_name",
+        "driverPhone", "driver_phone",
+        "vehicleType", "vehicle_type",
+        "status", "status",
+        "createdAt", "created_at",
+        "updatedAt", "updated_at",
+        "lastUpdate", "last_update"
+    );
+
     /**
      * Get paginated list of trucks with search and filters.
      */
@@ -52,10 +65,14 @@ public class AdminTruckService {
             String sortBy,
             String sortDir
     ) {
-        Sort sort = Sort.by(sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
+        // Map entity field name to database column name for native query
+        String dbSortColumn = SORT_FIELD_MAPPING.getOrDefault(sortBy, "created_at");
+        Sort sort = Sort.by(sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, dbSortColumn);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Truck> trucks = truckRepository.searchWithFilters(search, status, groupId, pageable);
+        // Convert status enum to string for native query
+        String statusValue = status != null ? status.name() : null;
+        Page<Truck> trucks = truckRepository.searchWithFilters(search, statusValue, groupId, pageable);
 
         List<TruckAdminResponse> content = trucks.getContent().stream()
             .map(this::enrichWithGroups)

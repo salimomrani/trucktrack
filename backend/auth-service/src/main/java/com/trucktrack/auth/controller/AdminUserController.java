@@ -5,6 +5,7 @@ import com.trucktrack.auth.dto.UpdateUserRequest;
 import com.trucktrack.auth.dto.UserAdminResponse;
 import com.trucktrack.auth.model.UserRole;
 import com.trucktrack.auth.service.AdminUserService;
+import com.trucktrack.auth.service.AuthService;
 import com.trucktrack.common.dto.PageResponse;
 import com.trucktrack.common.security.GatewayUserPrincipal;
 import jakarta.validation.Valid;
@@ -35,9 +36,11 @@ public class AdminUserController {
     private static final Logger log = LoggerFactory.getLogger(AdminUserController.class);
 
     private final AdminUserService adminUserService;
+    private final AuthService authService;
 
-    public AdminUserController(AdminUserService adminUserService) {
+    public AdminUserController(AdminUserService adminUserService, AuthService authService) {
         this.adminUserService = adminUserService;
+        this.authService = authService;
     }
 
     /**
@@ -198,5 +201,45 @@ public class AdminUserController {
 
         List<UUID> updatedGroups = adminUserService.updateUserGroups(id, groupIds);
         return ResponseEntity.ok(updatedGroups);
+    }
+
+    /**
+     * Generate a service account JWT for inter-service communication.
+     * This token allows services to authenticate when calling other services via the gateway.
+     *
+     * POST /admin/users/service-token
+     *
+     * @param serviceName Name of the service (e.g., "notification-service")
+     * @param expirationDays Number of days until token expires (default: 365, max: 3650)
+     * @return JWT token for the service account
+     */
+    @PostMapping("/service-token")
+    public ResponseEntity<Map<String, Object>> generateServiceAccountToken(
+            @RequestParam String serviceName,
+            @RequestParam(defaultValue = "365") int expirationDays,
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
+
+        log.info("POST /admin/users/service-token - service: {}, days: {}, by: {}",
+                serviceName, expirationDays, principal.username());
+
+        // Validate input
+        if (serviceName == null || serviceName.isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "INVALID_INPUT", "message", "serviceName is required"));
+        }
+
+        if (expirationDays < 1 || expirationDays > 3650) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "INVALID_INPUT", "message", "expirationDays must be between 1 and 3650"));
+        }
+
+        String token = authService.generateServiceAccountToken(serviceName, expirationDays);
+
+        return ResponseEntity.ok(Map.of(
+                "token", token,
+                "serviceName", serviceName,
+                "expirationDays", expirationDays,
+                "message", "Store this token securely. Set it as SERVICE_ACCOUNT_JWT environment variable."
+        ));
     }
 }

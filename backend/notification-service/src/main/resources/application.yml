@@ -44,6 +44,15 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
+# Service-to-Service Communication via API Gateway
+# All inter-service calls go through the gateway for unified auth
+gateway:
+  url: ${GATEWAY_URL:http://localhost:8000}
+  # Service account JWT for inter-service calls
+  # Generate a long-lived token for the service account user
+  service-token: ${SERVICE_ACCOUNT_JWT:}
+  timeout: 5000
+
 server:
   port: 8082
 

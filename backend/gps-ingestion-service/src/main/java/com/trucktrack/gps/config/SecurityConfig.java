@@ -7,7 +7,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 
 /**
  * Security configuration for GPS Ingestion Service.
- * Extends shared GatewaySecurityConfig for gateway authentication.
+ * Uses shared GatewaySecurityConfig for gateway authentication.
  */
 @Configuration
 @EnableWebSecurity

@@ -1,5 +1,6 @@
 package com.trucktrack.location.controller;
 
+import com.trucktrack.common.security.GatewayUserPrincipal;
 import com.trucktrack.location.dto.GeofenceDTO;
 import com.trucktrack.location.model.GeofenceZoneType;
 import com.trucktrack.location.service.GeofenceService;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +20,8 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * REST Controller for Geofence CRUD operations
- * T152-T153: Create GeofenceController (CRUD)
+ * REST Controller for Geofence CRUD operations.
+ * Uses @AuthenticationPrincipal for user context from gateway.
  */
 @RestController
 @RequestMapping("/location/v1/geofences")
@@ -27,23 +29,18 @@ import java.util.UUID;
 @Slf4j
 public class GeofenceController {
 
-    private static final String HEADER_USER_ID = "X-User-Id";
-    private static final String HEADER_USERNAME = "X-Username";
-
     private final GeofenceService geofenceService;
 
     /**
      * Create a new geofence
-     * POST /api/geofences
      */
     @PostMapping
     public ResponseEntity<GeofenceDTO> createGeofence(
-            @RequestHeader(value = HEADER_USER_ID, required = false) String userIdHeader,
-            @RequestHeader(value = HEADER_USERNAME, required = false) String username,
+            @AuthenticationPrincipal GatewayUserPrincipal principal,
             @Valid @RequestBody GeofenceDTO dto) {
 
-        UUID userId = parseUserId(userIdHeader);
-        log.info("User {} ({}) creating geofence '{}'", username, userId, dto.getName());
+        UUID userId = getUserId(principal);
+        log.info("User {} ({}) creating geofence '{}'", getUsername(principal), userId, dto.getName());
 
         GeofenceDTO created = geofenceService.createGeofence(dto, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
@@ -51,17 +48,15 @@ public class GeofenceController {
 
     /**
      * Update an existing geofence
-     * PUT /api/geofences/{id}
      */
     @PutMapping("/{id}")
     public ResponseEntity<GeofenceDTO> updateGeofence(
             @PathVariable UUID id,
-            @RequestHeader(value = HEADER_USER_ID, required = false) String userIdHeader,
-            @RequestHeader(value = HEADER_USERNAME, required = false) String username,
+            @AuthenticationPrincipal GatewayUserPrincipal principal,
             @Valid @RequestBody GeofenceDTO dto) {
 
-        UUID userId = parseUserId(userIdHeader);
-        log.info("User {} ({}) updating geofence {}", username, userId, id);
+        UUID userId = getUserId(principal);
+        log.info("User {} ({}) updating geofence {}", getUsername(principal), userId, id);
 
         GeofenceDTO updated = geofenceService.updateGeofence(id, dto, userId);
         return ResponseEntity.ok(updated);
@@ -69,16 +64,14 @@ public class GeofenceController {
 
     /**
      * Delete a geofence
-     * DELETE /api/geofences/{id}
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteGeofence(
             @PathVariable UUID id,
-            @RequestHeader(value = HEADER_USER_ID, required = false) String userIdHeader,
-            @RequestHeader(value = HEADER_USERNAME, required = false) String username) {
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
 
-        UUID userId = parseUserId(userIdHeader);
-        log.info("User {} ({}) deleting geofence {}", username, userId, id);
+        UUID userId = getUserId(principal);
+        log.info("User {} ({}) deleting geofence {}", getUsername(principal), userId, id);
 
         geofenceService.deleteGeofence(id, userId);
         return ResponseEntity.noContent().build();
@@ -86,7 +79,6 @@ public class GeofenceController {
 
     /**
      * Get a geofence by ID
-     * GET /api/geofences/{id}
      */
     @GetMapping("/{id}")
     public ResponseEntity<GeofenceDTO> getGeofence(@PathVariable UUID id) {
@@ -96,7 +88,6 @@ public class GeofenceController {
 
     /**
      * Get all active geofences
-     * GET /api/geofences
      */
     @GetMapping
     public ResponseEntity<List<GeofenceDTO>> getAllActiveGeofences() {
@@ -106,7 +97,6 @@ public class GeofenceController {
 
     /**
      * Get geofences by zone type
-     * GET /api/geofences/type/{zoneType}
      */
     @GetMapping("/type/{zoneType}")
     public ResponseEntity<List<GeofenceDTO>> getGeofencesByType(
@@ -117,21 +107,19 @@ public class GeofenceController {
 
     /**
      * Get geofences created by current user
-     * GET /api/geofences/my
      */
     @GetMapping("/my")
     public ResponseEntity<Page<GeofenceDTO>> getMyGeofences(
-            @RequestHeader(value = HEADER_USER_ID, required = false) String userIdHeader,
+            @AuthenticationPrincipal GatewayUserPrincipal principal,
             @PageableDefault(size = 20) Pageable pageable) {
 
-        UUID userId = parseUserId(userIdHeader);
+        UUID userId = getUserId(principal);
         Page<GeofenceDTO> geofences = geofenceService.getGeofencesByUser(userId, pageable);
         return ResponseEntity.ok(geofences);
     }
 
     /**
      * Search geofences by name
-     * GET /api/geofences/search?name=...
      */
     @GetMapping("/search")
     public ResponseEntity<Page<GeofenceDTO>> searchGeofences(
@@ -143,7 +131,6 @@ public class GeofenceController {
 
     /**
      * Get geofences in bounding box (for map viewport)
-     * GET /api/geofences/bounds?minLon=...&minLat=...&maxLon=...&maxLat=...
      */
     @GetMapping("/bounds")
     public ResponseEntity<List<GeofenceDTO>> getGeofencesInBounds(
@@ -158,7 +145,6 @@ public class GeofenceController {
 
     /**
      * Check if a point is inside any geofence
-     * GET /api/geofences/check?lat=...&lon=...
      */
     @GetMapping("/check")
     public ResponseEntity<Map<String, Object>> checkPointInGeofences(
@@ -176,7 +162,6 @@ public class GeofenceController {
 
     /**
      * Check if a point is inside a specific geofence
-     * GET /api/geofences/{id}/check?lat=...&lon=...
      */
     @GetMapping("/{id}/check")
     public ResponseEntity<Map<String, Object>> checkPointInGeofence(
@@ -194,7 +179,6 @@ public class GeofenceController {
 
     /**
      * Find restricted zones within distance of a point
-     * GET /api/geofences/restricted/nearby?lat=...&lon=...&distance=...
      */
     @GetMapping("/restricted/nearby")
     public ResponseEntity<List<GeofenceDTO>> findRestrictedZonesNearby(
@@ -207,17 +191,24 @@ public class GeofenceController {
     }
 
     /**
-     * Parse user ID from header, falling back to a default for testing
+     * Extract user ID from principal with fallback for unauthenticated requests.
      */
-    private UUID parseUserId(String userIdHeader) {
-        if (userIdHeader != null && !userIdHeader.isBlank()) {
+    private UUID getUserId(GatewayUserPrincipal principal) {
+        if (principal != null && principal.userId() != null) {
             try {
-                return UUID.fromString(userIdHeader);
+                return UUID.fromString(principal.userId());
             } catch (IllegalArgumentException e) {
-                log.warn("Invalid user ID format: {}", userIdHeader);
+                log.warn("Invalid user ID format: {}", principal.userId());
             }
         }
-        // Default user ID for testing (should not happen in production)
+        // Default for unauthenticated/system requests
         return UUID.fromString("00000000-0000-0000-0000-000000000000");
+    }
+
+    /**
+     * Get username from principal with fallback.
+     */
+    private String getUsername(GatewayUserPrincipal principal) {
+        return principal != null ? principal.username() : "anonymous";
     }
 }

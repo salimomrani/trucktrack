@@ -1,8 +1,10 @@
 package com.trucktrack.notification.client;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -12,8 +14,12 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Client for calling location-service APIs
- * T150: Implement geofence evaluation in AlertRuleEngine
+ * Client for calling location-service APIs via API Gateway.
+ *
+ * All inter-service calls go through the gateway for:
+ * - Unified authentication (JWT)
+ * - Centralized logging and monitoring
+ * - Consistent security model
  */
 @Slf4j
 @Component
@@ -22,14 +28,39 @@ public class LocationServiceClient {
 
     private final WebClient.Builder webClientBuilder;
 
-    @Value("${services.location.url:http://localhost:8081}")
-    private String locationServiceUrl;
+    @Value("${gateway.url:http://localhost:8000}")
+    private String gatewayUrl;
 
-    @Value("${services.location.timeout:5000}")
+    @Value("${gateway.service-token:}")
+    private String serviceToken;
+
+    @Value("${gateway.timeout:5000}")
     private int timeoutMillis;
 
+    private WebClient webClient;
+
+    @PostConstruct
+    public void init() {
+        if (serviceToken == null || serviceToken.isBlank()) {
+            log.warn("SERVICE_ACCOUNT_JWT not configured - inter-service calls will fail authentication");
+        } else {
+            log.info("LocationServiceClient initialized with gateway: {}", gatewayUrl);
+        }
+
+        // Build WebClient with default Authorization header
+        WebClient.Builder builder = webClientBuilder
+                .baseUrl(gatewayUrl)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+
+        if (serviceToken != null && !serviceToken.isBlank()) {
+            builder.defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + serviceToken);
+        }
+
+        this.webClient = builder.build();
+    }
+
     /**
-     * Check if a point is inside a specific geofence
+     * Check if a point is inside a specific geofence.
      *
      * @param geofenceId Geofence ID to check
      * @param latitude   GPS latitude
@@ -38,9 +69,9 @@ public class LocationServiceClient {
      */
     public boolean isPointInsideGeofence(UUID geofenceId, double latitude, double longitude) {
         try {
-            Map<String, Object> result = webClientBuilder.build()
+            Map<String, Object> result = webClient
                     .get()
-                    .uri(locationServiceUrl + "/location/v1/geofences/{id}/check?lat={lat}&lon={lon}",
+                    .uri("/location/v1/geofences/{id}/check?lat={lat}&lon={lon}",
                             geofenceId, latitude, longitude)
                     .retrieve()
                     .bodyToMono(Map.class)
@@ -62,7 +93,7 @@ public class LocationServiceClient {
     }
 
     /**
-     * Get distance from a point to a geofence boundary
+     * Get distance from a point to a geofence boundary.
      *
      * @param geofenceId Geofence ID
      * @param latitude   GPS latitude
@@ -71,9 +102,9 @@ public class LocationServiceClient {
      */
     public Double getDistanceToGeofence(UUID geofenceId, double latitude, double longitude) {
         try {
-            Map<String, Object> result = webClientBuilder.build()
+            Map<String, Object> result = webClient
                     .get()
-                    .uri(locationServiceUrl + "/location/v1/geofences/{id}/check?lat={lat}&lon={lon}",
+                    .uri("/location/v1/geofences/{id}/check?lat={lat}&lon={lon}",
                             geofenceId, latitude, longitude)
                     .retrieve()
                     .bodyToMono(Map.class)

@@ -5,105 +5,145 @@ import com.trucktrack.auth.dto.LoginResponse;
 import com.trucktrack.auth.dto.RefreshTokenRequest;
 import com.trucktrack.auth.dto.RefreshTokenResponse;
 import com.trucktrack.auth.dto.UserResponse;
+import com.trucktrack.auth.model.User;
+import com.trucktrack.auth.repository.UserGroupAssignmentRepository;
+import com.trucktrack.auth.repository.UserRepository;
 import com.trucktrack.auth.service.AuthService;
+import com.trucktrack.auth.service.LoginRateLimiter;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 /**
- * Authentication controller for login/register endpoints
- * Simplified version for testing - validates only the test admin user
+ * Authentication controller for login/register endpoints.
+ * P0 Fixes:
+ * - Real database authentication instead of hardcoded credentials
+ * - Rate limiting to prevent brute-force attacks
  */
+@Slf4j
 @RestController
 @RequestMapping("/auth/v1")
+@RequiredArgsConstructor
 public class AuthController {
 
-    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
+    private final AuthService authService;
+    private final UserRepository userRepository;
+    private final UserGroupAssignmentRepository userGroupAssignmentRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final LoginRateLimiter rateLimiter;
 
-    @Autowired
-    private AuthService authService;
-
+    /**
+     * Authenticate user and return JWT tokens.
+     * P0 Fixes:
+     * - Validates against database with BCrypt password verification
+     * - Rate limiting to prevent brute-force attacks
+     */
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
-        log.info("Login attempt for user: {}", loginRequest.getEmail());
+    public ResponseEntity<?> login(
+            @Valid @RequestBody LoginRequest loginRequest,
+            HttpServletRequest request) {
 
-        // For testing: validate against seed data credentials
-        // and use the actual user ID from the database
-        if ("admin@trucktrack.com".equals(loginRequest.getEmail()) &&
-            "AdminPass123!".equals(loginRequest.getPassword())) {
+        String clientIp = getClientIp(request);
+        String email = loginRequest.getEmail();
 
-            // Use the actual admin user ID from the database (from seed data)
-            String userId = "00000000-0000-0000-0000-000000000002";
-            String role = "ADMIN";
+        log.info("Login attempt for user: {} from IP: {}", email, maskIp(clientIp));
 
-            // Generate JWT access token
-            String token = authService.generateToken(
-                    loginRequest.getEmail(),
-                    userId,
-                    role
-            );
-
-            // Generate refresh token
-            String refreshToken = authService.generateRefreshToken(
-                    loginRequest.getEmail(),
-                    userId,
-                    role
-            );
-
-            log.info("User logged in successfully: {}", loginRequest.getEmail());
-
-            LoginResponse response = new LoginResponse();
-            response.setToken(token);
-            response.setRefreshToken(refreshToken);
-            response.setType("Bearer");
-            response.setEmail(loginRequest.getEmail());
-            response.setRole(role);
-            response.setExpiresIn(authService.getExpirationInSeconds());
-
-            return ResponseEntity.ok(response);
+        // Check rate limit before processing
+        if (!rateLimiter.isAllowed(clientIp, email)) {
+            int remaining = rateLimiter.getRemainingAttempts(clientIp);
+            log.warn("Rate limit exceeded for IP: {} email: {}", maskIp(clientIp), email);
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .header("Retry-After", "900") // 15 minutes
+                    .header("X-RateLimit-Remaining", String.valueOf(remaining))
+                    .body(Map.of(
+                            "error", "RATE_LIMITED",
+                            "message", "Too many login attempts. Please try again later.",
+                            "retryAfter", 900
+                    ));
         }
 
-        // Also support dispatcher user
-        if ("dispatcher@trucktrack.com".equals(loginRequest.getEmail()) &&
-            "DispatcherPass123!".equals(loginRequest.getPassword())) {
+        // Find user by email
+        User user = userRepository.findByEmail(email).orElse(null);
 
-            String userId = "00000000-0000-0000-0000-000000000003";
-            String role = "DISPATCHER";
-
-            String token = authService.generateToken(
-                    loginRequest.getEmail(),
-                    userId,
-                    role
-            );
-
-            String refreshToken = authService.generateRefreshToken(
-                    loginRequest.getEmail(),
-                    userId,
-                    role
-            );
-
-            log.info("User logged in successfully: {}", loginRequest.getEmail());
-
-            LoginResponse response = new LoginResponse();
-            response.setToken(token);
-            response.setRefreshToken(refreshToken);
-            response.setType("Bearer");
-            response.setEmail(loginRequest.getEmail());
-            response.setRole(role);
-            response.setExpiresIn(authService.getExpirationInSeconds());
-
-            return ResponseEntity.ok(response);
+        // Check if user exists
+        if (user == null) {
+            log.warn("Login failed: user not found for email: {}", email);
+            rateLimiter.recordFailedAttempt(clientIp, email);
+            // Use same message to prevent user enumeration
+            return unauthorizedResponse("Invalid email or password", clientIp);
         }
 
-        log.warn("Invalid credentials for user: {}", loginRequest.getEmail());
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body("Invalid credentials");
+        // Check if account is active
+        if (!user.getIsActive()) {
+            log.warn("Login failed: account disabled for user: {}", email);
+            rateLimiter.recordFailedAttempt(clientIp, email);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .header("X-RateLimit-Remaining", String.valueOf(rateLimiter.getRemainingAttempts(clientIp)))
+                    .body(Map.of(
+                            "error", "ACCOUNT_DISABLED",
+                            "message", "Your account has been disabled. Please contact an administrator."
+                    ));
+        }
+
+        // Verify password using BCrypt
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPasswordHash())) {
+            log.warn("Login failed: invalid password for user: {}", email);
+            rateLimiter.recordFailedAttempt(clientIp, email);
+            return unauthorizedResponse("Invalid email or password", clientIp);
+        }
+
+        // Login successful - reset rate limit counters
+        rateLimiter.recordSuccessfulLogin(clientIp, email);
+
+        // Update last login timestamp
+        user.setLastLogin(Instant.now());
+        userRepository.save(user);
+
+        // Fetch user's group assignments for JWT
+        List<UUID> groupIds = userGroupAssignmentRepository.findGroupIdsByUserId(user.getId());
+        log.debug("User {} has {} group assignments", user.getEmail(), groupIds.size());
+
+        // Generate tokens with user info and groups
+        String token = authService.generateToken(
+                user.getEmail(),
+                user.getId().toString(),
+                user.getRole().name(),
+                groupIds
+        );
+
+        String refreshToken = authService.generateRefreshToken(
+                user.getEmail(),
+                user.getId().toString(),
+                user.getRole().name(),
+                groupIds
+        );
+
+        log.info("User logged in successfully: {} (role: {})", user.getEmail(), user.getRole());
+
+        LoginResponse response = new LoginResponse();
+        response.setToken(token);
+        response.setRefreshToken(refreshToken);
+        response.setType("Bearer");
+        response.setEmail(user.getEmail());
+        response.setRole(user.getRole().name());
+        response.setExpiresIn(authService.getExpirationInSeconds());
+
+        return ResponseEntity.ok(response);
     }
 
+    /**
+     * Refresh access token using refresh token.
+     */
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
         log.info("Token refresh attempt");
@@ -114,19 +154,46 @@ public class AuthController {
         if (!authService.validateRefreshToken(refreshToken)) {
             log.warn("Invalid refresh token");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid or expired refresh token");
+                    .body(Map.of(
+                            "error", "INVALID_TOKEN",
+                            "message", "Invalid or expired refresh token"
+                    ));
         }
 
         // Extract user info from refresh token
-        String username = authService.getUsernameFromToken(refreshToken);
         String userId = authService.getUserIdFromToken(refreshToken);
-        String role = authService.getRoleFromToken(refreshToken);
 
-        // Generate new tokens
-        String newAccessToken = authService.generateToken(username, userId, role);
-        String newRefreshToken = authService.generateRefreshToken(username, userId, role);
+        // Verify user still exists and is active
+        User user = userRepository.findById(UUID.fromString(userId))
+                .orElse(null);
 
-        log.info("Token refreshed successfully for user: {}", username);
+        if (user == null || !user.getIsActive()) {
+            log.warn("Token refresh failed: user not found or disabled for userId: {}", userId);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of(
+                            "error", "USER_INVALID",
+                            "message", "User account no longer valid"
+                    ));
+        }
+
+        // Get fresh group assignments (in case they changed)
+        List<UUID> groupIds = userGroupAssignmentRepository.findGroupIdsByUserId(user.getId());
+
+        // Generate new tokens with fresh data
+        String newAccessToken = authService.generateToken(
+                user.getEmail(),
+                user.getId().toString(),
+                user.getRole().name(),
+                groupIds
+        );
+        String newRefreshToken = authService.generateRefreshToken(
+                user.getEmail(),
+                user.getId().toString(),
+                user.getRole().name(),
+                groupIds
+        );
+
+        log.info("Token refreshed successfully for user: {}", user.getEmail());
 
         RefreshTokenResponse response = new RefreshTokenResponse();
         response.setAccessToken(newAccessToken);
@@ -137,25 +204,28 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Get current user info from JWT token.
+     */
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
-        log.info("Getting current user info");
+        log.debug("Getting current user info");
 
         try {
-            // Extract token from Authorization header (Bearer token)
+            // Extract token from Authorization header
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 log.warn("Invalid Authorization header");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("Invalid Authorization header");
+                        .body(Map.of("error", "INVALID_HEADER", "message", "Invalid Authorization header"));
             }
 
-            String token = authHeader.substring(7); // Remove "Bearer " prefix
+            String token = authHeader.substring(7);
 
             // Validate token
             if (!authService.validateToken(token)) {
                 log.warn("Invalid or expired token");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("Invalid or expired token");
+                        .body(Map.of("error", "INVALID_TOKEN", "message", "Invalid or expired token"));
             }
 
             // Extract user info from token
@@ -165,18 +235,63 @@ public class AuthController {
 
             UserResponse userResponse = new UserResponse(userId, email, role);
 
-            log.info("Returning user info for: {}", email);
+            log.debug("Returning user info for: {}", email);
             return ResponseEntity.ok(userResponse);
 
         } catch (Exception e) {
             log.error("Error getting current user", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error processing request");
+                    .body(Map.of("error", "INTERNAL_ERROR", "message", "Error processing request"));
         }
     }
 
+    /**
+     * Health check endpoint.
+     */
     @GetMapping("/health")
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("Auth service is healthy");
+    }
+
+    /**
+     * Creates a consistent unauthorized response with rate limit header.
+     * Uses the same message for both "user not found" and "wrong password" to prevent enumeration.
+     */
+    private ResponseEntity<Map<String, String>> unauthorizedResponse(String message, String clientIp) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .header("X-RateLimit-Remaining", String.valueOf(rateLimiter.getRemainingAttempts(clientIp)))
+                .body(Map.of(
+                        "error", "INVALID_CREDENTIALS",
+                        "message", message
+                ));
+    }
+
+    /**
+     * Extract client IP address from request.
+     * Handles proxies via X-Forwarded-For header.
+     */
+    private String getClientIp(HttpServletRequest request) {
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+            // First IP in the list is the original client
+            return xForwardedFor.split(",")[0].trim();
+        }
+        String xRealIp = request.getHeader("X-Real-IP");
+        if (xRealIp != null && !xRealIp.isEmpty()) {
+            return xRealIp;
+        }
+        return request.getRemoteAddr();
+    }
+
+    /**
+     * Mask IP address for logging (privacy).
+     */
+    private String maskIp(String ip) {
+        if (ip == null) return "unknown";
+        int lastDot = ip.lastIndexOf('.');
+        if (lastDot > 0) {
+            return ip.substring(0, lastDot) + ".***";
+        }
+        return "***";
     }
 }

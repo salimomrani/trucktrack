@@ -30,9 +30,19 @@ spring:
       password: admin
 
 # JWT Configuration
+# SECURITY: JWT_SECRET must be set via environment variable in production!
+# Generate a secure 64-byte secret: openssl rand -base64 64
 jwt:
-  secret: changeme-this-should-be-a-very-long-secret-key-for-production-use-at-least-64-characters
-  expiration: 86400000  # 24 hours in milliseconds
+  secret: ${JWT_SECRET:}
+  access-expiration: ${JWT_ACCESS_EXPIRATION:3600000}    # 1 hour (access token)
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000} # 7 days (refresh token)
+
+# Rate Limiting Configuration
+security:
+  rate-limit:
+    max-attempts: ${RATE_LIMIT_MAX_ATTEMPTS:5}      # Max failed attempts before lockout
+    window-seconds: ${RATE_LIMIT_WINDOW:300}        # 5 minute sliding window
+    lockout-seconds: ${RATE_LIMIT_LOCKOUT:900}      # 15 minute lockout after max attempts
 
 server:
   port: 8083

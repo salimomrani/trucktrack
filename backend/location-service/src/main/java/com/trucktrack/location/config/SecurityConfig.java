@@ -6,7 +6,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 
 /**
  * Security configuration for Location Service.
- * Extends shared GatewaySecurityConfig for common gateway authentication.
+ * Uses shared GatewaySecurityConfig for gateway authentication.
+ *
+ * All requests (including inter-service) go through API Gateway.
  */
 @Configuration
 @EnableWebSecurity
@@ -14,5 +16,5 @@ public class SecurityConfig extends GatewaySecurityConfig {
     // Uses default configuration from GatewaySecurityConfig:
     // - /admin/** requires ADMIN role
     // - /actuator/** is public
-    // - All other endpoints permitted (auth via gateway)
+    // - All other endpoints permitted (auth handled by gateway)
 }

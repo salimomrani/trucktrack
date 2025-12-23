@@ -90,9 +90,10 @@ spring:
             maxAge: 3600
 
 # JWT Configuration
+# SECURITY: JWT_SECRET must be set via environment variable in production!
+# Must match auth-service configuration. Generate with: openssl rand -base64 64
 jwt:
-  secret: changeme-this-should-be-a-very-long-secret-key-for-production-use-at-least-64-characters
-  expiration: 86400000 # 24 hours in milliseconds
+  secret: ${JWT_SECRET:}
 
 server:
   port: 8000

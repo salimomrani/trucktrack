@@ -20,6 +20,7 @@ import java.util.List;
  * - X-User-Id: User's unique identifier
  * - X-Username: User's username/email
  * - X-User-Role: User's role (e.g., ADMIN, DRIVER, FLEET_MANAGER)
+ * - X-User-Groups: Comma-separated list of group UUIDs (for FLEET_MANAGER filtering)
  *
  * Usage: Register as a Spring bean in your service's configuration.
  */
@@ -28,6 +29,7 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
     public static final String HEADER_USER_ID = "X-User-Id";
     public static final String HEADER_USERNAME = "X-Username";
     public static final String HEADER_USER_ROLE = "X-User-Role";
+    public static final String HEADER_USER_GROUPS = "X-User-Groups";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -37,6 +39,7 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
         String userId = request.getHeader(HEADER_USER_ID);
         String username = request.getHeader(HEADER_USERNAME);
         String role = request.getHeader(HEADER_USER_ROLE);
+        String groups = request.getHeader(HEADER_USER_GROUPS);
 
         if (username != null && role != null) {
             // Create authorities from role (add ROLE_ prefix for Spring Security)
@@ -44,10 +47,10 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
                 new SimpleGrantedAuthority("ROLE_" + role)
             );
 
-            // Create authentication token with user details
+            // Create authentication token with user details (including groups)
             UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(
-                    new GatewayUserPrincipal(userId, username, role),
+                    new GatewayUserPrincipal(userId, username, role, groups),
                     null,
                     authorities
                 );

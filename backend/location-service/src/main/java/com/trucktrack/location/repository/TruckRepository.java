@@ -110,19 +110,106 @@ public interface TruckRepository extends JpaRepository<Truck, UUID> {
     /**
      * Admin search with filters and pagination.
      * Searches by truckId, licensePlate, driverName, or vehicleType.
+     * Uses native query with explicit UUID casting to handle null parameters correctly.
      */
-    @Query("SELECT t FROM Truck t WHERE " +
+    @Query(value = "SELECT * FROM trucks t WHERE " +
            "(:search IS NULL OR :search = '' OR " +
-           "LOWER(t.truckId) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "LOWER(t.licensePlate) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "LOWER(t.driverName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "LOWER(t.vehicleType) LIKE LOWER(CONCAT('%', :search, '%'))) " +
-           "AND (:status IS NULL OR t.status = :status) " +
-           "AND (:groupId IS NULL OR t.truckGroupId = :groupId)")
+           "LOWER(t.truck_id) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(t.license_plate) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(t.driver_name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(t.vehicle_type) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+           "AND (CAST(:status AS VARCHAR) IS NULL OR t.status = :status) " +
+           "AND (CAST(:groupId AS UUID) IS NULL OR t.truck_group_id = CAST(:groupId AS UUID))",
+           countQuery = "SELECT COUNT(*) FROM trucks t WHERE " +
+           "(:search IS NULL OR :search = '' OR " +
+           "LOWER(t.truck_id) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(t.license_plate) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(t.driver_name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(t.vehicle_type) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+           "AND (CAST(:status AS VARCHAR) IS NULL OR t.status = :status) " +
+           "AND (CAST(:groupId AS UUID) IS NULL OR t.truck_group_id = CAST(:groupId AS UUID))",
+           nativeQuery = true)
     Page<Truck> searchWithFilters(
         @Param("search") String search,
-        @Param("status") TruckStatus status,
+        @Param("status") String status,
         @Param("groupId") UUID groupId,
+        Pageable pageable
+    );
+
+    /**
+     * T136: Find trucks that belong to any of the specified groups.
+     * Uses a JOIN with truck_group_assignments to filter by allowed groups.
+     * Optimized single-query approach (no N+1 problem).
+     */
+    @Query(value = "SELECT DISTINCT t.* FROM trucks t " +
+           "JOIN truck_group_assignments tga ON t.id = tga.truck_id " +
+           "WHERE tga.group_id IN :allowedGroupIds",
+           countQuery = "SELECT COUNT(DISTINCT t.id) FROM trucks t " +
+           "JOIN truck_group_assignments tga ON t.id = tga.truck_id " +
+           "WHERE tga.group_id IN :allowedGroupIds",
+           nativeQuery = true)
+    Page<Truck> findByAllowedGroups(
+        @Param("allowedGroupIds") List<UUID> allowedGroupIds,
+        Pageable pageable
+    );
+
+    /**
+     * T136: Find trucks by status that belong to any of the specified groups.
+     * Uses a JOIN with truck_group_assignments to filter by allowed groups and status.
+     */
+    @Query(value = "SELECT DISTINCT t.* FROM trucks t " +
+           "JOIN truck_group_assignments tga ON t.id = tga.truck_id " +
+           "WHERE tga.group_id IN :allowedGroupIds " +
+           "AND (CAST(:status AS VARCHAR) IS NULL OR t.status = :status)",
+           countQuery = "SELECT COUNT(DISTINCT t.id) FROM trucks t " +
+           "JOIN truck_group_assignments tga ON t.id = tga.truck_id " +
+           "WHERE tga.group_id IN :allowedGroupIds " +
+           "AND (CAST(:status AS VARCHAR) IS NULL OR t.status = :status)",
+           nativeQuery = true)
+    Page<Truck> findByAllowedGroupsAndStatus(
+        @Param("allowedGroupIds") List<UUID> allowedGroupIds,
+        @Param("status") String status,
+        Pageable pageable
+    );
+
+    /**
+     * T136: Find trucks in a specific group that also belong to user's allowed groups.
+     * Ensures user can only see trucks in groups they have access to.
+     */
+    @Query(value = "SELECT DISTINCT t.* FROM trucks t " +
+           "JOIN truck_group_assignments tga ON t.id = tga.truck_id " +
+           "WHERE tga.group_id IN :allowedGroupIds " +
+           "AND t.truck_group_id = CAST(:truckGroupId AS UUID)",
+           countQuery = "SELECT COUNT(DISTINCT t.id) FROM trucks t " +
+           "JOIN truck_group_assignments tga ON t.id = tga.truck_id " +
+           "WHERE tga.group_id IN :allowedGroupIds " +
+           "AND t.truck_group_id = CAST(:truckGroupId AS UUID)",
+           nativeQuery = true)
+    Page<Truck> findByAllowedGroupsAndTruckGroupId(
+        @Param("allowedGroupIds") List<UUID> allowedGroupIds,
+        @Param("truckGroupId") UUID truckGroupId,
+        Pageable pageable
+    );
+
+    /**
+     * T136: Full filtered query with status, group, and user access control.
+     * Combines all filtering options in a single optimized query.
+     */
+    @Query(value = "SELECT DISTINCT t.* FROM trucks t " +
+           "JOIN truck_group_assignments tga ON t.id = tga.truck_id " +
+           "WHERE tga.group_id IN :allowedGroupIds " +
+           "AND (CAST(:status AS VARCHAR) IS NULL OR t.status = :status) " +
+           "AND (CAST(:truckGroupId AS UUID) IS NULL OR t.truck_group_id = CAST(:truckGroupId AS UUID))",
+           countQuery = "SELECT COUNT(DISTINCT t.id) FROM trucks t " +
+           "JOIN truck_group_assignments tga ON t.id = tga.truck_id " +
+           "WHERE tga.group_id IN :allowedGroupIds " +
+           "AND (CAST(:status AS VARCHAR) IS NULL OR t.status = :status) " +
+           "AND (CAST(:truckGroupId AS UUID) IS NULL OR t.truck_group_id = CAST(:truckGroupId AS UUID))",
+           nativeQuery = true)
+    Page<Truck> findByAllowedGroupsWithFilters(
+        @Param("allowedGroupIds") List<UUID> allowedGroupIds,
+        @Param("status") String status,
+        @Param("truckGroupId") UUID truckGroupId,
         Pageable pageable
     );
 }
