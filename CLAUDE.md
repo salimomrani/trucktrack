@@ -131,4 +131,22 @@ private String getUserRole(GatewayUserPrincipal principal) {
 
 6. **OnPush**: Utiliser `ChangeDetectionStrategy.OnPush` avec les signals
 
+7. **NgRx Store - TOUJOURS privilégier le store**:
+   - **INTERDIT**: Faire des appels API pour récupérer des données déjà présentes dans le store
+   - **OBLIGATOIRE**: Utiliser `StoreFacade` pour accéder aux données déjà chargées
+
+   ```typescript
+   // ❌ INTERDIT - Appel API inutile
+   ngOnInit() {
+     this.authService.getUserProfile().subscribe(user => ...);
+   }
+
+   // ✅ CORRECT - Données du store
+   readonly user = this.facade.currentUser;
+   ```
+
+   - Les données utilisateur sont chargées après login → utiliser `facade.currentUser`
+   - Les trucks sont chargés au démarrage → utiliser `facade.trucks`
+   - Vérifier le store AVANT de créer un nouvel appel API
+
 <!-- MANUAL ADDITIONS END -->
