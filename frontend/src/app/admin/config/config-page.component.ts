@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,10 +21,8 @@ import { BreadcrumbComponent } from '../shared/breadcrumb/breadcrumb.component';
  * Feature: 002-admin-panel (US4)
  */
 @Component({
-  selector: 'app-config-page',
-  standalone: true,
-  imports: [
-    CommonModule,
+    selector: 'app-config-page',
+    imports: [
     FormsModule,
     MatCardModule,
     MatButtonModule,
@@ -39,8 +37,8 @@ import { BreadcrumbComponent } from '../shared/breadcrumb/breadcrumb.component';
     MatExpansionModule,
     MatSelectModule,
     BreadcrumbComponent
-  ],
-  template: `
+],
+    template: `
     <div class="config-container">
       <!-- Breadcrumb -->
       <app-breadcrumb [items]="[{ label: 'Configuration', icon: 'settings' }]"></app-breadcrumb>
@@ -140,7 +138,7 @@ import { BreadcrumbComponent } from '../shared/breadcrumb/breadcrumb.component';
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .config-container {
       padding: 24px;
       max-width: 1000px;

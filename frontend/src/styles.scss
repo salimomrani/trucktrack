@@ -2,12 +2,14 @@
 
 // Import custom theme variables
 @use './styles/theme' as theme;
+@use './styles/navigation';
 
 // Angular Material Theme
 @use '@angular/material' as mat;
 
 // Include the core styles
-@include mat.core();
+@include mat.elevation-classes();
+@include mat.app-background();
 
 // Define custom palettes using our theme colors
 $truck-track-primary-palette: (
@@ -110,26 +112,26 @@ $truck-track-warn-palette: (
 );
 
 // Define the theme
-$truck-track-primary: mat.define-palette($truck-track-primary-palette);
-$truck-track-accent: mat.define-palette($truck-track-accent-palette);
-$truck-track-warn: mat.define-palette($truck-track-warn-palette);
+$truck-track-primary: mat.m2-define-palette($truck-track-primary-palette);
+$truck-track-accent: mat.m2-define-palette($truck-track-accent-palette);
+$truck-track-warn: mat.m2-define-palette($truck-track-warn-palette);
 
 // Define custom typography
-$truck-track-typography: mat.define-typography-config(
+$truck-track-typography: mat.m2-define-typography-config(
   $font-family: theme.$font-family-base,
-  $headline-1: mat.define-typography-level(theme.$font-size-4xl, theme.$line-height-tight, theme.$font-weight-extrabold),
-  $headline-2: mat.define-typography-level(theme.$font-size-3xl, theme.$line-height-tight, theme.$font-weight-bold),
-  $headline-3: mat.define-typography-level(theme.$font-size-2xl, theme.$line-height-tight, theme.$font-weight-bold),
-  $headline-4: mat.define-typography-level(theme.$font-size-xl, theme.$line-height-normal, theme.$font-weight-semibold),
-  $headline-5: mat.define-typography-level(theme.$font-size-lg, theme.$line-height-normal, theme.$font-weight-semibold),
-  $headline-6: mat.define-typography-level(theme.$font-size-base, theme.$line-height-normal, theme.$font-weight-semibold),
-  $body-1: mat.define-typography-level(theme.$font-size-base, theme.$line-height-normal, theme.$font-weight-normal),
-  $body-2: mat.define-typography-level(theme.$font-size-sm, theme.$line-height-normal, theme.$font-weight-normal),
-  $caption: mat.define-typography-level(theme.$font-size-xs, theme.$line-height-normal, theme.$font-weight-normal),
-  $button: mat.define-typography-level(theme.$font-size-sm, theme.$line-height-normal, theme.$font-weight-medium),
+  $headline-1: mat.m2-define-typography-level(theme.$font-size-4xl, theme.$line-height-tight, theme.$font-weight-extrabold),
+  $headline-2: mat.m2-define-typography-level(theme.$font-size-3xl, theme.$line-height-tight, theme.$font-weight-bold),
+  $headline-3: mat.m2-define-typography-level(theme.$font-size-2xl, theme.$line-height-tight, theme.$font-weight-bold),
+  $headline-4: mat.m2-define-typography-level(theme.$font-size-xl, theme.$line-height-normal, theme.$font-weight-semibold),
+  $headline-5: mat.m2-define-typography-level(theme.$font-size-lg, theme.$line-height-normal, theme.$font-weight-semibold),
+  $headline-6: mat.m2-define-typography-level(theme.$font-size-base, theme.$line-height-normal, theme.$font-weight-semibold),
+  $body-1: mat.m2-define-typography-level(theme.$font-size-base, theme.$line-height-normal, theme.$font-weight-normal),
+  $body-2: mat.m2-define-typography-level(theme.$font-size-sm, theme.$line-height-normal, theme.$font-weight-normal),
+  $caption: mat.m2-define-typography-level(theme.$font-size-xs, theme.$line-height-normal, theme.$font-weight-normal),
+  $button: mat.m2-define-typography-level(theme.$font-size-sm, theme.$line-height-normal, theme.$font-weight-medium),
 );
 
-$truck-track-theme: mat.define-light-theme((
+$truck-track-theme: mat.m2-define-light-theme((
   color: (
     primary: $truck-track-primary,
     accent: $truck-track-accent,
@@ -141,9 +143,6 @@ $truck-track-theme: mat.define-light-theme((
 
 // Include theme styles for core and each component
 @include mat.all-component-themes($truck-track-theme);
-
-// Import navigation styles (sidenav mini mode overrides)
-@import './styles/navigation';
 
 // ============================================
 // GLOBAL STYLES
@@ -296,29 +295,29 @@ body {
 
 // T092: Error snackbar styling
 .error-snackbar {
-  --mdc-snackbar-container-color: #f44336 !important;
+  --mat-snackbar-container-color: #f44336 !important;
   --mat-snack-bar-button-color: #fff !important;
-  --mdc-snackbar-supporting-text-color: #fff !important;
+  --mat-snackbar-supporting-text-color: #fff !important;
 }
 
 // T167: Notification snackbar styling
 .notification-snackbar {
   &.snackbar-critical {
-    --mdc-snackbar-container-color: #d32f2f !important;
+    --mat-snackbar-container-color: #d32f2f !important;
     --mat-snack-bar-button-color: #fff !important;
-    --mdc-snackbar-supporting-text-color: #fff !important;
+    --mat-snackbar-supporting-text-color: #fff !important;
   }
 
   &.snackbar-warning {
-    --mdc-snackbar-container-color: #f57c00 !important;
+    --mat-snackbar-container-color: #f57c00 !important;
     --mat-snack-bar-button-color: #fff !important;
-    --mdc-snackbar-supporting-text-color: #fff !important;
+    --mat-snackbar-supporting-text-color: #fff !important;
   }
 
   &.snackbar-info {
-    --mdc-snackbar-container-color: #1976d2 !important;
+    --mat-snackbar-container-color: #1976d2 !important;
     --mat-snack-bar-button-color: #fff !important;
-    --mdc-snackbar-supporting-text-color: #fff !important;
+    --mat-snackbar-supporting-text-color: #fff !important;
   }
 }
 

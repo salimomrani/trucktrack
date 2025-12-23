@@ -1,5 +1,5 @@
 import { Component, inject, signal, effect, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -19,10 +19,8 @@ import { LoginRequest } from '../../../core/models/auth.model';
  * Migrated to use NgRx StoreFacade with Angular 17+ signals
  */
 @Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [
-    CommonModule,
+    selector: 'app-login',
+    imports: [
     ReactiveFormsModule,
     MatCardModule,
     MatInputModule,
@@ -31,10 +29,10 @@ import { LoginRequest } from '../../../core/models/auth.model';
     MatIconModule,
     MatProgressSpinnerModule,
     MatSnackBarModule
-  ],
-  templateUrl: './login.component.html',
-  styleUrl: './login.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+],
+    templateUrl: './login.component.html',
+    styleUrl: './login.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);

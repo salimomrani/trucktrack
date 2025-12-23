@@ -1,5 +1,5 @@
 import { Component, inject, signal, effect, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -18,20 +18,18 @@ import { StoreFacade } from '../../../store/store.facade';
  * - Clear button
  */
 @Component({
-  selector: 'app-search-bar',
-  standalone: true,
-  imports: [
-    CommonModule,
+    selector: 'app-search-bar',
+    imports: [
     FormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
     MatButtonModule,
     MatAutocompleteModule
-  ],
-  templateUrl: './search-bar.component.html',
-  styleUrl: './search-bar.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+],
+    templateUrl: './search-bar.component.html',
+    styleUrl: './search-bar.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SearchBarComponent {
   private readonly facade = inject(StoreFacade);

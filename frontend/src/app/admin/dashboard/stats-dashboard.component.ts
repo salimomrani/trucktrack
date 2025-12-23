@@ -12,17 +12,16 @@ import { StatsService, DashboardStats } from './stats.service';
  * Feature: 002-admin-panel (US3)
  */
 @Component({
-  selector: 'app-stats-dashboard',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule
-  ],
-  template: `
+    selector: 'app-stats-dashboard',
+    imports: [
+        CommonModule,
+        RouterModule,
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatProgressSpinnerModule
+    ],
+    template: `
     <div class="dashboard-container">
       <div class="page-header">
         <h1>Admin Dashboard</h1>
@@ -162,7 +161,7 @@ import { StatsService, DashboardStats } from './stats.service';
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .dashboard-container {
       padding: 24px;
       max-width: 1200px;

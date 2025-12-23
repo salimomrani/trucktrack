@@ -23,29 +23,28 @@ import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/breadcrumb/bre
  * Feature: 002-admin-panel
  */
 @Component({
-  selector: 'app-truck-form',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatChipsModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatDividerModule,
-    AuditLogComponent,
-    BreadcrumbComponent
-  ],
-  template: `
+    selector: 'app-truck-form',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatChipsModule,
+        MatSnackBarModule,
+        MatProgressSpinnerModule,
+        MatDividerModule,
+        AuditLogComponent,
+        BreadcrumbComponent
+    ],
+    template: `
     <div class="truck-form-container">
       <!-- Breadcrumb -->
       <app-breadcrumb [items]="breadcrumbItems()"></app-breadcrumb>
-
+    
       <!-- Header -->
       <div class="page-header">
         <button mat-icon-button (click)="goBack()">
@@ -53,146 +52,169 @@ import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/breadcrumb/bre
         </button>
         <div class="header-text">
           <h1>{{ isEditMode() ? 'Edit Truck' : 'Add Truck' }}</h1>
-          <p class="subtitle" *ngIf="isEditMode()">{{ truck()?.truckId }}</p>
+          @if (isEditMode()) {
+            <p class="subtitle">{{ truck()?.truckId }}</p>
+          }
         </div>
       </div>
-
+    
       <!-- Loading -->
-      <div class="loading-container" *ngIf="loading()">
-        <mat-spinner diameter="40"></mat-spinner>
-      </div>
-
+      @if (loading()) {
+        <div class="loading-container">
+          <mat-spinner diameter="40"></mat-spinner>
+        </div>
+      }
+    
       <!-- Form -->
-      <div class="form-content" *ngIf="!loading()">
-        <mat-card class="form-card">
-          <mat-card-header>
-            <mat-card-title>Truck Information</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <form [formGroup]="form" (ngSubmit)="onSubmit()">
-              <mat-form-field appearance="outline" class="full-width" *ngIf="!isEditMode()">
-                <mat-label>Truck ID</mat-label>
-                <input matInput formControlName="truckId" placeholder="TRUCK-001">
-                <mat-icon matSuffix>local_shipping</mat-icon>
-                <mat-hint>Unique identifier for the truck</mat-hint>
-                <mat-error *ngIf="form.get('truckId')?.hasError('required')">
-                  Truck ID is required
-                </mat-error>
-              </mat-form-field>
-
-              <div class="form-row">
-                <mat-form-field appearance="outline" class="half-width">
-                  <mat-label>License Plate</mat-label>
-                  <input matInput formControlName="licensePlate" placeholder="ABC-1234">
-                  <mat-error *ngIf="form.get('licensePlate')?.hasError('maxlength')">
-                    License plate must not exceed 100 characters
-                  </mat-error>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="half-width">
-                  <mat-label>Vehicle Type</mat-label>
-                  <mat-select formControlName="vehicleType">
-                    <mat-option *ngFor="let type of vehicleTypes" [value]="type">
-                      {{ type }}
-                    </mat-option>
-                  </mat-select>
-                  <mat-error *ngIf="form.get('vehicleType')?.hasError('required')">
-                    Vehicle type is required
-                  </mat-error>
-                </mat-form-field>
-              </div>
-
-              <div class="form-row">
-                <mat-form-field appearance="outline" class="half-width">
-                  <mat-label>Driver Name</mat-label>
-                  <input matInput formControlName="driverName" placeholder="John Doe">
-                  <mat-icon matSuffix>person</mat-icon>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="half-width">
-                  <mat-label>Driver Phone</mat-label>
-                  <input matInput formControlName="driverPhone" placeholder="+1 555-123-4567">
-                  <mat-icon matSuffix>phone</mat-icon>
-                </mat-form-field>
-              </div>
-
-              <mat-form-field appearance="outline" class="full-width" *ngIf="!isEditMode()">
-                <mat-label>Primary Group</mat-label>
-                <mat-select formControlName="primaryGroupId">
-                  <mat-option value="">Select a group</mat-option>
-                  <!-- Groups would be loaded from API -->
-                </mat-select>
-                <mat-hint>The main group this truck belongs to</mat-hint>
-                <mat-error *ngIf="form.get('primaryGroupId')?.hasError('required')">
-                  Primary group is required
-                </mat-error>
-              </mat-form-field>
-
-              <mat-divider></mat-divider>
-
-              <div class="form-actions">
-                <button mat-button type="button" (click)="goBack()">Cancel</button>
-                <button mat-raised-button color="primary" type="submit"
-                        [disabled]="form.invalid || saving()">
-                  <mat-spinner diameter="20" *ngIf="saving()"></mat-spinner>
-                  <span *ngIf="!saving()">{{ isEditMode() ? 'Save Changes' : 'Add Truck' }}</span>
-                </button>
-              </div>
-            </form>
-          </mat-card-content>
-        </mat-card>
-
-        <!-- Status Card (Edit Mode Only) -->
-        <mat-card class="status-card" *ngIf="isEditMode() && truck()">
-          <mat-card-header>
-            <mat-card-title>Truck Status</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="status-info">
-              <div class="status-row">
-                <span class="label">Status:</span>
-                <mat-chip [class]="'status-' + truck()?.status?.toLowerCase()">
-                  {{ truck()?.statusDisplay }}
-                </mat-chip>
-              </div>
-              <div class="status-row">
-                <span class="label">Last Update:</span>
-                <span>{{ truck()?.lastUpdate ? (truck()?.lastUpdate | date:'medium') : 'Never' }}</span>
-              </div>
-              <div class="status-row">
-                <span class="label">Location:</span>
-                <span *ngIf="truck()?.currentLatitude && truck()?.currentLongitude">
-                  {{ truck()?.currentLatitude | number:'1.4-4' }}, {{ truck()?.currentLongitude | number:'1.4-4' }}
-                </span>
-                <span *ngIf="!truck()?.currentLatitude">No location data</span>
-              </div>
-              <div class="status-row">
-                <span class="label">Speed:</span>
-                <span>{{ truck()?.currentSpeed ? (truck()?.currentSpeed + ' km/h') : 'N/A' }}</span>
-              </div>
-              <div class="status-row">
-                <span class="label">Primary Group:</span>
-                <span>{{ truck()?.primaryGroupName || 'None' }}</span>
-              </div>
-              <div class="status-row">
-                <span class="label">Created:</span>
-                <span>{{ truck()?.createdAt | date:'medium' }}</span>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-
-        <!-- Audit Log (Edit Mode Only) -->
-        <mat-card class="audit-card" *ngIf="isEditMode() && truckId()">
-          <app-audit-log
-            entityType="TRUCK"
-            [entityId]="truckId()!">
-          </app-audit-log>
-        </mat-card>
-      </div>
+      @if (!loading()) {
+        <div class="form-content">
+          <mat-card class="form-card">
+            <mat-card-header>
+              <mat-card-title>Truck Information</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <form [formGroup]="form" (ngSubmit)="onSubmit()">
+                @if (!isEditMode()) {
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Truck ID</mat-label>
+                    <input matInput formControlName="truckId" placeholder="TRUCK-001">
+                    <mat-icon matSuffix>local_shipping</mat-icon>
+                    <mat-hint>Unique identifier for the truck</mat-hint>
+                    @if (form.get('truckId')?.hasError('required')) {
+                      <mat-error>
+                        Truck ID is required
+                      </mat-error>
+                    }
+                  </mat-form-field>
+                }
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>License Plate</mat-label>
+                    <input matInput formControlName="licensePlate" placeholder="ABC-1234">
+                    @if (form.get('licensePlate')?.hasError('maxlength')) {
+                      <mat-error>
+                        License plate must not exceed 100 characters
+                      </mat-error>
+                    }
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Vehicle Type</mat-label>
+                    <mat-select formControlName="vehicleType">
+                      @for (type of vehicleTypes; track type) {
+                        <mat-option [value]="type">
+                          {{ type }}
+                        </mat-option>
+                      }
+                    </mat-select>
+                    @if (form.get('vehicleType')?.hasError('required')) {
+                      <mat-error>
+                        Vehicle type is required
+                      </mat-error>
+                    }
+                  </mat-form-field>
+                </div>
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Driver Name</mat-label>
+                    <input matInput formControlName="driverName" placeholder="John Doe">
+                    <mat-icon matSuffix>person</mat-icon>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Driver Phone</mat-label>
+                    <input matInput formControlName="driverPhone" placeholder="+1 555-123-4567">
+                    <mat-icon matSuffix>phone</mat-icon>
+                  </mat-form-field>
+                </div>
+                @if (!isEditMode()) {
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Primary Group</mat-label>
+                    <mat-select formControlName="primaryGroupId">
+                      <mat-option value="">Select a group</mat-option>
+                      <!-- Groups would be loaded from API -->
+                    </mat-select>
+                    <mat-hint>The main group this truck belongs to</mat-hint>
+                    @if (form.get('primaryGroupId')?.hasError('required')) {
+                      <mat-error>
+                        Primary group is required
+                      </mat-error>
+                    }
+                  </mat-form-field>
+                }
+                <mat-divider></mat-divider>
+                <div class="form-actions">
+                  <button mat-button type="button" (click)="goBack()">Cancel</button>
+                  <button mat-raised-button color="primary" type="submit"
+                    [disabled]="form.invalid || saving()">
+                    @if (saving()) {
+                      <mat-spinner diameter="20"></mat-spinner>
+                    }
+                    @if (!saving()) {
+                      <span>{{ isEditMode() ? 'Save Changes' : 'Add Truck' }}</span>
+                    }
+                  </button>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+          <!-- Status Card (Edit Mode Only) -->
+          @if (isEditMode() && truck()) {
+            <mat-card class="status-card">
+              <mat-card-header>
+                <mat-card-title>Truck Status</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="status-info">
+                  <div class="status-row">
+                    <span class="label">Status:</span>
+                    <mat-chip [class]="'status-' + truck()?.status?.toLowerCase()">
+                      {{ truck()?.statusDisplay }}
+                    </mat-chip>
+                  </div>
+                  <div class="status-row">
+                    <span class="label">Last Update:</span>
+                    <span>{{ truck()?.lastUpdate ? (truck()?.lastUpdate | date:'medium') : 'Never' }}</span>
+                  </div>
+                  <div class="status-row">
+                    <span class="label">Location:</span>
+                    @if (truck()?.currentLatitude && truck()?.currentLongitude) {
+                      <span>
+                        {{ truck()?.currentLatitude | number:'1.4-4' }}, {{ truck()?.currentLongitude | number:'1.4-4' }}
+                      </span>
+                    }
+                    @if (!truck()?.currentLatitude) {
+                      <span>No location data</span>
+                    }
+                  </div>
+                  <div class="status-row">
+                    <span class="label">Speed:</span>
+                    <span>{{ truck()?.currentSpeed ? (truck()?.currentSpeed + ' km/h') : 'N/A' }}</span>
+                  </div>
+                  <div class="status-row">
+                    <span class="label">Primary Group:</span>
+                    <span>{{ truck()?.primaryGroupName || 'None' }}</span>
+                  </div>
+                  <div class="status-row">
+                    <span class="label">Created:</span>
+                    <span>{{ truck()?.createdAt | date:'medium' }}</span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+          <!-- Audit Log (Edit Mode Only) -->
+          @if (isEditMode() && truckId()) {
+            <mat-card class="audit-card">
+              <app-audit-log
+                entityType="TRUCK"
+                [entityId]="truckId()!">
+              </app-audit-log>
+            </mat-card>
+          }
+        </div>
+      }
     </div>
-  `,
-  styles: [`
+    `,
+    styles: [`
     .truck-form-container {
       padding: 24px;
       max-width: 900px;

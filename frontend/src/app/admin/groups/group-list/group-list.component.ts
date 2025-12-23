@@ -22,25 +22,24 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
  * Feature: 002-admin-panel (US5)
  */
 @Component({
-  selector: 'app-group-list',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatProgressSpinnerModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSnackBarModule,
-    MatDialogModule,
-    MatMenuModule,
-    BreadcrumbComponent
-  ],
-  template: `
+    selector: 'app-group-list',
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatProgressSpinnerModule,
+        MatTableModule,
+        MatPaginatorModule,
+        MatSnackBarModule,
+        MatDialogModule,
+        MatMenuModule,
+        BreadcrumbComponent
+    ],
+    template: `
     <div class="group-list-container">
       <!-- Breadcrumb -->
       <app-breadcrumb [items]="[{ label: 'Groups', icon: 'workspaces' }]"></app-breadcrumb>
@@ -165,7 +164,7 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .group-list-container {
       padding: 24px;
       max-width: 1400px;

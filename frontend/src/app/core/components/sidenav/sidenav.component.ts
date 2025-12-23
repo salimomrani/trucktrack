@@ -7,7 +7,7 @@ import {
   HostListener,
   ViewEncapsulation
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -20,19 +20,17 @@ import { NavItem } from '../../models/navigation.model';
  * - Auto-close on navigation (mobile/tablet)
  */
 @Component({
-  selector: 'app-sidenav',
-  standalone: true,
-  imports: [
-    CommonModule,
+    selector: 'app-sidenav',
+    imports: [
     RouterLink,
     RouterLinkActive,
     MatIconModule,
     MatTooltipModule
-  ],
-  templateUrl: './sidenav.component.html',
-  styleUrl: './sidenav.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None
+],
+    templateUrl: './sidenav.component.html',
+    styleUrl: './sidenav.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    encapsulation: ViewEncapsulation.None
 })
 export class SidenavComponent {
   private readonly router = inject(Router);

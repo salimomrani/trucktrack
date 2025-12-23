@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 
@@ -16,10 +16,9 @@ export interface ConfirmDialogData {
  * Feature: 002-admin-panel
  */
 @Component({
-  selector: 'app-confirm-dialog',
-  standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule],
-  template: `
+    selector: 'app-confirm-dialog',
+    imports: [MatDialogModule, MatButtonModule],
+    template: `
     <h2 mat-dialog-title>{{ data.title }}</h2>
     <mat-dialog-content>
       <p>{{ data.message }}</p>
@@ -35,7 +34,7 @@ export interface ConfirmDialogData {
       </button>
     </mat-dialog-actions>
   `,
-  styles: [`
+    styles: [`
     mat-dialog-content p {
       color: #424242;
       line-height: 1.5;

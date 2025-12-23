@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, input, output, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -22,10 +22,8 @@ import { Geofence, GeofenceZoneType } from '../../../models/geofence.model';
  * Provides UI for creating, editing, and managing geofences on the map
  */
 @Component({
-  selector: 'app-geofence-panel',
-  standalone: true,
-  imports: [
-    CommonModule,
+    selector: 'app-geofence-panel',
+    imports: [
     FormsModule,
     MatButtonModule,
     MatIconModule,
@@ -37,9 +35,9 @@ import { Geofence, GeofenceZoneType } from '../../../models/geofence.model';
     MatSnackBarModule,
     MatProgressSpinnerModule,
     MatTooltipModule
-  ],
-  templateUrl: './geofence-panel.component.html',
-  styleUrls: ['./geofence-panel.component.scss']
+],
+    templateUrl: './geofence-panel.component.html',
+    styleUrls: ['./geofence-panel.component.scss']
 })
 export class GeofencePanelComponent implements OnInit, OnDestroy {
   /** Leaflet map instance (required) */

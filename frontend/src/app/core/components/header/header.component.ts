@@ -1,5 +1,5 @@
 import { Component, inject, ChangeDetectionStrategy, OnInit, OnDestroy, computed, signal, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,7 +9,6 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { StoreFacade } from '../../../store/store.facade';
-import { SearchBarComponent } from '../search-bar/search-bar.component';
 import { NotificationService } from '../../../services/notification.service';
 import { NavigationService } from '../../services/navigation.service';
 import { NavItem } from '../../models/navigation.model';
@@ -24,10 +23,8 @@ import { UserRole } from '../../models/auth.model';
  * - Integrated with NgRx store
  */
 @Component({
-  selector: 'app-header',
-  standalone: true,
-  imports: [
-    CommonModule,
+    selector: 'app-header',
+    imports: [
     RouterLink,
     RouterLinkActive,
     MatToolbarModule,
@@ -36,12 +33,11 @@ import { UserRole } from '../../models/auth.model';
     MatMenuModule,
     MatDividerModule,
     MatBadgeModule,
-    MatTooltipModule,
-    SearchBarComponent
-  ],
-  templateUrl: './header.component.html',
-  styleUrl: './header.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    MatTooltipModule
+],
+    templateUrl: './header.component.html',
+    styleUrl: './header.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   private readonly facade = inject(StoreFacade);

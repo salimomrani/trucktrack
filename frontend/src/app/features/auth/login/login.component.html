@@ -20,11 +20,13 @@
             placeholder="Enter your email"
             autocomplete="email"
             [attr.aria-label]="'Email address'"
-          >
+            >
           <mat-icon matPrefix>email</mat-icon>
-          <mat-error *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
-            {{ getErrorMessage('email') }}
-          </mat-error>
+          @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+            <mat-error>
+              {{ getErrorMessage('email') }}
+            </mat-error>
+          }
         </mat-form-field>
 
         <!-- Password Field -->
@@ -37,7 +39,7 @@
             placeholder="Enter your password"
             autocomplete="current-password"
             [attr.aria-label]="'Password'"
-          >
+            >
           <mat-icon matPrefix>lock</mat-icon>
           <button
             mat-icon-button
@@ -45,12 +47,14 @@
             type="button"
             (click)="hidePassword.set(!hidePassword())"
             [attr.aria-label]="'Toggle password visibility'"
-          >
+            >
             <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
-          <mat-error *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-            {{ getErrorMessage('password') }}
-          </mat-error>
+          @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+            <mat-error>
+              {{ getErrorMessage('password') }}
+            </mat-error>
+          }
         </mat-form-field>
 
         <!-- Submit Button -->
@@ -60,7 +64,7 @@
           type="submit"
           class="full-width login-button"
           [disabled]="isLoading()"
-        >
+          >
           @if (isLoading()) {
             <mat-spinner diameter="20" class="spinner" />
           }

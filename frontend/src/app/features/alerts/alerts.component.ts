@@ -1,5 +1,5 @@
 import { Component, OnInit, signal, inject, ChangeDetectionStrategy, computed, DestroyRef, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
@@ -40,10 +40,8 @@ interface AlertStats {
  * T159-T169: Alert and notification management
  */
 @Component({
-  selector: 'app-alerts',
-  standalone: true,
-  imports: [
-    CommonModule,
+    selector: 'app-alerts',
+    imports: [
     ReactiveFormsModule,
     MatCardModule,
     MatTableModule,
@@ -60,10 +58,10 @@ interface AlertStats {
     MatSelectModule,
     MatSlideToggleModule,
     MatExpansionModule
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './alerts.component.html',
-  styleUrls: ['./alerts.component.scss']
+],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    templateUrl: './alerts.component.html',
+    styleUrls: ['./alerts.component.scss']
 })
 export class AlertsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('notificationList') notificationListRef!: ElementRef<HTMLElement>;

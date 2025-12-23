@@ -99,8 +99,10 @@
                 @if (isCreatingRule()) {
                   <mat-spinner diameter="20" aria-label="Creating rule"></mat-spinner>
                 } @else {
-                  <mat-icon>add</mat-icon>
-                  Create Rule
+                  <ng-container>
+                    <mat-icon>add</mat-icon>
+                    Create Rule
+                  </ng-container>
                 }
               </button>
             </div>
