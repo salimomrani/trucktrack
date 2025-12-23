@@ -22,6 +22,7 @@ export interface User {
   role: UserRole;
   isActive: boolean;
   lastLogin?: string;
+  createdAt?: string;
 }
 
 export enum UserRole {

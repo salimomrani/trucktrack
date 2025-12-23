@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
@@ -10,11 +10,13 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
 import { DatePipe } from '@angular/common';
 
+import { StoreFacade } from '../../store/store.facade';
 import { AuthService } from '../../core/services/auth.service';
-import { UserProfile, ChangePasswordRequest } from '../../core/models/auth.model';
+import { ChangePasswordRequest } from '../../core/models/auth.model';
 
 /**
  * Profile Component - Displays user profile information and allows password change
+ * Uses NgRx store for user data (no API call needed)
  */
 @Component({
   selector: 'app-profile',
@@ -35,15 +37,17 @@ import { UserProfile, ChangePasswordRequest } from '../../core/models/auth.model
   styleUrl: './profile.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent {
   private readonly fb = inject(FormBuilder);
+  private readonly facade = inject(StoreFacade);
   private readonly authService = inject(AuthService);
   private readonly snackBar = inject(MatSnackBar);
 
-  // User profile data
-  profile = signal<UserProfile | null>(null);
-  isLoadingProfile = signal(true);
-  profileError = signal<string | null>(null);
+  // User data from store (already loaded after login)
+  readonly user = this.facade.currentUser;
+
+  // Computed profile data
+  readonly hasUser = computed(() => !!this.user());
 
   // Password change form
   passwordForm: FormGroup;
@@ -58,30 +62,6 @@ export class ProfileComponent implements OnInit {
       newPassword: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required]]
     }, { validators: this.passwordMatchValidator });
-  }
-
-  ngOnInit(): void {
-    this.loadProfile();
-  }
-
-  /**
-   * Load user profile from backend
-   */
-  loadProfile(): void {
-    this.isLoadingProfile.set(true);
-    this.profileError.set(null);
-
-    this.authService.getUserProfile().subscribe({
-      next: (profile) => {
-        this.profile.set(profile);
-        this.isLoadingProfile.set(false);
-      },
-      error: (error) => {
-        console.error('Failed to load profile:', error);
-        this.profileError.set('Failed to load profile. Please try again.');
-        this.isLoadingProfile.set(false);
-      }
-    });
   }
 
   /**

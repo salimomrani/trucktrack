@@ -1,27 +1,16 @@
 <div class="profile-container">
-  <!-- Loading State -->
-  @if (isLoadingProfile()) {
-    <div class="loading-container">
-      <mat-spinner diameter="50"></mat-spinner>
-      <p>Loading profile...</p>
-    </div>
-  }
-
-  <!-- Error State -->
-  @if (profileError()) {
+  <!-- No User State -->
+  @if (!hasUser()) {
     <mat-card class="error-card">
       <mat-card-content>
         <mat-icon color="warn">error</mat-icon>
-        <p>{{ profileError() }}</p>
-        <button mat-raised-button color="primary" (click)="loadProfile()">
-          Retry
-        </button>
+        <p>User data not available</p>
       </mat-card-content>
     </mat-card>
   }
 
   <!-- Profile Content -->
-  @if (profile() && !isLoadingProfile()) {
+  @if (hasUser()) {
     <div class="profile-content">
       <!-- Profile Info Card -->
       <mat-card class="profile-card">
@@ -29,8 +18,8 @@
           <div mat-card-avatar class="profile-avatar">
             <mat-icon>person</mat-icon>
           </div>
-          <mat-card-title>{{ profile()?.firstName }} {{ profile()?.lastName }}</mat-card-title>
-          <mat-card-subtitle>{{ getRoleDisplayName(profile()?.role || '') }}</mat-card-subtitle>
+          <mat-card-title>{{ user()?.firstName }} {{ user()?.lastName }}</mat-card-title>
+          <mat-card-subtitle>{{ getRoleDisplayName(user()?.role || '') }}</mat-card-subtitle>
         </mat-card-header>
 
         <mat-card-content>
@@ -39,7 +28,7 @@
               <mat-icon>email</mat-icon>
               <div class="info-content">
                 <span class="info-label">Email</span>
-                <span class="info-value">{{ profile()?.email }}</span>
+                <span class="info-value">{{ user()?.email }}</span>
               </div>
             </div>
 
@@ -49,30 +38,30 @@
               <mat-icon>badge</mat-icon>
               <div class="info-content">
                 <span class="info-label">Role</span>
-                <span class="info-value">{{ getRoleDisplayName(profile()?.role || '') }}</span>
+                <span class="info-value">{{ getRoleDisplayName(user()?.role || '') }}</span>
               </div>
             </div>
 
             <mat-divider></mat-divider>
 
-            @if (profile()?.lastLogin) {
+            @if (user()?.lastLogin) {
               <div class="info-row">
                 <mat-icon>login</mat-icon>
                 <div class="info-content">
                   <span class="info-label">Last login</span>
-                  <span class="info-value">{{ profile()?.lastLogin | date:'medium' }}</span>
+                  <span class="info-value">{{ user()?.lastLogin | date:'medium' }}</span>
                 </div>
               </div>
 
               <mat-divider></mat-divider>
             }
 
-            @if (profile()?.createdAt) {
+            @if (user()?.createdAt) {
               <div class="info-row">
                 <mat-icon>calendar_today</mat-icon>
                 <div class="info-content">
                   <span class="info-label">Member since</span>
-                  <span class="info-value">{{ profile()?.createdAt | date:'longDate' }}</span>
+                  <span class="info-value">{{ user()?.createdAt | date:'longDate' }}</span>
                 </div>
               </div>
             }
