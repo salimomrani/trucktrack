@@ -1,5 +1,5 @@
 import { Component, OnInit, signal, inject, effect, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,7 +27,7 @@ import { GeofencePanelComponent } from './geofence-panel/geofence-panel.componen
  */
 @Component({
     selector: 'app-map',
-    imports: [CommonModule, MatProgressSpinnerModule, MatIconModule, MatSnackBarModule, MatButtonModule, SearchBarComponent, FilterPanelComponent, GeofencePanelComponent],
+    imports: [MatProgressSpinnerModule, MatIconModule, MatSnackBarModule, MatButtonModule, SearchBarComponent, FilterPanelComponent, GeofencePanelComponent],
     templateUrl: './map.component.html',
     styleUrls: ['./map.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush

@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -29,28 +29,27 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
 @Component({
     selector: 'app-user-list',
     imports: [
-        CommonModule,
-        FormsModule,
-        MatCardModule,
-        MatButtonModule,
-        MatIconModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatChipsModule,
-        MatMenuModule,
-        MatDialogModule,
-        MatSnackBarModule,
-        MatProgressSpinnerModule,
-        MatTooltipModule,
-        DataTableComponent,
-        BreadcrumbComponent
-    ],
+    FormsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatChipsModule,
+    MatMenuModule,
+    MatDialogModule,
+    MatSnackBarModule,
+    MatProgressSpinnerModule,
+    MatTooltipModule,
+    DataTableComponent,
+    BreadcrumbComponent
+],
     template: `
     <div class="user-list-container">
       <!-- Breadcrumb -->
       <app-breadcrumb [items]="[{ label: 'Users', icon: 'people' }]"></app-breadcrumb>
-
+    
       <!-- Header -->
       <div class="page-header">
         <div class="header-left">
@@ -62,29 +61,31 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
           Add User
         </button>
       </div>
-
+    
       <!-- Filters -->
       <mat-card class="filters-card">
         <div class="filters-row">
           <mat-form-field appearance="outline" class="search-field">
             <mat-label>Search</mat-label>
             <input matInput
-                   placeholder="Search by name or email..."
-                   [(ngModel)]="searchTerm"
-                   (input)="onSearch()">
+              placeholder="Search by name or email..."
+              [(ngModel)]="searchTerm"
+              (input)="onSearch()">
             <mat-icon matSuffix>search</mat-icon>
           </mat-form-field>
-
+    
           <mat-form-field appearance="outline" class="filter-field">
             <mat-label>Role</mat-label>
             <mat-select [(ngModel)]="selectedRole" (selectionChange)="onFilterChange()">
               <mat-option [value]="null">All Roles</mat-option>
-              <mat-option *ngFor="let role of roles" [value]="role.value">
-                {{ role.label }}
-              </mat-option>
+              @for (role of roles; track role) {
+                <mat-option [value]="role.value">
+                  {{ role.label }}
+                </mat-option>
+              }
             </mat-select>
           </mat-form-field>
-
+    
           <mat-form-field appearance="outline" class="filter-field">
             <mat-label>Status</mat-label>
             <mat-select [(ngModel)]="selectedStatus" (selectionChange)="onFilterChange()">
@@ -93,14 +94,16 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
               <mat-option [value]="false">Inactive</mat-option>
             </mat-select>
           </mat-form-field>
-
-          <button mat-stroked-button (click)="clearFilters()" *ngIf="hasFilters()">
-            <mat-icon>clear</mat-icon>
-            Clear
-          </button>
+    
+          @if (hasFilters()) {
+            <button mat-stroked-button (click)="clearFilters()">
+              <mat-icon>clear</mat-icon>
+              Clear
+            </button>
+          }
         </div>
       </mat-card>
-
+    
       <!-- Users Table -->
       <mat-card class="table-card">
         <app-data-table
@@ -116,7 +119,7 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
           (pageChange)="onPageChange($event)"
           (onRowClick)="onRowClick($event)">
         </app-data-table>
-
+    
         <!-- Actions column rendered separately -->
         <ng-template #actionsTemplate let-user>
           <button mat-icon-button [matMenuTriggerFor]="menu" (click)="$event.stopPropagation()">
@@ -127,18 +130,20 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
               <mat-icon>edit</mat-icon>
               <span>Edit</span>
             </button>
-            <button mat-menu-item
-                    *ngIf="user.isActive"
-                    (click)="confirmDeactivate(user)">
-              <mat-icon color="warn">block</mat-icon>
-              <span>Deactivate</span>
-            </button>
-            <button mat-menu-item
-                    *ngIf="!user.isActive"
-                    (click)="confirmReactivate(user)">
-              <mat-icon color="primary">check_circle</mat-icon>
-              <span>Reactivate</span>
-            </button>
+            @if (user.isActive) {
+              <button mat-menu-item
+                (click)="confirmDeactivate(user)">
+                <mat-icon color="warn">block</mat-icon>
+                <span>Deactivate</span>
+              </button>
+            }
+            @if (!user.isActive) {
+              <button mat-menu-item
+                (click)="confirmReactivate(user)">
+                <mat-icon color="primary">check_circle</mat-icon>
+                <span>Reactivate</span>
+              </button>
+            }
             <button mat-menu-item (click)="resendEmail(user)">
               <mat-icon>email</mat-icon>
               <span>Resend Activation</span>
@@ -147,7 +152,7 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
         </ng-template>
       </mat-card>
     </div>
-  `,
+    `,
     styles: [`
     .user-list-container {
       padding: 24px;

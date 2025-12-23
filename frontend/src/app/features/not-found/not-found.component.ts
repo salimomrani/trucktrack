@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,7 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
  */
 @Component({
     selector: 'app-not-found',
-    imports: [CommonModule, RouterModule, MatCardModule, MatButtonModule, MatIconModule],
+    imports: [RouterModule, MatCardModule, MatButtonModule, MatIconModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
     <div class="not-found-container">

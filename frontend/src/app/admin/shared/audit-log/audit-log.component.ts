@@ -59,64 +59,76 @@ interface AuditLogPage {
         <mat-icon>history</mat-icon>
         Audit History
       </h3>
-
+    
       <!-- Loading spinner -->
-      <div class="loading" *ngIf="loading()">
-        <mat-spinner diameter="30"></mat-spinner>
-      </div>
-
-      <!-- Empty state -->
-      <div class="empty-state" *ngIf="!loading() && logs().length === 0">
-        <mat-icon>inbox</mat-icon>
-        <span>No audit history available</span>
-      </div>
-
-      <!-- Audit log entries -->
-      <div class="log-entries" *ngIf="!loading() && logs().length > 0">
-        <mat-accordion>
-          <mat-expansion-panel *ngFor="let log of logs()">
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                <mat-chip [class]="'action-chip ' + log.action.toLowerCase()">
-                  {{ getActionIcon(log.action) }}
-                  {{ log.action }}
-                </mat-chip>
-              </mat-panel-title>
-              <mat-panel-description>
-                <span class="log-meta">
-                  <span class="username">{{ log.username }}</span>
-                  <span class="separator">•</span>
-                  <span class="timestamp">{{ log.timestamp | date:'medium' }}</span>
-                </span>
-              </mat-panel-description>
-            </mat-expansion-panel-header>
-
-            <div class="log-details">
-              <div class="detail-row">
-                <span class="label">User ID:</span>
-                <span class="value">{{ log.userId }}</span>
-              </div>
-              <div class="detail-row" *ngIf="log.ipAddress">
-                <span class="label">IP Address:</span>
-                <span class="value">{{ log.ipAddress }}</span>
-              </div>
-              <div class="detail-row" *ngIf="log.changes">
-                <span class="label">Changes:</span>
-                <pre class="changes-json">{{ formatChanges(log.changes) }}</pre>
-              </div>
-            </div>
-          </mat-expansion-panel>
-        </mat-accordion>
-
-        <!-- Load more button -->
-        <div class="load-more" *ngIf="hasMore()">
-          <button mat-stroked-button (click)="loadMore()">
-            Load More
-          </button>
+      @if (loading()) {
+        <div class="loading">
+          <mat-spinner diameter="30"></mat-spinner>
         </div>
-      </div>
+      }
+    
+      <!-- Empty state -->
+      @if (!loading() && logs().length === 0) {
+        <div class="empty-state">
+          <mat-icon>inbox</mat-icon>
+          <span>No audit history available</span>
+        </div>
+      }
+    
+      <!-- Audit log entries -->
+      @if (!loading() && logs().length > 0) {
+        <div class="log-entries">
+          <mat-accordion>
+            @for (log of logs(); track log) {
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    <mat-chip [class]="'action-chip ' + log.action.toLowerCase()">
+                      {{ getActionIcon(log.action) }}
+                      {{ log.action }}
+                    </mat-chip>
+                  </mat-panel-title>
+                  <mat-panel-description>
+                    <span class="log-meta">
+                      <span class="username">{{ log.username }}</span>
+                      <span class="separator">•</span>
+                      <span class="timestamp">{{ log.timestamp | date:'medium' }}</span>
+                    </span>
+                  </mat-panel-description>
+                </mat-expansion-panel-header>
+                <div class="log-details">
+                  <div class="detail-row">
+                    <span class="label">User ID:</span>
+                    <span class="value">{{ log.userId }}</span>
+                  </div>
+                  @if (log.ipAddress) {
+                    <div class="detail-row">
+                      <span class="label">IP Address:</span>
+                      <span class="value">{{ log.ipAddress }}</span>
+                    </div>
+                  }
+                  @if (log.changes) {
+                    <div class="detail-row">
+                      <span class="label">Changes:</span>
+                      <pre class="changes-json">{{ formatChanges(log.changes) }}</pre>
+                    </div>
+                  }
+                </div>
+              </mat-expansion-panel>
+            }
+          </mat-accordion>
+          <!-- Load more button -->
+          @if (hasMore()) {
+            <div class="load-more">
+              <button mat-stroked-button (click)="loadMore()">
+                Load More
+              </button>
+            </div>
+          }
+        </div>
+      }
     </div>
-  `,
+    `,
     styles: [`
     .audit-log-container {
       padding: 16px;

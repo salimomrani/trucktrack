@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -23,22 +23,21 @@ import { BreadcrumbComponent } from '../shared/breadcrumb/breadcrumb.component';
 @Component({
     selector: 'app-config-page',
     imports: [
-        CommonModule,
-        FormsModule,
-        MatCardModule,
-        MatButtonModule,
-        MatIconModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSlideToggleModule,
-        MatDividerModule,
-        MatProgressSpinnerModule,
-        MatSnackBarModule,
-        MatDialogModule,
-        MatExpansionModule,
-        MatSelectModule,
-        BreadcrumbComponent
-    ],
+    FormsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSlideToggleModule,
+    MatDividerModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
+    MatDialogModule,
+    MatExpansionModule,
+    MatSelectModule,
+    BreadcrumbComponent
+],
     template: `
     <div class="config-container">
       <!-- Breadcrumb -->

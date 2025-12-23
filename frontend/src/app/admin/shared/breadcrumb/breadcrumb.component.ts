@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -15,7 +15,7 @@ export interface BreadcrumbItem {
  */
 @Component({
     selector: 'app-breadcrumb',
-    imports: [CommonModule, RouterModule, MatIconModule],
+    imports: [RouterModule, MatIconModule],
     template: `
     <nav class="breadcrumb" aria-label="Breadcrumb">
       <ol class="breadcrumb-list">

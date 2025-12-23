@@ -39,7 +39,7 @@ import { GroupService, GroupDetailResponse, CreateGroupRequest, UpdateGroupReque
     <div class="group-form-container">
       <!-- Breadcrumb -->
       <app-breadcrumb [items]="breadcrumbItems()"></app-breadcrumb>
-
+    
       <!-- Header -->
       <div class="page-header">
         <button mat-icon-button (click)="goBack()">
@@ -47,112 +47,127 @@ import { GroupService, GroupDetailResponse, CreateGroupRequest, UpdateGroupReque
         </button>
         <div class="header-text">
           <h1>{{ isEditMode() ? 'Edit Group' : 'Create Group' }}</h1>
-          <p class="subtitle" *ngIf="isEditMode()">{{ group()?.name }}</p>
+          @if (isEditMode()) {
+            <p class="subtitle">{{ group()?.name }}</p>
+          }
         </div>
       </div>
-
+    
       <!-- Loading -->
-      <div class="loading-container" *ngIf="loading()">
-        <mat-spinner diameter="40"></mat-spinner>
-      </div>
-
+      @if (loading()) {
+        <div class="loading-container">
+          <mat-spinner diameter="40"></mat-spinner>
+        </div>
+      }
+    
       <!-- Form -->
-      <div class="form-content" *ngIf="!loading()">
-        <mat-card class="form-card">
-          <mat-card-header>
-            <mat-card-title>Group Information</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <form [formGroup]="form" (ngSubmit)="onSubmit()">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Group Name</mat-label>
-                <input matInput formControlName="name" placeholder="e.g., North Fleet">
-                <mat-icon matSuffix>workspaces</mat-icon>
-                <mat-hint>A unique name for this group</mat-hint>
-                <mat-error *ngIf="form.get('name')?.hasError('required')">
-                  Group name is required
-                </mat-error>
-                <mat-error *ngIf="form.get('name')?.hasError('maxlength')">
-                  Group name must not exceed 100 characters
-                </mat-error>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Description</mat-label>
-                <textarea matInput formControlName="description"
-                          placeholder="Optional description of this group"
-                          rows="4"></textarea>
-                <mat-hint>Optional - describe the purpose of this group</mat-hint>
-                <mat-error *ngIf="form.get('description')?.hasError('maxlength')">
-                  Description must not exceed 500 characters
-                </mat-error>
-              </mat-form-field>
-
-              <mat-divider></mat-divider>
-
-              <div class="form-actions">
-                <button mat-button type="button" (click)="goBack()">Cancel</button>
-                <button mat-raised-button color="primary" type="submit"
-                        [disabled]="form.invalid || saving()">
-                  <mat-spinner diameter="20" *ngIf="saving()"></mat-spinner>
-                  <span *ngIf="!saving()">{{ isEditMode() ? 'Save Changes' : 'Create Group' }}</span>
-                </button>
-              </div>
-            </form>
-          </mat-card-content>
-        </mat-card>
-
-        <!-- Group Stats (Edit Mode Only) -->
-        <mat-card class="stats-card" *ngIf="isEditMode() && group()">
-          <mat-card-header>
-            <mat-card-title>Group Statistics</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="stats-grid">
-              <div class="stat-item">
-                <mat-icon>local_shipping</mat-icon>
-                <div class="stat-value">{{ group()?.truckCount || 0 }}</div>
-                <div class="stat-label">Trucks Assigned</div>
-              </div>
-              <div class="stat-item">
-                <mat-icon>people</mat-icon>
-                <div class="stat-value">{{ group()?.userCount || 0 }}</div>
-                <div class="stat-label">Users with Access</div>
-              </div>
-            </div>
-            <div class="stats-info">
-              <p class="info-text">
-                <mat-icon>info</mat-icon>
-                Truck assignments are managed from the Truck Management page.
-                User access is managed from the User Management page.
-              </p>
-            </div>
-          </mat-card-content>
-        </mat-card>
-
-        <!-- Metadata (Edit Mode Only) -->
-        <mat-card class="meta-card" *ngIf="isEditMode() && group()">
-          <mat-card-header>
-            <mat-card-title>Details</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="meta-row">
-              <span class="meta-label">Group ID:</span>
-              <span class="meta-value">{{ group()?.id }}</span>
-            </div>
-            <div class="meta-row">
-              <span class="meta-label">Created:</span>
-              <span class="meta-value">{{ group()?.createdAt | date:'medium' }}</span>
-            </div>
-            <div class="meta-row">
-              <span class="meta-label">Last Updated:</span>
-              <span class="meta-value">{{ group()?.updatedAt | date:'medium' }}</span>
-            </div>
-          </mat-card-content>
-        </mat-card>
-      </div>
+      @if (!loading()) {
+        <div class="form-content">
+          <mat-card class="form-card">
+            <mat-card-header>
+              <mat-card-title>Group Information</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <form [formGroup]="form" (ngSubmit)="onSubmit()">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Group Name</mat-label>
+                  <input matInput formControlName="name" placeholder="e.g., North Fleet">
+                  <mat-icon matSuffix>workspaces</mat-icon>
+                  <mat-hint>A unique name for this group</mat-hint>
+                  @if (form.get('name')?.hasError('required')) {
+                    <mat-error>
+                      Group name is required
+                    </mat-error>
+                  }
+                  @if (form.get('name')?.hasError('maxlength')) {
+                    <mat-error>
+                      Group name must not exceed 100 characters
+                    </mat-error>
+                  }
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Description</mat-label>
+                  <textarea matInput formControlName="description"
+                    placeholder="Optional description of this group"
+                  rows="4"></textarea>
+                  <mat-hint>Optional - describe the purpose of this group</mat-hint>
+                  @if (form.get('description')?.hasError('maxlength')) {
+                    <mat-error>
+                      Description must not exceed 500 characters
+                    </mat-error>
+                  }
+                </mat-form-field>
+                <mat-divider></mat-divider>
+                <div class="form-actions">
+                  <button mat-button type="button" (click)="goBack()">Cancel</button>
+                  <button mat-raised-button color="primary" type="submit"
+                    [disabled]="form.invalid || saving()">
+                    @if (saving()) {
+                      <mat-spinner diameter="20"></mat-spinner>
+                    }
+                    @if (!saving()) {
+                      <span>{{ isEditMode() ? 'Save Changes' : 'Create Group' }}</span>
+                    }
+                  </button>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+          <!-- Group Stats (Edit Mode Only) -->
+          @if (isEditMode() && group()) {
+            <mat-card class="stats-card">
+              <mat-card-header>
+                <mat-card-title>Group Statistics</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="stats-grid">
+                  <div class="stat-item">
+                    <mat-icon>local_shipping</mat-icon>
+                    <div class="stat-value">{{ group()?.truckCount || 0 }}</div>
+                    <div class="stat-label">Trucks Assigned</div>
+                  </div>
+                  <div class="stat-item">
+                    <mat-icon>people</mat-icon>
+                    <div class="stat-value">{{ group()?.userCount || 0 }}</div>
+                    <div class="stat-label">Users with Access</div>
+                  </div>
+                </div>
+                <div class="stats-info">
+                  <p class="info-text">
+                    <mat-icon>info</mat-icon>
+                    Truck assignments are managed from the Truck Management page.
+                    User access is managed from the User Management page.
+                  </p>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+          <!-- Metadata (Edit Mode Only) -->
+          @if (isEditMode() && group()) {
+            <mat-card class="meta-card">
+              <mat-card-header>
+                <mat-card-title>Details</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="meta-row">
+                  <span class="meta-label">Group ID:</span>
+                  <span class="meta-value">{{ group()?.id }}</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">Created:</span>
+                  <span class="meta-value">{{ group()?.createdAt | date:'medium' }}</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">Last Updated:</span>
+                  <span class="meta-value">{{ group()?.updatedAt | date:'medium' }}</span>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      }
     </div>
-  `,
+    `,
     styles: [`
     .group-form-container {
       padding: 24px;

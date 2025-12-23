@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, input, output, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,19 +24,18 @@ import { Geofence, GeofenceZoneType } from '../../../models/geofence.model';
 @Component({
     selector: 'app-geofence-panel',
     imports: [
-        CommonModule,
-        FormsModule,
-        MatButtonModule,
-        MatIconModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatListModule,
-        MatExpansionModule,
-        MatSnackBarModule,
-        MatProgressSpinnerModule,
-        MatTooltipModule
-    ],
+    FormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatListModule,
+    MatExpansionModule,
+    MatSnackBarModule,
+    MatProgressSpinnerModule,
+    MatTooltipModule
+],
     templateUrl: './geofence-panel.component.html',
     styleUrls: ['./geofence-panel.component.scss']
 })

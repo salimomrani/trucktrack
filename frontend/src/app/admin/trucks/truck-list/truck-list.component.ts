@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -29,28 +29,27 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
 @Component({
     selector: 'app-truck-list',
     imports: [
-        CommonModule,
-        FormsModule,
-        MatCardModule,
-        MatButtonModule,
-        MatIconModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatChipsModule,
-        MatMenuModule,
-        MatDialogModule,
-        MatSnackBarModule,
-        MatProgressSpinnerModule,
-        MatTooltipModule,
-        DataTableComponent,
-        BreadcrumbComponent
-    ],
+    FormsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatChipsModule,
+    MatMenuModule,
+    MatDialogModule,
+    MatSnackBarModule,
+    MatProgressSpinnerModule,
+    MatTooltipModule,
+    DataTableComponent,
+    BreadcrumbComponent
+],
     template: `
     <div class="truck-list-container">
       <!-- Breadcrumb -->
       <app-breadcrumb [items]="[{ label: 'Trucks', icon: 'local_shipping' }]"></app-breadcrumb>
-
+    
       <!-- Header -->
       <div class="page-header">
         <div class="header-left">
@@ -62,36 +61,40 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
           Add Truck
         </button>
       </div>
-
+    
       <!-- Filters -->
       <mat-card class="filters-card">
         <div class="filters-row">
           <mat-form-field appearance="outline" class="search-field">
             <mat-label>Search</mat-label>
             <input matInput
-                   placeholder="Search by truck ID, license plate, driver..."
-                   [(ngModel)]="searchTerm"
-                   (input)="onSearch()">
+              placeholder="Search by truck ID, license plate, driver..."
+              [(ngModel)]="searchTerm"
+              (input)="onSearch()">
             <mat-icon matSuffix>search</mat-icon>
           </mat-form-field>
-
+    
           <mat-form-field appearance="outline" class="filter-field">
             <mat-label>Status</mat-label>
             <mat-select [(ngModel)]="selectedStatus" (selectionChange)="onFilterChange()">
               <mat-option [value]="null">All Statuses</mat-option>
-              <mat-option *ngFor="let status of statuses" [value]="status.value">
-                {{ status.label }}
-              </mat-option>
+              @for (status of statuses; track status) {
+                <mat-option [value]="status.value">
+                  {{ status.label }}
+                </mat-option>
+              }
             </mat-select>
           </mat-form-field>
-
-          <button mat-stroked-button (click)="clearFilters()" *ngIf="hasFilters()">
-            <mat-icon>clear</mat-icon>
-            Clear
-          </button>
+    
+          @if (hasFilters()) {
+            <button mat-stroked-button (click)="clearFilters()">
+              <mat-icon>clear</mat-icon>
+              Clear
+            </button>
+          }
         </div>
       </mat-card>
-
+    
       <!-- Trucks Table -->
       <mat-card class="table-card">
         <app-data-table
@@ -107,7 +110,7 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
           (pageChange)="onPageChange($event)"
           (onRowClick)="onRowClick($event)">
         </app-data-table>
-
+    
         <!-- Actions column rendered separately -->
         <ng-template #actionsTemplate let-truck>
           <button mat-icon-button [matMenuTriggerFor]="menu" (click)="$event.stopPropagation()">
@@ -118,23 +121,25 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
               <mat-icon>edit</mat-icon>
               <span>Edit</span>
             </button>
-            <button mat-menu-item
-                    *ngIf="truck.status !== 'OUT_OF_SERVICE'"
-                    (click)="confirmOutOfService(truck)">
-              <mat-icon color="warn">block</mat-icon>
-              <span>Mark Out of Service</span>
-            </button>
-            <button mat-menu-item
-                    *ngIf="truck.status === 'OUT_OF_SERVICE'"
-                    (click)="confirmActivate(truck)">
-              <mat-icon color="primary">check_circle</mat-icon>
-              <span>Activate</span>
-            </button>
+            @if (truck.status !== 'OUT_OF_SERVICE') {
+              <button mat-menu-item
+                (click)="confirmOutOfService(truck)">
+                <mat-icon color="warn">block</mat-icon>
+                <span>Mark Out of Service</span>
+              </button>
+            }
+            @if (truck.status === 'OUT_OF_SERVICE') {
+              <button mat-menu-item
+                (click)="confirmActivate(truck)">
+                <mat-icon color="primary">check_circle</mat-icon>
+                <span>Activate</span>
+              </button>
+            }
           </mat-menu>
         </ng-template>
       </mat-card>
     </div>
-  `,
+    `,
     styles: [`
     .truck-list-container {
       padding: 24px;

@@ -1,5 +1,5 @@
 import { Component, inject, signal, effect, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -20,14 +20,13 @@ import { StoreFacade } from '../../../store/store.facade';
 @Component({
     selector: 'app-search-bar',
     imports: [
-        CommonModule,
-        FormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatIconModule,
-        MatButtonModule,
-        MatAutocompleteModule
-    ],
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    MatButtonModule,
+    MatAutocompleteModule
+],
     templateUrl: './search-bar.component.html',
     styleUrl: './search-bar.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush

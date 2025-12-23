@@ -7,7 +7,7 @@ import {
   HostListener,
   ViewEncapsulation
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -22,12 +22,11 @@ import { NavItem } from '../../models/navigation.model';
 @Component({
     selector: 'app-sidenav',
     imports: [
-        CommonModule,
-        RouterLink,
-        RouterLinkActive,
-        MatIconModule,
-        MatTooltipModule
-    ],
+    RouterLink,
+    RouterLinkActive,
+    MatIconModule,
+    MatTooltipModule
+],
     templateUrl: './sidenav.component.html',
     styleUrl: './sidenav.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,5 +1,5 @@
 import { Component, inject, ChangeDetectionStrategy, OnInit, OnDestroy, computed, signal, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,18 +26,17 @@ import { UserRole } from '../../models/auth.model';
 @Component({
     selector: 'app-header',
     imports: [
-        CommonModule,
-        RouterLink,
-        RouterLinkActive,
-        MatToolbarModule,
-        MatButtonModule,
-        MatIconModule,
-        MatMenuModule,
-        MatDividerModule,
-        MatBadgeModule,
-        MatTooltipModule,
-        SearchBarComponent
-    ],
+    RouterLink,
+    RouterLinkActive,
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    MatDividerModule,
+    MatBadgeModule,
+    MatTooltipModule,
+    SearchBarComponent
+],
     templateUrl: './header.component.html',
     styleUrl: './header.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush

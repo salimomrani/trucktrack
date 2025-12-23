@@ -1,5 +1,5 @@
 import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,13 +20,12 @@ import { StoreFacade } from '../../../store/store.facade';
 @Component({
     selector: 'app-filter-panel',
     imports: [
-        CommonModule,
-        FormsModule,
-        MatCheckboxModule,
-        MatButtonModule,
-        MatIconModule,
-        MatTooltipModule
-    ],
+    FormsModule,
+    MatCheckboxModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule
+],
     templateUrl: './filter-panel.component.html',
     styleUrl: './filter-panel.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
