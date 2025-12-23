@@ -23,6 +23,8 @@ export interface User {
   isActive: boolean;
   lastLogin?: string;
   createdAt?: string;
+  /** Group IDs the user is assigned to (for data filtering) */
+  groupIds?: string[];
 }
 
 export enum UserRole {
@@ -52,6 +54,8 @@ export interface JwtPayload {
   role: string;
   firstName?: string;
   lastName?: string;
+  /** Comma-separated group UUIDs */
+  groups?: string;
   exp: number;
   iat: number;
 }

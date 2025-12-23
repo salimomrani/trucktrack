@@ -37,11 +37,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Create PermissionService in backend/auth-service/src/main/java/com/trucktrack/auth/service/PermissionService.java
-- [ ] T006 Create PermissionController with endpoints in backend/auth-service/src/main/java/com/trucktrack/auth/controller/PermissionController.java
-- [ ] T007 Add groupIds to JWT claims in backend/auth-service/src/main/java/com/trucktrack/auth/service/JwtTokenService.java
-- [ ] T008 [P] Create permission.service.ts in frontend/src/app/core/services/permission.service.ts
-- [ ] T009 [P] Update auth.model.ts to include groupIds in User interface in frontend/src/app/core/models/auth.model.ts
+- [x] T005 Create PermissionService in backend/auth-service/src/main/java/com/trucktrack/auth/service/PermissionService.java
+- [x] T006 Create PermissionController with endpoints in backend/auth-service/src/main/java/com/trucktrack/auth/controller/PermissionController.java
+- [x] T007 Add groupIds to JWT claims in backend/auth-service/src/main/java/com/trucktrack/auth/service/JwtTokenService.java (already implemented)
+- [x] T008 [P] Create permission.service.ts in frontend/src/app/core/services/permission.service.ts
+- [x] T009 [P] Update auth.model.ts to include groupIds in User interface in frontend/src/app/core/models/auth.model.ts
 
 **Checkpoint**: Foundation ready - user story implementation can begin
 
