@@ -39,6 +39,24 @@ spring:
             - name: JwtAuthenticationFilter
             - RewritePath=/location/(?<segment>.*), /location/$\{segment}
 
+        # Admin Routes - Auth Service (users)
+        - id: admin-users
+          uri: http://localhost:8083
+          predicates:
+            - Path=/admin/users/**
+          filters:
+            - name: JwtAuthenticationFilter
+            - RewritePath=/admin/(?<segment>.*), /admin/$\{segment}
+
+        # Admin Routes - Location Service (stats, config, groups, trucks)
+        - id: admin-location
+          uri: http://localhost:8081
+          predicates:
+            - Path=/admin/stats/**, /admin/config/**, /admin/groups/**, /admin/trucks/**
+          filters:
+            - name: JwtAuthenticationFilter
+            - RewritePath=/admin/(?<segment>.*), /admin/$\{segment}
+
         # Notification Service Routes
         - id: notification-service
           uri: http://localhost:8082
