@@ -55,7 +55,7 @@ cd frontend && npm install && npm start
 ```
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                              FRONTEND                                         │
-│                         Angular 17 + Leaflet                                  │
+│                         Angular 21 + Leaflet                                  │
 │                           localhost:4200                                      │
 └──────────────────────────────────┬───────────────────────────────────────────┘
                                    │ HTTP / WebSocket
@@ -105,7 +105,7 @@ cd frontend && npm install && npm start
 
 | Service | Port | Description |
 |---------|------|-------------|
-| Frontend | 4200 | Angular 17 UI |
+| Frontend | 4200 | Angular 21 UI |
 | API Gateway | 8000 | Routing, auth |
 | Auth | 8083 | JWT authentication |
 | GPS Ingestion | 8080 | GPS data intake |

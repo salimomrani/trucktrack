@@ -1,6 +1,6 @@
 # TruckTrack Frontend
 
-Interface utilisateur Angular 17 pour le suivi GPS de flottes de camions en temps réel.
+Interface utilisateur Angular 21 pour le suivi GPS de flottes de camions en temps réel.
 
 L'application permet aux gestionnaires de flotte de :
 - Visualiser tous les camions sur une carte interactive (Leaflet)
@@ -63,8 +63,16 @@ npm run lint        # Lint check
 
 ## Tech Stack
 
-- Angular 17
-- Angular Material
-- Leaflet (maps)
-- RxJS
-- NgRx (state management)
+- Angular 21.0.6
+- Angular Material 21.0.5
+- TypeScript 5.9.3
+- Leaflet 1.9.4 (maps)
+- RxJS 7.8.2
+- NgRx 21.x (state management)
+
+### Angular 21 Features
+
+- **Block Control Flow** - Modern `@if`/`@for` syntax
+- **Signals** - Reactive state management
+- **Esbuild** - Fast production builds
+- **Zoneless Ready** - Can enable zoneless change detection

@@ -2,6 +2,7 @@
 
 // Import custom theme variables
 @use './styles/theme' as theme;
+@use './styles/navigation';
 
 // Angular Material Theme
 @use '@angular/material' as mat;
@@ -142,9 +143,6 @@ $truck-track-theme: mat.m2-define-light-theme((
 
 // Include theme styles for core and each component
 @include mat.all-component-themes($truck-track-theme);
-
-// Import navigation styles (sidenav mini mode overrides)
-@import './styles/navigation';
 
 // ============================================
 // GLOBAL STYLES
