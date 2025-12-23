@@ -12,53 +12,8 @@ import { MatIconModule } from '@angular/material/icon';
     selector: 'app-not-found',
     imports: [RouterModule, MatCardModule, MatButtonModule, MatIconModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    template: `
-    <div class="not-found-container">
-      <mat-card class="not-found-card">
-        <mat-card-content>
-          <mat-icon class="not-found-icon">explore_off</mat-icon>
-          <h1>404 - Page Not Found</h1>
-          <p>The page you're looking for doesn't exist or has been moved.</p>
-          <button mat-raised-button color="primary" routerLink="/map">
-            Go to Map
-          </button>
-        </mat-card-content>
-      </mat-card>
-    </div>
-  `,
-    styles: [`
-    .not-found-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-      background-color: #f5f5f5;
-    }
-
-    .not-found-card {
-      max-width: 500px;
-      text-align: center;
-    }
-
-    .not-found-icon {
-      font-size: 80px;
-      width: 80px;
-      height: 80px;
-      color: #ff9800;
-      margin: 0 auto 20px;
-    }
-
-    h1 {
-      margin: 0 0 16px;
-      color: #333;
-    }
-
-    p {
-      color: #666;
-      margin-bottom: 24px;
-    }
-  `]
+    templateUrl: './not-found.component.html',
+    styleUrls: ['./not-found.component.scss']
 })
 export class NotFoundComponent {
 }

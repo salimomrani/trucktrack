@@ -1,0 +1,23 @@
+@use '../../../../../styles/theme' as theme;
+
+.chart-card {
+  height: 100%;
+}
+
+mat-card-content {
+  padding: theme.$spacing-md;
+  display: flex;
+  justify-content: center;
+}
+
+.loading-state,
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.empty-state p {
+  color: theme.$color-text-secondary;
+}

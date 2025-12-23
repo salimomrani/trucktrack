@@ -1,0 +1,30 @@
+<mat-card class="kpi-card" [class.loading]="isLoading"
+          role="region"
+          [attr.aria-label]="isLoading ? 'Chargement des données' : label + ': ' + formattedValue + ' ' + unit"
+          [attr.aria-busy]="isLoading">
+  <mat-card-content>
+    @if (isLoading) {
+      <div class="skeleton-state" aria-hidden="true">
+        <div class="skeleton-header">
+          <div class="skeleton-icon"></div>
+          <div class="skeleton-label"></div>
+        </div>
+        <div class="skeleton-value"></div>
+      </div>
+    } @else {
+      <div class="kpi-header">
+        <mat-icon [class]="iconClass" aria-hidden="true">{{ icon }}</mat-icon>
+        <span class="kpi-label">{{ label }}</span>
+      </div>
+      <div class="kpi-value">
+        <span class="value">{{ formattedValue }}</span>
+        @if (unit) {
+          <span class="unit">{{ unit }}</span>
+        }
+      </div>
+      @if (subtitle) {
+        <div class="kpi-subtitle">{{ subtitle }}</div>
+      }
+    }
+  </mat-card-content>
+</mat-card>

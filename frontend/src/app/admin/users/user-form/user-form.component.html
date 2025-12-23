@@ -1,0 +1,165 @@
+<div class="user-form-container">
+  <!-- Breadcrumb -->
+  <app-breadcrumb [items]="breadcrumbItems()"></app-breadcrumb>
+
+  <!-- Header -->
+  <div class="page-header">
+    <button mat-icon-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="header-text">
+      <h1>{{ isEditMode() ? 'Edit User' : 'Create User' }}</h1>
+      @if (isEditMode()) {
+        <p class="subtitle">{{ user()?.email }}</p>
+      }
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  }
+
+  <!-- Form -->
+  @if (!loading()) {
+    <div class="form-content">
+      <mat-card class="form-card">
+        <mat-card-header>
+          <mat-card-title>Account Information</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>First Name</mat-label>
+                <input matInput formControlName="firstName" placeholder="John">
+                @if (form.get('firstName')?.hasError('required')) {
+                  <mat-error>
+                    First name is required
+                  </mat-error>
+                }
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Last Name</mat-label>
+                <input matInput formControlName="lastName" placeholder="Doe">
+                @if (form.get('lastName')?.hasError('required')) {
+                  <mat-error>
+                    Last name is required
+                  </mat-error>
+                }
+              </mat-form-field>
+            </div>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="email" type="email" placeholder="john.doe@example.com">
+              <mat-icon matSuffix>email</mat-icon>
+              @if (form.get('email')?.hasError('required')) {
+                <mat-error>
+                  Email is required
+                </mat-error>
+              }
+              @if (form.get('email')?.hasError('email')) {
+                <mat-error>
+                  Please enter a valid email
+                </mat-error>
+              }
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ isEditMode() ? 'New Password (leave blank to keep current)' : 'Password' }}</mat-label>
+              <input matInput formControlName="password" type="password">
+              <mat-icon matSuffix>lock</mat-icon>
+              <mat-hint>Min 8 characters, 1 uppercase, 1 lowercase, 1 digit</mat-hint>
+              @if (form.get('password')?.hasError('required')) {
+                <mat-error>
+                  Password is required
+                </mat-error>
+              }
+              @if (form.get('password')?.hasError('minlength')) {
+                <mat-error>
+                  Password must be at least 8 characters
+                </mat-error>
+              }
+              @if (form.get('password')?.hasError('pattern')) {
+                <mat-error>
+                  Password must have 1 uppercase, 1 lowercase, and 1 digit
+                </mat-error>
+              }
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Role</mat-label>
+              <mat-select formControlName="role">
+                @for (role of roles; track role) {
+                  <mat-option [value]="role.value">
+                    <div class="role-option">
+                      <span class="role-name">{{ role.label }}</span>
+                      <span class="role-desc">{{ role.description }}</span>
+                    </div>
+                  </mat-option>
+                }
+              </mat-select>
+              @if (form.get('role')?.hasError('required')) {
+                <mat-error>
+                  Role is required
+                </mat-error>
+              }
+            </mat-form-field>
+            <mat-divider></mat-divider>
+            <div class="form-actions">
+              <button mat-button type="button" (click)="goBack()">Cancel</button>
+              <button mat-raised-button color="primary" type="submit"
+                [disabled]="form.invalid || saving()">
+                @if (saving()) {
+                  <mat-spinner diameter="20"></mat-spinner>
+                }
+                @if (!saving()) {
+                  <span>{{ isEditMode() ? 'Save Changes' : 'Create User' }}</span>
+                }
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+      <!-- User Status Card (Edit Mode Only) -->
+      @if (isEditMode() && user()) {
+        <mat-card class="status-card">
+          <mat-card-header>
+            <mat-card-title>Account Status</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="status-info">
+              <div class="status-row">
+                <span class="label">Status:</span>
+                <mat-chip [class]="user()?.isActive ? 'active' : 'inactive'">
+                  {{ user()?.isActive ? 'Active' : 'Inactive' }}
+                </mat-chip>
+              </div>
+              <div class="status-row">
+                <span class="label">Last Login:</span>
+                <span>{{ user()?.lastLogin ? (user()?.lastLogin | date:'medium') : 'Never' }}</span>
+              </div>
+              <div class="status-row">
+                <span class="label">Created:</span>
+                <span>{{ user()?.createdAt | date:'medium' }}</span>
+              </div>
+              <div class="status-row">
+                <span class="label">Groups:</span>
+                <span>{{ user()?.groupCount || 0 }} assigned</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+      <!-- Audit Log (Edit Mode Only) -->
+      @if (isEditMode() && userId()) {
+        <mat-card class="audit-card">
+          <app-audit-log
+            entityType="USER"
+            [entityId]="userId()!">
+          </app-audit-log>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

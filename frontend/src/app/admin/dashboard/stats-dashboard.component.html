@@ -1,0 +1,138 @@
+<div class="dashboard-container">
+  <div class="page-header">
+    <h1>Admin Dashboard</h1>
+    <p class="subtitle">Fleet overview and quick actions</p>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else if (error()) {
+    <mat-card class="error-card">
+      <mat-card-content>
+        <mat-icon>error</mat-icon>
+        <p>{{ error() }}</p>
+        <button mat-button color="primary" (click)="loadStats()">Retry</button>
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    <!-- Quick Stats -->
+    <div class="stats-grid">
+      <mat-card class="stat-card clickable" routerLink="/admin/users">
+        <mat-icon class="stat-icon users">people</mat-icon>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats()?.totalUsers ?? 0 }}</span>
+          <span class="stat-label">Total Users</span>
+          <span class="stat-sub">{{ stats()?.activeUsers ?? 0 }} active</span>
+        </div>
+        <mat-icon class="nav-arrow">chevron_right</mat-icon>
+      </mat-card>
+
+      <mat-card class="stat-card clickable" routerLink="/admin/trucks">
+        <mat-icon class="stat-icon trucks">local_shipping</mat-icon>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats()?.trucks?.total ?? 0 }}</span>
+          <span class="stat-label">Total Trucks</span>
+          <span class="stat-sub">{{ stats()?.trucks?.active ?? 0 }} active</span>
+        </div>
+        <mat-icon class="nav-arrow">chevron_right</mat-icon>
+      </mat-card>
+
+      <mat-card class="stat-card clickable" routerLink="/admin/groups">
+        <mat-icon class="stat-icon groups">workspaces</mat-icon>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats()?.totalGroups ?? 0 }}</span>
+          <span class="stat-label">Groups</span>
+          <span class="stat-sub">Fleet organization</span>
+        </div>
+        <mat-icon class="nav-arrow">chevron_right</mat-icon>
+      </mat-card>
+
+      <mat-card class="stat-card clickable" routerLink="/admin/config">
+        <mat-icon class="stat-icon alerts">settings</mat-icon>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats()?.alerts?.total ?? 0 }}</span>
+          <span class="stat-label">Configuration</span>
+          <span class="stat-sub">System settings</span>
+        </div>
+        <mat-icon class="nav-arrow">chevron_right</mat-icon>
+      </mat-card>
+    </div>
+
+    <!-- Truck Status Breakdown -->
+    <mat-card class="status-card">
+      <mat-card-header>
+        <mat-card-title>Truck Status Breakdown</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="status-grid">
+          <div class="status-item active">
+            <span class="status-count">{{ stats()?.trucks?.active ?? 0 }}</span>
+            <span class="status-label">Active</span>
+          </div>
+          <div class="status-item idle">
+            <span class="status-count">{{ stats()?.trucks?.idle ?? 0 }}</span>
+            <span class="status-label">Idle</span>
+          </div>
+          <div class="status-item offline">
+            <span class="status-count">{{ stats()?.trucks?.offline ?? 0 }}</span>
+            <span class="status-label">Offline</span>
+          </div>
+          <div class="status-item out-of-service">
+            <span class="status-count">{{ stats()?.trucks?.outOfService ?? 0 }}</span>
+            <span class="status-label">Out of Service</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Quick Actions -->
+    <mat-card class="actions-card">
+      <mat-card-header>
+        <mat-card-title>Quick Actions</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="actions-grid">
+          <button mat-stroked-button routerLink="/admin/users/new">
+            <mat-icon>person_add</mat-icon>
+            Add User
+          </button>
+          <button mat-stroked-button routerLink="/admin/trucks/new">
+            <mat-icon>add</mat-icon>
+            Add Truck
+          </button>
+          <button mat-stroked-button routerLink="/admin/groups/new">
+            <mat-icon>group_add</mat-icon>
+            Create Group
+          </button>
+          <button mat-stroked-button routerLink="/admin/config">
+            <mat-icon>settings</mat-icon>
+            Configuration
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Mileage Stats -->
+    @if (stats()?.mileage) {
+      <mat-card class="mileage-card">
+        <mat-card-header>
+          <mat-card-title>Fleet Mileage</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="mileage-summary">
+            <div class="mileage-stat">
+              <span class="mileage-value">{{ stats()?.mileage?.totalKilometers | number:'1.0-0' }}</span>
+              <span class="mileage-label">Total km</span>
+            </div>
+            <div class="mileage-stat">
+              <span class="mileage-value">{{ stats()?.mileage?.averagePerTruck | number:'1.0-0' }}</span>
+              <span class="mileage-label">Avg per truck</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+  }
+</div>

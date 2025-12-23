@@ -1,0 +1,46 @@
+.truck-list-container {
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.filters {
+  margin-bottom: 20px;
+}
+
+.trucks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.truck-card {
+  mat-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.status-active { background-color: #4CAF50; color: white; }
+.status-idle { background-color: #FFC107; color: black; }
+.status-offline { background-color: #9E9E9E; color: white; }
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+  mat-icon { font-size: 48px; width: 48px; height: 48px; }
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 20px;
+}
+
+.error { color: #f44336; }

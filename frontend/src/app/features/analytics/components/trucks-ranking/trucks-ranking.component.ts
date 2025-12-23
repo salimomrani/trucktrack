@@ -1,0 +1,51 @@
+import { Component, Input, ChangeDetectionStrategy, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { NgxChartsModule, Color, ScaleType } from '@swimlane/ngx-charts';
+
+import { TruckRankEntry } from '../../../../core/models/analytics.model';
+
+/**
+ * Truck ranking bar chart component.
+ * Feature: 006-fleet-analytics
+ * T033: Create trucks-ranking component (bar chart)
+ */
+@Component({
+  selector: 'app-trucks-ranking',
+  standalone: true,
+  imports: [CommonModule, MatCardModule, MatProgressSpinnerModule, NgxChartsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './trucks-ranking.component.html',
+  styleUrls: ['./trucks-ranking.component.scss']
+})
+export class TrucksRankingComponent {
+  @Input() data: TruckRankEntry[] = [];
+  @Input() isLoading = false;
+  @Input() chartWidth = 500;
+  @Input() unit = 'km';
+
+  readonly colorScheme: Color = {
+    name: 'ranking',
+    selectable: true,
+    group: ScaleType.Ordinal,
+    domain: ['#4caf50', '#8bc34a', '#cddc39', '#ffeb3b', '#ffc107', '#ff9800', '#ff5722', '#f44336', '#e91e63', '#9c27b0']
+  };
+
+  readonly chartData = computed(() => {
+    if (!this.data || this.data.length === 0) return [];
+
+    return this.data.map(d => ({
+      name: `${d.truckName} (${d.licensePlate})`,
+      value: d.value
+    }));
+  });
+
+  getChartSummary(): string {
+    if (!this.data || this.data.length === 0) {
+      return 'Aucune donnée';
+    }
+    const topTruck = this.data[0];
+    return `${this.data.length} camions, 1er: ${topTruck.truckName} avec ${topTruck.value.toLocaleString('fr-FR')} ${this.unit}`;
+  }
+}

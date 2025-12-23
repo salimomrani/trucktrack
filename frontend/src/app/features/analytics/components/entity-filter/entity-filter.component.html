@@ -1,0 +1,35 @@
+<div class="entity-filter">
+  <mat-form-field appearance="outline" class="type-select">
+    <mat-label>Filtrer par</mat-label>
+    <mat-select [value]="selectedType" (selectionChange)="onTypeChange($event.value)">
+      @for (option of typeOptions; track option.value) {
+        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  @if (selectedType !== 'FLEET') {
+    <mat-form-field appearance="outline" class="entity-select">
+      <mat-label>{{ selectedType === 'GROUP' ? 'Groupe' : 'Camion' }}</mat-label>
+      @if (isLoading()) {
+        <mat-select disabled>
+          <mat-option>Chargement...</mat-option>
+        </mat-select>
+      } @else {
+        <mat-select [value]="selectedEntityId" (selectionChange)="onEntityChange($event.value)">
+          @for (entity of currentEntities(); track entity.id) {
+            <mat-option [value]="entity.id">
+              {{ entity.name }}
+              @if (entity.licensePlate) {
+                <span class="license-plate"> ({{ entity.licensePlate }})</span>
+              }
+            </mat-option>
+          }
+          @if (currentEntities().length === 0) {
+            <mat-option disabled>Aucun élément disponible</mat-option>
+          }
+        </mat-select>
+      }
+    </mat-form-field>
+  }
+</div>

@@ -1,0 +1,32 @@
+@use '../../../../../styles/theme' as theme;
+
+.entity-filter {
+  display: flex;
+  gap: theme.$spacing-md;
+  align-items: flex-start;
+}
+
+.type-select {
+  min-width: 150px;
+}
+
+.entity-select {
+  min-width: 200px;
+}
+
+.license-plate {
+  color: theme.$color-text-secondary;
+  font-size: theme.$font-size-sm;
+}
+
+@media (max-width: 600px) {
+  .entity-filter {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .type-select,
+  .entity-select {
+    width: 100%;
+  }
+}

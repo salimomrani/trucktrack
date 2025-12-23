@@ -1,0 +1,44 @@
+<div class="period-filter">
+  <mat-form-field appearance="outline" class="period-select">
+    <mat-label>Période</mat-label>
+    <mat-select [value]="selectedPeriod" (selectionChange)="onPeriodChange($event.value)">
+      @for (option of periodOptions; track option.value) {
+        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  @if (selectedPeriod === 'CUSTOM') {
+    <div class="date-range">
+      <mat-form-field appearance="outline">
+        <mat-label>Date début</mat-label>
+        <input matInput [matDatepicker]="startPicker" [(ngModel)]="startDate"
+               [max]="endDate || maxDate" (dateChange)="onDateChange()">
+        <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
+        <mat-datepicker #startPicker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Date fin</mat-label>
+        <input matInput [matDatepicker]="endPicker" [(ngModel)]="endDate"
+               [min]="startDate" [max]="maxDate" (dateChange)="onDateChange()">
+        <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
+        <mat-datepicker #endPicker></mat-datepicker>
+      </mat-form-field>
+
+      @if (dateError) {
+        <div class="date-error">
+          <mat-icon>error</mat-icon>
+          {{ dateError }}
+        </div>
+      }
+
+      @if (startDate && endDate && !dateError) {
+        <div class="date-summary">
+          <mat-icon>date_range</mat-icon>
+          <span>{{ formatDateDisplay(startDate) }} - {{ formatDateDisplay(endDate) }} ({{ getDayCount() }} jours)</span>
+        </div>
+      }
+    </div>
+  }
+</div>

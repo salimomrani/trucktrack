@@ -41,6 +41,15 @@ export const routes: Routes = [
     title: 'Alerts - Truck Track'
   },
 
+  // Analytics route - protected, requires authentication
+  // Feature: 006-fleet-analytics
+  {
+    path: 'analytics',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/analytics/analytics.component').then(m => m.AnalyticsComponent),
+    title: 'Analytics - Truck Track'
+  },
+
   // Profile route - protected, requires authentication
   {
     path: 'profile',

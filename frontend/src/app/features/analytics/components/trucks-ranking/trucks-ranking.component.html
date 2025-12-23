@@ -1,0 +1,34 @@
+<mat-card class="chart-card"
+          role="figure"
+          [attr.aria-label]="'Classement des camions par distance: ' + getChartSummary()"
+          [attr.aria-busy]="isLoading">
+  <mat-card-header>
+    <mat-card-title>Top 10 Camions par distance</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    @if (isLoading) {
+      <div class="loading-state" aria-hidden="true">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    } @else if (chartData().length === 0) {
+      <div class="empty-state">
+        <p>Aucune donnée disponible</p>
+      </div>
+    } @else {
+      <ngx-charts-bar-horizontal
+        [view]="[chartWidth, 350]"
+        [scheme]="colorScheme"
+        [results]="chartData()"
+        [xAxis]="true"
+        [yAxis]="true"
+        [legend]="false"
+        [showXAxisLabel]="true"
+        [showYAxisLabel]="false"
+        [xAxisLabel]="unit"
+        [gradient]="true"
+        [roundDomains]="true"
+        [roundEdges]="true">
+      </ngx-charts-bar-horizontal>
+    }
+  </mat-card-content>
+</mat-card>

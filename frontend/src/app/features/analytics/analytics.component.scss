@@ -1,0 +1,259 @@
+@use '../../../styles/theme' as theme;
+
+.analytics-container {
+  padding: theme.$spacing-lg;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: calc(100vh - 64px);
+}
+
+.analytics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: theme.$spacing-xl;
+  flex-wrap: wrap;
+  gap: theme.$spacing-md;
+
+  .header-title {
+    display: flex;
+    align-items: center;
+    gap: theme.$spacing-sm;
+
+    mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: theme.$color-primary-500;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: theme.$font-size-2xl;
+      font-weight: theme.$font-weight-bold;
+      color: theme.$color-text-primary;
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: theme.$spacing-lg;
+    flex-wrap: wrap;
+  }
+
+  .filters {
+    display: flex;
+    gap: theme.$spacing-md;
+    align-items: center;
+  }
+
+  .export-buttons {
+    display: flex;
+    gap: theme.$spacing-sm;
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: theme.$spacing-xs;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+
+      mat-spinner {
+        margin-right: theme.$spacing-xs;
+      }
+    }
+  }
+
+  .period-select {
+    min-width: 180px;
+  }
+}
+
+// KPI Grid - responsive 4 columns
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: theme.$spacing-md;
+  margin-bottom: theme.$spacing-xl;
+}
+
+// Error card
+.error-card {
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: theme.$spacing-md;
+    padding: theme.$spacing-xl;
+    text-align: center;
+
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+    }
+
+    p {
+      color: theme.$color-text-secondary;
+      margin: 0;
+    }
+  }
+}
+
+// Empty state card
+.empty-card {
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: theme.$spacing-md;
+    padding: theme.$spacing-2xl;
+    text-align: center;
+
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      color: theme.$color-text-secondary;
+      opacity: 0.5;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: theme.$font-size-xl;
+      font-weight: theme.$font-weight-semibold;
+      color: theme.$color-text-primary;
+    }
+
+    p {
+      margin: 0;
+      color: theme.$color-text-secondary;
+    }
+  }
+}
+
+// Entity info footer
+.entity-info {
+  display: flex;
+  align-items: center;
+  gap: theme.$spacing-sm;
+  padding: theme.$spacing-md;
+  background: theme.$color-gray-100;
+  border-radius: theme.$border-radius-md;
+  color: theme.$color-text-secondary;
+  font-size: theme.$font-size-sm;
+  margin-bottom: theme.$spacing-xl;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// Charts section
+.charts-section {
+  margin-top: theme.$spacing-xl;
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: theme.$spacing-sm;
+    margin: 0 0 theme.$spacing-lg 0;
+    font-size: theme.$font-size-xl;
+    font-weight: theme.$font-weight-semibold;
+    color: theme.$color-text-primary;
+
+    mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      color: theme.$color-primary-500;
+    }
+  }
+}
+
+// Charts Grid - responsive 2x2 layout
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: theme.$spacing-lg;
+
+  // Full width for ranking chart on desktop
+  app-trucks-ranking {
+    grid-column: 1 / -1;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 1200px) {
+  .kpi-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+
+    app-trucks-ranking {
+      grid-column: auto;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .analytics-container {
+    padding: theme.$spacing-md;
+  }
+
+  .analytics-header {
+    flex-direction: column;
+    align-items: stretch;
+
+    .header-actions {
+      flex-direction: column;
+      align-items: stretch;
+      gap: theme.$spacing-md;
+    }
+
+    .filters {
+      width: 100%;
+      flex-direction: column;
+    }
+
+    .export-buttons {
+      justify-content: center;
+    }
+
+    .period-select {
+      width: 100%;
+    }
+  }
+
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .charts-grid {
+    gap: theme.$spacing-md;
+  }
+
+  .entity-info {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .charts-section .section-title {
+    font-size: theme.$font-size-lg;
+  }
+}

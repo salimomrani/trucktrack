@@ -1,0 +1,83 @@
+<div class="truck-list-container">
+  <div class="header">
+    <h2>Trucks ({{ truckCount() }})</h2>
+    <button mat-raised-button color="primary" (click)="refreshTrucks()">
+      <mat-icon>refresh</mat-icon>
+      Refresh
+    </button>
+  </div>
+
+  <!-- Loading state -->
+  @if (isLoading()) {
+    <div class="loading">Loading trucks...</div>
+  }
+
+  <!-- Error state -->
+  @if (error()) {
+    <div class="error">{{ error() }}</div>
+  }
+
+  <!-- Filters -->
+  <div class="filters">
+    <mat-chip-set>
+      <mat-chip
+        [highlighted]="selectedStatus() === null"
+        (click)="filterByStatus(null)">
+        All ({{ truckCount() }})
+      </mat-chip>
+      <mat-chip
+        [highlighted]="selectedStatus() === TruckStatus.ACTIVE"
+        (click)="filterByStatus(TruckStatus.ACTIVE)">
+        Active ({{ activeTrucksCount() }})
+      </mat-chip>
+      <mat-chip
+        [highlighted]="selectedStatus() === TruckStatus.IDLE"
+        (click)="filterByStatus(TruckStatus.IDLE)">
+        Idle ({{ idleTrucksCount() }})
+      </mat-chip>
+      <mat-chip
+        [highlighted]="selectedStatus() === TruckStatus.OFFLINE"
+        (click)="filterByStatus(TruckStatus.OFFLINE)">
+        Offline ({{ offlineTrucksCount() }})
+      </mat-chip>
+    </mat-chip-set>
+  </div>
+
+  <!-- Truck list -->
+  <div class="trucks-grid">
+    @for (truck of filteredTrucks(); track truck.id) {
+      <mat-card class="truck-card">
+        <mat-card-header>
+          <mat-card-title>{{ truck.truckId }}</mat-card-title>
+          <mat-chip [ngClass]="'status-' + truck.status.toLowerCase()">
+            {{ truck.status }}
+          </mat-chip>
+        </mat-card-header>
+        <mat-card-content>
+          @if (truck.driverName) {
+            <p><strong>Driver:</strong> {{ truck.driverName }}</p>
+          }
+          @if (truck.currentSpeed !== null) {
+            <p><strong>Speed:</strong> {{ truck.currentSpeed | number:'1.1-1' }} km/h</p>
+          }
+          @if (truck.lastUpdate) {
+            <p><strong>Last Update:</strong> {{ truck.lastUpdate | date:'short' }}</p>
+          }
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button (click)="viewTruckDetails(truck)">
+            View Details
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    }
+  </div>
+
+  <!-- Empty state -->
+  @if (filteredTrucks().length === 0 && !isLoading()) {
+    <div class="empty-state">
+      <mat-icon>local_shipping</mat-icon>
+      <p>No trucks found</p>
+    </div>
+  }
+</div>

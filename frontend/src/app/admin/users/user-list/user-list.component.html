@@ -1,0 +1,106 @@
+<div class="user-list-container">
+  <!-- Breadcrumb -->
+  <app-breadcrumb [items]="[{ label: 'Users', icon: 'people' }]"></app-breadcrumb>
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1>User Management</h1>
+      <p class="subtitle">Manage user accounts and permissions</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="createUser()">
+      <mat-icon>add</mat-icon>
+      Add User
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <mat-card class="filters-card">
+    <div class="filters-row">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search</mat-label>
+        <input matInput
+          placeholder="Search by name or email..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearch()">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Role</mat-label>
+        <mat-select [(ngModel)]="selectedRole" (selectionChange)="onFilterChange()">
+          <mat-option [value]="null">All Roles</mat-option>
+          @for (role of roles; track role) {
+            <mat-option [value]="role.value">
+              {{ role.label }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="selectedStatus" (selectionChange)="onFilterChange()">
+          <mat-option [value]="null">All Statuses</mat-option>
+          <mat-option [value]="true">Active</mat-option>
+          <mat-option [value]="false">Inactive</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      @if (hasFilters()) {
+        <button mat-stroked-button (click)="clearFilters()">
+          <mat-icon>clear</mat-icon>
+          Clear
+        </button>
+      }
+    </div>
+  </mat-card>
+
+  <!-- Users Table -->
+  <mat-card class="table-card">
+    <app-data-table
+      [columns]="columns"
+      [data]="users()"
+      [totalElements]="totalElements()"
+      [pageSize]="pageSize"
+      [pageIndex]="pageIndex"
+      [isLoading]="loading()"
+      [searchable]="false"
+      [showActions]="false"
+      [rowClickable]="true"
+      (pageChange)="onPageChange($event)"
+      (onRowClick)="onRowClick($event)">
+    </app-data-table>
+
+    <!-- Actions column rendered separately -->
+    <ng-template #actionsTemplate let-user>
+      <button mat-icon-button [matMenuTriggerFor]="menu" (click)="$event.stopPropagation()">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="editUser(user)">
+          <mat-icon>edit</mat-icon>
+          <span>Edit</span>
+        </button>
+        @if (user.isActive) {
+          <button mat-menu-item
+            (click)="confirmDeactivate(user)">
+            <mat-icon color="warn">block</mat-icon>
+            <span>Deactivate</span>
+          </button>
+        }
+        @if (!user.isActive) {
+          <button mat-menu-item
+            (click)="confirmReactivate(user)">
+            <mat-icon color="primary">check_circle</mat-icon>
+            <span>Reactivate</span>
+          </button>
+        }
+        <button mat-menu-item (click)="resendEmail(user)">
+          <mat-icon>email</mat-icon>
+          <span>Resend Activation</span>
+        </button>
+      </mat-menu>
+    </ng-template>
+  </mat-card>
+</div>

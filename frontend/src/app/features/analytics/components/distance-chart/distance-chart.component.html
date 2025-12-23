@@ -1,0 +1,35 @@
+<mat-card class="chart-card"
+          role="figure"
+          [attr.aria-label]="'Graphique de distance parcourue par jour: ' + getChartSummary()"
+          [attr.aria-busy]="isLoading">
+  <mat-card-header>
+    <mat-card-title>Distance parcourue par jour</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    @if (isLoading) {
+      <div class="loading-state" aria-hidden="true">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    } @else if (chartData().length === 0) {
+      <div class="empty-state">
+        <p>Aucune donnée disponible</p>
+      </div>
+    } @else {
+      <ngx-charts-line-chart
+        [view]="[chartWidth, 300]"
+        [scheme]="colorScheme"
+        [results]="chartData()"
+        [xAxis]="true"
+        [yAxis]="true"
+        [legend]="false"
+        [showXAxisLabel]="true"
+        [showYAxisLabel]="true"
+        [xAxisLabel]="'Date'"
+        [yAxisLabel]="'Distance (km)'"
+        [autoScale]="true"
+        [timeline]="false"
+        [roundDomains]="true">
+      </ngx-charts-line-chart>
+    }
+  </mat-card-content>
+</mat-card>

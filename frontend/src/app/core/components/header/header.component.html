@@ -20,6 +20,17 @@
       <!-- Spacer -->
       <div class="spacer"></div>
 
+      <!-- Analytics button - Feature: 006-fleet-analytics -->
+      <a
+        mat-icon-button
+        routerLink="/analytics"
+        routerLinkActive="analytics-active"
+        class="analytics-button"
+        aria-label="Analytics"
+        matTooltip="Analytics">
+        <mat-icon>analytics</mat-icon>
+      </a>
+
       <!-- Admin button - visible for admin users only -->
       @if (hasAdminAccess()) {
         <a

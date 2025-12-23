@@ -79,6 +79,25 @@ $nav-animation-easing: cubic-bezier(0.4, 0, 0.2, 1);
   flex: 1;
 }
 
+// Analytics button - Feature: 006-fleet-analytics
+.analytics-button {
+  color: inherit;
+  text-decoration: none;
+
+  &:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 2px;
+  }
+
+  &.analytics-active {
+    background-color: rgba(255, 255, 255, 0.15);
+  }
+
+  mat-icon {
+    font-size: 24px;
+  }
+}
+
 // Admin button - visible for admin users
 .admin-button {
   color: inherit;

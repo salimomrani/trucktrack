@@ -1,0 +1,154 @@
+<div class="analytics-container" id="analytics-dashboard">
+  <!-- Header with filters -->
+  <div class="analytics-header">
+    <div class="header-title">
+      <mat-icon>analytics</mat-icon>
+      <h1>Analytics</h1>
+    </div>
+
+    <div class="header-actions">
+      <div class="filters">
+        <!-- Period filter -->
+        <app-period-filter
+          [selectedPeriod]="selectedPeriod()"
+          (periodChange)="onPeriodChange($event)"
+          (dateRangeChange)="onDateRangeChange($event)"
+        />
+
+        <!-- Entity filter -->
+        <app-entity-filter
+          [selectedType]="selectedEntityType()"
+          [selectedEntityId]="selectedEntityId()"
+          (typeChange)="onEntityTypeChange($event)"
+          (entityChange)="onEntityChange($event)"
+        />
+      </div>
+
+      <!-- Export buttons -->
+      <div class="export-buttons">
+        <button
+          mat-stroked-button
+          color="primary"
+          [disabled]="!canExport() || isExporting()"
+          [matTooltip]="canExport() ? 'Exporter en PDF' : 'Aucune donnée à exporter'"
+          (click)="exportToPdf()"
+        >
+          @if (isExporting()) {
+            <mat-spinner diameter="18"></mat-spinner>
+          } @else {
+            <mat-icon>picture_as_pdf</mat-icon>
+          }
+          PDF
+        </button>
+
+        <button
+          mat-stroked-button
+          color="primary"
+          [disabled]="!canExport() || isExporting()"
+          [matTooltip]="canExport() ? 'Exporter en Excel' : 'Aucune donnée à exporter'"
+          (click)="exportToExcel()"
+        >
+          @if (isExporting()) {
+            <mat-spinner diameter="18"></mat-spinner>
+          } @else {
+            <mat-icon>table_chart</mat-icon>
+          }
+          Excel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error state -->
+  @if (error()) {
+    <mat-card class="error-card">
+      <mat-card-content>
+        <mat-icon color="warn">error</mat-icon>
+        <p>{{ error() }}</p>
+        <button mat-raised-button color="primary" (click)="loadKPIs()">
+          <mat-icon>refresh</mat-icon>
+          Réessayer
+        </button>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Empty state -->
+  @if (!isLoading() && !error() && kpis() === null) {
+    <mat-card class="empty-card">
+      <mat-card-content>
+        <mat-icon>insert_chart_outlined</mat-icon>
+        <h2>Aucune donnée disponible</h2>
+        <p>Il n'y a pas de données analytics pour la période sélectionnée.</p>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- KPI Grid -->
+  @if (!error()) {
+    <div class="kpi-grid">
+      @for (kpi of kpiCards(); track kpi.label) {
+        <app-kpi-card
+          [label]="kpi.label"
+          [value]="kpi.value"
+          [unit]="kpi.unit"
+          [icon]="kpi.icon"
+          [iconClass]="kpi.iconClass"
+          [isLoading]="isLoading()"
+        />
+      }
+
+      <!-- Show loading placeholders when no data yet -->
+      @if (kpiCards().length === 0 && isLoading()) {
+        @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
+          <app-kpi-card [isLoading]="true" />
+        }
+      }
+    </div>
+  }
+
+  <!-- Entity info -->
+  @if (kpis(); as data) {
+    <div class="entity-info">
+      <mat-icon>info</mat-icon>
+      <span>
+        {{ data.entity.name }} • {{ data.entity.truckCount }} camion(s) •
+        {{ data.period.startDate }} au {{ data.period.endDate }} ({{ data.period.daysCount }} jours)
+      </span>
+    </div>
+  }
+
+  <!-- Charts Section -->
+  @if (!error()) {
+    <section class="charts-section">
+      <h2 class="section-title">
+        <mat-icon>bar_chart</mat-icon>
+        Visualisations
+      </h2>
+
+      <div class="charts-grid">
+        <!-- Distance Line Chart -->
+        <app-distance-chart
+          [data]="dailyMetrics()"
+          [isLoading]="isChartsLoading()"
+          [chartWidth]="chartWidth()"
+        />
+
+        <!-- Alerts Pie Chart -->
+        <app-alerts-chart
+          [data]="alertBreakdown()"
+          [isLoading]="isChartsLoading()"
+          [chartWidth]="chartWidth()"
+        />
+
+        <!-- Trucks Ranking Bar Chart -->
+        <app-trucks-ranking
+          [data]="truckRanking()"
+          [isLoading]="isChartsLoading()"
+          [chartWidth]="chartWidth()"
+          [unit]="'km'"
+        />
+      </div>
+    </section>
+  }
+</div>

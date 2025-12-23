@@ -1,0 +1,109 @@
+.user-form-container {
+  padding: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.header-text h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.subtitle {
+  margin: 4px 0 0 0;
+  color: #757575;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+}
+
+.form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-card, .status-card, .audit-card {
+  padding: 24px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.half-width {
+  flex: 1;
+}
+
+.full-width {
+  width: 100%;
+}
+
+mat-form-field {
+  margin-bottom: 8px;
+}
+
+.role-option {
+  display: flex;
+  flex-direction: column;
+}
+
+.role-name {
+  font-weight: 500;
+}
+
+.role-desc {
+  font-size: 12px;
+  color: #757575;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.status-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-row .label {
+  width: 100px;
+  font-weight: 500;
+  color: #757575;
+}
+
+mat-chip.active {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+mat-chip.inactive {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+
+mat-divider {
+  margin: 24px 0;
+}

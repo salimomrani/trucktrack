@@ -1,0 +1,73 @@
+@use '../../../../../styles/theme' as theme;
+
+.period-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: theme.$spacing-md;
+  align-items: flex-start;
+}
+
+.period-select {
+  min-width: 180px;
+}
+
+.date-range {
+  display: flex;
+  gap: theme.$spacing-sm;
+  flex-wrap: wrap;
+
+  mat-form-field {
+    width: 150px;
+  }
+}
+
+.date-error {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: theme.$spacing-xs;
+  color: theme.$color-danger-500;
+  font-size: theme.$font-size-sm;
+  margin-top: -8px;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.date-summary {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: theme.$spacing-xs;
+  color: theme.$color-text-secondary;
+  font-size: theme.$font-size-sm;
+  padding: theme.$spacing-xs theme.$spacing-sm;
+  background: theme.$color-gray-100;
+  border-radius: theme.$border-radius-sm;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: theme.$color-primary-500;
+  }
+}
+
+@media (max-width: 600px) {
+  .period-filter {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .period-select,
+  .date-range mat-form-field {
+    width: 100%;
+  }
+
+  .date-range {
+    width: 100%;
+  }
+}

@@ -3,6 +3,8 @@
 Auto-generated from all feature plans. Last updated: 2025-12-23
 
 ## Active Technologies
+- Java 17 (backend), TypeScript 5.9 with Angular 21 (frontend) (006-fleet-analytics)
+- PostgreSQL 15+ with PostGIS (existing), Redis 7+ (cache KPIs) (006-fleet-analytics)
 
 ### Backend
 - Java 17 + Spring Boot 3.2.1, Spring Security, Spring Data JPA
@@ -33,6 +35,7 @@ npm test && npm run lint
 - **Frontend**: TypeScript 5.9 with Angular 21 conventions (signals, block control flow)
 
 ## Recent Changes
+- 006-fleet-analytics: Added Java 17 (backend), TypeScript 5.9 with Angular 21 (frontend)
 - 2025-12-23: Migrated frontend from Angular 17 to Angular 21.0.6
   - Block control flow (`@if`/`@for`) now default
   - Signals for reactive state
@@ -131,7 +134,30 @@ private String getUserRole(GatewayUserPrincipal principal) {
 
 6. **OnPush**: Utiliser `ChangeDetectionStrategy.OnPush` avec les signals
 
-7. **NgRx Store - TOUJOURS privilégier le store**:
+7. **Structure des fichiers de composant - JAMAIS inline**:
+   - **INTERDIT**: Mettre le template et les styles inline dans le fichier `.ts`
+   - **OBLIGATOIRE**: Toujours créer des fichiers séparés pour chaque composant:
+     - `component-name.component.ts` (logique)
+     - `component-name.component.html` (template)
+     - `component-name.component.scss` (styles)
+
+   ```typescript
+   // ❌ INTERDIT - Template/styles inline
+   @Component({
+     selector: 'app-example',
+     template: `<div>...</div>`,
+     styles: [`...`]
+   })
+
+   // ✅ CORRECT - Fichiers séparés
+   @Component({
+     selector: 'app-example',
+     templateUrl: './example.component.html',
+     styleUrls: ['./example.component.scss']
+   })
+   ```
+
+8. **NgRx Store - TOUJOURS privilégier le store**:
    - **INTERDIT**: Faire des appels API pour récupérer des données déjà présentes dans le store
    - **OBLIGATOIRE**: Utiliser `StoreFacade` pour accéder aux données déjà chargées
 

@@ -1,0 +1,74 @@
+<div class="audit-log-container">
+  <h3 class="section-title">
+    <mat-icon>history</mat-icon>
+    Audit History
+  </h3>
+
+  <!-- Loading spinner -->
+  @if (loading()) {
+    <div class="loading">
+      <mat-spinner diameter="30"></mat-spinner>
+    </div>
+  }
+
+  <!-- Empty state -->
+  @if (!loading() && logs().length === 0) {
+    <div class="empty-state">
+      <mat-icon>inbox</mat-icon>
+      <span>No audit history available</span>
+    </div>
+  }
+
+  <!-- Audit log entries -->
+  @if (!loading() && logs().length > 0) {
+    <div class="log-entries">
+      <mat-accordion>
+        @for (log of logs(); track log) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-chip [class]="'action-chip ' + log.action.toLowerCase()">
+                  {{ getActionIcon(log.action) }}
+                  {{ log.action }}
+                </mat-chip>
+              </mat-panel-title>
+              <mat-panel-description>
+                <span class="log-meta">
+                  <span class="username">{{ log.username }}</span>
+                  <span class="separator">•</span>
+                  <span class="timestamp">{{ log.timestamp | date:'medium' }}</span>
+                </span>
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+            <div class="log-details">
+              <div class="detail-row">
+                <span class="label">User ID:</span>
+                <span class="value">{{ log.userId }}</span>
+              </div>
+              @if (log.ipAddress) {
+                <div class="detail-row">
+                  <span class="label">IP Address:</span>
+                  <span class="value">{{ log.ipAddress }}</span>
+                </div>
+              }
+              @if (log.changes) {
+                <div class="detail-row">
+                  <span class="label">Changes:</span>
+                  <pre class="changes-json">{{ formatChanges(log.changes) }}</pre>
+                </div>
+              }
+            </div>
+          </mat-expansion-panel>
+        }
+      </mat-accordion>
+      <!-- Load more button -->
+      @if (hasMore()) {
+        <div class="load-more">
+          <button mat-stroked-button (click)="loadMore()">
+            Load More
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>

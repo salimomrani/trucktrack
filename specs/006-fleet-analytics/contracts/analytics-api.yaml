@@ -1,0 +1,477 @@
+openapi: 3.0.3
+info:
+  title: TruckTrack Analytics API
+  description: Fleet analytics and reporting endpoints
+  version: 1.0.0
+  contact:
+    name: TruckTrack Team
+
+servers:
+  - url: /api/v1
+    description: API Gateway
+
+tags:
+  - name: Analytics
+    description: Fleet analytics and KPI endpoints
+
+paths:
+  /analytics/kpis:
+    get:
+      tags:
+        - Analytics
+      summary: Get fleet KPIs
+      description: |
+        Returns aggregated KPIs for the selected entity (truck, group, or fleet)
+        over the specified period. Results are cached for performance.
+      operationId: getFleetKPIs
+      parameters:
+        - $ref: '#/components/parameters/PeriodType'
+        - $ref: '#/components/parameters/StartDate'
+        - $ref: '#/components/parameters/EndDate'
+        - $ref: '#/components/parameters/EntityType'
+        - $ref: '#/components/parameters/EntityId'
+      responses:
+        '200':
+          description: KPIs retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FleetKPIResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      security:
+        - bearerAuth: []
+
+  /analytics/daily-metrics:
+    get:
+      tags:
+        - Analytics
+      summary: Get daily metrics for charts
+      description: |
+        Returns daily aggregated metrics for building line charts.
+        Each data point represents one day's aggregated values.
+      operationId: getDailyMetrics
+      parameters:
+        - $ref: '#/components/parameters/PeriodType'
+        - $ref: '#/components/parameters/StartDate'
+        - $ref: '#/components/parameters/EndDate'
+        - $ref: '#/components/parameters/EntityType'
+        - $ref: '#/components/parameters/EntityId'
+      responses:
+        '200':
+          description: Daily metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyMetricsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      security:
+        - bearerAuth: []
+
+  /analytics/alert-breakdown:
+    get:
+      tags:
+        - Analytics
+      summary: Get alert breakdown by type
+      description: |
+        Returns the distribution of alerts by type for pie chart visualization.
+        Includes count and percentage for each alert type.
+      operationId: getAlertBreakdown
+      parameters:
+        - $ref: '#/components/parameters/PeriodType'
+        - $ref: '#/components/parameters/StartDate'
+        - $ref: '#/components/parameters/EndDate'
+        - $ref: '#/components/parameters/EntityType'
+        - $ref: '#/components/parameters/EntityId'
+      responses:
+        '200':
+          description: Alert breakdown retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertBreakdownResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      security:
+        - bearerAuth: []
+
+  /analytics/truck-ranking:
+    get:
+      tags:
+        - Analytics
+      summary: Get truck ranking by metric
+      description: |
+        Returns top trucks ranked by the specified metric.
+        Used for bar chart comparison of truck performance.
+      operationId: getTruckRanking
+      parameters:
+        - $ref: '#/components/parameters/PeriodType'
+        - $ref: '#/components/parameters/StartDate'
+        - $ref: '#/components/parameters/EndDate'
+        - name: metric
+          in: query
+          required: true
+          description: Metric to rank by
+          schema:
+            type: string
+            enum: [DISTANCE, DRIVING_TIME, ALERTS]
+            default: DISTANCE
+        - name: limit
+          in: query
+          required: false
+          description: Number of trucks to return (max 50)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+      responses:
+        '200':
+          description: Truck ranking retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TruckRankingResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      security:
+        - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    PeriodType:
+      name: period
+      in: query
+      required: true
+      description: Period type for aggregation
+      schema:
+        type: string
+        enum: [TODAY, WEEK, MONTH, CUSTOM]
+        default: WEEK
+
+    StartDate:
+      name: startDate
+      in: query
+      required: false
+      description: Start date for CUSTOM period (ISO 8601)
+      schema:
+        type: string
+        format: date
+        example: '2025-01-01'
+
+    EndDate:
+      name: endDate
+      in: query
+      required: false
+      description: End date for CUSTOM period (ISO 8601)
+      schema:
+        type: string
+        format: date
+        example: '2025-01-31'
+
+    EntityType:
+      name: entityType
+      in: query
+      required: true
+      description: Type of entity to aggregate
+      schema:
+        type: string
+        enum: [TRUCK, GROUP, FLEET]
+        default: FLEET
+
+    EntityId:
+      name: entityId
+      in: query
+      required: false
+      description: Entity ID (required for TRUCK or GROUP)
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    PeriodInfo:
+      type: object
+      required:
+        - type
+        - startDate
+        - endDate
+        - daysCount
+      properties:
+        type:
+          type: string
+          enum: [TODAY, WEEK, MONTH, CUSTOM]
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        daysCount:
+          type: integer
+          minimum: 1
+
+    EntityInfo:
+      type: object
+      required:
+        - type
+        - name
+        - truckCount
+      properties:
+        type:
+          type: string
+          enum: [TRUCK, GROUP, FLEET]
+        id:
+          type: string
+          format: uuid
+          nullable: true
+        name:
+          type: string
+        truckCount:
+          type: integer
+          minimum: 0
+
+    FleetKPIResponse:
+      type: object
+      required:
+        - period
+        - entity
+        - totalDistanceKm
+        - drivingTimeMinutes
+        - idleTimeMinutes
+        - avgSpeedKmh
+        - maxSpeedKmh
+        - alertCount
+        - geofenceEntries
+        - geofenceExits
+      properties:
+        period:
+          $ref: '#/components/schemas/PeriodInfo'
+        entity:
+          $ref: '#/components/schemas/EntityInfo'
+        totalDistanceKm:
+          type: number
+          format: double
+          description: Total distance in kilometers
+          example: 1250.5
+        drivingTimeMinutes:
+          type: integer
+          format: int64
+          description: Total driving time in minutes
+          example: 4800
+        idleTimeMinutes:
+          type: integer
+          format: int64
+          description: Total idle time in minutes
+          example: 1200
+        avgSpeedKmh:
+          type: number
+          format: double
+          description: Average speed when moving
+          example: 65.3
+        maxSpeedKmh:
+          type: number
+          format: double
+          description: Maximum recorded speed
+          example: 120.0
+        alertCount:
+          type: integer
+          description: Total alerts triggered
+          example: 15
+        geofenceEntries:
+          type: integer
+          description: Number of geofence entries
+          example: 45
+        geofenceExits:
+          type: integer
+          description: Number of geofence exits
+          example: 43
+
+    DailyDataPoint:
+      type: object
+      required:
+        - date
+        - distanceKm
+        - drivingTimeMinutes
+        - alertCount
+      properties:
+        date:
+          type: string
+          format: date
+        distanceKm:
+          type: number
+          format: double
+        drivingTimeMinutes:
+          type: integer
+          format: int64
+        alertCount:
+          type: integer
+
+    DailyMetricsResponse:
+      type: object
+      required:
+        - period
+        - entity
+        - dailyData
+      properties:
+        period:
+          $ref: '#/components/schemas/PeriodInfo'
+        entity:
+          $ref: '#/components/schemas/EntityInfo'
+        dailyData:
+          type: array
+          items:
+            $ref: '#/components/schemas/DailyDataPoint'
+
+    AlertTypeCount:
+      type: object
+      required:
+        - alertType
+        - count
+        - percentage
+      properties:
+        alertType:
+          type: string
+          description: Alert type identifier
+          example: SPEED_VIOLATION
+        count:
+          type: integer
+          example: 12
+        percentage:
+          type: number
+          format: double
+          description: Percentage of total (0-100)
+          example: 40.0
+
+    AlertBreakdownResponse:
+      type: object
+      required:
+        - period
+        - entity
+        - totalAlerts
+        - breakdown
+      properties:
+        period:
+          $ref: '#/components/schemas/PeriodInfo'
+        entity:
+          $ref: '#/components/schemas/EntityInfo'
+        totalAlerts:
+          type: integer
+        breakdown:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlertTypeCount'
+
+    TruckRankEntry:
+      type: object
+      required:
+        - rank
+        - truckId
+        - truckName
+        - licensePlate
+        - value
+        - unit
+      properties:
+        rank:
+          type: integer
+          minimum: 1
+        truckId:
+          type: string
+          format: uuid
+        truckName:
+          type: string
+        licensePlate:
+          type: string
+        value:
+          type: number
+          format: double
+        unit:
+          type: string
+          example: km
+
+    TruckRankingResponse:
+      type: object
+      required:
+        - period
+        - metric
+        - ranking
+        - limit
+      properties:
+        period:
+          $ref: '#/components/schemas/PeriodInfo'
+        metric:
+          type: string
+          enum: [DISTANCE, DRIVING_TIME, ALERTS]
+        ranking:
+          type: array
+          items:
+            $ref: '#/components/schemas/TruckRankEntry'
+        limit:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: INVALID_PERIOD
+            message: End date must be after start date
+
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: UNAUTHORIZED
+            message: Valid JWT token required
+
+    Forbidden:
+      description: Access denied to requested entity
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: ACCESS_DENIED
+            message: You don't have access to this truck group
