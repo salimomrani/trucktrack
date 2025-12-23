@@ -63,10 +63,11 @@ mat-card-subtitle {
 
 .demo-info {
   margin-top: 24px;
-  padding: 16px;
+  padding: 12px;
   background-color: #f5f5f5;
   border-radius: 4px;
   border-left: 4px solid #667eea;
+  overflow-x: auto;
 }
 
 .demo-title {
@@ -76,47 +77,39 @@ mat-card-subtitle {
   font-size: 14px;
 }
 
-.demo-hint {
-  font-size: 12px;
-  color: #888;
-  margin-top: 12px;
-  text-align: center;
-  font-style: italic;
+// Test users list
+.test-users-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-// Test users table
-.test-users-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
+.test-user {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: white;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid #e0e0e0;
 
-  th {
-    text-align: left;
-    padding: 8px 6px;
-    color: #666;
-    font-weight: 500;
-    border-bottom: 1px solid #ddd;
+  &:hover {
+    background-color: #e8eaf6;
+    border-color: #667eea;
+    transform: translateY(-1px);
   }
 
-  td {
-    padding: 8px 6px;
-    color: #333;
-    font-family: 'Courier New', monospace;
-    border-bottom: 1px solid #eee;
+  &:active {
+    transform: translateY(0);
   }
+}
 
-  tbody tr {
-    cursor: pointer;
-    transition: background-color 0.15s ease;
-
-    &:hover {
-      background-color: #e8eaf6;
-    }
-
-    &:active {
-      background-color: #c5cae9;
-    }
-  }
+.user-email {
+  font-size: 11px;
+  color: #666;
+  font-family: 'Courier New', monospace;
 }
 
 // Role badges

@@ -76,44 +76,29 @@
 
       <!-- Test Users Reference (Local Development) -->
       <div class="demo-info">
-        <p class="demo-title">Utilisateurs de test :</p>
-        <table class="test-users-table">
-          <thead>
-            <tr>
-              <th>Rôle</th>
-              <th>Email</th>
-              <th>Mot de passe</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="role-admin" (click)="fillCredentials('sysadmin@trucktrack.com', 'AdminPass123!')">
-              <td><span class="role-badge admin">ADMIN</span></td>
-              <td>sysadmin&#64;trucktrack.com</td>
-              <td>AdminPass123!</td>
-            </tr>
-            <tr class="role-fleet" (click)="fillCredentials('fleetmanager@trucktrack.com', 'FleetPass123!')">
-              <td><span class="role-badge fleet">FLEET_MANAGER</span></td>
-              <td>fleetmanager&#64;trucktrack.com</td>
-              <td>FleetPass123!</td>
-            </tr>
-            <tr class="role-dispatcher" (click)="fillCredentials('dispatcher@trucktrack.com', 'DispatcherPass123!')">
-              <td><span class="role-badge dispatcher">DISPATCHER</span></td>
-              <td>dispatcher&#64;trucktrack.com</td>
-              <td>DispatcherPass123!</td>
-            </tr>
-            <tr class="role-driver" (click)="fillCredentials('driver@trucktrack.com', 'DriverPass123!')">
-              <td><span class="role-badge driver">DRIVER</span></td>
-              <td>driver&#64;trucktrack.com</td>
-              <td>DriverPass123!</td>
-            </tr>
-            <tr class="role-viewer" (click)="fillCredentials('viewer@trucktrack.com', 'ViewerPass123!')">
-              <td><span class="role-badge viewer">VIEWER</span></td>
-              <td>viewer&#64;trucktrack.com</td>
-              <td>ViewerPass123!</td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="demo-hint">Cliquez sur une ligne pour remplir automatiquement</p>
+        <p class="demo-title">Utilisateurs de test (cliquez pour remplir) :</p>
+        <div class="test-users-list">
+          <div class="test-user" (click)="fillCredentials('sysadmin@trucktrack.com', 'AdminPass123!')">
+            <span class="role-badge admin">ADMIN</span>
+            <span class="user-email">sysadmin&#64;...</span>
+          </div>
+          <div class="test-user" (click)="fillCredentials('fleetmanager@trucktrack.com', 'FleetPass123!')">
+            <span class="role-badge fleet">FLEET</span>
+            <span class="user-email">fleetmanager&#64;...</span>
+          </div>
+          <div class="test-user" (click)="fillCredentials('dispatcher@trucktrack.com', 'DispatcherPass123!')">
+            <span class="role-badge dispatcher">DISPATCH</span>
+            <span class="user-email">dispatcher&#64;...</span>
+          </div>
+          <div class="test-user" (click)="fillCredentials('driver@trucktrack.com', 'DriverPass123!')">
+            <span class="role-badge driver">DRIVER</span>
+            <span class="user-email">driver&#64;...</span>
+          </div>
+          <div class="test-user" (click)="fillCredentials('viewer@trucktrack.com', 'ViewerPass123!')">
+            <span class="role-badge viewer">VIEWER</span>
+            <span class="user-email">viewer&#64;...</span>
+          </div>
+        </div>
       </div>
     </mat-card-content>
   </mat-card>
