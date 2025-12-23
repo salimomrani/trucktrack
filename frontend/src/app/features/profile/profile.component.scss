@@ -1,0 +1,185 @@
+@use '../../../styles/theme' as theme;
+
+.profile-container {
+  padding: theme.$spacing-lg;
+  max-width: 800px;
+  margin: 0 auto;
+  min-height: calc(100vh - 64px);
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: theme.$spacing-md;
+
+  p {
+    color: theme.$color-text-secondary;
+    font-size: theme.$font-size-base;
+  }
+}
+
+.error-card {
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: theme.$spacing-md;
+    padding: theme.$spacing-xl;
+    text-align: center;
+
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+    }
+
+    p {
+      color: theme.$color-text-secondary;
+      margin: 0;
+    }
+  }
+}
+
+.profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: theme.$spacing-lg;
+}
+
+.profile-card {
+  .profile-avatar {
+    background: theme.$gradient-primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+
+    mat-icon {
+      color: white;
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  mat-card-title {
+    font-size: theme.$font-size-xl;
+    font-weight: theme.$font-weight-semibold;
+    margin-bottom: theme.$spacing-xs;
+  }
+
+  mat-card-subtitle {
+    color: theme.$color-primary-500;
+    font-weight: theme.$font-weight-medium;
+  }
+}
+
+.profile-info {
+  margin-top: theme.$spacing-md;
+
+  .info-row {
+    display: flex;
+    align-items: center;
+    gap: theme.$spacing-md;
+    padding: theme.$spacing-md 0;
+
+    mat-icon {
+      color: theme.$color-primary-500;
+      opacity: 0.8;
+    }
+
+    .info-content {
+      display: flex;
+      flex-direction: column;
+      gap: theme.$spacing-xs;
+
+      .info-label {
+        font-size: theme.$font-size-sm;
+        color: theme.$color-text-secondary;
+      }
+
+      .info-value {
+        font-size: theme.$font-size-base;
+        color: theme.$color-text-primary;
+        font-weight: theme.$font-weight-medium;
+      }
+    }
+  }
+}
+
+.password-card {
+  mat-card-header {
+    mat-icon[mat-card-avatar] {
+      background: theme.$color-warning-100;
+      color: theme.$color-warning-700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
+    }
+  }
+
+  mat-card-content {
+    padding-top: theme.$spacing-lg;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: theme.$spacing-sm;
+  }
+
+  .full-width {
+    width: 100%;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: theme.$spacing-md;
+
+    button {
+      min-width: 160px;
+
+      mat-icon {
+        margin-right: theme.$spacing-xs;
+      }
+
+      mat-spinner {
+        margin: 0 auto;
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 600px) {
+  .profile-container {
+    padding: theme.$spacing-md;
+  }
+
+  .profile-card {
+    .profile-avatar {
+      width: 48px;
+      height: 48px;
+
+      mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+    }
+
+    mat-card-title {
+      font-size: theme.$font-size-lg;
+    }
+  }
+}

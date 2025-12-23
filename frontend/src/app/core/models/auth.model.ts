@@ -54,3 +54,22 @@ export interface JwtPayload {
   exp: number;
   iat: number;
 }
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  lastLogin?: string;
+  createdAt?: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface ChangePasswordResponse {
+  message: string;
+}

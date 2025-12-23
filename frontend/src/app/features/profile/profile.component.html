@@ -1,0 +1,157 @@
+<div class="profile-container">
+  <!-- Loading State -->
+  @if (isLoadingProfile()) {
+    <div class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading profile...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (profileError()) {
+    <mat-card class="error-card">
+      <mat-card-content>
+        <mat-icon color="warn">error</mat-icon>
+        <p>{{ profileError() }}</p>
+        <button mat-raised-button color="primary" (click)="loadProfile()">
+          Retry
+        </button>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Profile Content -->
+  @if (profile() && !isLoadingProfile()) {
+    <div class="profile-content">
+      <!-- Profile Info Card -->
+      <mat-card class="profile-card">
+        <mat-card-header>
+          <div mat-card-avatar class="profile-avatar">
+            <mat-icon>person</mat-icon>
+          </div>
+          <mat-card-title>{{ profile()?.firstName }} {{ profile()?.lastName }}</mat-card-title>
+          <mat-card-subtitle>{{ getRoleDisplayName(profile()?.role || '') }}</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="profile-info">
+            <div class="info-row">
+              <mat-icon>email</mat-icon>
+              <div class="info-content">
+                <span class="info-label">Email</span>
+                <span class="info-value">{{ profile()?.email }}</span>
+              </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="info-row">
+              <mat-icon>badge</mat-icon>
+              <div class="info-content">
+                <span class="info-label">Role</span>
+                <span class="info-value">{{ getRoleDisplayName(profile()?.role || '') }}</span>
+              </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            @if (profile()?.lastLogin) {
+              <div class="info-row">
+                <mat-icon>login</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Last login</span>
+                  <span class="info-value">{{ profile()?.lastLogin | date:'medium' }}</span>
+                </div>
+              </div>
+
+              <mat-divider></mat-divider>
+            }
+
+            @if (profile()?.createdAt) {
+              <div class="info-row">
+                <mat-icon>calendar_today</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Member since</span>
+                  <span class="info-value">{{ profile()?.createdAt | date:'longDate' }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Change Password Card -->
+      <mat-card class="password-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>lock</mat-icon>
+          <mat-card-title>Change Password</mat-card-title>
+          <mat-card-subtitle>Update your account password</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Current Password</mat-label>
+              <input matInput
+                     [type]="hideCurrentPassword() ? 'password' : 'text'"
+                     formControlName="currentPassword"
+                     placeholder="Enter your current password">
+              <button mat-icon-button matSuffix type="button"
+                      (click)="hideCurrentPassword.set(!hideCurrentPassword())">
+                <mat-icon>{{ hideCurrentPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              @if (passwordForm.get('currentPassword')?.touched && passwordForm.get('currentPassword')?.invalid) {
+                <mat-error>{{ getErrorMessage('currentPassword') }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>New Password</mat-label>
+              <input matInput
+                     [type]="hideNewPassword() ? 'password' : 'text'"
+                     formControlName="newPassword"
+                     placeholder="Enter your new password">
+              <button mat-icon-button matSuffix type="button"
+                      (click)="hideNewPassword.set(!hideNewPassword())">
+                <mat-icon>{{ hideNewPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              @if (passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.invalid) {
+                <mat-error>{{ getErrorMessage('newPassword') }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Confirm New Password</mat-label>
+              <input matInput
+                     [type]="hideConfirmPassword() ? 'password' : 'text'"
+                     formControlName="confirmPassword"
+                     placeholder="Confirm your new password">
+              <button mat-icon-button matSuffix type="button"
+                      (click)="hideConfirmPassword.set(!hideConfirmPassword())">
+                <mat-icon>{{ hideConfirmPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              @if ((passwordForm.get('confirmPassword')?.touched && passwordForm.get('confirmPassword')?.invalid) || passwordForm.hasError('passwordMismatch')) {
+                <mat-error>{{ getErrorMessage('confirmPassword') }}</mat-error>
+              }
+            </mat-form-field>
+
+            <div class="form-actions">
+              <button mat-raised-button color="primary"
+                      type="submit"
+                      [disabled]="isChangingPassword() || passwordForm.invalid">
+                @if (isChangingPassword()) {
+                  <mat-spinner diameter="20"></mat-spinner>
+                } @else {
+                  <ng-container>
+                    <mat-icon>save</mat-icon>
+                    Change Password
+                  </ng-container>
+                }
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  }
+</div>

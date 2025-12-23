@@ -41,11 +41,12 @@ export const routes: Routes = [
     title: 'Alerts - Truck Track'
   },
 
-  // Profile route - placeholder, redirects to map for now
+  // Profile route - protected, requires authentication
   {
     path: 'profile',
-    redirectTo: '/map',
-    pathMatch: 'full'
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent),
+    title: 'Profile - Truck Track'
   },
 
   // Admin routes - protected by adminGuard, lazy loaded

@@ -9,7 +9,9 @@ import {
   RefreshTokenRequest,
   RefreshTokenResponse,
   User,
-  UserRole
+  UserProfile,
+  ChangePasswordRequest,
+  ChangePasswordResponse
 } from '../models/auth.model';
 
 /**
@@ -73,6 +75,32 @@ export class AuthService {
     return this.http.get<User>(`${this.API_URL}/auth/v1/me`).pipe(
       catchError(error => {
         console.error('Failed to get current user:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Get current user profile from backend
+   * Returns full profile information including firstName, lastName
+   */
+  getUserProfile(): Observable<UserProfile> {
+    return this.http.get<UserProfile>(`${this.API_URL}/auth/v1/me`).pipe(
+      catchError(error => {
+        console.error('Failed to get user profile:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Change user password
+   * Pure HTTP call - returns Observable<ChangePasswordResponse>
+   */
+  changePassword(request: ChangePasswordRequest): Observable<ChangePasswordResponse> {
+    return this.http.post<ChangePasswordResponse>(`${this.API_URL}/auth/v1/change-password`, request).pipe(
+      catchError(error => {
+        console.error('Failed to change password:', error);
         return throwError(() => error);
       })
     );

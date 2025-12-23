@@ -1,5 +1,6 @@
 package com.trucktrack.auth.controller;
 
+import com.trucktrack.auth.dto.ChangePasswordRequest;
 import com.trucktrack.auth.dto.LoginRequest;
 import com.trucktrack.auth.dto.LoginResponse;
 import com.trucktrack.auth.dto.RefreshTokenRequest;
@@ -205,7 +206,7 @@ public class AuthController {
     }
 
     /**
-     * Get current user info from JWT token.
+     * Get current user info from database.
      */
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
@@ -228,18 +229,87 @@ public class AuthController {
                         .body(Map.of("error", "INVALID_TOKEN", "message", "Invalid or expired token"));
             }
 
-            // Extract user info from token
+            // Extract user ID from token and fetch full user from database
             String userId = authService.getUserIdFromToken(token);
-            String email = authService.getUsernameFromToken(token);
-            String role = authService.getRoleFromToken(token);
+            User user = userRepository.findById(UUID.fromString(userId)).orElse(null);
 
-            UserResponse userResponse = new UserResponse(userId, email, role);
+            if (user == null) {
+                log.warn("User not found for ID: {}", userId);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "USER_NOT_FOUND", "message", "User not found"));
+            }
 
-            log.debug("Returning user info for: {}", email);
+            UserResponse userResponse = new UserResponse(user);
+
+            log.debug("Returning user info for: {}", user.getEmail());
             return ResponseEntity.ok(userResponse);
 
         } catch (Exception e) {
             log.error("Error getting current user", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "INTERNAL_ERROR", "message", "Error processing request"));
+        }
+    }
+
+    /**
+     * Change user password.
+     */
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(
+            @RequestHeader("Authorization") String authHeader,
+            @Valid @RequestBody ChangePasswordRequest request) {
+
+        log.debug("Password change request");
+
+        try {
+            // Extract token from Authorization header
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                log.warn("Invalid Authorization header");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "INVALID_HEADER", "message", "Invalid Authorization header"));
+            }
+
+            String token = authHeader.substring(7);
+
+            // Validate token
+            if (!authService.validateToken(token)) {
+                log.warn("Invalid or expired token");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "INVALID_TOKEN", "message", "Invalid or expired token"));
+            }
+
+            // Get user from database
+            String userId = authService.getUserIdFromToken(token);
+            User user = userRepository.findById(UUID.fromString(userId)).orElse(null);
+
+            if (user == null) {
+                log.warn("User not found for ID: {}", userId);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "USER_NOT_FOUND", "message", "User not found"));
+            }
+
+            // Verify current password
+            if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPasswordHash())) {
+                log.warn("Invalid current password for user: {}", user.getEmail());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("error", "INVALID_PASSWORD", "message", "Current password is incorrect"));
+            }
+
+            // Check that new password is different from current
+            if (passwordEncoder.matches(request.getNewPassword(), user.getPasswordHash())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("error", "SAME_PASSWORD", "message", "New password must be different from current password"));
+            }
+
+            // Update password
+            user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+            userRepository.save(user);
+
+            log.info("Password changed successfully for user: {}", user.getEmail());
+            return ResponseEntity.ok(Map.of("message", "Password changed successfully"));
+
+        } catch (Exception e) {
+            log.error("Error changing password", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "INTERNAL_ERROR", "message", "Error processing request"));
         }
