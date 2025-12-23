@@ -46,6 +46,32 @@ alert:
   offline-threshold-minutes: 5
   default-speed-limit: 120
   cooldown-minutes: 5  # Prevents alert spam
+
+# Inter-service communication via API Gateway
+gateway:
+  url: ${GATEWAY_URL:http://localhost:8000}
+  service-token: ${SERVICE_ACCOUNT_JWT:}  # Required for geofence checks
+  timeout: 5000
+```
+
+## Communication Inter-Services
+
+Ce service appelle le **location-service** via l'API Gateway pour vérifier les geofences:
+
+```
+notification-service → API Gateway → location-service
+                         ↑
+                    JWT Service Account
+```
+
+**Configuration requise:**
+```bash
+# Generate service token (une seule fois, via admin)
+curl -X POST "http://localhost:8000/admin/users/service-token?serviceName=notification-service" \
+  -H "Authorization: Bearer $ADMIN_TOKEN"
+
+# Set in environment
+export SERVICE_ACCOUNT_JWT=<token>
 ```
 
 ## WebSocket

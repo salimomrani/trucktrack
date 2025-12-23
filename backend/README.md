@@ -191,6 +191,51 @@ SELECT * FROM trucks WHERE ST_DWithin(position, point, 5000);
 curl http://localhost:8081/actuator/health
 ```
 
+## Sécurité
+
+### Authentification Controllers
+
+Tous les controllers utilisent `@AuthenticationPrincipal GatewayUserPrincipal` pour récupérer le contexte utilisateur:
+
+```java
+@GetMapping("/example")
+public ResponseEntity<?> example(
+    @AuthenticationPrincipal GatewayUserPrincipal principal) {
+
+    String userId = principal.userId();
+    String username = principal.username();
+    String role = principal.role();
+    String groups = principal.groups();
+}
+```
+
+### Communication Inter-Services
+
+Les services communiquent entre eux **exclusivement via l'API Gateway**:
+
+```
+notification-service → API Gateway (JWT) → location-service
+```
+
+**Configuration:**
+```yaml
+gateway:
+  url: ${GATEWAY_URL:http://localhost:8000}
+  service-token: ${SERVICE_ACCOUNT_JWT:}
+```
+
+**Générer un token service:**
+```bash
+curl -X POST "http://localhost:8000/admin/users/service-token?serviceName=my-service" \
+  -H "Authorization: Bearer $ADMIN_TOKEN"
+```
+
+### Rate Limiting
+
+L'endpoint `/auth/v1/login` est protégé contre les attaques brute-force:
+- 5 tentatives max par 15 minutes (par IP)
+- Lockout de 15 minutes après dépassement
+
 ## Tests
 
 ```bash
