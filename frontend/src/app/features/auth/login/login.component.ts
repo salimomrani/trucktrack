@@ -157,4 +157,12 @@ export class LoginComponent {
   private capitalizeFirstLetter(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
+
+  /**
+   * Fill login form with test user credentials
+   * Feature: 008-rbac-permissions
+   */
+  fillCredentials(email: string, password: string): void {
+    this.loginForm.patchValue({ email, password });
+  }
 }
