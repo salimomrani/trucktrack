@@ -1,7 +1,7 @@
 package com.trucktrack.auth.repository;
 
 import com.trucktrack.auth.model.User;
-import com.trucktrack.auth.model.UserRole;
+import com.trucktrack.common.security.UserRole;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

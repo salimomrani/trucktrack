@@ -1,7 +1,7 @@
 package com.trucktrack.auth.service;
 
 import com.trucktrack.auth.model.User;
-import com.trucktrack.auth.model.UserRole;
+import com.trucktrack.common.security.UserRole;
 import com.trucktrack.auth.repository.UserGroupAssignmentRepository;
 import com.trucktrack.auth.repository.UserRepository;
 import com.trucktrack.common.dto.UserPermissions;
