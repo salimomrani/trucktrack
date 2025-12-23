@@ -13,7 +13,7 @@ INSERT INTO users (id, email, password_hash, first_name, last_name, role, is_act
 VALUES (
     '00000000-0000-0000-0000-000000000100',
     'sysadmin@trucktrack.com',
-    '$2a$10$xqKE8YPZGh7VZ5yNxZQUduoZ0mYKQQYJZ7pGZBvG6KGK6FmGK6K6K',
+    '$2a$12$zVIn7ZVtoqcG2EKxh4xxjOt2wjUIOuOY4PvvlvEa5AAyVFSwRqr1m',
     'System',
     'Administrator',
     'ADMIN',
@@ -33,13 +33,13 @@ WHERE NOT EXISTS (
 -- FLEET MANAGER USER
 -- ====================
 -- Email: fleetmanager@trucktrack.com
--- Password: FleetPass123!
+-- Password: AdminPass123!
 
 INSERT INTO users (id, email, password_hash, first_name, last_name, role, is_active)
 VALUES (
     '00000000-0000-0000-0000-000000000101',
     'fleetmanager@trucktrack.com',
-    '$2a$10$yxKE8YPZGh7VZ5yNxZQUduoZ0mYKQQYJZ7pGZBvG6KGK6FmGK6K6K',
+    '$2a$12$zVIn7ZVtoqcG2EKxh4xxjOt2wjUIOuOY4PvvlvEa5AAyVFSwRqr1m',
     'Marie',
     'Fleet Manager',
     'FLEET_MANAGER',
@@ -59,13 +59,13 @@ WHERE NOT EXISTS (
 -- DRIVER USER
 -- ====================
 -- Email: driver@trucktrack.com
--- Password: DriverPass123!
+-- Password: AdminPass123!
 
 INSERT INTO users (id, email, password_hash, first_name, last_name, role, is_active)
 VALUES (
     '00000000-0000-0000-0000-000000000102',
     'driver@trucktrack.com',
-    '$2a$10$zxKE8YPZGh7VZ5yNxZQUduoZ0mYKQQYJZ7pGZBvG6KGK6FmGK6K6K',
+    '$2a$12$zVIn7ZVtoqcG2EKxh4xxjOt2wjUIOuOY4PvvlvEa5AAyVFSwRqr1m',
     'Pierre',
     'Driver',
     'DRIVER',
@@ -85,13 +85,13 @@ WHERE NOT EXISTS (
 -- VIEWER USER
 -- ====================
 -- Email: viewer@trucktrack.com
--- Password: ViewerPass123!
+-- Password: AdminPass123!
 
 INSERT INTO users (id, email, password_hash, first_name, last_name, role, is_active)
 VALUES (
     '00000000-0000-0000-0000-000000000103',
     'viewer@trucktrack.com',
-    '$2a$10$axKE8YPZGh7VZ5yNxZQUduoZ0mYKQQYJZ7pGZBvG6KGK6FmGK6K6K',
+    '$2a$12$zVIn7ZVtoqcG2EKxh4xxjOt2wjUIOuOY4PvvlvEa5AAyVFSwRqr1m',
     'Claude',
     'Observer',
     'VIEWER',
@@ -110,13 +110,13 @@ WHERE NOT EXISTS (
 -- ====================
 -- SUMMARY
 -- ====================
--- Test users for RBAC testing:
+-- Test users for RBAC testing (ALL use password: AdminPass123!):
 -- | Role          | Email                        | Password        |
 -- |---------------|------------------------------|-----------------|
 -- | ADMIN         | sysadmin@trucktrack.com      | AdminPass123!   |
--- | FLEET_MANAGER | fleetmanager@trucktrack.com  | FleetPass123!   |
--- | DISPATCHER    | dispatcher@trucktrack.com    | DispatcherPass123! (from V2) |
--- | DRIVER        | driver@trucktrack.com        | DriverPass123!  |
--- | VIEWER        | viewer@trucktrack.com        | ViewerPass123!  |
+-- | FLEET_MANAGER | fleetmanager@trucktrack.com  | AdminPass123!   |
+-- | DISPATCHER    | dispatcher@trucktrack.com    | AdminPass123!   |
+-- | DRIVER        | driver@trucktrack.com        | AdminPass123!   |
+-- | VIEWER        | viewer@trucktrack.com        | AdminPass123!   |
 
 COMMENT ON TABLE users IS 'Updated with RBAC test users for each role (Feature: 008-rbac-permissions)';
