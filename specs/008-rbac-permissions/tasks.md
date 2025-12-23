@@ -96,11 +96,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T025 [P] [US3] Update NavigationService to filter menu items by role in frontend/src/app/core/services/navigation.service.ts
-- [ ] T026 [P] [US3] Update navigation.model.ts with role-based visibility in frontend/src/app/core/models/navigation.model.ts
-- [ ] T027 [US3] Update header.component.ts to use filtered navigation in frontend/src/app/core/components/header/header.component.ts
-- [ ] T028 [US3] Update header.component.html to render dynamic menu in frontend/src/app/core/components/header/header.component.html
-- [ ] T029 [US3] Update sidenav component (if exists) with filtered navigation in frontend/src/app/core/components/sidenav/sidenav.component.ts
+- [x] T025 [P] [US3] Update NavigationService to filter menu items by role in frontend/src/app/core/services/navigation.service.ts (already implemented)
+- [x] T026 [P] [US3] Update navigation.model.ts with role-based visibility in frontend/src/app/core/models/navigation.model.ts (already implemented)
+- [x] T027 [US3] Update header.component.ts to use filtered navigation in frontend/src/app/core/components/header/header.component.ts (already implemented)
+- [x] T028 [US3] Update header.component.html to render dynamic menu in frontend/src/app/core/components/header/header.component.html (already implemented)
+- [x] T029 [US3] Update sidenav component (if exists) with filtered navigation in frontend/src/app/core/components/sidenav/sidenav.component.ts (already implemented)
 
 **Checkpoint**: Navigation adapts to user role
 
