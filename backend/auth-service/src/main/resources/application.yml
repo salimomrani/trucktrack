@@ -40,7 +40,7 @@ jwt:
 # Rate Limiting Configuration
 security:
   rate-limit:
-    max-attempts: ${RATE_LIMIT_MAX_ATTEMPTS:5}      # Max failed attempts before lockout
+    max-attempts: ${RATE_LIMIT_MAX_ATTEMPTS:15}      # Max failed attempts before lockout
     window-seconds: ${RATE_LIMIT_WINDOW:300}        # 5 minute sliding window
     lockout-seconds: ${RATE_LIMIT_LOCKOUT:900}      # 15 minute lockout after max attempts
 
