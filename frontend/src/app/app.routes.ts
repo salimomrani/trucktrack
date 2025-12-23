@@ -41,15 +41,6 @@ export const routes: Routes = [
     title: 'Alerts - Truck Track'
   },
 
-  // Geofences route - redirects to map with geofences panel
-  // 003-nav-optimization: Added geofences navigation link
-  // Note: redirectTo handles auth via the target route's guard
-  {
-    path: 'geofences',
-    redirectTo: '/map',
-    pathMatch: 'full'
-  },
-
   // Profile route - placeholder, redirects to map for now
   {
     path: 'profile',

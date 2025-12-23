@@ -44,13 +44,7 @@ export class NavigationService {
       category: 'operations',
       badgeColor: 'warn'
     },
-    {
-      label: 'Geofences',
-      route: '/geofences',
-      icon: 'fence',
-      roles: [UserRole.ADMIN, UserRole.FLEET_MANAGER],
-      category: 'operations'
-    },
+    // Geofences removed - accessible via /map geofence panel
 
     // Administration category (ADMIN only)
     {
