@@ -55,13 +55,13 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [P] [US1] Create pageGuard factory function in frontend/src/app/core/guards/page.guard.ts
-- [ ] T011 [P] [US1] Add @PreAuthorize annotations to AdminController in backend/auth-service/src/main/java/com/trucktrack/auth/controller/AdminUserController.java
-- [ ] T012 [P] [US1] Add @PreAuthorize annotations to AdminTruckController in backend/location-service/src/main/java/com/trucktrack/location/controller/AdminTruckController.java
-- [ ] T013 [P] [US1] Add @PreAuthorize annotations to AnalyticsController in backend/location-service/src/main/java/com/trucktrack/location/controller/AnalyticsController.java
-- [ ] T014 [US1] Update app.routes.ts with pageGuard on protected routes in frontend/src/app/app.routes.ts
-- [ ] T015 [US1] Update analytics routes with role guard in frontend/src/app/features/analytics/analytics.routes.ts
-- [ ] T016 [US1] Update admin routes with role guard in frontend/src/app/admin/admin.routes.ts
+- [x] T010 [P] [US1] Create pageGuard factory function in frontend/src/app/core/guards/page.guard.ts
+- [x] T011 [P] [US1] Add @PreAuthorize annotations to AdminController in backend/auth-service/src/main/java/com/trucktrack/auth/controller/AdminUserController.java (already done)
+- [x] T012 [P] [US1] Add @PreAuthorize annotations to AdminTruckController in backend/location-service/src/main/java/com/trucktrack/location/controller/AdminTruckController.java (already done)
+- [x] T013 [P] [US1] Add @PreAuthorize annotations to AnalyticsController in backend/location-service/src/main/java/com/trucktrack/location/controller/AnalyticsController.java
+- [x] T014 [US1] Update app.routes.ts with pageGuard on protected routes in frontend/src/app/app.routes.ts
+- [x] T015 [US1] Update analytics routes with role guard in frontend/src/app/features/analytics/analytics.routes.ts (via app.routes.ts)
+- [x] T016 [US1] Update admin routes with role guard in frontend/src/app/admin/admin.routes.ts
 
 **Checkpoint**: Page access control by role is functional
 

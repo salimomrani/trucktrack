@@ -1,17 +1,20 @@
 import { Routes } from '@angular/router';
-import { adminGuard } from '../core/guards/admin.guard';
+import { authGuard } from '../core/guards/auth.guard';
+import { pageGuard } from '../core/guards/page.guard';
+import { Page } from '../core/models/permission.model';
 
 /**
  * Admin module routes
  * T019: Create AdminRoutingModule
- * Feature: 002-admin-panel
+ * Feature: 002-admin-panel, 008-rbac-permissions
  *
- * All routes are lazy-loaded and protected by adminGuard
+ * All routes are lazy-loaded and protected by pageGuard(Page.ADMIN)
+ * Only ADMIN role can access these routes
  */
 export const adminRoutes: Routes = [
   {
     path: '',
-    canActivate: [adminGuard],
+    canActivate: [authGuard, pageGuard(Page.ADMIN)],
     children: [
       // Dashboard - default admin page
       {

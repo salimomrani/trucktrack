@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard, guestOnlyGuard } from './core/guards/auth.guard';
+import { pageGuard } from './core/guards/page.guard';
+import { Page } from './core/models/permission.model';
 
 export const routes: Routes = [
   // Default route - redirect to map if authenticated, otherwise to login
@@ -17,10 +19,11 @@ export const routes: Routes = [
     title: 'Login - Truck Track'
   },
 
-  // Map route - protected, requires authentication
+  // Map route - protected, requires MAP page access
+  // Accessible by: ADMIN, FLEET_MANAGER, DISPATCHER, VIEWER (not DRIVER)
   {
     path: 'map',
-    canActivate: [authGuard],
+    canActivate: [authGuard, pageGuard(Page.MAP)],
     loadComponent: () => import('./features/map/map.component').then(m => m.MapComponent),
     title: 'Live Map - Truck Track'
   },
@@ -41,11 +44,12 @@ export const routes: Routes = [
     title: 'Alerts - Truck Track'
   },
 
-  // Analytics route - protected, requires authentication
-  // Feature: 006-fleet-analytics
+  // Analytics route - protected, requires ANALYTICS page access
+  // Accessible by: ADMIN, FLEET_MANAGER only
+  // Feature: 006-fleet-analytics, 008-rbac-permissions
   {
     path: 'analytics',
-    canActivate: [authGuard],
+    canActivate: [authGuard, pageGuard(Page.ANALYTICS)],
     loadComponent: () => import('./features/analytics/analytics.component').then(m => m.AnalyticsComponent),
     title: 'Analytics - Truck Track'
   },
