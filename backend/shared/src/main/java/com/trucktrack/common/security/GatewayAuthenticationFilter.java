@@ -1,4 +1,4 @@
-package com.trucktrack.location.config;
+package com.trucktrack.common.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -16,14 +15,19 @@ import java.util.List;
 /**
  * Filter that reads user information from headers passed by API Gateway.
  * Populates SecurityContext to enable @PreAuthorize annotations.
- * Feature: 002-admin-panel
+ *
+ * Headers read:
+ * - X-User-Id: User's unique identifier
+ * - X-Username: User's username/email
+ * - X-User-Role: User's role (e.g., ADMIN, DRIVER, FLEET_MANAGER)
+ *
+ * Usage: Register as a Spring bean in your service's configuration.
  */
-@Component
 public class GatewayAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final String HEADER_USER_ID = "X-User-Id";
-    private static final String HEADER_USERNAME = "X-Username";
-    private static final String HEADER_USER_ROLE = "X-User-Role";
+    public static final String HEADER_USER_ID = "X-User-Id";
+    public static final String HEADER_USERNAME = "X-Username";
+    public static final String HEADER_USER_ROLE = "X-User-Role";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -53,15 +57,5 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    /**
-     * Simple principal to hold user info from gateway headers.
-     */
-    public record GatewayUserPrincipal(String userId, String username, String role) {
-        @Override
-        public String toString() {
-            return username;
-        }
     }
 }

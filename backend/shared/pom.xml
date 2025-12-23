@@ -47,6 +47,20 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- Spring Security (for gateway authentication filter) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Servlet API (for filter) -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Logstash Logback Encoder for structured logging -->
         <dependency>
             <groupId>net.logstash.logback</groupId>
