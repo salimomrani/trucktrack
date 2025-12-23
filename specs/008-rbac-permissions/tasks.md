@@ -114,12 +114,12 @@
 
 ### Implementation for User Story 4
 
-- [ ] T030 [P] [US4] Create AccessDeniedComponent in frontend/src/app/shared/components/access-denied/access-denied.component.ts
-- [ ] T031 [P] [US4] Create access-denied.component.html template in frontend/src/app/shared/components/access-denied/access-denied.component.html
-- [ ] T032 [P] [US4] Create access-denied.component.scss styles in frontend/src/app/shared/components/access-denied/access-denied.component.scss
-- [ ] T033 [US4] Add /access-denied route in frontend/src/app/app.routes.ts
-- [ ] T034 [US4] Update pageGuard to redirect to /access-denied in frontend/src/app/core/guards/page.guard.ts
-- [ ] T035 [US4] Add audit logging for access denials in backend/auth-service/src/main/java/com/trucktrack/auth/service/PermissionService.java
+- [x] T030 [P] [US4] Create AccessDeniedComponent in frontend/src/app/shared/components/access-denied/access-denied.component.ts
+- [x] T031 [P] [US4] Create access-denied.component.html template in frontend/src/app/shared/components/access-denied/access-denied.component.html
+- [x] T032 [P] [US4] Create access-denied.component.scss styles in frontend/src/app/shared/components/access-denied/access-denied.component.scss
+- [x] T033 [US4] Add /access-denied route in frontend/src/app/app.routes.ts
+- [x] T034 [US4] Update pageGuard to redirect to /access-denied in frontend/src/app/core/guards/page.guard.ts (already implemented)
+- [x] T035 [US4] Add audit logging for access denials in backend/auth-service/src/main/java/com/trucktrack/auth/service/PermissionService.java (already implemented)
 
 **Checkpoint**: Access denied feedback is clear and user-friendly
 

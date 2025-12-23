@@ -71,7 +71,15 @@ export const routes: Routes = [
     title: 'Admin - Truck Track'
   },
 
-  // Unauthorized route - shown when user doesn't have required role
+  // Access Denied route - shown when user doesn't have permission for a page
+  // Feature: 008-rbac-permissions, T033
+  {
+    path: 'access-denied',
+    loadComponent: () => import('./shared/components/access-denied/access-denied.component').then(m => m.AccessDeniedComponent),
+    title: 'Accès refusé - Truck Track'
+  },
+
+  // Unauthorized route - shown when user doesn't have required role (legacy)
   {
     path: 'unauthorized',
     loadComponent: () => import('./features/auth/unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent),
