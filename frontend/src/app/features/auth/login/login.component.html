@@ -74,11 +74,31 @@
         </button>
       </form>
 
-      <!-- Demo Credentials Info -->
+      <!-- Test Users Reference (Local Development) -->
       <div class="demo-info">
-        <p class="demo-title">Demo Credentials:</p>
-        <p class="demo-credentials">Email: admin&#64;trucktrack.com</p>
-        <p class="demo-credentials">Password: AdminPass123!</p>
+        <p class="demo-title">Utilisateurs de test (cliquez pour remplir) :</p>
+        <div class="test-users-list">
+          <div class="test-user" (click)="fillCredentials('sysadmin@trucktrack.com', 'AdminPass123!')">
+            <span class="role-badge admin">ADMIN</span>
+            <span class="user-email">sysadmin&#64;...</span>
+          </div>
+          <div class="test-user" (click)="fillCredentials('fleetmanager@trucktrack.com', 'FleetPass123!')">
+            <span class="role-badge fleet">FLEET</span>
+            <span class="user-email">fleetmanager&#64;...</span>
+          </div>
+          <div class="test-user" (click)="fillCredentials('dispatcher@trucktrack.com', 'DispatcherPass123!')">
+            <span class="role-badge dispatcher">DISPATCH</span>
+            <span class="user-email">dispatcher&#64;...</span>
+          </div>
+          <div class="test-user" (click)="fillCredentials('driver@trucktrack.com', 'DriverPass123!')">
+            <span class="role-badge driver">DRIVER</span>
+            <span class="user-email">driver&#64;...</span>
+          </div>
+          <div class="test-user" (click)="fillCredentials('viewer@trucktrack.com', 'ViewerPass123!')">
+            <span class="role-badge viewer">VIEWER</span>
+            <span class="user-email">viewer&#64;...</span>
+          </div>
+        </div>
       </div>
     </mat-card-content>
   </mat-card>

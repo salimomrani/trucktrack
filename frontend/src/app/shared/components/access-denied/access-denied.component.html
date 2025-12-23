@@ -1,0 +1,39 @@
+<div class="access-denied-container">
+  <mat-card class="access-denied-card">
+    <mat-card-content>
+      <mat-icon class="access-denied-icon">lock</mat-icon>
+      <h1>Accès refusé</h1>
+
+      @if (deniedPage()) {
+        <p class="denied-message">
+          Vous n'avez pas la permission d'accéder à la page <strong>{{ getPageLabel() }}</strong>.
+        </p>
+      } @else {
+        <p class="denied-message">
+          Vous n'avez pas la permission d'accéder à cette ressource.
+        </p>
+      }
+
+      @if (userRole()) {
+        <p class="role-info">
+          Votre rôle actuel : <span class="role-badge">{{ getRoleLabel() }}</span>
+        </p>
+      }
+
+      <p class="help-text">
+        Si vous pensez qu'il s'agit d'une erreur, veuillez contacter votre administrateur.
+      </p>
+
+      <div class="actions">
+        <button mat-raised-button color="primary" routerLink="/map">
+          <mat-icon>map</mat-icon>
+          Retour à la carte
+        </button>
+        <button mat-stroked-button routerLink="/profile">
+          <mat-icon>person</mat-icon>
+          Mon profil
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,292 @@
+openapi: 3.0.3
+info:
+  title: TruckTrack Permissions API
+  description: API endpoints for RBAC permission management
+  version: 1.0.0
+  contact:
+    name: TruckTrack Team
+
+servers:
+  - url: http://localhost:8000
+    description: Local development (via Gateway)
+
+tags:
+  - name: Permissions
+    description: Permission checking and user permissions
+  - name: User Groups
+    description: User-to-group assignment management
+
+paths:
+  /auth/v1/permissions/me:
+    get:
+      summary: Get current user's permissions
+      description: Returns the permissions for the currently authenticated user
+      tags:
+        - Permissions
+      operationId: getCurrentUserPermissions
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User permissions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPermissions'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/v1/permissions/pages:
+    get:
+      summary: Get accessible pages for current user
+      description: Returns list of page identifiers the user can access
+      tags:
+        - Permissions
+      operationId: getAccessiblePages
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Accessible pages retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pages:
+                    type: array
+                    items:
+                      type: string
+                      enum:
+                        - DASHBOARD
+                        - MAP
+                        - ANALYTICS
+                        - ADMIN
+                        - ALERTS
+                        - PROFILE
+                    example: ["DASHBOARD", "MAP", "ANALYTICS", "ALERTS", "PROFILE"]
+        '401':
+          description: Not authenticated
+
+  /auth/v1/permissions/check:
+    post:
+      summary: Check if user can access a specific page
+      description: Returns whether the current user has access to the specified page
+      tags:
+        - Permissions
+      operationId: checkPageAccess
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - page
+              properties:
+                page:
+                  type: string
+                  enum:
+                    - DASHBOARD
+                    - MAP
+                    - ANALYTICS
+                    - ADMIN
+                    - ALERTS
+                    - PROFILE
+      responses:
+        '200':
+          description: Access check result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  allowed:
+                    type: boolean
+                  page:
+                    type: string
+                  reason:
+                    type: string
+                    description: Reason for denial (if not allowed)
+        '401':
+          description: Not authenticated
+
+  /auth/v1/users/{userId}/groups:
+    get:
+      summary: Get user's assigned groups
+      description: Returns all truck groups assigned to a specific user (Admin only)
+      tags:
+        - User Groups
+      operationId: getUserGroups
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User groups retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: string
+                    format: uuid
+                  groups:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GroupSummary'
+        '401':
+          description: Not authenticated
+        '403':
+          description: Not authorized (Admin only)
+        '404':
+          description: User not found
+
+    put:
+      summary: Update user's group assignments
+      description: Replace all group assignments for a user (Admin only)
+      tags:
+        - User Groups
+      operationId: updateUserGroups
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - groupIds
+              properties:
+                groupIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                  maxItems: 50
+      responses:
+        '200':
+          description: Groups updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: string
+                    format: uuid
+                  groupIds:
+                    type: array
+                    items:
+                      type: string
+                      format: uuid
+                  updatedAt:
+                    type: string
+                    format: date-time
+        '400':
+          description: Invalid request (too many groups)
+        '401':
+          description: Not authenticated
+        '403':
+          description: Not authorized (Admin only)
+        '404':
+          description: User not found
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    UserPermissions:
+      type: object
+      required:
+        - userId
+        - role
+        - accessiblePages
+        - groupIds
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: User's unique identifier
+        role:
+          type: string
+          enum:
+            - ADMIN
+            - FLEET_MANAGER
+            - DISPATCHER
+            - DRIVER
+            - VIEWER
+          description: User's role
+        accessiblePages:
+          type: array
+          items:
+            type: string
+            enum:
+              - DASHBOARD
+              - MAP
+              - ANALYTICS
+              - ADMIN
+              - ALERTS
+              - PROFILE
+          description: Pages the user can access
+        groupIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: IDs of truck groups the user is assigned to
+
+    GroupSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        assignedAt:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        path:
+          type: string
+
+security:
+  - bearerAuth: []

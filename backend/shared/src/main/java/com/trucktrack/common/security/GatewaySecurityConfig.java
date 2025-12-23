@@ -1,11 +1,20 @@
 package com.trucktrack.common.security;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * Base security configuration for services behind the API Gateway.
@@ -18,7 +27,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * - Stateless session management
  * - Gateway authentication filter
  * - Method security enabled (@PreAuthorize)
+ * - Access denied handler with WARN logging (T036)
  */
+@Slf4j
 @EnableMethodSecurity
 public abstract class GatewaySecurityConfig {
 
@@ -32,6 +43,28 @@ public abstract class GatewaySecurityConfig {
     }
 
     /**
+     * Access denied handler that logs 403 responses.
+     * Feature: 008-rbac-permissions, T036
+     */
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return (HttpServletRequest request, HttpServletResponse response, AccessDeniedException ex) -> {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String user = auth != null ? auth.getName() : "anonymous";
+            String role = auth != null && auth.getAuthorities() != null
+                    ? auth.getAuthorities().toString()
+                    : "none";
+
+            log.warn("Access denied: user={}, role={}, uri={}, method={}",
+                    user, role, request.getRequestURI(), request.getMethod());
+
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\":\"Access denied\",\"message\":\"You don't have permission to access this resource\"}");
+        };
+    }
+
+    /**
      * Creates the security filter chain.
      * Override configureAuthorization() to customize endpoint security.
      */
@@ -42,6 +75,7 @@ public abstract class GatewaySecurityConfig {
             .cors(cors -> cors.disable())
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .exceptionHandling(ex -> ex.accessDeniedHandler(accessDeniedHandler()))
             .addFilterBefore(gatewayAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         configureAuthorization(http);

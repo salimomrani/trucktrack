@@ -81,4 +81,18 @@ public interface AlertRuleRepository extends JpaRepository<AlertRule, UUID> {
      */
     @Query("SELECT a FROM AlertRule a WHERE (a.ruleType = 'GEOFENCE_ENTER' OR a.ruleType = 'GEOFENCE_EXIT') AND a.isEnabled = true AND a.geofenceId IS NOT NULL")
     List<AlertRule> findEnabledGeofenceRules();
+
+    /**
+     * T022: Find enabled alert rules for multiple truck groups (RBAC filtering).
+     * Feature: 008-rbac-permissions
+     */
+    @Query("SELECT a FROM AlertRule a WHERE a.truckGroupId IN :groupIds AND a.isEnabled = true ORDER BY a.createdAt DESC")
+    List<AlertRule> findByTruckGroupIdsAndIsEnabledTrue(@Param("groupIds") List<UUID> groupIds);
+
+    /**
+     * T022: Find all alert rules for multiple truck groups (including disabled).
+     * Feature: 008-rbac-permissions
+     */
+    @Query("SELECT a FROM AlertRule a WHERE a.truckGroupId IN :groupIds ORDER BY a.createdAt DESC")
+    List<AlertRule> findByTruckGroupIds(@Param("groupIds") List<UUID> groupIds);
 }
