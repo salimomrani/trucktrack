@@ -4,9 +4,11 @@ Système de suivi GPS en temps réel pour la gestion de flottes de camions.
 
 **Fonctionnalités principales :**
 - Carte temps réel avec positions GPS live (WebSocket)
+- Application mobile chauffeurs (iOS/Android)
 - Historique des trajets avec playback
 - Geofences (zones géographiques) avec alertes entrée/sortie
 - Alertes configurables (vitesse, offline, idle)
+- Panel d'administration (utilisateurs, camions, groupes)
 - Dashboard de monitoring (Prometheus/Grafana)
 
 ## Prérequis
@@ -17,6 +19,12 @@ Système de suivi GPS en temps réel pour la gestion de flottes de camions.
 | Java JDK | 17+ | `brew install openjdk@17` (macOS) |
 | Maven | 3.9+ | `brew install maven` (macOS) |
 | Node.js | 18+ | `brew install node` (macOS) |
+
+**Pour le développement mobile (optionnel) :**
+| Outil | Version | Installation |
+|-------|---------|--------------|
+| Android Studio | 2023+ | [developer.android.com/studio](https://developer.android.com/studio) |
+| Xcode | 15+ | Mac App Store (macOS only) |
 
 **Vérifier l'installation :**
 ```bash
@@ -40,7 +48,7 @@ cd frontend && npm install && npm start
 ```
 
 **Access:**
-- Frontend: http://localhost:4200
+- Frontend Web: http://localhost:4200
 - API Gateway: http://localhost:8000
 - Login: `admin@trucktrack.com` / `AdminPass123!`
 
@@ -53,64 +61,89 @@ cd frontend && npm install && npm start
 ## Architecture
 
 ```
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                              FRONTEND                                         │
-│                         Angular 21 + Leaflet                                  │
-│                           localhost:4200                                      │
-└──────────────────────────────────┬───────────────────────────────────────────┘
-                                   │ HTTP / WebSocket
-                                   ▼
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                            API GATEWAY :8000                                  │
-│                      JWT Validation • Routing • CORS                          │
-└─────────┬─────────────────┬─────────────────┬─────────────────┬──────────────┘
-          │                 │                 │                 │
-          ▼                 ▼                 ▼                 ▼
-    ┌───────────┐     ┌───────────┐     ┌───────────┐     ┌───────────┐
-    │   AUTH    │     │    GPS    │     │ LOCATION  │     │  NOTIF    │
-    │  :8083    │     │ INGESTION │     │  :8081    │     │  :8082    │
-    │           │     │  :8080    │     │           │     │           │
-    │  Login    │     │  Receive  │     │  Trucks   │     │  Alerts   │
-    │  JWT      │     │  Validate │     │  History  │     │  Rules    │
-    │  Users    │     │  Publish  │     │  Geofence │     │  WebSocket│
-    └─────┬─────┘     └─────┬─────┘     └─────┬─────┘     └─────┬─────┘
-          │                 │                 │                 │
-          │                 │    ┌────────────┴────────────┐    │
-          │                 │    │                         │    │
-          │                 ▼    ▼                         ▼    ▼
-          │           ┌─────────────────────────────────────────────┐
-          │           │              KAFKA :9092                     │
-          │           │                                              │
-          │           │  📨 truck-track.gps.position                │
-          │           │  📨 truck-track.location.status-change      │
-          │           │  📨 truck-track.notification.alert          │
-          │           └─────────────────────────────────────────────┘
-          │
-          ▼
-    ┌───────────┐     ┌───────────┐     ┌───────────┐     ┌───────────┐
-    │ POSTGRES  │     │   REDIS   │     │ PROMETHEUS│     │  JAEGER   │
-    │  :5432    │     │  :6379    │     │  :9090    │     │  :16686   │
-    │           │     │           │     │           │     │           │
-    │ + PostGIS │     │  Cache    │     │  Metrics  │     │  Tracing  │
-    └───────────┘     └───────────┘     └───────────┘     └───────────┘
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                                    CLIENTS                                           │
+│                                                                                      │
+│    ┌──────────────────────┐              ┌──────────────────────┐                   │
+│    │   📱 Mobile App      │              │   🖥️  Web Frontend   │                   │
+│    │   React Native       │              │   Angular 17         │                   │
+│    │   iOS / Android      │              │   localhost:4200     │                   │
+│    │                      │              │                      │                   │
+│    │  • GPS Background    │              │  • Live Map          │                   │
+│    │  • Status Updates    │              │  • Admin Panel       │                   │
+│    │  • Push Notifications│              │  • History/Alerts    │                   │
+│    │  • Offline Mode      │              │  • Geofences         │                   │
+│    └──────────┬───────────┘              └──────────┬───────────┘                   │
+│               │                                      │                               │
+└───────────────┼──────────────────────────────────────┼───────────────────────────────┘
+                │ REST / WebSocket                     │ HTTP / WebSocket
+                │                                      │
+                ▼                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                              API GATEWAY :8000                                       │
+│                        JWT Validation • Routing • CORS                               │
+└───────────┬─────────────────┬─────────────────┬─────────────────┬───────────────────┘
+            │                 │                 │                 │
+            ▼                 ▼                 ▼                 ▼
+      ┌───────────┐     ┌───────────┐     ┌───────────┐     ┌───────────┐
+      │   AUTH    │     │    GPS    │     │ LOCATION  │     │  NOTIF    │
+      │  :8083    │     │ INGESTION │     │  :8081    │     │  :8082    │
+      │           │     │  :8080    │     │           │     │           │
+      │  Login    │     │  Receive  │     │  Trucks   │     │  Alerts   │
+      │  JWT      │     │  Validate │     │  History  │     │  Rules    │
+      │  Users    │     │  Publish  │     │  Geofence │     │  WebSocket│
+      │  Groups   │     │           │     │  Admin    │     │  FCM Push │
+      └─────┬─────┘     └─────┬─────┘     └─────┬─────┘     └─────┬─────┘
+            │                 │                 │                 │
+            │                 │    ┌────────────┴────────────┐    │
+            │                 │    │                         │    │
+            │                 ▼    ▼                         ▼    ▼
+            │           ┌─────────────────────────────────────────────┐
+            │           │              KAFKA :9092                     │
+            │           │                                              │
+            │           │  📨 truck-track.gps.position                │
+            │           │  📨 truck-track.location.status-change      │
+            │           │  📨 truck-track.notification.alert          │
+            │           └─────────────────────────────────────────────┘
+            │
+            ▼
+      ┌───────────┐     ┌───────────┐     ┌───────────┐     ┌───────────┐
+      │ POSTGRES  │     │   REDIS   │     │ PROMETHEUS│     │  JAEGER   │
+      │  :5432    │     │  :6379    │     │  :9090    │     │  :16686   │
+      │           │     │           │     │           │     │           │
+      │ + PostGIS │     │  Cache    │     │  Metrics  │     │  Tracing  │
+      └───────────┘     └───────────┘     └───────────┘     └───────────┘
 ```
 
 **Flux de données :**
 ```
-🚛 Camion → GPS Ingestion → Kafka → Location Service → PostgreSQL
-                                  → Notification Service → Alertes → WebSocket → 📱 UI
+🚛 Camion (Mobile App)
+     │
+     ▼ GPS Position
+GPS Ingestion ──► Kafka ──► Location Service ──► PostgreSQL
+                    │               │
+                    │               └──► WebSocket ──► 📱 Web/Mobile
+                    │
+                    └──► Notification Service ──► Alertes ──► FCM Push ──► 📱 Mobile
 ```
 
-## Services
+## Applications
+
+| Application | Type | Technologie | Description |
+|-------------|------|-------------|-------------|
+| **Frontend Web** | Web | Angular 17 | Dashboard gestionnaire de flotte |
+| **Mobile Driver** | iOS/Android | React Native | App chauffeurs avec GPS |
+| **Backend** | Microservices | Spring Boot 3.2 | API et services métier |
+
+## Services Backend
 
 | Service | Port | Description |
 |---------|------|-------------|
-| Frontend | 4200 | Angular 21 UI |
-| API Gateway | 8000 | Routing, auth |
-| Auth | 8083 | JWT authentication |
+| API Gateway | 8000 | Routing, auth, CORS |
+| Auth | 8083 | JWT, users, groups |
 | GPS Ingestion | 8080 | GPS data intake |
-| Location | 8081 | Positions, WebSocket |
-| Notification | 8082 | Alerts |
+| Location | 8081 | Trucks, history, WebSocket |
+| Notification | 8082 | Alerts, FCM push |
 
 ## Monitoring
 
@@ -119,27 +152,66 @@ cd frontend && npm install && npm start
 | Grafana | http://localhost:3000 | admin / admin |
 | Prometheus | http://localhost:9090 | - |
 | Jaeger | http://localhost:16686 | - |
+| Kafka UI | http://localhost:8088 | - |
 
 ## Development
 
+### Backend
 ```bash
-# Manual start
 cd infra/docker && docker-compose up -d
-cd backend && mvn flyway:migrate -P local
+cd backend && mvn clean install -DskipTests
 cd backend/<service> && mvn spring-boot:run
-cd frontend && npm install && npm start
-
-# Tests
-cd backend && mvn test
-cd frontend && npm test
 ```
 
-## Logs
-
+### Frontend Web
 ```bash
-tail -f logs/*.log              # All services
-tail -f logs/location.log       # Specific service
+cd frontend && npm install && npm start
 ```
+
+### Mobile App
+```bash
+cd mobile && npm install
+
+# Android
+cd android && ./gradlew assembleDebug
+
+# iOS (macOS only)
+cd ios && pod install
+npx react-native run-ios
+```
+
+## Project Structure
+
+```
+truck-track/
+├── backend/                    # Java microservices
+│   ├── api-gateway/           # :8000 - Routing & auth
+│   ├── auth-service/          # :8083 - Authentication
+│   ├── gps-ingestion-service/ # :8080 - GPS intake
+│   ├── location-service/      # :8081 - Trucks & history
+│   ├── notification-service/  # :8082 - Alerts
+│   └── shared/                # Common DTOs
+├── frontend/                   # Angular web app
+│   └── src/app/
+│       ├── core/              # Services, guards
+│       ├── features/          # Map, history, alerts
+│       └── admin/             # User/truck management
+├── mobile/                     # React Native app
+│   ├── android/               # Android native
+│   ├── ios/                   # iOS native
+│   └── src/
+│       ├── screens/           # App screens
+│       ├── services/          # API, GPS, push
+│       └── store/             # Zustand state
+├── infra/                      # Docker configs
+└── specs/                      # Feature specifications
+```
+
+## Documentation
+
+- [Backend](backend/README.md) - Microservices architecture
+- [Frontend](frontend/README.md) - Angular web app
+- [Mobile](mobile/README.md) - React Native driver app
 
 ## Troubleshooting
 
@@ -148,9 +220,4 @@ tail -f logs/location.log       # Specific service
 | Docker not running | `open -a Docker` |
 | Port in use | `lsof -i :8080` then `kill -9 <PID>` |
 | Services won't start | `./stop-all.sh && ./start-all.sh --build` |
-
-## Documentation
-
-- [Backend](backend/README.md)
-- [Frontend](frontend/README.md)
-- [Architecture](docs/ARCHITECTURE.md)
+| Mobile build fails | Check Android SDK / Xcode installation |

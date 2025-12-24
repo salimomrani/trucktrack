@@ -5,11 +5,12 @@ Backend microservices en Java 17 / Spring Boot 3.2 pour le système de suivi GPS
 ## Architecture
 
 ```
-                                    ┌─────────────────┐
-                                    │   Frontend      │
-                                    │   Angular       │
-                                    └────────┬────────┘
-                                             │ HTTP
+                    ┌─────────────────┐              ┌─────────────────┐
+                    │   Frontend      │              │  Mobile App     │
+                    │   Angular       │              │  React Native   │
+                    └────────┬────────┘              └────────┬────────┘
+                             │ HTTP                           │ REST/GPS
+                             └───────────────┬────────────────┘
                                              ▼
 ┌────────────────────────────────────────────────────────────────────────────┐
 │                           API Gateway :8000                                 │
@@ -176,6 +177,19 @@ SELECT * FROM trucks WHERE ST_DWithin(position, point, 5000);
 | GET | `/notification/v1/alert-rules` | Liste règles |
 | POST | `/notification/v1/alert-rules` | Créer règle |
 | WS | `/ws/notifications` | WebSocket alertes live |
+
+### Mobile Driver API
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/drivers/me` | Profil chauffeur connecté |
+| GET | `/drivers/me/status` | Statut actuel (AVAILABLE, IN_DELIVERY, etc.) |
+| PUT | `/drivers/me/status` | Mettre à jour le statut |
+| GET | `/drivers/me/trips` | Trajets assignés au chauffeur |
+| PUT | `/trips/{id}/status` | Mettre à jour statut d'un trajet |
+| GET | `/drivers/me/messages` | Messages du chauffeur |
+| POST | `/drivers/me/messages` | Envoyer message au dispatch |
+| POST | `/locations` | Envoyer position GPS (background) |
+| POST | `/devices/register` | Enregistrer device FCM token |
 
 ## Monitoring
 
