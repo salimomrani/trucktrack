@@ -15,7 +15,7 @@ import { GPSPosition } from '../models/gps-position.model';
 })
 export class TruckService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/public/location/v1`;
+  private readonly baseUrl = `${environment.apiUrl}/location/v1`;
 
   /**
    * Get all trucks with optional filters
