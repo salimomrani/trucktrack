@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,9 +33,11 @@ public class GeofenceController {
     private final GeofenceService geofenceService;
 
     /**
-     * Create a new geofence
+     * Create a new geofence.
+     * Allowed: ADMIN, FLEET_MANAGER, DISPATCHER
      */
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'FLEET_MANAGER', 'DISPATCHER')")
     public ResponseEntity<GeofenceDTO> createGeofence(
             @AuthenticationPrincipal GatewayUserPrincipal principal,
             @Valid @RequestBody GeofenceDTO dto) {
@@ -47,9 +50,11 @@ public class GeofenceController {
     }
 
     /**
-     * Update an existing geofence
+     * Update an existing geofence.
+     * Allowed: ADMIN, FLEET_MANAGER, DISPATCHER
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'FLEET_MANAGER', 'DISPATCHER')")
     public ResponseEntity<GeofenceDTO> updateGeofence(
             @PathVariable UUID id,
             @AuthenticationPrincipal GatewayUserPrincipal principal,
@@ -63,9 +68,11 @@ public class GeofenceController {
     }
 
     /**
-     * Delete a geofence
+     * Delete a geofence.
+     * Allowed: ADMIN, FLEET_MANAGER only
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'FLEET_MANAGER')")
     public ResponseEntity<Void> deleteGeofence(
             @PathVariable UUID id,
             @AuthenticationPrincipal GatewayUserPrincipal principal) {
