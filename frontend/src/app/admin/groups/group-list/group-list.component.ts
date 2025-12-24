@@ -96,7 +96,7 @@ export class GroupListComponent implements OnInit {
   }
 
   editGroup(group: GroupDetailResponse) {
-    this.router.navigate(['/admin/groups', group.id, 'edit']);
+    this.router.navigate(['/admin/groups', group.id]);
   }
 
   deleteGroup(group: GroupDetailResponse) {
