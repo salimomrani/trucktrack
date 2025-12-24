@@ -15,8 +15,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { UserService } from '../user.service';
 import { UserAdminResponse, CreateUserRequest, UpdateUserRequest, USER_ROLES, UserRole } from '../user.model';
+import { GroupService, GroupDetailResponse } from '../../groups/group.service';
 import { AuditLogComponent } from '../../shared/audit-log/audit-log.component';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/breadcrumb/breadcrumb.component';
+import { forkJoin } from 'rxjs';
 
 /**
  * User form component for create and edit.
@@ -51,6 +53,7 @@ export class UserFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly userService = inject(UserService);
+  private readonly groupService = inject(GroupService);
   private readonly snackBar = inject(MatSnackBar);
 
   // State
@@ -61,6 +64,10 @@ export class UserFormComponent implements OnInit {
 
   isEditMode = signal(false);
   roles = USER_ROLES;
+
+  // Groups
+  availableGroups = signal<GroupDetailResponse[]>([]);
+  selectedGroupIds = signal<string[]>([]);
 
   breadcrumbItems = computed((): BreadcrumbItem[] => [
     { label: 'Users', link: '/admin/users', icon: 'people' },
@@ -79,6 +86,9 @@ export class UserFormComponent implements OnInit {
   });
 
   ngOnInit() {
+    // Load available groups for all modes
+    this.loadAvailableGroups();
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id && id !== 'new') {
       this.userId.set(id);
@@ -95,11 +105,26 @@ export class UserFormComponent implements OnInit {
     }
   }
 
+  loadAvailableGroups() {
+    this.groupService.getGroups(0, 100).subscribe({
+      next: (response) => {
+        this.availableGroups.set(response.content);
+      },
+      error: (err) => {
+        console.error('Failed to load groups:', err);
+      }
+    });
+  }
+
   loadUser(id: string) {
     this.loading.set(true);
-    this.userService.getUserById(id).subscribe({
-      next: (user) => {
+    forkJoin({
+      user: this.userService.getUserById(id),
+      groups: this.userService.getUserGroups(id)
+    }).subscribe({
+      next: ({ user, groups }) => {
         this.user.set(user);
+        this.selectedGroupIds.set(groups);
         this.form.patchValue({
           email: user.email,
           firstName: user.firstName,
@@ -142,6 +167,10 @@ export class UserFormComponent implements OnInit {
 
     this.userService.createUser(request).subscribe({
       next: (user) => {
+        // Save groups if any selected
+        if (this.selectedGroupIds().length > 0) {
+          this.saveUserGroups(user.id);
+        }
         this.snackBar.open(`User ${user.fullName} created successfully`, 'Close', { duration: 3000 });
         this.router.navigate(['/admin/users']);
       },
@@ -174,6 +203,8 @@ export class UserFormComponent implements OnInit {
 
     this.userService.updateUser(this.userId()!, request).subscribe({
       next: (user) => {
+        // Always save groups on update
+        this.saveUserGroups(user.id);
         this.snackBar.open(`User ${user.fullName} updated successfully`, 'Close', { duration: 3000 });
         this.router.navigate(['/admin/users']);
       },
@@ -187,5 +218,21 @@ export class UserFormComponent implements OnInit {
 
   goBack() {
     this.router.navigate(['/admin/users']);
+  }
+
+  onGroupsChange(groupIds: string[]) {
+    this.selectedGroupIds.set(groupIds);
+  }
+
+  private saveUserGroups(userId: string) {
+    this.userService.updateUserGroups(userId, this.selectedGroupIds()).subscribe({
+      next: () => {
+        // Groups saved successfully
+      },
+      error: (err) => {
+        console.error('Failed to update user groups:', err);
+        this.snackBar.open('User saved but failed to update groups', 'Close', { duration: 3000 });
+      }
+    });
   }
 }
