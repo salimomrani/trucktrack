@@ -30,8 +30,10 @@ public class PasswordValidator implements ConstraintValidator<ValidPassword, Str
 
     @Override
     public boolean isValid(String password, ConstraintValidatorContext context) {
+        // Allow null - use @NotBlank for required passwords (e.g., CreateUserRequest)
+        // For UpdateUserRequest, null means "don't change password"
         if (password == null || password.isEmpty()) {
-            return false;
+            return true;
         }
 
         // Check all rules
