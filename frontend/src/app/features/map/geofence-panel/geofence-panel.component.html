@@ -28,12 +28,13 @@
       </div>
     }
 
-    <!-- Drawing Mode Section -->
+    <!-- Drawing Mode Section (only for ADMIN, FLEET_MANAGER, DISPATCHER) -->
+    @if (canCreateGeofence()) {
     <mat-expansion-panel [expanded]="isDrawing() || drawnCoordinates.length > 0">
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>add_circle</mat-icon>
-          Create Geofence
+          Créer une Geofence
         </mat-panel-title>
       </mat-expansion-panel-header>
 
@@ -86,6 +87,7 @@
         }
       </div>
     </mat-expansion-panel>
+    }
 
     <!-- Existing Geofences List -->
     <mat-expansion-panel [expanded]="true">
@@ -111,15 +113,17 @@
               </div>
             </div>
             <div class="geofence-actions">
-              <button mat-icon-button matTooltip="Focus on map" (click)="focusOnGeofence(geofence)">
+              <button mat-icon-button matTooltip="Centrer sur la carte" (click)="focusOnGeofence(geofence)">
                 <mat-icon>my_location</mat-icon>
               </button>
-              <button mat-icon-button matTooltip="Toggle visibility" (click)="toggleGeofenceVisibility(geofence)">
+              <button mat-icon-button matTooltip="Afficher/Masquer" (click)="toggleGeofenceVisibility(geofence)">
                 <mat-icon>visibility</mat-icon>
               </button>
-              <button mat-icon-button color="warn" matTooltip="Delete" (click)="deleteGeofence(geofence)">
+              @if (canDeleteGeofence()) {
+              <button mat-icon-button color="warn" matTooltip="Supprimer" (click)="deleteGeofence(geofence)">
                 <mat-icon>delete</mat-icon>
               </button>
+              }
             </div>
           </div>
         }

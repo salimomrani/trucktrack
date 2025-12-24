@@ -1,5 +1,6 @@
-import { Component, OnInit, OnDestroy, input, output, signal, inject } from '@angular/core';
-
+import { Component, OnInit, OnDestroy, input, output, signal, inject, computed } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Store } from '@ngrx/store';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,6 +16,7 @@ import * as L from 'leaflet';
 import 'leaflet-draw';
 import { GeofenceService } from '../../../services/geofence.service';
 import { Geofence, GeofenceZoneType } from '../../../models/geofence.model';
+import { selectUserRole } from '../../../store/auth/auth.selectors';
 
 /**
  * Geofence Panel Component
@@ -51,6 +53,22 @@ export class GeofencePanelComponent implements OnInit, OnDestroy {
 
   private readonly geofenceService = inject(GeofenceService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly store = inject(Store);
+
+  // User role and permissions
+  private readonly userRole = toSignal(this.store.select(selectUserRole));
+
+  /** Can create/update geofences: ADMIN, FLEET_MANAGER, DISPATCHER */
+  readonly canCreateGeofence = computed(() => {
+    const role = this.userRole();
+    return role === 'ADMIN' || role === 'FLEET_MANAGER' || role === 'DISPATCHER';
+  });
+
+  /** Can delete geofences: ADMIN, FLEET_MANAGER only */
+  readonly canDeleteGeofence = computed(() => {
+    const role = this.userRole();
+    return role === 'ADMIN' || role === 'FLEET_MANAGER';
+  });
 
   // Drawing controls and layers
   private drawControl!: L.Control.Draw;
