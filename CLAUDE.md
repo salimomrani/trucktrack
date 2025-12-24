@@ -7,6 +7,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-23
 - PostgreSQL 15+ with PostGIS (existing), Redis 7+ (cache KPIs) (006-fleet-analytics)
 - Java 17 (backend), TypeScript 5.x avec Angular 17 (frontend) + Spring Boot 3.2.1, Spring Security, Angular Material 17, NgRx (008-rbac-permissions)
 - PostgreSQL 15+ (tables users, user_truck_groups existantes) (008-rbac-permissions)
+- TypeScript 5.x avec React Native 0.73+ + React Native, React Navigation 6, React Native Maps, Firebase Cloud Messaging, AsyncStorage, Axios (009-driver-mobile-app)
+- AsyncStorage (local), SQLite via WatermelonDB (offline sync), Backend PostgreSQL (via API) (009-driver-mobile-app)
 
 ### Backend
 - Java 17 + Spring Boot 3.2.1, Spring Security, Spring Data JPA
@@ -37,9 +39,9 @@ npm test && npm run lint
 - **Frontend**: TypeScript 5.9 with Angular 21 conventions (signals, block control flow)
 
 ## Recent Changes
+- 009-driver-mobile-app: Added TypeScript 5.x avec React Native 0.73+ + React Native, React Navigation 6, React Native Maps, Firebase Cloud Messaging, AsyncStorage, Axios
 - 008-rbac-permissions: Added Java 17 (backend), TypeScript 5.x avec Angular 17 (frontend) + Spring Boot 3.2.1, Spring Security, Angular Material 17, NgRx
 - 006-fleet-analytics: Added Java 17 (backend), TypeScript 5.9 with Angular 21 (frontend)
-- 2025-12-23: Migrated frontend from Angular 17 to Angular 21.0.6
   - Block control flow (`@if`/`@for`) now default
   - Signals for reactive state
   - Esbuild for faster builds
