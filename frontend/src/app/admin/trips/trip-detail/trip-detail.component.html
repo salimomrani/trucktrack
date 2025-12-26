@@ -144,25 +144,17 @@
             <!-- Assign Form -->
             <form [formGroup]="assignForm" (ngSubmit)="assignTrip()">
               <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Select Truck</mat-label>
-                <mat-select formControlName="truckId">
-                  @for (truck of trucks(); track truck.id) {
-                    <mat-option [value]="truck.id">
-                      {{ truck.truckId }} - {{ truck.vehicleType }}
-                    </mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Select Driver</mat-label>
                 <mat-select formControlName="driverId">
-                  @for (driver of drivers(); track driver.id) {
-                    <mat-option [value]="driver.id">
-                      {{ driver.fullName }} ({{ driver.email }})
+                  @for (driver of assignableDrivers(); track driver.driverId) {
+                    <mat-option [value]="driver.driverId">
+                      {{ driver.driverName }} → {{ driver.truckName }} ({{ driver.truckStatus }})
                     </mat-option>
                   }
                 </mat-select>
+                @if (assignableDrivers().length === 0) {
+                  <mat-hint class="warn-hint">No drivers with assigned trucks available</mat-hint>
+                }
               </mat-form-field>
 
               <div class="form-actions">
@@ -216,22 +208,11 @@
           <mat-card-content>
             <form [formGroup]="reassignForm" (ngSubmit)="reassignTrip()">
               <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Select Truck</mat-label>
-                <mat-select formControlName="truckId">
-                  @for (truck of trucks(); track truck.id) {
-                    <mat-option [value]="truck.id">
-                      {{ truck.truckId }} - {{ truck.vehicleType }}
-                    </mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Select Driver</mat-label>
+                <mat-label>Select New Driver</mat-label>
                 <mat-select formControlName="driverId">
-                  @for (driver of drivers(); track driver.id) {
-                    <mat-option [value]="driver.id">
-                      {{ driver.fullName }} ({{ driver.email }})
+                  @for (driver of assignableDrivers(); track driver.driverId) {
+                    <mat-option [value]="driver.driverId">
+                      {{ driver.driverName }} → {{ driver.truckName }} ({{ driver.truckStatus }})
                     </mat-option>
                   }
                 </mat-select>
