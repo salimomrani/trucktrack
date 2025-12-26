@@ -23,13 +23,13 @@
 
 **Purpose**: Capture baselines and ensure clean starting state
 
-- [ ] T001 Verify git working directory is clean in frontend/
-- [ ] T002 Run existing tests to confirm baseline (`npm test` in frontend/)
-- [ ] T003 Capture build time baseline (`npm run build` in frontend/)
-- [ ] T004 Capture bundle size baseline (main.js, vendor.js sizes in frontend/dist/)
-- [ ] T005 [P] Document current versions in migration-log.md
-- [ ] T006 [P] Run Lighthouse audit and save baseline score
-- [ ] T007 Create migration branch checkpoint: `git tag pre-migration-v17`
+- [x] T001 Verify git working directory is clean in frontend/
+- [x] T002 Run existing tests to confirm baseline (`npm test` in frontend/)
+- [x] T003 Capture build time baseline (`npm run build` in frontend/)
+- [x] T004 Capture bundle size baseline (main.js, vendor.js sizes in frontend/dist/)
+- [x] T005 [P] Document current versions in migration-log.md
+- [x] T006 [P] Run Lighthouse audit and save baseline score
+- [x] T007 Create migration branch checkpoint: `git tag pre-migration-v17`
 
 **Checkpoint**: Baselines captured, ready to start migration
 
@@ -39,15 +39,15 @@
 
 **Purpose**: First incremental upgrade
 
-- [ ] T008 Run `ng update @angular/core@18 @angular/cli@18` in frontend/
-- [ ] T009 Run `ng update @angular/material@18` in frontend/
-- [ ] T010 Update NgRx packages to v18 in frontend/package.json
-- [ ] T011 Resolve any TypeScript errors after upgrade
-- [ ] T012 Run `npm run build` and fix any build errors in frontend/
-- [ ] T013 Run `npm test` and fix any test failures in frontend/
-- [ ] T014 Manual smoke test: login, map, geofences, alerts
-- [ ] T015 Commit: `git commit -m "chore: upgrade to Angular 18"`
-- [ ] T016 Create checkpoint: `git tag migration-v18`
+- [x] T008 Run `ng update @angular/core@18 @angular/cli@18` in frontend/
+- [x] T009 Run `ng update @angular/material@18` in frontend/
+- [x] T010 Update NgRx packages to v18 in frontend/package.json
+- [x] T011 Resolve any TypeScript errors after upgrade
+- [x] T012 Run `npm run build` and fix any build errors in frontend/
+- [x] T013 Run `npm test` and fix any test failures in frontend/
+- [x] T014 Manual smoke test: login, map, geofences, alerts
+- [x] T015 Commit: `git commit -m "chore: upgrade to Angular 18"`
+- [x] T016 Create checkpoint: `git tag migration-v18`
 
 **Checkpoint**: Angular 18 stable, all tests pass
 
@@ -57,15 +57,15 @@
 
 **Purpose**: Signal-based reactivity improvements
 
-- [ ] T017 Run `ng update @angular/core@19 @angular/cli@19` in frontend/
-- [ ] T018 Run `ng update @angular/material@19` in frontend/
-- [ ] T019 Update NgRx packages to v19 in frontend/package.json
-- [ ] T020 Resolve any deprecated API warnings
-- [ ] T021 Run `npm run build` and fix any build errors in frontend/
-- [ ] T022 Run `npm test` and fix any test failures in frontend/
-- [ ] T023 Manual smoke test: login, map, geofences, alerts
-- [ ] T024 Commit: `git commit -m "chore: upgrade to Angular 19"`
-- [ ] T025 Create checkpoint: `git tag migration-v19`
+- [x] T017 Run `ng update @angular/core@19 @angular/cli@19` in frontend/
+- [x] T018 Run `ng update @angular/material@19` in frontend/
+- [x] T019 Update NgRx packages to v19 in frontend/package.json
+- [x] T020 Resolve any deprecated API warnings
+- [x] T021 Run `npm run build` and fix any build errors in frontend/
+- [x] T022 Run `npm test` and fix any test failures in frontend/
+- [x] T023 Manual smoke test: login, map, geofences, alerts
+- [x] T024 Commit: `git commit -m "chore: upgrade to Angular 19"`
+- [x] T025 Create checkpoint: `git tag migration-v19`
 
 **Checkpoint**: Angular 19 stable, all tests pass
 
@@ -75,16 +75,16 @@
 
 **Purpose**: Esbuild becomes default build system
 
-- [ ] T026 Run `ng update @angular/core@20 @angular/cli@20` in frontend/
-- [ ] T027 Run `ng update @angular/material@20` in frontend/
-- [ ] T028 Update NgRx packages to v20 in frontend/package.json
-- [ ] T029 Verify angular.json uses @angular/build (Esbuild)
-- [ ] T030 Run `npm run build` and fix any build errors in frontend/
-- [ ] T031 Run `npm test` and fix any test failures in frontend/
-- [ ] T032 Measure build time improvement vs baseline
-- [ ] T033 Manual smoke test: login, map, geofences, alerts
-- [ ] T034 Commit: `git commit -m "chore: upgrade to Angular 20 with Esbuild"`
-- [ ] T035 Create checkpoint: `git tag migration-v20`
+- [x] T026 Run `ng update @angular/core@20 @angular/cli@20` in frontend/
+- [x] T027 Run `ng update @angular/material@20` in frontend/
+- [x] T028 Update NgRx packages to v20 in frontend/package.json
+- [x] T029 Verify angular.json uses @angular/build (Esbuild)
+- [x] T030 Run `npm run build` and fix any build errors in frontend/
+- [x] T031 Run `npm test` and fix any test failures in frontend/
+- [x] T032 Measure build time improvement vs baseline
+- [x] T033 Manual smoke test: login, map, geofences, alerts
+- [x] T034 Commit: `git commit -m "chore: upgrade to Angular 20 with Esbuild"`
+- [x] T035 Create checkpoint: `git tag migration-v20`
 
 **Checkpoint**: Angular 20 with Esbuild stable, build time improved
 
@@ -94,17 +94,17 @@
 
 **Purpose**: Zoneless change detection becomes default
 
-- [ ] T036 Run `ng update @angular/core@21 @angular/cli@21` in frontend/
-- [ ] T037 Run `ng update @angular/material@21` in frontend/
-- [ ] T038 Update NgRx packages to v21 in frontend/package.json
-- [ ] T039 Configure zoneless change detection in frontend/src/main.ts
-- [ ] T040 Remove zone.js from frontend/package.json (if applicable)
-- [ ] T041 Update test configuration for zoneless in frontend/src/test.ts
-- [ ] T042 Run `npm run build` and fix any build errors in frontend/
-- [ ] T043 Run `npm test` and fix any test failures in frontend/
-- [ ] T044 Manual smoke test: login, map, geofences, alerts
-- [ ] T045 Commit: `git commit -m "chore: upgrade to Angular 21 with zoneless"`
-- [ ] T046 Create checkpoint: `git tag migration-v21`
+- [x] T036 Run `ng update @angular/core@21 @angular/cli@21` in frontend/
+- [x] T037 Run `ng update @angular/material@21` in frontend/
+- [x] T038 Update NgRx packages to v21 in frontend/package.json
+- [x] T039 Configure zoneless change detection in frontend/src/main.ts
+- [x] T040 Remove zone.js from frontend/package.json (if applicable)
+- [x] T041 Update test configuration for zoneless in frontend/src/test.ts
+- [x] T042 Run `npm run build` and fix any build errors in frontend/
+- [x] T043 Run `npm test` and fix any test failures in frontend/
+- [x] T044 Manual smoke test: login, map, geofences, alerts
+- [x] T045 Commit: `git commit -m "chore: upgrade to Angular 21 with zoneless"`
+- [x] T046 Create checkpoint: `git tag migration-v21`
 
 **Checkpoint**: Angular 21 with zoneless stable, all tests pass
 
@@ -114,14 +114,14 @@
 
 **Purpose**: Verify all success criteria are met
 
-- [ ] T047 Measure final build time and compare to baseline (-40% target)
-- [ ] T048 Measure dev server startup time (-50% target)
-- [ ] T049 Measure hot-reload time (<2s target)
-- [ ] T050 Measure bundle sizes and compare to baseline (-10% target)
-- [ ] T051 Run Lighthouse audit (>80 performance target)
-- [ ] T052 Run full E2E test suite (if exists)
-- [ ] T053 Verify Angular version is 21.x with `ng version`
-- [ ] T054 Document all metrics in migration-report.md
+- [x] T047 Measure final build time and compare to baseline (-40% target)
+- [x] T048 Measure dev server startup time (-50% target)
+- [x] T049 Measure hot-reload time (<2s target)
+- [x] T050 Measure bundle sizes and compare to baseline (-10% target)
+- [x] T051 Run Lighthouse audit (>80 performance target)
+- [x] T052 Run full E2E test suite (if exists)
+- [x] T053 Verify Angular version is 21.x with `ng version`
+- [x] T054 Document all metrics in migration-report.md
 
 **Checkpoint**: All success criteria validated
 
@@ -131,11 +131,11 @@
 
 **Purpose**: Final cleanup and documentation
 
-- [ ] T055 [P] Remove any temporary migration workarounds
-- [ ] T056 [P] Update frontend/README.md with new Angular 21 info
-- [ ] T057 [P] Update frontend/ANGULAR_CONVENTIONS.md if needed
-- [ ] T058 Clean up migration checkpoints: keep only pre-migration and final
-- [ ] T059 Final commit: `git commit -m "feat: complete Angular 21 migration"`
+- [x] T055 [P] Remove any temporary migration workarounds
+- [x] T056 [P] Update frontend/README.md with new Angular 21 info
+- [x] T057 [P] Update frontend/ANGULAR_CONVENTIONS.md if needed
+- [x] T058 Clean up migration checkpoints: keep only pre-migration and final
+- [x] T059 Final commit: `git commit -m "feat: complete Angular 21 migration"`
 
 ---
 
@@ -217,15 +217,15 @@ cd frontend && npm install
 
 ## Success Criteria Checklist
 
-- [ ] Angular version is 21.x
-- [ ] All existing tests pass (100%)
-- [ ] Build time reduced by ≥40%
-- [ ] Dev server startup reduced by ≥50%
-- [ ] Hot-reload <2 seconds
-- [ ] Bundle size reduced by ≥10%
-- [ ] Lighthouse performance ≥80
-- [ ] No functional regressions
-- [ ] Clean git history with migration commits
+- [x] Angular version is 21.x
+- [x] All existing tests pass (100%)
+- [x] Build time reduced by ≥40%
+- [x] Dev server startup reduced by ≥50%
+- [x] Hot-reload <2 seconds
+- [x] Bundle size reduced by ≥10%
+- [x] Lighthouse performance ≥80
+- [x] No functional regressions
+- [x] Clean git history with migration commits
 
 ---
 

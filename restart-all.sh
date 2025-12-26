@@ -14,9 +14,9 @@ echo -e "${BLUE}║   Truck Track - Restarting All Services   ║${NC}"
 echo -e "${BLUE}╚════════════════════════════════════════════╝${NC}"
 echo ""
 
-# Stop all services
+# Stop all services (--no-prompt to skip Docker confirmation)
 echo -e "${BLUE}[1/2] Stopping all services...${NC}"
-"$PROJECT_ROOT/stop-all.sh"
+"$PROJECT_ROOT/stop-all.sh" --no-prompt
 
 echo ""
 sleep 2

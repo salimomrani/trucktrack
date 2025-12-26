@@ -192,28 +192,31 @@ mkdir -p "$PROJECT_ROOT/logs"
 # Start backend services in background
 echo -e "${BLUE}Starting backend services...${NC}"
 
+# Use Spring profile from environment (default: dev)
+SPRING_PROFILE="${SPRING_PROFILES_ACTIVE:-dev}"
+
 cd "$BACKEND_DIR/gps-ingestion-service"
-nohup mvn spring-boot:run > "$PROJECT_ROOT/logs/gps-ingestion.log" 2>&1 &
+nohup mvn spring-boot:run -Dspring-boot.run.profiles=$SPRING_PROFILE > "$PROJECT_ROOT/logs/gps-ingestion.log" 2>&1 &
 GPS_PID=$!
 echo -e "  GPS Ingestion Service (PID: $GPS_PID) on port 8080"
 
 cd "$BACKEND_DIR/location-service"
-nohup mvn spring-boot:run > "$PROJECT_ROOT/logs/location.log" 2>&1 &
+nohup mvn spring-boot:run -Dspring-boot.run.profiles=$SPRING_PROFILE > "$PROJECT_ROOT/logs/location.log" 2>&1 &
 LOCATION_PID=$!
 echo -e "  Location Service (PID: $LOCATION_PID) on port 8081"
 
 cd "$BACKEND_DIR/notification-service"
-nohup mvn spring-boot:run > "$PROJECT_ROOT/logs/notification.log" 2>&1 &
+nohup mvn spring-boot:run -Dspring-boot.run.profiles=$SPRING_PROFILE > "$PROJECT_ROOT/logs/notification.log" 2>&1 &
 NOTIFICATION_PID=$!
 echo -e "  Notification Service (PID: $NOTIFICATION_PID) on port 8082"
 
 cd "$BACKEND_DIR/auth-service"
-nohup mvn spring-boot:run -Dspring-boot.run.profiles=local > "$PROJECT_ROOT/logs/auth.log" 2>&1 &
+nohup mvn spring-boot:run -Dspring-boot.run.profiles=$SPRING_PROFILE > "$PROJECT_ROOT/logs/auth.log" 2>&1 &
 AUTH_PID=$!
 echo -e "  Auth Service (PID: $AUTH_PID) on port 8083"
 
 cd "$BACKEND_DIR/api-gateway"
-nohup mvn spring-boot:run > "$PROJECT_ROOT/logs/api-gateway.log" 2>&1 &
+nohup mvn spring-boot:run -Dspring-boot.run.profiles=$SPRING_PROFILE > "$PROJECT_ROOT/logs/api-gateway.log" 2>&1 &
 GATEWAY_PID=$!
 echo -e "  API Gateway (PID: $GATEWAY_PID) on port 8000"
 

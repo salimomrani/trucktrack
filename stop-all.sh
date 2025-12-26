@@ -1,8 +1,10 @@
 #!/bin/bash
 # Stop all Truck Track services
-# Usage: ./stop-all.sh
+# Usage: ./stop-all.sh [--docker] [--no-prompt]
+#   --docker     Also stop Docker infrastructure
+#   --no-prompt  Skip interactive prompts (for use in restart-all.sh)
 
-set -e
+# Don't use set -e - we want to continue even if some kills fail
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -86,18 +88,56 @@ for i in "${!PORTS[@]}"; do
   fi
 done
 
+# Also kill any remaining Maven spring-boot:run processes for trucktrack
+echo -e "${BLUE}Checking for remaining Maven processes...${NC}"
+MAVEN_PIDS=$(pgrep -f "spring-boot:run.*trucktrack" 2>/dev/null || true)
+if [ ! -z "$MAVEN_PIDS" ]; then
+  echo -e "${YELLOW}Killing remaining Maven processes: $MAVEN_PIDS${NC}"
+  echo "$MAVEN_PIDS" | xargs kill -9 2>/dev/null || true
+fi
+
+# Kill any Java processes running trucktrack services
+JAVA_PIDS=$(pgrep -f "trucktrack.*-service" 2>/dev/null || true)
+if [ ! -z "$JAVA_PIDS" ]; then
+  echo -e "${YELLOW}Killing remaining Java processes: $JAVA_PIDS${NC}"
+  echo "$JAVA_PIDS" | xargs kill -9 2>/dev/null || true
+fi
+
 echo ""
 
-# Ask about stopping Docker infrastructure
-read -p "Stop Docker infrastructure (Kafka, PostgreSQL, Redis)? [y/N]: " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
+# Check for --docker flag or ask about stopping Docker infrastructure
+STOP_DOCKER=false
+for arg in "$@"; do
+  case $arg in
+    --docker)
+      STOP_DOCKER=true
+      ;;
+    --no-prompt)
+      # Skip Docker prompt entirely (for restart-all.sh)
+      STOP_DOCKER=false
+      ;;
+  esac
+done
+
+if [ "$STOP_DOCKER" = true ]; then
   echo -e "${BLUE}Stopping Docker infrastructure...${NC}"
   cd "$PROJECT_ROOT/infra/docker"
   docker-compose down
   echo -e "${GREEN}✓ Docker infrastructure stopped${NC}"
+elif [ -t 0 ] && [ -z "$NO_PROMPT" ]; then
+  # Only prompt if running interactively and NO_PROMPT not set
+  read -p "Stop Docker infrastructure (Kafka, PostgreSQL, Redis)? [y/N]: " -n 1 -r
+  echo
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo -e "${BLUE}Stopping Docker infrastructure...${NC}"
+    cd "$PROJECT_ROOT/infra/docker"
+    docker-compose down
+    echo -e "${GREEN}✓ Docker infrastructure stopped${NC}"
+  else
+    echo -e "${YELLOW}Docker infrastructure left running${NC}"
+  fi
 else
-  echo -e "${YELLOW}Docker infrastructure left running${NC}"
+  echo -e "${YELLOW}Docker infrastructure left running (use --docker to stop)${NC}"
 fi
 
 echo ""
