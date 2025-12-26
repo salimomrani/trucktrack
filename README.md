@@ -4,11 +4,13 @@ Système de suivi GPS en temps réel pour la gestion de flottes de camions.
 
 **Fonctionnalités principales :**
 - Carte temps réel avec positions GPS live (WebSocket)
-- Application mobile chauffeurs (iOS/Android)
+- Application mobile chauffeurs (iOS/Android) avec affichage des routes
+- **Gestion des trajets** : création, assignation, suivi de statut
+- Itinéraires routiers réels via OSRM (pas de lignes droites)
 - Historique des trajets avec playback
 - Geofences (zones géographiques) avec alertes entrée/sortie
 - Alertes configurables (vitesse, offline, idle)
-- Panel d'administration (utilisateurs, camions, groupes)
+- Panel d'administration (utilisateurs, camions, groupes, trajets)
 - Dashboard de monitoring (Prometheus/Grafana)
 
 ## Prérequis
@@ -41,7 +43,7 @@ node --version      # v18.x+
 open -a Docker  # macOS (attendre que Docker soit prêt)
 
 # 2. Start backend (infrastructure + services)
-./start-all.sh
+./scripts/start-all.sh
 
 # 3. Start frontend (nouveau terminal)
 cd frontend && npm install && npm start
@@ -54,8 +56,14 @@ cd frontend && npm install && npm start
 
 **Management:**
 ```bash
-./stop-all.sh   # Stop backend
-./status.sh     # Check status
+./scripts/stop-all.sh   # Stop backend
+./scripts/status.sh     # Check status
+```
+
+**Mobile App (Expo):**
+```bash
+cd mobile-expo && npm install && npx expo start
+# Scan QR code with Expo Go app
 ```
 
 ## Architecture
@@ -132,7 +140,7 @@ GPS Ingestion ──► Kafka ──► Location Service ──► PostgreSQL
 | Application | Type | Technologie | Description |
 |-------------|------|-------------|-------------|
 | **Frontend Web** | Web | Angular 17 | Dashboard gestionnaire de flotte |
-| **Mobile Driver** | iOS/Android | React Native | App chauffeurs avec GPS |
+| **Mobile Expo** | iOS/Android | React Native + Expo | App chauffeurs avec GPS et routes |
 | **Backend** | Microservices | Spring Boot 3.2 | API et services métier |
 
 ## Services Backend
@@ -142,7 +150,7 @@ GPS Ingestion ──► Kafka ──► Location Service ──► PostgreSQL
 | API Gateway | 8000 | Routing, auth, CORS |
 | Auth | 8083 | JWT, users, groups |
 | GPS Ingestion | 8080 | GPS data intake |
-| Location | 8081 | Trucks, history, WebSocket |
+| Location | 8081 | Trucks, trips, history, WebSocket |
 | Notification | 8082 | Alerts, FCM push |
 
 ## Monitoring
@@ -168,7 +176,14 @@ cd backend/<service> && mvn spring-boot:run
 cd frontend && npm install && npm start
 ```
 
-### Mobile App
+### Mobile App (Expo - Recommandé)
+```bash
+cd mobile-expo && npm install
+npx expo start
+# Scanner le QR code avec Expo Go (Android/iOS)
+```
+
+### Mobile App (React Native - Legacy)
 ```bash
 cd mobile && npm install
 
@@ -188,21 +203,21 @@ truck-track/
 │   ├── api-gateway/           # :8000 - Routing & auth
 │   ├── auth-service/          # :8083 - Authentication
 │   ├── gps-ingestion-service/ # :8080 - GPS intake
-│   ├── location-service/      # :8081 - Trucks & history
+│   ├── location-service/      # :8081 - Trucks, trips & history
 │   ├── notification-service/  # :8082 - Alerts
-│   └── shared/                # Common DTOs
+│   └── shared/                # Common DTOs & utils
 ├── frontend/                   # Angular web app
 │   └── src/app/
 │       ├── core/              # Services, guards
 │       ├── features/          # Map, history, alerts
-│       └── admin/             # User/truck management
-├── mobile/                     # React Native app
-│   ├── android/               # Android native
-│   ├── ios/                   # iOS native
+│       └── admin/             # Users, trucks, trips
+├── mobile-expo/                # Expo mobile app (recommended)
 │   └── src/
-│       ├── screens/           # App screens
-│       ├── services/          # API, GPS, push
+│       ├── screens/           # Map, Trips, Home
+│       ├── services/          # API, GPS, notifications
 │       └── store/             # Zustand state
+├── mobile/                     # React Native app (legacy)
+├── scripts/                    # Start/stop scripts
 ├── infra/                      # Docker configs
 └── specs/                      # Feature specifications
 ```
@@ -211,7 +226,8 @@ truck-track/
 
 - [Backend](backend/README.md) - Microservices architecture
 - [Frontend](frontend/README.md) - Angular web app
-- [Mobile](mobile/README.md) - React Native driver app
+- [Mobile Expo](mobile-expo/README.md) - Expo driver app (recommended)
+- [Mobile Legacy](mobile/README.md) - React Native driver app
 
 ## Troubleshooting
 
