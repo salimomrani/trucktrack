@@ -5,6 +5,7 @@ import { map, catchError, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { TokenStorageService } from '../../core/services/token-storage.service';
 import * as AuthActions from './auth.actions';
+import * as CacheActions from '../cache/cache.actions';
 
 @Injectable()
 export class AuthEffects {
@@ -73,6 +74,17 @@ export class AuthEffects {
         })
       ),
     { dispatch: false }
+  );
+
+  /**
+   * Clear all caches when user logs out.
+   * This ensures cached data from previous user session is not available.
+   */
+  clearCachesOnLogout$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.logout),
+      map(() => CacheActions.clearAllCaches())
+    )
   );
 
   loadUser$ = createEffect(() =>

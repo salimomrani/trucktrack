@@ -5,10 +5,12 @@ import { authReducer } from './auth/auth.reducer';
 import { trucksReducer } from './trucks/trucks.reducer';
 import { gpsReducer } from './gps/gps.reducer';
 import { historyReducer } from './history/history.reducer';
+import { cacheReducer } from './cache/cache.reducer';
 import { AuthState } from './auth/auth.state';
 import { TrucksState } from './trucks/trucks.state';
 import { GpsState } from './gps/gps.state';
 import { HistoryState } from './history/history.state';
+import { EntityCacheState } from './cache/cache.models';
 
 /**
  * Root application state
@@ -18,6 +20,7 @@ export interface AppState {
   trucks: TrucksState;
   gps: GpsState;
   history: HistoryState;
+  cache: EntityCacheState;
 }
 
 /**
@@ -27,7 +30,8 @@ export const rootReducers: ActionReducerMap<AppState> = {
   auth: authReducer,
   trucks: trucksReducer,
   gps: gpsReducer,
-  history: historyReducer
+  history: historyReducer,
+  cache: cacheReducer
 };
 
 /**

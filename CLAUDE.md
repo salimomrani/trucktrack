@@ -13,6 +13,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-23
 - PostgreSQL 15+ with existing schema, Redis for real-time status caching (010-trip-management)
 - YAML (GitHub Actions), Java 17, Node.js 18+, Python 3.x + GitHub Actions, Maven, npm, Docker, Expo CLI (011-cicd-pipelines)
 - GitHub Container Registry (ghcr.io) pour les images Docker (011-cicd-pipelines)
+- Java 17 (backend), TypeScript 5.9 with Angular 21 (frontend) + Spring Boot 3.2.x, Spring Data Redis, NgRx 21.x with createSelector (012-multi-level-cache)
+- Redis 7+ (cache layer), PostgreSQL 15+ (existing primary storage) (012-multi-level-cache)
 
 ### Backend
 - Java 17 + Spring Boot 3.2.1, Spring Security, Spring Data JPA
@@ -43,9 +45,9 @@ npm test && npm run lint
 - **Frontend**: TypeScript 5.9 with Angular 21 conventions (signals, block control flow)
 
 ## Recent Changes
+- 012-multi-level-cache: Added Java 17 (backend), TypeScript 5.9 with Angular 21 (frontend) + Spring Boot 3.2.x, Spring Data Redis, NgRx 21.x with createSelector
 - 011-cicd-pipelines: Added YAML (GitHub Actions), Java 17, Node.js 18+, Python 3.x + GitHub Actions, Maven, npm, Docker, Expo CLI
 - 010-trip-management: Added Java 17 (backend), TypeScript 5.x with Angular 17 (frontend), TypeScript with React Native/Expo (mobile) + Spring Boot 3.2.x, Spring Data JPA, Spring Security, Angular Material, Expo SDK
-- 009-driver-mobile-app: Added TypeScript 5.x avec React Native 0.73+ + React Native, React Navigation 6, React Native Maps, Firebase Cloud Messaging, AsyncStorage, Axios
   - Block control flow (`@if`/`@for`) now default
   - Signals for reactive state
   - Esbuild for faster builds

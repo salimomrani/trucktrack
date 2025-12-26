@@ -58,6 +58,20 @@ spring:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 2
+          max-wait: 1000ms
+
+  # Cache Configuration
+  cache:
+    type: redis
+    redis:
+      time-to-live: 300000
+      cache-null-values: false
 
 server:
   port: 8081
@@ -67,6 +81,14 @@ management:
     web:
       exposure:
         include: health,prometheus,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+      show-components: when_authorized
+  health:
+    # T044: Include Redis health in actuator health endpoint
+    redis:
+      enabled: true
   metrics:
     export:
       prometheus:

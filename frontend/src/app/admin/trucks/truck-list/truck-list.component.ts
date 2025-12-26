@@ -19,6 +19,7 @@ import { TruckAdminService } from '../truck-admin.service';
 import { TruckAdminResponse, TruckStatus, TRUCK_STATUSES, TRUCK_STATUS_COLORS } from '../truck.model';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.component';
+import { StoreFacade } from '../../../store/store.facade';
 
 /**
  * Truck list component with search, filter, and pagination.
@@ -53,6 +54,7 @@ export class TruckListComponent implements OnInit {
   private readonly truckService = inject(TruckAdminService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly facade = inject(StoreFacade);
 
   // State
   trucks = signal<TruckAdminResponse[]>([]);
@@ -86,6 +88,9 @@ export class TruckListComponent implements OnInit {
   }
 
   loadTrucks() {
+    // T023: Trigger cache check for stale-while-revalidate pattern
+    this.facade.checkTrucksCache();
+
     this.loading.set(true);
     this.truckService.getTrucks(
       this.pageIndex,
@@ -183,6 +188,8 @@ export class TruckListComponent implements OnInit {
     this.truckService.markOutOfService(truck.id).subscribe({
       next: () => {
         this.snackBar.open(`Truck ${truck.truckId} marked as out of service`, 'Close', { duration: 3000 });
+        // T023: Invalidate cache after CRUD operation
+        this.facade.invalidateTrucksCache();
         this.loadTrucks();
       },
       error: (err) => {
@@ -196,6 +203,8 @@ export class TruckListComponent implements OnInit {
     this.truckService.activateTruck(truck.id).subscribe({
       next: () => {
         this.snackBar.open(`Truck ${truck.truckId} activated`, 'Close', { duration: 3000 });
+        // T023: Invalidate cache after CRUD operation
+        this.facade.invalidateTrucksCache();
         this.loadTrucks();
       },
       error: (err) => {
