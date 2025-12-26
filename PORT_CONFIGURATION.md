@@ -33,6 +33,15 @@ The API Gateway (port 8000) routes requests to backend services:
 | `/public/location/**` | Location Service | `8081` | No (public endpoint) |
 | `/notifications/**` | Notification Service | `8082` | Yes (JWT) |
 
+## Frontend & Mobile
+
+| Application | Port | URL | Start Command |
+|-------------|------|-----|---------------|
+| **Angular Frontend** | `4200` | `http://localhost:4200` | `cd frontend && npm start` |
+| **Expo Mobile (Metro)** | `8081` | `exp://192.168.x.x:8081` | `cd mobile-expo && npx expo start` |
+
+> **Note**: Expo Metro bundler uses port 8081 by default, which conflicts with Location Service. Use `npx expo start --port 19000` to avoid conflict, or stop Location Service when developing mobile.
+
 ## Quick Access URLs
 
 ### Backend Services
@@ -41,6 +50,9 @@ The API Gateway (port 8000) routes requests to backend services:
 - Location Service: `http://localhost:8081`
 - Notification Service: `http://localhost:8082`
 - Auth Service: `http://localhost:8083`
+
+### Frontend
+- Angular Web App: `http://localhost:4200`
 
 ### Infrastructure
 - Kafka UI: `http://localhost:8088`
