@@ -9,7 +9,11 @@ export type TripStatus = 'PENDING' | 'ASSIGNED' | 'IN_PROGRESS' | 'COMPLETED' | 
 export interface TripResponse {
   id: string;
   origin: string;
+  originLat: number | null;
+  originLng: number | null;
   destination: string;
+  destinationLat: number | null;
+  destinationLng: number | null;
   status: TripStatus;
   statusDisplay: string;
   scheduledAt: string | null;
@@ -41,7 +45,11 @@ export interface TripStatusHistoryResponse {
 
 export interface CreateTripRequest {
   origin: string;
+  originLat?: number;
+  originLng?: number;
   destination: string;
+  destinationLat?: number;
+  destinationLng?: number;
   scheduledAt?: string;
   notes?: string;
   assignedTruckId?: string;
@@ -50,7 +58,11 @@ export interface CreateTripRequest {
 
 export interface UpdateTripRequest {
   origin?: string;
+  originLat?: number;
+  originLng?: number;
   destination?: string;
+  destinationLat?: number;
+  destinationLng?: number;
   scheduledAt?: string;
   notes?: string;
 }

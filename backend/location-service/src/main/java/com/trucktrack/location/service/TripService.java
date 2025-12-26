@@ -1,6 +1,7 @@
 package com.trucktrack.location.service;
 
 import com.trucktrack.common.dto.PageResponse;
+import com.trucktrack.common.util.ConversionUtils;
 import com.trucktrack.location.dto.*;
 import com.trucktrack.location.model.Trip;
 import com.trucktrack.location.model.TripStatus;
@@ -63,7 +64,11 @@ public class TripService {
         // Build the trip entity
         Trip trip = Trip.builder()
             .origin(request.getOrigin())
+            .originLat(ConversionUtils.toBigDecimal(request.getOriginLat()))
+            .originLng(ConversionUtils.toBigDecimal(request.getOriginLng()))
             .destination(request.getDestination())
+            .destinationLat(ConversionUtils.toBigDecimal(request.getDestinationLat()))
+            .destinationLng(ConversionUtils.toBigDecimal(request.getDestinationLng()))
             .scheduledAt(request.getScheduledAt())
             .notes(request.getNotes())
             .createdBy(createdBy)
@@ -184,9 +189,25 @@ public class TripService {
             trip.setOrigin(request.getOrigin());
         }
 
+        // Update origin coordinates if provided
+        if (request.getOriginLat() != null) {
+            trip.setOriginLat(ConversionUtils.toBigDecimal(request.getOriginLat()));
+        }
+        if (request.getOriginLng() != null) {
+            trip.setOriginLng(ConversionUtils.toBigDecimal(request.getOriginLng()));
+        }
+
         if (request.getDestination() != null && !request.getDestination().equals(trip.getDestination())) {
             changes.put("destination", Map.of("from", trip.getDestination(), "to", request.getDestination()));
             trip.setDestination(request.getDestination());
+        }
+
+        // Update destination coordinates if provided
+        if (request.getDestinationLat() != null) {
+            trip.setDestinationLat(ConversionUtils.toBigDecimal(request.getDestinationLat()));
+        }
+        if (request.getDestinationLng() != null) {
+            trip.setDestinationLng(ConversionUtils.toBigDecimal(request.getDestinationLng()));
         }
 
         if (request.getScheduledAt() != null) {

@@ -67,6 +67,12 @@
             <version>7.4</version>
         </dependency>
 
+        <!-- Apache Commons Lang3 for common utilities -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+
         <!-- Testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

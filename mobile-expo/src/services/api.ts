@@ -75,7 +75,11 @@ export type TripStatus = 'PENDING' | 'ASSIGNED' | 'IN_PROGRESS' | 'COMPLETED' | 
 export interface Trip {
   id: string;
   origin: string;
+  originLat: number | null;
+  originLng: number | null;
   destination: string;
+  destinationLat: number | null;
+  destinationLng: number | null;
   status: TripStatus;
   statusDisplay: string;
   scheduledAt: string | null;

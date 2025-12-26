@@ -20,6 +20,7 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.component';
 import { TruckAdminService } from '../../trucks/truck-admin.service';
 import { TruckAdminResponse, DriverOption } from '../../trucks/truck.model';
+import { LocationPickerComponent, LocationValue } from '../../shared/location-picker/location-picker.component';
 
 /**
  * Trip detail component with assignment and status timeline.
@@ -45,7 +46,8 @@ import { TruckAdminResponse, DriverOption } from '../../trucks/truck.model';
     MatDividerModule,
     MatChipsModule,
     MatTabsModule,
-    BreadcrumbComponent
+    BreadcrumbComponent,
+    LocationPickerComponent
   ],
   templateUrl: './trip-detail.component.html',
   styleUrls: ['./trip-detail.component.scss']
@@ -97,8 +99,8 @@ export class TripDetailComponent implements OnInit {
 
   private initForms() {
     this.editForm = this.fb.group({
-      origin: ['', [Validators.required, Validators.minLength(3)]],
-      destination: ['', [Validators.required, Validators.minLength(3)]],
+      origin: [null as LocationValue | null, Validators.required],
+      destination: [null as LocationValue | null, Validators.required],
       scheduledAt: [''],
       notes: ['']
     });
@@ -146,10 +148,14 @@ export class TripDetailComponent implements OnInit {
   }
 
   loadTrucksAndDrivers() {
-    // Load available trucks
-    this.truckService.getTrucks(0, 100, undefined, 'ACTIVE').subscribe({
+    // Load available trucks (ACTIVE and IDLE - both are online and assignable)
+    this.truckService.getTrucks(0, 100, undefined, undefined).subscribe({
       next: (response) => {
-        this.trucks.set(response.content);
+        // Filter to show only online trucks (ACTIVE or IDLE), exclude OFFLINE and OUT_OF_SERVICE
+        const assignableTrucks = response.content.filter(
+          (t: TruckAdminResponse) => t.status === 'ACTIVE' || t.status === 'IDLE'
+        );
+        this.trucks.set(assignableTrucks);
       }
     });
 
@@ -162,9 +168,18 @@ export class TripDetailComponent implements OnInit {
   }
 
   private patchEditForm(trip: TripResponse) {
+    // Create LocationValue objects from trip data
+    const originLocation: LocationValue | null = trip.originLat && trip.originLng
+      ? { address: trip.origin, lat: trip.originLat, lng: trip.originLng }
+      : { address: trip.origin, lat: 0, lng: 0 }; // Fallback for old trips without coords
+
+    const destinationLocation: LocationValue | null = trip.destinationLat && trip.destinationLng
+      ? { address: trip.destination, lat: trip.destinationLat, lng: trip.destinationLng }
+      : { address: trip.destination, lat: 0, lng: 0 }; // Fallback for old trips without coords
+
     this.editForm.patchValue({
-      origin: trip.origin,
-      destination: trip.destination,
+      origin: originLocation,
+      destination: destinationLocation,
       scheduledAt: trip.scheduledAt ? this.formatDateForInput(trip.scheduledAt) : '',
       notes: trip.notes || ''
     });
@@ -173,6 +188,17 @@ export class TripDetailComponent implements OnInit {
   private formatDateForInput(dateString: string): string {
     const date = new Date(dateString);
     return date.toISOString().slice(0, 16);
+  }
+
+  /**
+   * Convert datetime-local input value to ISO-8601 string with timezone.
+   * Input: "2025-12-27T00:00" -> Output: "2025-12-27T00:00:00Z"
+   */
+  private formatDateForApi(dateTimeLocal: string | null | undefined): string | undefined {
+    if (!dateTimeLocal) return undefined;
+    // datetime-local format: YYYY-MM-DDTHH:mm
+    // Add seconds and Z for UTC timezone
+    return dateTimeLocal + ':00Z';
   }
 
   toggleEditMode() {
@@ -207,13 +233,19 @@ export class TripDetailComponent implements OnInit {
 
     this.saving.set(true);
     const formValue = this.editForm.value;
+    const originLocation = formValue.origin as LocationValue;
+    const destinationLocation = formValue.destination as LocationValue;
 
     if (this.tripId && this.tripId !== 'new') {
       // Update existing trip
       const updateRequest: UpdateTripRequest = {
-        origin: formValue.origin,
-        destination: formValue.destination,
-        scheduledAt: formValue.scheduledAt || undefined,
+        origin: originLocation?.address,
+        originLat: originLocation?.lat,
+        originLng: originLocation?.lng,
+        destination: destinationLocation?.address,
+        destinationLat: destinationLocation?.lat,
+        destinationLng: destinationLocation?.lng,
+        scheduledAt: this.formatDateForApi(formValue.scheduledAt),
         notes: formValue.notes || undefined
       };
       this.tripService.updateTrip(this.tripId, updateRequest).subscribe({
@@ -233,9 +265,13 @@ export class TripDetailComponent implements OnInit {
     } else {
       // Create new trip
       const createRequest: CreateTripRequest = {
-        origin: formValue.origin,
-        destination: formValue.destination,
-        scheduledAt: formValue.scheduledAt || undefined,
+        origin: originLocation?.address,
+        originLat: originLocation?.lat,
+        originLng: originLocation?.lng,
+        destination: destinationLocation?.address,
+        destinationLat: destinationLocation?.lat,
+        destinationLng: destinationLocation?.lng,
+        scheduledAt: this.formatDateForApi(formValue.scheduledAt),
         notes: formValue.notes || undefined
       };
       this.tripService.createTrip(createRequest).subscribe({

@@ -31,6 +31,7 @@ public class CreateTripRequest {
 
     /**
      * Optional scheduled start time for the trip.
+     * Expects ISO-8601 format with timezone: "2025-12-27T00:00:00Z"
      */
     private Instant scheduledAt;
 
@@ -49,4 +50,24 @@ public class CreateTripRequest {
      * Optional: Pre-assign to a driver during creation.
      */
     private UUID assignedDriverId;
+
+    /**
+     * Optional: Origin latitude coordinate.
+     */
+    private Double originLat;
+
+    /**
+     * Optional: Origin longitude coordinate.
+     */
+    private Double originLng;
+
+    /**
+     * Optional: Destination latitude coordinate.
+     */
+    private Double destinationLat;
+
+    /**
+     * Optional: Destination longitude coordinate.
+     */
+    private Double destinationLng;
 }

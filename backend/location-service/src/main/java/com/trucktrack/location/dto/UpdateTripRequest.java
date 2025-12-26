@@ -35,4 +35,24 @@ public class UpdateTripRequest {
      */
     @Size(max = 2000, message = "Notes must not exceed 2000 characters")
     private String notes;
+
+    /**
+     * Optional: Updated origin latitude coordinate.
+     */
+    private Double originLat;
+
+    /**
+     * Optional: Updated origin longitude coordinate.
+     */
+    private Double originLng;
+
+    /**
+     * Optional: Updated destination latitude coordinate.
+     */
+    private Double destinationLat;
+
+    /**
+     * Optional: Updated destination longitude coordinate.
+     */
+    private Double destinationLng;
 }

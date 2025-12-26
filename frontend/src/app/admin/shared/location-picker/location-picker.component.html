@@ -1,0 +1,77 @@
+<div class="location-picker">
+  <!-- Search field with autocomplete -->
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>{{ label() }}</mat-label>
+    <mat-icon matPrefix>search</mat-icon>
+    <input
+      matInput
+      [placeholder]="placeholder()"
+      [value]="searchQuery()"
+      (input)="onSearchChange($any($event.target).value)"
+      (blur)="onInputBlur()"
+      [matAutocomplete]="auto"
+      [disabled]="isDisabled()"
+      [required]="required()">
+
+    <!-- Loading spinner -->
+    @if (isSearching()) {
+      <mat-spinner matSuffix diameter="20"></mat-spinner>
+    }
+
+    <!-- Clear button -->
+    @if (selectedLocation() && !isDisabled()) {
+      <button mat-icon-button matSuffix (click)="clearSelection()" type="button"
+              matTooltip="Clear location">
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+
+    <!-- Map toggle button -->
+    <button mat-icon-button matSuffix (click)="toggleMap()" type="button"
+            [matTooltip]="showMap() ? 'Hide map' : 'Show map'"
+            [disabled]="isDisabled()">
+      <mat-icon>{{ showMap() ? 'map' : 'add_location' }}</mat-icon>
+    </button>
+
+    <!-- Autocomplete dropdown -->
+    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectSuggestion($event.option.value)">
+      @for (suggestion of suggestions(); track suggestion.displayName) {
+        <mat-option [value]="suggestion">
+          <div class="suggestion-option">
+            <mat-icon class="suggestion-icon">place</mat-icon>
+            <div class="suggestion-text">
+              <span class="suggestion-name">{{ suggestion.displayName }}</span>
+              <span class="suggestion-coords">{{ suggestion.lat.toFixed(4) }}, {{ suggestion.lng.toFixed(4) }}</span>
+            </div>
+          </div>
+        </mat-option>
+      }
+      @empty {
+        @if (searchQuery().length >= 3 && !isSearching()) {
+          <mat-option disabled>
+            <span class="no-results">No results found</span>
+          </mat-option>
+        }
+      }
+    </mat-autocomplete>
+
+    <!-- Hint with coordinates -->
+    @if (selectedLocation()) {
+      <mat-hint>
+        <mat-icon class="hint-icon">gps_fixed</mat-icon>
+        {{ formatCoordinates() }}
+      </mat-hint>
+    }
+  </mat-form-field>
+
+  <!-- Mini map -->
+  @if (showMap()) {
+    <div class="map-container" #mapContainer>
+      <!-- Map will be rendered here by Leaflet -->
+    </div>
+    <div class="map-hint">
+      <mat-icon>info</mat-icon>
+      <span>Click on the map to select a location, or drag the marker to adjust</span>
+    </div>
+  }
+</div>

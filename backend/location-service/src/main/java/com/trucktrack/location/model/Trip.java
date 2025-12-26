@@ -8,6 +8,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -44,10 +45,22 @@ public class Trip {
     @Column(name = "origin", nullable = false, length = 500)
     private String origin;
 
+    @Column(name = "origin_lat", precision = 10, scale = 8)
+    private BigDecimal originLat;
+
+    @Column(name = "origin_lng", precision = 11, scale = 8)
+    private BigDecimal originLng;
+
     @NotBlank(message = "Destination is required")
     @Size(max = 500, message = "Destination must not exceed 500 characters")
     @Column(name = "destination", nullable = false, length = 500)
     private String destination;
+
+    @Column(name = "destination_lat", precision = 10, scale = 8)
+    private BigDecimal destinationLat;
+
+    @Column(name = "destination_lng", precision = 11, scale = 8)
+    private BigDecimal destinationLng;
 
     @NotNull(message = "Status is required")
     @Enumerated(EnumType.STRING)

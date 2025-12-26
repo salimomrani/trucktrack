@@ -66,21 +66,19 @@
           @if (isEditMode()) {
             <!-- Edit Form -->
             <form [formGroup]="editForm" (ngSubmit)="saveTrip()">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Origin</mat-label>
-                <input matInput formControlName="origin" placeholder="Enter origin address">
-                @if (editForm.get('origin')?.hasError('required')) {
-                  <mat-error>Origin is required</mat-error>
-                }
-              </mat-form-field>
+              <app-location-picker
+                formControlName="origin"
+                label="Origin"
+                placeholder="Search origin address..."
+                [required]="true">
+              </app-location-picker>
 
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Destination</mat-label>
-                <input matInput formControlName="destination" placeholder="Enter destination address">
-                @if (editForm.get('destination')?.hasError('required')) {
-                  <mat-error>Destination is required</mat-error>
-                }
-              </mat-form-field>
+              <app-location-picker
+                formControlName="destination"
+                label="Destination"
+                placeholder="Search destination address..."
+                [required]="true">
+              </app-location-picker>
 
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Scheduled Date/Time</mat-label>

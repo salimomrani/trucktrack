@@ -1,5 +1,6 @@
 package com.trucktrack.location.dto;
 
+import com.trucktrack.common.util.ConversionUtils;
 import com.trucktrack.location.model.Trip;
 import com.trucktrack.location.model.TripStatus;
 import lombok.AllArgsConstructor;
@@ -23,7 +24,11 @@ public class TripResponse {
 
     private UUID id;
     private String origin;
+    private Double originLat;
+    private Double originLng;
     private String destination;
+    private Double destinationLat;
+    private Double destinationLng;
     private TripStatus status;
     private String statusDisplay;
     private Instant scheduledAt;
@@ -50,7 +55,11 @@ public class TripResponse {
         return TripResponse.builder()
             .id(trip.getId())
             .origin(trip.getOrigin())
+            .originLat(ConversionUtils.toDouble(trip.getOriginLat()))
+            .originLng(ConversionUtils.toDouble(trip.getOriginLng()))
             .destination(trip.getDestination())
+            .destinationLat(ConversionUtils.toDouble(trip.getDestinationLat()))
+            .destinationLng(ConversionUtils.toDouble(trip.getDestinationLng()))
             .status(trip.getStatus())
             .statusDisplay(getStatusDisplay(trip.getStatus()))
             .scheduledAt(trip.getScheduledAt())
