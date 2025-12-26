@@ -130,7 +130,7 @@
 - [x] T036 Test all workflows end-to-end
 - [x] T038 Configure Vercel auto-deployment for frontend
 - [x] T039 Add Vercel badge and live demo URL to README
-- [ ] T037 Configure branch protection rules (manual step - documented)
+- [x] T037 Configure branch protection rules
 
 ---
 
