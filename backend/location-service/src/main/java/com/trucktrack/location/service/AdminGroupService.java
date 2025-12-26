@@ -1,5 +1,6 @@
 package com.trucktrack.location.service;
 
+import com.trucktrack.common.cache.CacheConstants;
 import com.trucktrack.common.dto.PageResponse;
 import com.trucktrack.location.dto.CreateGroupRequest;
 import com.trucktrack.location.dto.GroupDetailResponse;
@@ -9,6 +10,8 @@ import com.trucktrack.location.repository.TruckGroupAssignmentRepository;
 import com.trucktrack.location.repository.TruckGroupRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -46,7 +49,13 @@ public class AdminGroupService {
 
     /**
      * T119: Get all groups with pagination and search
+     * T030: Cached with TTL 10 minutes.
      */
+    @Cacheable(
+        cacheNames = CacheConstants.CACHE_GROUPS,
+        key = "T(com.trucktrack.location.cache.CacheKeyGenerator).groupsListKey(#search, #pageable.pageNumber, #pageable.pageSize)",
+        unless = "#result == null"
+    )
     public PageResponse<GroupDetailResponse> getGroups(String search, Pageable pageable) {
         Page<TruckGroup> page = groupRepository.searchWithFilters(search, pageable);
 
@@ -63,7 +72,13 @@ public class AdminGroupService {
 
     /**
      * Get single group by ID
+     * T030: Cached by group ID.
      */
+    @Cacheable(
+        cacheNames = CacheConstants.CACHE_GROUPS,
+        key = "'group:' + #id.toString()",
+        unless = "#result == null || !#result.isPresent()"
+    )
     public Optional<GroupDetailResponse> getGroupById(UUID id) {
         return groupRepository.findById(id)
             .map(group -> {
@@ -75,7 +90,9 @@ public class AdminGroupService {
 
     /**
      * T120: Create new group
+     * T030: Evict all groups cache on create.
      */
+    @CacheEvict(cacheNames = CacheConstants.CACHE_GROUPS, allEntries = true)
     @Transactional
     public GroupDetailResponse createGroup(CreateGroupRequest request, String username) {
         // Check for duplicate name
@@ -99,7 +116,9 @@ public class AdminGroupService {
 
     /**
      * T121: Update existing group
+     * T030: Evict all groups cache on update.
      */
+    @CacheEvict(cacheNames = CacheConstants.CACHE_GROUPS, allEntries = true)
     @Transactional
     public GroupDetailResponse updateGroup(UUID id, UpdateGroupRequest request, String username) {
         TruckGroup group = groupRepository.findById(id)
@@ -130,7 +149,9 @@ public class AdminGroupService {
 
     /**
      * Delete group
+     * T030: Evict all groups cache on delete.
      */
+    @CacheEvict(cacheNames = CacheConstants.CACHE_GROUPS, allEntries = true)
     @Transactional
     public void deleteGroup(UUID id, String username) {
         TruckGroup group = groupRepository.findById(id)

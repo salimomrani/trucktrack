@@ -1,5 +1,6 @@
 package com.trucktrack.location.service;
 
+import com.trucktrack.common.cache.CacheConstants;
 import com.trucktrack.common.dto.PageResponse;
 import com.trucktrack.location.dto.CreateTruckRequest;
 import com.trucktrack.location.dto.TruckAdminResponse;
@@ -14,6 +15,9 @@ import com.trucktrack.location.repository.TruckRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -54,7 +58,13 @@ public class AdminTruckService {
 
     /**
      * Get paginated list of trucks with search and filters.
+     * T027: Cached with key based on all filter parameters.
      */
+    @Cacheable(
+        cacheNames = CacheConstants.CACHE_TRUCKS,
+        key = "T(com.trucktrack.location.cache.CacheKeyGenerator).trucksListKey(#page, #size, #search, #status, #groupId, #sortBy, #sortDir)",
+        unless = "#result == null"
+    )
     @Transactional(readOnly = true)
     public PageResponse<TruckAdminResponse> getTrucks(
             int page,
@@ -88,7 +98,13 @@ public class AdminTruckService {
 
     /**
      * Get a single truck by ID.
+     * T028: Cached by truck ID.
      */
+    @Cacheable(
+        cacheNames = CacheConstants.CACHE_TRUCKS,
+        key = "'truck:' + #id.toString()",
+        unless = "#result == null"
+    )
     @Transactional(readOnly = true)
     public TruckAdminResponse getTruckById(UUID id) {
         Truck truck = truckRepository.findById(id)
@@ -99,7 +115,9 @@ public class AdminTruckService {
     /**
      * Create a new truck.
      * T057: createTruck with license plate uniqueness check
+     * T029: Evict all trucks cache on create.
      */
+    @CacheEvict(cacheNames = CacheConstants.CACHE_TRUCKS, allEntries = true)
     @Transactional
     public TruckAdminResponse createTruck(CreateTruckRequest request, UUID actorId) {
         // Check truck ID uniqueness
@@ -156,7 +174,9 @@ public class AdminTruckService {
     /**
      * Update an existing truck.
      * T058: updateTruck with audit logging
+     * T029: Evict all trucks cache on update.
      */
+    @CacheEvict(cacheNames = CacheConstants.CACHE_TRUCKS, allEntries = true)
     @Transactional
     public TruckAdminResponse updateTruck(UUID id, UpdateTruckRequest request, UUID actorId) {
         Truck truck = truckRepository.findById(id)
@@ -219,7 +239,9 @@ public class AdminTruckService {
     /**
      * Mark truck as out of service.
      * T059: markOutOfService
+     * T029: Evict all trucks cache on status change.
      */
+    @CacheEvict(cacheNames = CacheConstants.CACHE_TRUCKS, allEntries = true)
     @Transactional
     public TruckAdminResponse markOutOfService(UUID id, UUID actorId) {
         Truck truck = truckRepository.findById(id)
@@ -239,7 +261,9 @@ public class AdminTruckService {
     /**
      * Activate a truck (set status to OFFLINE).
      * T059: activateTruck
+     * T029: Evict all trucks cache on status change.
      */
+    @CacheEvict(cacheNames = CacheConstants.CACHE_TRUCKS, allEntries = true)
     @Transactional
     public TruckAdminResponse activateTruck(UUID id, UUID actorId) {
         Truck truck = truckRepository.findById(id)
@@ -270,7 +294,9 @@ public class AdminTruckService {
     /**
      * Update groups assigned to a truck.
      * T060: updateTruckGroups
+     * T029: Evict all trucks cache on group assignment change.
      */
+    @CacheEvict(cacheNames = CacheConstants.CACHE_TRUCKS, allEntries = true)
     @Transactional
     public List<UUID> updateTruckGroups(UUID truckId, List<UUID> groupIds, UUID actorId) {
         Truck truck = truckRepository.findById(truckId)

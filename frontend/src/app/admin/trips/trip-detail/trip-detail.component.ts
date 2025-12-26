@@ -21,6 +21,7 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
 import { TruckAdminService } from '../../trucks/truck-admin.service';
 import { TruckAdminResponse } from '../../trucks/truck.model';
 import { LocationPickerComponent, LocationValue } from '../../shared/location-picker/location-picker.component';
+import { StoreFacade } from '../../../store/store.facade';
 
 /**
  * Trip detail component with assignment and status timeline.
@@ -60,6 +61,7 @@ export class TripDetailComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly facade = inject(StoreFacade);
 
   // State
   trip = signal<TripResponse | null>(null);
@@ -148,7 +150,11 @@ export class TripDetailComponent implements OnInit {
   }
 
   loadTrucksAndDrivers() {
+    // T022: Trigger cache check for trucks to leverage stale-while-revalidate
+    this.facade.checkTrucksCache();
+
     // Load trucks and build assignable drivers list
+    // Note: Using TruckAdminService for detailed truck info needed for assignment
     this.truckService.getTrucks(0, 100, undefined, undefined).subscribe({
       next: (response) => {
         // Filter to online trucks (ACTIVE or IDLE)

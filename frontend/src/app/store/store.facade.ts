@@ -8,10 +8,12 @@ import * as AuthSelectors from './auth/auth.selectors';
 import * as TrucksSelectors from './trucks/trucks.selectors';
 import * as GpsSelectors from './gps/gps.selectors';
 import * as HistorySelectors from './history/history.selectors';
+import * as CacheSelectors from './cache/cache.selectors';
 import * as AuthActions from './auth/auth.actions';
 import * as TrucksActions from './trucks/trucks.actions';
 import * as GpsActions from './gps/gps.actions';
 import * as HistoryActions from './history/history.actions';
+import * as CacheActions from './cache/cache.actions';
 import { LoginRequest } from '../core/models/auth.model';
 import { GPSPositionEvent } from '../models/gps-position.model';
 import { TruckStatus } from '../models/truck.model';
@@ -81,6 +83,41 @@ export class StoreFacade {
     initialValue: false
   });
   readonly historyError = toSignal(this.store.select(HistorySelectors.selectHistoryError));
+
+  // Cache Signals
+  readonly trucksCacheState = toSignal(this.store.select(CacheSelectors.selectTrucksCacheState));
+  readonly driversCacheState = toSignal(this.store.select(CacheSelectors.selectDriversCacheState));
+  readonly groupsCacheState = toSignal(this.store.select(CacheSelectors.selectGroupsCacheState));
+  readonly isTrucksCacheStale = toSignal(this.store.select(CacheSelectors.selectIsTrucksCacheStale), {
+    initialValue: true
+  });
+  readonly shouldRefreshTrucks = toSignal(this.store.select(CacheSelectors.selectShouldRefreshTrucks), {
+    initialValue: true
+  });
+  readonly isAnyCacheLoading = toSignal(this.store.select(CacheSelectors.selectIsAnyCacheLoading), {
+    initialValue: false
+  });
+
+  // T034-T037: Memoized truck selectors for US4
+  readonly activeTrucks = toSignal(this.store.select(TrucksSelectors.selectActiveTrucks), {
+    initialValue: []
+  });
+  readonly truckCountsByStatus = toSignal(this.store.select(TrucksSelectors.selectTruckCountsByStatus));
+  readonly onlineTruckCount = toSignal(this.store.select(TrucksSelectors.selectOnlineTruckCount), {
+    initialValue: 0
+  });
+  readonly onlineTruckPercentage = toSignal(this.store.select(TrucksSelectors.selectOnlineTruckPercentage), {
+    initialValue: 0
+  });
+
+  // T038: Dashboard cache stats for US4
+  readonly dashboardCacheStats = toSignal(this.store.select(CacheSelectors.selectDashboardCacheStats));
+  readonly trucksCacheAge = toSignal(this.store.select(CacheSelectors.selectTrucksCacheAge), {
+    initialValue: 'Never'
+  });
+  readonly allCachesFresh = toSignal(this.store.select(CacheSelectors.selectAllCachesFresh), {
+    initialValue: false
+  });
 
   // Computed Signals
   readonly trucksCount = computed(() => this.trucks().length);
@@ -189,5 +226,62 @@ export class StoreFacade {
   // Helper to get history for specific truck
   getHistoryByTruckId(truckId: string) {
     return toSignal(this.store.select(HistorySelectors.selectHistoryByTruckId(truckId)));
+  }
+
+  // T036: Helper to get truck by ID using memoized selector
+  getTruckById(truckId: string) {
+    return toSignal(this.store.select(TrucksSelectors.selectTruckById(truckId)));
+  }
+
+  // T037: Helper to get trucks by group ID using memoized selector
+  getTrucksByGroup(groupId: string) {
+    return toSignal(this.store.select(TrucksSelectors.selectTrucksByGroup(groupId)));
+  }
+
+  // Cache Actions
+
+  /**
+   * Check trucks cache and trigger refresh if stale.
+   * Uses stale-while-revalidate pattern - existing data shown while refreshing.
+   */
+  checkTrucksCache() {
+    this.store.dispatch(CacheActions.checkTrucksCache());
+  }
+
+  /**
+   * Check drivers cache and trigger refresh if stale.
+   */
+  checkDriversCache() {
+    this.store.dispatch(CacheActions.checkDriversCache());
+  }
+
+  /**
+   * Check groups cache and trigger refresh if stale.
+   */
+  checkGroupsCache() {
+    this.store.dispatch(CacheActions.checkGroupsCache());
+  }
+
+  /**
+   * Invalidate trucks cache (force refresh on next access).
+   */
+  invalidateTrucksCache() {
+    this.store.dispatch(CacheActions.invalidateTrucksCache());
+  }
+
+  /**
+   * Clear all caches (called on logout).
+   */
+  clearAllCaches() {
+    this.store.dispatch(CacheActions.clearAllCaches());
+  }
+
+  /**
+   * Load trucks with cache awareness.
+   * If cache is fresh, no API call is made.
+   * If cache is stale, shows existing data while refreshing in background.
+   */
+  loadTrucksWithCache() {
+    this.checkTrucksCache();
   }
 }

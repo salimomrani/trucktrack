@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { StatsService, DashboardStats } from './stats.service';
 import { TripStatsComponent } from '../trips/trip-stats/trip-stats.component';
+import { StoreFacade } from '../../store/store.facade';
 
 /**
  * Admin dashboard with fleet statistics.
@@ -29,16 +30,25 @@ import { TripStatsComponent } from '../trips/trip-stats/trip-stats.component';
 })
 export class StatsDashboardComponent implements OnInit {
   private readonly statsService = inject(StatsService);
+  private readonly facade = inject(StoreFacade);
 
   loading = signal(false);
   error = signal<string | null>(null);
   stats = signal<DashboardStats | null>(null);
+
+  // T024: Expose cache state for UI feedback
+  readonly isCacheLoading = this.facade.isAnyCacheLoading;
 
   ngOnInit() {
     this.loadStats();
   }
 
   loadStats() {
+    // T024: Trigger cache checks for stale-while-revalidate pattern
+    // Dashboard relies on trucks and groups data being up-to-date
+    this.facade.checkTrucksCache();
+    this.facade.checkGroupsCache();
+
     this.loading.set(true);
     this.error.set(null);
 
