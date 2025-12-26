@@ -1,0 +1,195 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:
+
+jobs:
+  # Detect which parts of the codebase changed
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      mobile: ${{ steps.filter.outputs.mobile }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+              - 'pom.xml'
+            frontend:
+              - 'frontend/**'
+            mobile:
+              - 'mobile-expo/**'
+
+  # Backend tests (matrix for all microservices)
+  backend:
+    name: Backend - ${{ matrix.service }}
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - api-gateway
+          - auth-service
+          - gps-ingestion-service
+          - location-service
+          - notification-service
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+          cache: 'maven'
+
+      - name: Build shared module
+        working-directory: backend
+        run: mvn install -pl shared -am -DskipTests -q
+
+      - name: Test ${{ matrix.service }}
+        working-directory: backend/${{ matrix.service }}
+        run: mvn test -B
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.service }}
+          path: backend/${{ matrix.service }}/target/site/jacoco/
+          retention-days: 7
+
+  # Frontend tests
+  frontend:
+    name: Frontend
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci --legacy-peer-deps
+
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint || true
+
+      - name: Test
+        working-directory: frontend
+        run: npm test -- --no-watch --no-progress --browsers=ChromeHeadless --code-coverage
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: frontend/coverage/
+          retention-days: 7
+
+  # Mobile tests
+  mobile:
+    name: Mobile
+    needs: changes
+    if: needs.changes.outputs.mobile == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: mobile-expo/package-lock.json
+
+      - name: Install dependencies
+        working-directory: mobile-expo
+        run: npm ci
+
+      - name: Lint
+        working-directory: mobile-expo
+        run: npm run lint || true
+
+      - name: Test
+        working-directory: mobile-expo
+        run: npm test -- --coverage --passWithNoTests
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-coverage
+          path: mobile-expo/coverage/
+          retention-days: 7
+
+  # Summary job
+  summary:
+    name: Summary
+    needs: [changes, backend, frontend, mobile]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check results
+        run: |
+          echo "## CI Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Changed | Result |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|---------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.changes.outputs.backend }}" == "true" ]; then
+            if [ "${{ needs.backend.result }}" == "success" ]; then
+              echo "| Backend | ✓ | ✅ Pass |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "| Backend | ✓ | ❌ Fail |" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "| Backend | - | ⏭️ Skip |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.changes.outputs.frontend }}" == "true" ]; then
+            if [ "${{ needs.frontend.result }}" == "success" ]; then
+              echo "| Frontend | ✓ | ✅ Pass |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "| Frontend | ✓ | ❌ Fail |" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "| Frontend | - | ⏭️ Skip |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.changes.outputs.mobile }}" == "true" ]; then
+            if [ "${{ needs.mobile.result }}" == "success" ]; then
+              echo "| Mobile | ✓ | ✅ Pass |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "| Mobile | ✓ | ❌ Fail |" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "| Mobile | - | ⏭️ Skip |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Fail if any test failed
+        if: |
+          (needs.changes.outputs.backend == 'true' && needs.backend.result != 'success') ||
+          (needs.changes.outputs.frontend == 'true' && needs.frontend.result != 'success') ||
+          (needs.changes.outputs.mobile == 'true' && needs.mobile.result != 'success')
+        run: exit 1
