@@ -12,7 +12,8 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 # Configuration
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 BACKEND_DIR="$PROJECT_ROOT/backend"
 DOCKER_DIR="$PROJECT_ROOT/infra/docker"
 
@@ -169,7 +170,11 @@ fi
 # Step 3: Run database migrations
 echo -e "${GREEN}[3/4]${NC} Running database migrations..."
 cd "$BACKEND_DIR"
-mvn flyway:migrate -P local 2>&1 | grep -E "(SUCCESS|ERROR|WARNING|Migration)" || true
+mvn flyway:migrate \
+  -Dflyway.url=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME} \
+  -Dflyway.user=${DB_USERNAME} \
+  -Dflyway.password=${DB_PASSWORD} \
+  2>&1 | grep -E "(SUCCESS|ERROR|WARNING|Migration|version)" || true
 echo -e "${GREEN}✓ Database migrations complete${NC}"
 echo ""
 

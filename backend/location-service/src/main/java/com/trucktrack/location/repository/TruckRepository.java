@@ -91,6 +91,11 @@ public interface TruckRepository extends JpaRepository<Truck, UUID> {
     boolean existsByTruckId(String truckId);
 
     /**
+     * Find truck assigned to a specific driver
+     */
+    Optional<Truck> findByDriverId(UUID driverId);
+
+    /**
      * Find trucks with license plate (exact match)
      */
     Optional<Truck> findByLicensePlate(String licensePlate);

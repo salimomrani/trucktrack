@@ -62,6 +62,13 @@ export class NavigationService {
       category: 'administration'
     },
     {
+      label: 'Trajets',
+      route: '/admin/trips',
+      icon: 'route',
+      roles: [UserRole.ADMIN],
+      category: 'administration'
+    },
+    {
       label: 'Configuration',
       route: '/admin/config',
       icon: 'settings',

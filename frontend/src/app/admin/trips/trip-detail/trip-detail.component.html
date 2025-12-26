@@ -1,0 +1,329 @@
+<div class="trip-detail-container">
+  <!-- Breadcrumb -->
+  <app-breadcrumb [items]="[
+    { label: 'Trips', icon: 'route', link: '/admin/trips' },
+    { label: tripId === 'new' ? 'New Trip' : 'Trip Details', icon: 'info' }
+  ]"></app-breadcrumb>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else {
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <button mat-icon-button (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div class="header-info">
+          <h1>{{ tripId === 'new' ? 'Create New Trip' : 'Trip Details' }}</h1>
+          @if (trip()) {
+            <div class="trip-status">
+              <mat-chip [style.background-color]="getStatusColor(trip()!.status)">
+                <mat-icon>{{ getStatusIcon(trip()!.status) }}</mat-icon>
+                {{ trip()!.statusDisplay }}
+              </mat-chip>
+            </div>
+          }
+        </div>
+      </div>
+      <div class="header-actions">
+        @if (trip() && canEdit()) {
+          <button mat-stroked-button (click)="toggleEditMode()">
+            <mat-icon>{{ isEditMode() ? 'close' : 'edit' }}</mat-icon>
+            {{ isEditMode() ? 'Cancel Edit' : 'Edit' }}
+          </button>
+        }
+        @if (trip() && canAssign()) {
+          <button mat-stroked-button color="primary" (click)="toggleAssignPanel()">
+            <mat-icon>assignment_ind</mat-icon>
+            {{ showAssignPanel() ? 'Cancel' : 'Assign' }}
+          </button>
+        }
+        @if (trip() && canReassign()) {
+          <button mat-stroked-button color="accent" (click)="toggleReassignPanel()">
+            <mat-icon>swap_horiz</mat-icon>
+            {{ showReassignPanel() ? 'Cancel' : 'Reassign' }}
+          </button>
+        }
+        @if (trip() && canCancel()) {
+          <button mat-stroked-button color="warn" (click)="confirmCancel()">
+            <mat-icon>cancel</mat-icon>
+            Cancel Trip
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <!-- Main Info Card -->
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-card-title>Trip Information</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (isEditMode()) {
+            <!-- Edit Form -->
+            <form [formGroup]="editForm" (ngSubmit)="saveTrip()">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Origin</mat-label>
+                <input matInput formControlName="origin" placeholder="Enter origin address">
+                @if (editForm.get('origin')?.hasError('required')) {
+                  <mat-error>Origin is required</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Destination</mat-label>
+                <input matInput formControlName="destination" placeholder="Enter destination address">
+                @if (editForm.get('destination')?.hasError('required')) {
+                  <mat-error>Destination is required</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Scheduled Date/Time</mat-label>
+                <input matInput type="datetime-local" formControlName="scheduledAt">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Notes</mat-label>
+                <textarea matInput formControlName="notes" rows="3" placeholder="Optional notes"></textarea>
+              </mat-form-field>
+
+              <div class="form-actions">
+                <button mat-raised-button color="primary" type="submit"
+                  [disabled]="editForm.invalid || saving()">
+                  @if (saving()) {
+                    <mat-spinner diameter="20"></mat-spinner>
+                  } @else {
+                    <ng-container>
+                      <mat-icon>save</mat-icon>
+                      {{ tripId === 'new' ? 'Create Trip' : 'Save Changes' }}
+                    </ng-container>
+                  }
+                </button>
+              </div>
+            </form>
+          } @else {
+            <!-- Display Mode -->
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="label">Origin</span>
+                <span class="value">{{ trip()?.origin }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Destination</span>
+                <span class="value">{{ trip()?.destination }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Scheduled</span>
+                <span class="value">{{ formatDate(trip()?.scheduledAt || null) }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Created</span>
+                <span class="value">{{ formatDate(trip()?.createdAt || null) }}</span>
+              </div>
+              @if (trip()?.notes) {
+                <div class="info-item full-width">
+                  <span class="label">Notes</span>
+                  <span class="value">{{ trip()?.notes }}</span>
+                </div>
+              }
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Assignment Card -->
+      <mat-card class="assignment-card">
+        <mat-card-header>
+          <mat-card-title>Assignment</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (showAssignPanel()) {
+            <!-- Assign Form -->
+            <form [formGroup]="assignForm" (ngSubmit)="assignTrip()">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Select Truck</mat-label>
+                <mat-select formControlName="truckId">
+                  @for (truck of trucks(); track truck.id) {
+                    <mat-option [value]="truck.id">
+                      {{ truck.truckId }} - {{ truck.vehicleType }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Select Driver</mat-label>
+                <mat-select formControlName="driverId">
+                  @for (driver of drivers(); track driver.id) {
+                    <mat-option [value]="driver.id">
+                      {{ driver.fullName }} ({{ driver.email }})
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <div class="form-actions">
+                <button mat-raised-button color="primary" type="submit"
+                  [disabled]="assignForm.invalid || saving()">
+                  @if (saving()) {
+                    <mat-spinner diameter="20"></mat-spinner>
+                  } @else {
+                    <ng-container>
+                      <mat-icon>assignment_ind</mat-icon>
+                      Assign Trip
+                    </ng-container>
+                  }
+                </button>
+              </div>
+            </form>
+          } @else if (trip()?.assignedTruckId) {
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="label">Truck</span>
+                <span class="value">{{ trip()?.assignedTruckName || 'N/A' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Driver</span>
+                <span class="value">{{ trip()?.assignedDriverName || 'N/A' }}</span>
+              </div>
+            </div>
+          } @else {
+            <div class="no-assignment">
+              <mat-icon>assignment_late</mat-icon>
+              <p>No assignment yet</p>
+              @if (canAssign()) {
+                <button mat-stroked-button color="primary" (click)="toggleAssignPanel()">
+                  Assign Now
+                </button>
+              }
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Reassign Card T067 -->
+      @if (showReassignPanel()) {
+        <mat-card class="reassign-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>swap_horiz</mat-icon>
+              Reassign Trip
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <form [formGroup]="reassignForm" (ngSubmit)="reassignTrip()">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Select Truck</mat-label>
+                <mat-select formControlName="truckId">
+                  @for (truck of trucks(); track truck.id) {
+                    <mat-option [value]="truck.id">
+                      {{ truck.truckId }} - {{ truck.vehicleType }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Select Driver</mat-label>
+                <mat-select formControlName="driverId">
+                  @for (driver of drivers(); track driver.id) {
+                    <mat-option [value]="driver.id">
+                      {{ driver.fullName }} ({{ driver.email }})
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <div class="form-actions">
+                <button mat-stroked-button type="button" (click)="toggleReassignPanel()">
+                  Cancel
+                </button>
+                <button mat-raised-button color="accent" type="submit"
+                  [disabled]="reassignForm.invalid || saving()">
+                  @if (saving()) {
+                    <mat-spinner diameter="20"></mat-spinner>
+                  } @else {
+                    <ng-container>
+                      <mat-icon>swap_horiz</mat-icon>
+                      Reassign Trip
+                    </ng-container>
+                  }
+                </button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      <!-- Timeline Card -->
+      @if (trip() && history().length > 0) {
+        <mat-card class="timeline-card">
+          <mat-card-header>
+            <mat-card-title>Status Timeline</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="timeline">
+              @for (event of history(); track event.id; let first = $first) {
+                <div class="timeline-item" [class.first]="first">
+                  <div class="timeline-dot" [style.background-color]="getStatusColor(event.newStatus)">
+                    <mat-icon>{{ getStatusIcon(event.newStatus) }}</mat-icon>
+                  </div>
+                  <div class="timeline-content">
+                    <div class="timeline-header">
+                      <span class="timeline-status">{{ event.newStatusDisplay }}</span>
+                      <span class="timeline-date">{{ formatDate(event.changedAt) }}</span>
+                    </div>
+                    @if (event.notes) {
+                      <p class="timeline-notes">{{ event.notes }}</p>
+                    }
+                    @if (event.changedByName) {
+                      <p class="timeline-actor">by {{ event.changedByName }}</p>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      <!-- Timestamps Card -->
+      @if (trip()) {
+        <mat-card class="timestamps-card">
+          <mat-card-header>
+            <mat-card-title>Timestamps</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="label">Created</span>
+                <span class="value">{{ formatDate(trip()?.createdAt || null) }}</span>
+              </div>
+              @if (trip()?.startedAt) {
+                <div class="info-item">
+                  <span class="label">Started</span>
+                  <span class="value">{{ formatDate(trip()?.startedAt || null) }}</span>
+                </div>
+              }
+              @if (trip()?.completedAt) {
+                <div class="info-item">
+                  <span class="label">Completed</span>
+                  <span class="value">{{ formatDate(trip()?.completedAt || null) }}</span>
+                </div>
+              }
+              <div class="info-item">
+                <span class="label">Last Updated</span>
+                <span class="value">{{ formatDate(trip()?.updatedAt || null) }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

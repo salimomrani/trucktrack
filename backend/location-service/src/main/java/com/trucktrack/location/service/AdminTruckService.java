@@ -194,6 +194,17 @@ public class AdminTruckService {
             truck.setDriverPhone(request.getDriverPhone().isBlank() ? null : request.getDriverPhone());
         }
 
+        // Update driver ID (assigned driver user)
+        if (request.getDriverId() != null) {
+            if (!request.getDriverId().equals(truck.getDriverId())) {
+                Map<String, Object> driverChange = new HashMap<>();
+                driverChange.put("from", truck.getDriverId());
+                driverChange.put("to", request.getDriverId());
+                changes.put("driverId", driverChange);
+                truck.setDriverId(request.getDriverId());
+            }
+        }
+
         truck = truckRepository.save(truck);
 
         // Audit log

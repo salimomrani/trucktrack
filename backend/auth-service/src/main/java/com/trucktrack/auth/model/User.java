@@ -67,6 +67,14 @@ public class User {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    /**
+     * Expo push notification token for mobile app.
+     * Feature: 010-trip-management (US3: Push Notifications)
+     */
+    @Size(max = 100, message = "Expo push token must not exceed 100 characters")
+    @Column(name = "expo_push_token", length = 100)
+    private String expoPushToken;
+
     // Constructors
     public User() {
     }
@@ -158,6 +166,14 @@ public class User {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getExpoPushToken() {
+        return expoPushToken;
+    }
+
+    public void setExpoPushToken(String expoPushToken) {
+        this.expoPushToken = expoPushToken;
     }
 
     public String getFullName() {

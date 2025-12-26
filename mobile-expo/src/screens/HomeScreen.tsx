@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../store/authStore';
 import { useGPSTracking } from '../hooks/useGPSTracking';
-
-type DriverStatus = 'AVAILABLE' | 'IN_DELIVERY' | 'ON_BREAK' | 'OFF_DUTY';
+import { LocationService, DriverStatus } from '../services/api';
 
 const statusConfig: Record<DriverStatus, { label: string; color: string; icon: keyof typeof Ionicons.glyphMap }> = {
   AVAILABLE: { label: 'Disponible', color: '#28A745', icon: 'checkmark-circle' },
@@ -17,6 +16,7 @@ const statusConfig: Record<DriverStatus, { label: string; color: string; icon: k
 export default function HomeScreen() {
   const { user, status, setStatus } = useAuthStore();
   const [refreshing, setRefreshing] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
 
   // GPS Tracking - sends position to backend when status is AVAILABLE or IN_DELIVERY
   const gpsTracking = useGPSTracking(user?.truckId);
@@ -28,8 +28,23 @@ export default function HomeScreen() {
     setRefreshing(false);
   };
 
-  const handleStatusChange = (newStatus: DriverStatus) => {
-    setStatus(newStatus);
+  const handleStatusChange = async (newStatus: DriverStatus) => {
+    if (updatingStatus || !user?.truckId) return;
+
+    setUpdatingStatus(true);
+    try {
+      await LocationService.updateTruckStatus(user.truckId, newStatus);
+      setStatus(newStatus);
+    } catch (error) {
+      console.error('Failed to update status:', error);
+      Alert.alert(
+        'Erreur',
+        'Impossible de mettre à jour le statut. Veuillez réessayer.',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setUpdatingStatus(false);
+    }
   };
 
   const config = statusConfig[status];
@@ -97,10 +112,16 @@ export default function HomeScreen() {
                 style={[
                   styles.statusButton,
                   isActive && { backgroundColor: cfg.color, borderColor: cfg.color },
+                  updatingStatus && styles.statusButtonDisabled,
                 ]}
                 onPress={() => handleStatusChange(key)}
+                disabled={updatingStatus}
               >
-                <Ionicons name={cfg.icon} size={20} color={isActive ? '#fff' : cfg.color} />
+                {updatingStatus && isActive ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Ionicons name={cfg.icon} size={20} color={isActive ? '#fff' : cfg.color} />
+                )}
                 <Text style={[styles.statusButtonText, isActive && { color: '#fff' }]}>
                   {cfg.label}
                 </Text>
@@ -244,6 +265,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     width: '48%',
+  },
+  statusButtonDisabled: {
+    opacity: 0.6,
   },
   statusButtonText: {
     marginLeft: 8,

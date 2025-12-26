@@ -3,11 +3,12 @@
 
 set -e
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 PID_FILE="$PROJECT_ROOT/.pids"
 
 # Source stop-all.sh to get access to kill_process_tree function and variables
-source "$PROJECT_ROOT/stop-all.sh"
+source "$SCRIPT_DIR/stop-all.sh"
 
 echo -e "${BLUE}╔════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║     Truck Track - Stopping Location Service    ║${NC}"

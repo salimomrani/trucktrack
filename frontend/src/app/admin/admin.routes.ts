@@ -62,6 +62,23 @@ export const adminRoutes: Routes = [
         title: 'Edit Truck - Admin'
       },
 
+      // Trip Management
+      {
+        path: 'trips',
+        loadComponent: () => import('./trips/trip-list/trip-list.component').then(m => m.TripListComponent),
+        title: 'Trips - Admin'
+      },
+      {
+        path: 'trips/new',
+        loadComponent: () => import('./trips/trip-detail/trip-detail.component').then(m => m.TripDetailComponent),
+        title: 'New Trip - Admin'
+      },
+      {
+        path: 'trips/:id',
+        loadComponent: () => import('./trips/trip-detail/trip-detail.component').then(m => m.TripDetailComponent),
+        title: 'Trip Details - Admin'
+      },
+
       // Group Management
       {
         path: 'groups',

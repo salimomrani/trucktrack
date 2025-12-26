@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { AuthService, TokenService, ApiError, UserInfo } from '../services/api';
+import { AuthService, TokenService, ApiError, UserInfo, LocationService } from '../services/api';
+import { registerForPushNotifications, unregisterPushNotifications } from '../services/notifications';
 
 type DriverStatus = 'AVAILABLE' | 'IN_DELIVERY' | 'ON_BREAK' | 'OFF_DUTY';
 
@@ -43,6 +44,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         // Try to get current user info
         try {
           const userInfo = await AuthService.getCurrentUser();
+
+          // Get assigned truck from backend
+          let truckId: string | undefined;
+          let truckName: string | undefined;
+          try {
+            const truck = await LocationService.getMyTruck();
+            if (truck) {
+              truckId = truck.id;
+              truckName = truck.truckId;
+            }
+          } catch (truckError) {
+            console.log('Could not fetch assigned truck:', truckError);
+          }
+
           set({
             isAuthenticated: true,
             user: {
@@ -51,9 +66,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
               firstName: userInfo.firstName || userInfo.email.split('@')[0],
               lastName: userInfo.lastName || '',
               role: userInfo.role,
-              // Truck assigned to driver
-              truckId: '00000000-0000-0000-0000-000000000010',
-              truckName: 'TRK-001',
+              truckId,
+              truckName,
             },
             status: 'AVAILABLE',
           });
@@ -84,6 +98,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         // Use data from login response
       }
 
+      // Get assigned truck from backend
+      let truckId: string | undefined;
+      let truckName: string | undefined;
+      try {
+        const truck = await LocationService.getMyTruck();
+        if (truck) {
+          truckId = truck.id;
+          truckName = truck.truckId;
+        }
+      } catch (truckError) {
+        console.log('Could not fetch assigned truck:', truckError);
+      }
+
       set({
         isAuthenticated: true,
         user: {
@@ -92,13 +119,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           firstName: userInfo?.firstName || response.email.split('@')[0],
           lastName: userInfo?.lastName || '',
           role: response.role,
-          // Truck assigned to driver
-          truckId: '00000000-0000-0000-0000-000000000010',
-          truckName: 'TRK-001',
+          truckId,
+          truckName,
         },
         status: 'AVAILABLE',
         isLoading: false,
       });
+
+      // T041: Register push token after successful login
+      registerForPushNotifications().catch(err => {
+        console.log('Push notification registration failed:', err);
+      });
+
       return true;
     } catch (error) {
       let errorMessage = 'Connexion echouee';
@@ -132,6 +164,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   logout: async () => {
+    // Unregister push token before logout
+    await unregisterPushNotifications();
+
     await AuthService.logout();
     set({
       isAuthenticated: false,

@@ -1,23 +1,36 @@
-import React, { useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import React, { useEffect, useRef } from 'react';
+import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { ActivityIndicator, View } from 'react-native';
+import {
+  addNotificationResponseListener,
+  getNotificationData,
+  getLastNotificationResponse,
+} from './src/services/notifications';
 
 // Screens
 import LoginScreen from './src/screens/LoginScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import MapScreen from './src/screens/MapScreen';
 import TripsScreen from './src/screens/TripsScreen';
+import TripDetailScreen from './src/screens/TripDetailScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 
 // Store
 import { useAuthStore } from './src/store/authStore';
 
-const Stack = createNativeStackNavigator();
+// Navigation types
+type RootStackParamList = {
+  Login: undefined;
+  Main: undefined;
+  TripDetail: { tripId: string };
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
 
 function MainTabs() {
@@ -49,6 +62,7 @@ function MainTabs() {
 
 export default function App() {
   const { isAuthenticated, isInitialized, initialize } = useAuthStore();
+  const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
 
   useEffect(() => {
     initialize();
@@ -57,6 +71,36 @@ export default function App() {
       await Location.requestForegroundPermissionsAsync();
     })();
   }, []);
+
+  // T042: Handle notification tap to navigate to trip details
+  useEffect(() => {
+    // Handle notification when app is opened from background/closed state
+    const checkInitialNotification = async () => {
+      const response = await getLastNotificationResponse();
+      if (response && isAuthenticated && navigationRef.current) {
+        const data = getNotificationData(response);
+        if (data?.tripId && data?.type === 'TRIP_ASSIGNED') {
+          navigationRef.current.navigate('TripDetail', { tripId: data.tripId });
+        }
+      }
+    };
+
+    if (isAuthenticated && isInitialized) {
+      checkInitialNotification();
+    }
+
+    // Handle notification when app is in foreground
+    const subscription = addNotificationResponseListener((response) => {
+      const data = getNotificationData(response);
+      if (data?.tripId && navigationRef.current && isAuthenticated) {
+        navigationRef.current.navigate('TripDetail', { tripId: data.tripId });
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [isAuthenticated, isInitialized]);
 
   if (!isInitialized) {
     return (
@@ -67,13 +111,16 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <StatusBar style="auto" />
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!isAuthenticated ? (
           <Stack.Screen name="Login" component={LoginScreen} />
         ) : (
-          <Stack.Screen name="Main" component={MainTabs} />
+          <>
+            <Stack.Screen name="Main" component={MainTabs} />
+            <Stack.Screen name="TripDetail" component={TripDetailScreen} />
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>

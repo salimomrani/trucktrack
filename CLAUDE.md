@@ -9,6 +9,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-23
 - PostgreSQL 15+ (tables users, user_truck_groups existantes) (008-rbac-permissions)
 - TypeScript 5.x avec React Native 0.73+ + React Native, React Navigation 6, React Native Maps, Firebase Cloud Messaging, AsyncStorage, Axios (009-driver-mobile-app)
 - AsyncStorage (local), SQLite via WatermelonDB (offline sync), Backend PostgreSQL (via API) (009-driver-mobile-app)
+- Java 17 (backend), TypeScript 5.x with Angular 17 (frontend), TypeScript with React Native/Expo (mobile) + Spring Boot 3.2.x, Spring Data JPA, Spring Security, Angular Material, Expo SDK (010-trip-management)
+- PostgreSQL 15+ with existing schema, Redis for real-time status caching (010-trip-management)
 
 ### Backend
 - Java 17 + Spring Boot 3.2.1, Spring Security, Spring Data JPA
@@ -39,9 +41,9 @@ npm test && npm run lint
 - **Frontend**: TypeScript 5.9 with Angular 21 conventions (signals, block control flow)
 
 ## Recent Changes
+- 010-trip-management: Added Java 17 (backend), TypeScript 5.x with Angular 17 (frontend), TypeScript with React Native/Expo (mobile) + Spring Boot 3.2.x, Spring Data JPA, Spring Security, Angular Material, Expo SDK
 - 009-driver-mobile-app: Added TypeScript 5.x avec React Native 0.73+ + React Native, React Navigation 6, React Native Maps, Firebase Cloud Messaging, AsyncStorage, Axios
 - 008-rbac-permissions: Added Java 17 (backend), TypeScript 5.x avec Angular 17 (frontend) + Spring Boot 3.2.1, Spring Security, Angular Material 17, NgRx
-- 006-fleet-analytics: Added Java 17 (backend), TypeScript 5.9 with Angular 21 (frontend)
   - Block control flow (`@if`/`@for`) now default
   - Signals for reactive state
   - Esbuild for faster builds
@@ -179,5 +181,59 @@ private String getUserRole(GatewayUserPrincipal principal) {
    - Les données utilisateur sont chargées après login → utiliser `facade.currentUser`
    - Les trucks sont chargés au démarrage → utiliser `facade.trucks`
    - Vérifier le store AVANT de créer un nouvel appel API
+
+## Trip Management System (Feature 010)
+
+### Overview
+Complete trip lifecycle management for dispatchers, fleet managers, and drivers.
+
+### Trip Status Flow
+```
+PENDING → ASSIGNED → IN_PROGRESS → COMPLETED
+           ↓              ↓
+      CANCELLED ←─────────┘
+```
+
+### Backend API Endpoints (location-service)
+
+**Admin Endpoints** (`/admin/trips`):
+- `GET /admin/trips` - List trips with filters (status, driver, truck, date range)
+- `GET /admin/trips/{id}` - Get trip details
+- `POST /admin/trips` - Create new trip
+- `PUT /admin/trips/{id}` - Update trip
+- `POST /admin/trips/{id}/assign` - Assign to truck/driver
+- `POST /admin/trips/{id}/reassign` - Reassign to different truck/driver
+- `POST /admin/trips/{id}/cancel` - Cancel trip
+- `GET /admin/trips/{id}/history` - Get status change history
+- `GET /admin/trips/stats` - Get trip counts by status
+- `GET /admin/trips/analytics` - Get detailed KPIs
+
+**Driver Endpoints** (`/location/v1/trips`):
+- `GET /my` - Get driver's assigned trips
+- `GET /{id}` - Get trip details
+- `POST /{id}/start` - Start trip (ASSIGNED → IN_PROGRESS)
+- `POST /{id}/complete` - Complete trip (IN_PROGRESS → COMPLETED)
+
+### Key Backend Files
+- `TripService.java` - Core business logic
+- `AdminTripController.java` - Admin REST endpoints
+- `TripController.java` - Driver REST endpoints
+- `Trip.java` - Entity with status transitions
+- `TripAnalyticsDTO.java` - KPI calculations
+
+### Frontend Components (Angular)
+- `TripListComponent` - List with filters, date range picker, status cards
+- `TripDetailComponent` - View/edit/assign/reassign/cancel
+- `TripStatsComponent` - KPI dashboard widget
+
+### Push Notifications
+- Trip assignment notification to driver
+- Trip cancellation notification to driver
+- Trip reassignment notification (to both old and new driver)
+
+### Mobile (React Native/Expo)
+- `TripsScreen` - List of assigned trips
+- `TripDetailScreen` - Start/Complete trip actions
+- Push notification handling for trip updates
 
 <!-- MANUAL ADDITIONS END -->

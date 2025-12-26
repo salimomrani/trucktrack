@@ -53,6 +53,9 @@ public class Truck {
     @Column(name = "driver_phone", length = 50)
     private String driverPhone;
 
+    @Column(name = "driver_id")
+    private UUID driverId;
+
     @NotNull(message = "Vehicle type is required")
     @Size(max = 50, message = "Vehicle type must not exceed 50 characters")
     @Column(name = "vehicle_type", nullable = false, length = 50)

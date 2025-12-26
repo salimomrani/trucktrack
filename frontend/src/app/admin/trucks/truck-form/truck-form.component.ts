@@ -13,7 +13,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { TruckAdminService } from '../truck-admin.service';
-import { TruckAdminResponse, CreateTruckRequest, UpdateTruckRequest, VEHICLE_TYPES, TRUCK_STATUSES } from '../truck.model';
+import { TruckAdminResponse, CreateTruckRequest, UpdateTruckRequest, VEHICLE_TYPES, TRUCK_STATUSES, DriverOption } from '../truck.model';
 import { AuditLogComponent } from '../../shared/audit-log/audit-log.component';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/breadcrumb/breadcrumb.component';
 
@@ -55,6 +55,7 @@ export class TruckFormComponent implements OnInit {
   truck = signal<TruckAdminResponse | null>(null);
   loading = signal(false);
   saving = signal(false);
+  drivers = signal<DriverOption[]>([]);
 
   isEditMode = signal(false);
   vehicleTypes = VEHICLE_TYPES;
@@ -71,10 +72,14 @@ export class TruckFormComponent implements OnInit {
     vehicleType: ['', [Validators.required]],
     driverName: ['', [Validators.maxLength(100)]],
     driverPhone: ['', [Validators.maxLength(50)]],
+    driverId: [null],
     primaryGroupId: ['', [Validators.required]]
   });
 
   ngOnInit() {
+    // Load available drivers
+    this.loadDrivers();
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id && id !== 'new') {
       this.truckId.set(id);
@@ -89,6 +94,17 @@ export class TruckFormComponent implements OnInit {
     }
   }
 
+  loadDrivers() {
+    this.truckService.getAvailableDrivers().subscribe({
+      next: (drivers) => {
+        this.drivers.set(drivers);
+      },
+      error: (err) => {
+        console.error('Failed to load drivers:', err);
+      }
+    });
+  }
+
   loadTruck(id: string) {
     this.loading.set(true);
     this.truckService.getTruckById(id).subscribe({
@@ -98,7 +114,8 @@ export class TruckFormComponent implements OnInit {
           licensePlate: truck.licensePlate || '',
           vehicleType: truck.vehicleType,
           driverName: truck.driverName || '',
-          driverPhone: truck.driverPhone || ''
+          driverPhone: truck.driverPhone || '',
+          driverId: truck.driverId || null
         });
         this.loading.set(false);
       },
@@ -162,6 +179,9 @@ export class TruckFormComponent implements OnInit {
     }
     if (this.form.value.driverPhone !== this.truck()?.driverPhone) {
       request.driverPhone = this.form.value.driverPhone;
+    }
+    if (this.form.value.driverId !== this.truck()?.driverId) {
+      request.driverId = this.form.value.driverId;
     }
 
     this.truckService.updateTruck(this.truckId()!, request).subscribe({

@@ -69,6 +69,42 @@ export interface Truck {
   lastUpdate: string;
 }
 
+// Trip types - Feature: 010-trip-management
+export type TripStatus = 'PENDING' | 'ASSIGNED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+
+export interface Trip {
+  id: string;
+  origin: string;
+  destination: string;
+  status: TripStatus;
+  statusDisplay: string;
+  scheduledAt: string | null;
+  startedAt: string | null;
+  completedAt: string | null;
+  notes: string | null;
+  assignedTruckId: string | null;
+  assignedTruckName: string | null;
+  assignedDriverId: string | null;
+  assignedDriverName: string | null;
+  createdBy: string;
+  createdByName: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TripStatusHistory {
+  id: string;
+  tripId: string;
+  previousStatus: TripStatus | null;
+  previousStatusDisplay: string | null;
+  newStatus: TripStatus;
+  newStatusDisplay: string;
+  changedBy: string;
+  changedByName: string | null;
+  changedAt: string;
+  notes: string | null;
+}
+
 // API Error class
 export class ApiError extends Error {
   status: number;
@@ -248,8 +284,47 @@ export const GPSService = {
   },
 };
 
+// Driver Status type
+export type DriverStatus = 'AVAILABLE' | 'IN_DELIVERY' | 'ON_BREAK' | 'OFF_DUTY';
+
 // Location Service
 export const LocationService = {
+  async getMyTruck(): Promise<Truck | null> {
+    const response = await fetchWithAuth(`${API_CONFIG.LOCATION}/trucks/my-truck`);
+
+    if (response.status === 404) {
+      // No truck assigned to this driver
+      return null;
+    }
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new ApiError(
+        error.message || 'Failed to get assigned truck',
+        response.status
+      );
+    }
+
+    return response.json();
+  },
+
+  async updateTruckStatus(truckId: string, status: DriverStatus): Promise<Truck> {
+    const response = await fetchWithAuth(`${API_CONFIG.LOCATION}/trucks/${truckId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new ApiError(
+        error.message || 'Failed to update truck status',
+        response.status
+      );
+    }
+
+    return response.json();
+  },
+
   async getTrucks(params?: { status?: string; page?: number; size?: number }): Promise<Truck[]> {
     const queryParams = new URLSearchParams();
     if (params?.status) queryParams.set('status', params.status);
@@ -298,10 +373,160 @@ export const LocationService = {
   },
 };
 
+// Trip Service - Feature: 010-trip-management
+export const TripService = {
+  /**
+   * Get all trips assigned to the current driver
+   */
+  async getMyTrips(): Promise<Trip[]> {
+    const response = await fetchWithAuth(`${API_CONFIG.LOCATION}/trips/my`);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new ApiError(
+        error.message || 'Failed to get trips',
+        response.status
+      );
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Get active trips for the current driver (ASSIGNED or IN_PROGRESS)
+   */
+  async getMyActiveTrips(): Promise<Trip[]> {
+    const response = await fetchWithAuth(`${API_CONFIG.LOCATION}/trips/my/active`);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new ApiError(
+        error.message || 'Failed to get active trips',
+        response.status
+      );
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Get a specific trip by ID
+   */
+  async getTripById(tripId: string): Promise<Trip> {
+    const response = await fetchWithAuth(`${API_CONFIG.LOCATION}/trips/${tripId}`);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new ApiError(
+        error.message || 'Failed to get trip',
+        response.status
+      );
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Start a trip (transition from ASSIGNED to IN_PROGRESS)
+   */
+  async startTrip(tripId: string): Promise<Trip> {
+    const response = await fetchWithAuth(`${API_CONFIG.LOCATION}/trips/${tripId}/start`, {
+      method: 'POST',
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new ApiError(
+        error.message || 'Failed to start trip',
+        response.status
+      );
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Complete a trip (transition from IN_PROGRESS to COMPLETED)
+   */
+  async completeTrip(tripId: string, notes?: string): Promise<Trip> {
+    const params = notes ? `?notes=${encodeURIComponent(notes)}` : '';
+    const response = await fetchWithAuth(`${API_CONFIG.LOCATION}/trips/${tripId}/complete${params}`, {
+      method: 'POST',
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new ApiError(
+        error.message || 'Failed to complete trip',
+        response.status
+      );
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Get trip status history
+   */
+  async getTripHistory(tripId: string): Promise<TripStatusHistory[]> {
+    const response = await fetchWithAuth(`${API_CONFIG.LOCATION}/trips/${tripId}/history`);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new ApiError(
+        error.message || 'Failed to get trip history',
+        response.status
+      );
+    }
+
+    return response.json();
+  },
+};
+
+// Push Notification Service - Feature: 010-trip-management (US3)
+export const NotificationService = {
+  /**
+   * Register push token with the backend
+   */
+  async registerPushToken(pushToken: string): Promise<void> {
+    const response = await fetchWithAuth(`${API_CONFIG.AUTH}/me/push-token`, {
+      method: 'POST',
+      body: JSON.stringify({ pushToken }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new ApiError(
+        error.message || 'Failed to register push token',
+        response.status
+      );
+    }
+  },
+
+  /**
+   * Unregister push token (on logout)
+   */
+  async unregisterPushToken(): Promise<void> {
+    try {
+      const response = await fetchWithAuth(`${API_CONFIG.AUTH}/me/push-token`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        console.warn('Failed to unregister push token');
+      }
+    } catch (error) {
+      console.warn('Error unregistering push token:', error);
+    }
+  },
+};
+
 export default {
   AuthService,
   GPSService,
   LocationService,
+  TripService,
+  NotificationService,
   TokenService,
   API_CONFIG,
 };

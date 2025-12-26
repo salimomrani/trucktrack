@@ -1,0 +1,108 @@
+@if (loading()) {
+  <div class="loading-container" [class.compact]="compact()">
+    <mat-spinner diameter="32"></mat-spinner>
+  </div>
+} @else if (error()) {
+  <div class="error-container" [class.compact]="compact()">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ error() }}</span>
+  </div>
+} @else if (analytics()) {
+  <div class="stats-container" [class.compact]="compact()">
+    <!-- Primary KPIs -->
+    <div class="kpi-row primary">
+      <mat-card class="kpi-card total">
+        <div class="kpi-icon">
+          <mat-icon>route</mat-icon>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-value">{{ analytics()!.totalTrips }}</span>
+          <span class="kpi-label">Total Trips</span>
+        </div>
+      </mat-card>
+
+      <mat-card class="kpi-card completed">
+        <div class="kpi-icon">
+          <mat-icon>check_circle</mat-icon>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-value">{{ formatPercent(analytics()!.completionRate) }}</span>
+          <span class="kpi-label">Completion Rate</span>
+        </div>
+      </mat-card>
+
+      <mat-card class="kpi-card duration">
+        <div class="kpi-icon">
+          <mat-icon>schedule</mat-icon>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-value">{{ formatDuration(analytics()!.averageDurationMinutes) }}</span>
+          <span class="kpi-label">Avg Duration</span>
+        </div>
+      </mat-card>
+
+      <mat-card class="kpi-card active">
+        <div class="kpi-icon">
+          <mat-icon>local_shipping</mat-icon>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-value">{{ analytics()!.inProgressTrips }}</span>
+          <span class="kpi-label">In Progress</span>
+        </div>
+      </mat-card>
+    </div>
+
+    @if (!compact()) {
+      <!-- Secondary KPIs -->
+      <div class="kpi-row secondary">
+        <mat-card class="kpi-card">
+          <div class="kpi-content">
+            <span class="kpi-value">{{ analytics()!.tripsToday }}</span>
+            <span class="kpi-label">Today</span>
+          </div>
+        </mat-card>
+
+        <mat-card class="kpi-card">
+          <div class="kpi-content">
+            <span class="kpi-value">{{ analytics()!.tripsThisWeek }}</span>
+            <span class="kpi-label">This Week</span>
+            @if (analytics()!.tripsTrendPercent !== null) {
+              <span class="kpi-trend" [class]="getTrendClass(analytics()!.tripsTrendPercent)">
+                <mat-icon>{{ getTrendIcon(analytics()!.tripsTrendPercent) }}</mat-icon>
+                {{ formatTrend(analytics()!.tripsTrendPercent) }}
+              </span>
+            }
+          </div>
+        </mat-card>
+
+        <mat-card class="kpi-card">
+          <div class="kpi-content">
+            <span class="kpi-value">{{ analytics()!.tripsThisMonth }}</span>
+            <span class="kpi-label">This Month</span>
+          </div>
+        </mat-card>
+
+        <mat-card class="kpi-card pending">
+          <div class="kpi-content">
+            <span class="kpi-value">{{ analytics()!.pendingTrips }}</span>
+            <span class="kpi-label">Pending</span>
+          </div>
+        </mat-card>
+
+        <mat-card class="kpi-card assigned">
+          <div class="kpi-content">
+            <span class="kpi-value">{{ analytics()!.assignedTrips }}</span>
+            <span class="kpi-label">Assigned</span>
+          </div>
+        </mat-card>
+
+        <mat-card class="kpi-card cancelled">
+          <div class="kpi-content">
+            <span class="kpi-value">{{ formatPercent(analytics()!.cancellationRate) }}</span>
+            <span class="kpi-label">Cancellation Rate</span>
+          </div>
+        </mat-card>
+      </div>
+    }
+  </div>
+}

@@ -1,6 +1,8 @@
 package com.trucktrack.location.model;
 
 import jakarta.persistence.*;
+import lombok.*;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -8,10 +10,17 @@ import java.util.UUID;
  * T100: System configuration entity
  * Feature: 002-admin-panel (US4 - Config)
  */
+@Getter
+@Setter
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
 @Table(name = "system_config")
 public class SystemConfig {
 
+    // Getters and setters
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -45,60 +54,4 @@ public class SystemConfig {
         updatedAt = Instant.now();
     }
 
-    // Getters and setters
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public UUID getUpdatedBy() {
-        return updatedBy;
-    }
-
-    public void setUpdatedBy(UUID updatedBy) {
-        this.updatedBy = updatedBy;
-    }
 }

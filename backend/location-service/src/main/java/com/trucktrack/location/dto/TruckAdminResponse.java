@@ -29,6 +29,7 @@ public class TruckAdminResponse {
     private String vehicleType;
     private String driverName;
     private String driverPhone;
+    private UUID driverId;
     private TruckStatus status;
     private String statusDisplay;
 
@@ -72,6 +73,7 @@ public class TruckAdminResponse {
             .vehicleType(truck.getVehicleType())
             .driverName(truck.getDriverName())
             .driverPhone(truck.getDriverPhone())
+            .driverId(truck.getDriverId())
             .status(truck.getStatus())
             .statusDisplay(getStatusDisplay(truck.getStatus()))
             .currentLatitude(truck.getCurrentLatitude())

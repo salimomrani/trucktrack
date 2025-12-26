@@ -109,6 +109,35 @@ public class TruckController {
     }
 
     /**
+     * Get truck assigned to the current driver
+     * GET /location/v1/trucks/my-truck
+     *
+     * Returns the truck assigned to the authenticated driver.
+     * Used by mobile app to get the driver's assigned truck.
+     */
+    @GetMapping("/trucks/my-truck")
+    public ResponseEntity<Truck> getMyTruck(
+            @AuthenticationPrincipal GatewayUserPrincipal principal) {
+        String userId = getUserId(principal);
+        log.info("User [{}] ({}) getting their assigned truck", getUsername(principal), userId);
+
+        if ("anonymous".equals(userId)) {
+            log.warn("Anonymous user trying to get assigned truck");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        return truckRepository.findByDriverId(UUID.fromString(userId))
+                .map(truck -> {
+                    log.info("Found truck {} assigned to driver {}", truck.getTruckId(), userId);
+                    return ResponseEntity.ok(truck);
+                })
+                .orElseGet(() -> {
+                    log.warn("No truck assigned to driver {}", userId);
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                });
+    }
+
+    /**
      * Get truck by ID
      * GET /location/v1/trucks/{truckId}
      */
@@ -257,6 +286,61 @@ public class TruckController {
         log.debug("Returning {} positions", positions.size());
         return ResponseEntity.ok(positions);
     }
+
+    /**
+     * Update truck status (for drivers)
+     * PATCH /location/v1/trucks/{truckId}/status
+     *
+     * Allows drivers to update their truck's status.
+     * Maps driver statuses to truck statuses:
+     * - AVAILABLE → IDLE
+     * - IN_DELIVERY → ACTIVE
+     * - ON_BREAK → IDLE
+     * - OFF_DUTY → OFFLINE
+     */
+    @PatchMapping("/trucks/{truckId}/status")
+    public ResponseEntity<Truck> updateTruckStatus(
+            @AuthenticationPrincipal GatewayUserPrincipal principal,
+            @PathVariable UUID truckId,
+            @RequestBody StatusUpdateRequest request) {
+
+        log.info("User [{}] ({}) updating status for truck {} to {}",
+                getUsername(principal), getUserId(principal), truckId, request.status());
+
+        Truck truck = truckRepository.findById(truckId)
+                .orElseThrow(() -> new IllegalArgumentException("Truck not found: " + truckId));
+
+        // Map driver status to truck status
+        TruckStatus newStatus = mapDriverStatusToTruckStatus(request.status());
+        truck.setStatus(newStatus);
+        truck.setLastUpdate(Instant.now());
+
+        Truck savedTruck = truckRepository.save(truck);
+        log.info("Truck {} status updated to {}", truckId, newStatus);
+
+        return ResponseEntity.ok(savedTruck);
+    }
+
+    /**
+     * Map driver status to truck status
+     */
+private TruckStatus mapDriverStatusToTruckStatus(String driverStatus) {
+    if (driverStatus == null || driverStatus.isBlank()) {
+        return TruckStatus.IDLE;
+    }
+    String normalized = driverStatus.trim().toUpperCase();
+    return switch (normalized) {
+        case "AVAILABLE", "ON_BREAK" -> TruckStatus.IDLE;
+        case "IN_DELIVERY" -> TruckStatus.ACTIVE;
+        case "OFF_DUTY" -> TruckStatus.OFFLINE;
+        default -> TruckStatus.IDLE;
+    };
+}
+
+    /**
+     * Request body for status update
+     */
+    public record StatusUpdateRequest(String status) {}
 
     /**
      * Health check

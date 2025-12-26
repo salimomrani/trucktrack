@@ -1,65 +1,72 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { TripService, Trip, TripStatus } from '../services/api';
 
-type TripStatus = 'ASSIGNED' | 'IN_PROGRESS' | 'COMPLETED';
+// Navigation types
+type RootStackParamList = {
+  Trips: undefined;
+  TripDetail: { tripId: string };
+};
 
-interface Trip {
-  id: string;
-  destination: string;
-  origin: string;
-  status: TripStatus;
-  scheduledAt: string;
-  estimatedArrival?: string;
-}
+type TripsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Trips'>;
 
-const mockTrips: Trip[] = [
-  {
-    id: '1',
-    destination: 'Paris - Entrepôt Nord',
-    origin: 'Lyon - Centre Logistique',
-    status: 'IN_PROGRESS',
-    scheduledAt: '2024-12-24T08:00:00',
-    estimatedArrival: '2024-12-24T12:30:00',
-  },
-  {
-    id: '2',
-    destination: 'Marseille - Port',
-    origin: 'Paris - Entrepôt Nord',
-    status: 'ASSIGNED',
-    scheduledAt: '2024-12-24T14:00:00',
-  },
-  {
-    id: '3',
-    destination: 'Bordeaux - Zone Industrielle',
-    origin: 'Marseille - Port',
-    status: 'ASSIGNED',
-    scheduledAt: '2024-12-25T09:00:00',
-  },
-];
-
-const statusConfig: Record<TripStatus, { color: string; icon: keyof typeof Ionicons.glyphMap }> = {
-  ASSIGNED: { color: '#FFC107', icon: 'time-outline' },
-  IN_PROGRESS: { color: '#1976D2', icon: 'car' },
-  COMPLETED: { color: '#28A745', icon: 'checkmark-circle' },
+const statusConfig: Record<TripStatus, { color: string; icon: keyof typeof Ionicons.glyphMap; label: string }> = {
+  PENDING: { color: '#9E9E9E', icon: 'hourglass-outline', label: 'Pending' },
+  ASSIGNED: { color: '#FFC107', icon: 'time-outline', label: 'Assigned' },
+  IN_PROGRESS: { color: '#1976D2', icon: 'car', label: 'In Progress' },
+  COMPLETED: { color: '#28A745', icon: 'checkmark-circle', label: 'Completed' },
+  CANCELLED: { color: '#dc3545', icon: 'close-circle', label: 'Cancelled' },
 };
 
 export default function TripsScreen() {
-  const [trips] = useState<Trip[]>(mockTrips);
+  const navigation = useNavigation<TripsScreenNavigationProp>();
+  const [trips, setTrips] = useState<Trip[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchTrips = useCallback(async () => {
+    try {
+      setError(null);
+      const myTrips = await TripService.getMyTrips();
+      setTrips(myTrips);
+    } catch (err) {
+      console.error('Failed to fetch trips:', err);
+      setError('Unable to load trips. Pull to retry.');
+      setTrips([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTrips();
+  }, [fetchTrips]);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await fetchTrips();
     setRefreshing(false);
   };
 
+  const handleTripPress = (trip: Trip) => {
+    navigation.navigate('TripDetail', { tripId: trip.id });
+  };
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleString();
+  };
+
   const renderTrip = ({ item }: { item: Trip }) => {
-    const config = statusConfig[item.status];
+    const config = statusConfig[item.status] || statusConfig.PENDING;
 
     return (
-      <TouchableOpacity style={styles.tripCard}>
+      <TouchableOpacity style={styles.tripCard} onPress={() => handleTripPress(item)}>
         <View style={styles.tripHeader}>
           <Ionicons name={config.icon} size={20} color={config.color} />
           <Text style={styles.tripDestination} numberOfLines={1}>
@@ -75,25 +82,42 @@ export default function TripsScreen() {
           </View>
 
           <View style={styles.detailRow}>
-            <Ionicons name="calendar-outline" size={16} color="#666" />
-            <Text style={styles.detailText}>
-              {new Date(item.scheduledAt).toLocaleString()}
-            </Text>
+            <Ionicons name="navigate-outline" size={16} color="#666" />
+            <Text style={styles.detailText}>To: {item.destination}</Text>
           </View>
 
-          {item.estimatedArrival && (
+          {item.assignedTruckName && (
             <View style={styles.detailRow}>
-              <Ionicons name="time-outline" size={16} color="#666" />
-              <Text style={styles.detailText}>
-                ETA: {new Date(item.estimatedArrival).toLocaleTimeString()}
-              </Text>
+              <Ionicons name="bus-outline" size={16} color="#666" />
+              <Text style={styles.detailText}>Truck: {item.assignedTruckName}</Text>
+            </View>
+          )}
+
+          {item.scheduledAt && (
+            <View style={styles.detailRow}>
+              <Ionicons name="calendar-outline" size={16} color="#666" />
+              <Text style={styles.detailText}>Scheduled: {formatDate(item.scheduledAt)}</Text>
+            </View>
+          )}
+
+          {item.startedAt && (
+            <View style={styles.detailRow}>
+              <Ionicons name="play-outline" size={16} color="#666" />
+              <Text style={styles.detailText}>Started: {formatDate(item.startedAt)}</Text>
+            </View>
+          )}
+
+          {item.completedAt && (
+            <View style={styles.detailRow}>
+              <Ionicons name="checkmark-done-outline" size={16} color="#666" />
+              <Text style={styles.detailText}>Completed: {formatDate(item.completedAt)}</Text>
             </View>
           )}
         </View>
 
         <View style={styles.tripFooter}>
           <Text style={[styles.statusText, { color: config.color }]}>
-            {item.status.replace('_', ' ')}
+            {config.label}
           </Text>
           <Ionicons name="chevron-forward" size={20} color="#ccc" />
         </View>
@@ -101,23 +125,56 @@ export default function TripsScreen() {
     );
   };
 
-  const activeCount = trips.filter((t) => t.status !== 'COMPLETED').length;
+  const activeCount = trips.filter((t) => t.status === 'ASSIGNED' || t.status === 'IN_PROGRESS').length;
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.centerContent}>
+          <ActivityIndicator size="large" color="#1976D2" />
+          <Text style={styles.loadingText}>Loading trips...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>My Trips</Text>
-        <Text style={styles.subtitle}>{activeCount} active trips</Text>
+        <Text style={styles.subtitle}>
+          {trips.length > 0
+            ? `${activeCount} active trip${activeCount !== 1 ? 's' : ''} • ${trips.length} total`
+            : 'No trips assigned'}
+        </Text>
       </View>
 
-      <FlatList
-        data={trips}
-        keyExtractor={(item) => item.id}
-        renderItem={renderTrip}
-        contentContainerStyle={styles.listContent}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-      />
+      {error && (
+        <View style={styles.errorBanner}>
+          <Ionicons name="warning-outline" size={20} color="#dc3545" />
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      )}
+
+      {trips.length === 0 && !error ? (
+        <View style={styles.emptyState}>
+          <Ionicons name="document-text-outline" size={64} color="#ccc" />
+          <Text style={styles.emptyTitle}>No Trips Assigned</Text>
+          <Text style={styles.emptySubtitle}>
+            You don't have any trips assigned yet.{'\n'}
+            Check back later or contact dispatch.
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={trips}
+          keyExtractor={(item) => item.id}
+          renderItem={renderTrip}
+          contentContainerStyle={styles.listContent}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -126,6 +183,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  centerContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#666',
   },
   header: {
     padding: 16,
@@ -142,6 +209,41 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     marginTop: 4,
+  },
+  errorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff5f5',
+    padding: 12,
+    marginHorizontal: 16,
+    marginTop: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ffcccc',
+  },
+  errorText: {
+    color: '#dc3545',
+    marginLeft: 8,
+    flex: 1,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#333',
+    marginTop: 16,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    marginTop: 8,
+    lineHeight: 20,
   },
   listContent: {
     padding: 16,

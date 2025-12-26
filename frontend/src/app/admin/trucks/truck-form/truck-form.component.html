@@ -82,6 +82,19 @@
                 <mat-icon matSuffix>phone</mat-icon>
               </mat-form-field>
             </div>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Assigned Driver (User Account)</mat-label>
+              <mat-select formControlName="driverId">
+                <mat-option [value]="null">-- No driver assigned --</mat-option>
+                @for (driver of drivers(); track driver.id) {
+                  <mat-option [value]="driver.id">
+                    {{ driver.fullName }} ({{ driver.email }})
+                  </mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix>badge</mat-icon>
+              <mat-hint>Link this truck to a driver's user account for mobile app access</mat-hint>
+            </mat-form-field>
             @if (!isEditMode()) {
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Primary Group</mat-label>

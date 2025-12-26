@@ -6,10 +6,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { StatsService, DashboardStats } from './stats.service';
+import { TripStatsComponent } from '../trips/trip-stats/trip-stats.component';
 
 /**
  * Admin dashboard with fleet statistics.
  * Feature: 002-admin-panel (US3)
+ * T059: Added trip stats widget
  */
 @Component({
     selector: 'app-stats-dashboard',
@@ -19,7 +21,8 @@ import { StatsService, DashboardStats } from './stats.service';
         MatCardModule,
         MatButtonModule,
         MatIconModule,
-        MatProgressSpinnerModule
+        MatProgressSpinnerModule,
+        TripStatsComponent
     ],
     templateUrl: './stats-dashboard.component.html',
     styleUrls: ['./stats-dashboard.component.scss']

@@ -13,6 +13,7 @@ export interface TruckAdminResponse {
   vehicleType: string;
   driverName: string | null;
   driverPhone: string | null;
+  driverId: string | null;
   status: TruckStatus;
   statusDisplay: string;
   currentLatitude: number | null;
@@ -26,6 +27,14 @@ export interface TruckAdminResponse {
   groups: GroupInfo[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface DriverOption {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
 }
 
 export interface GroupInfo {
@@ -48,6 +57,7 @@ export interface UpdateTruckRequest {
   vehicleType?: string;
   driverName?: string;
   driverPhone?: string;
+  driverId?: string | null;
 }
 
 export interface PageResponse<T> {

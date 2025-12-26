@@ -1,0 +1,587 @@
+openapi: 3.0.3
+info:
+  title: Trip Management API
+  description: API for managing delivery trips - creation, assignment, and status tracking
+  version: 1.0.0
+  contact:
+    name: TruckTrack Team
+
+servers:
+  - url: http://localhost:8000
+    description: Local development (via API Gateway)
+
+tags:
+  - name: Admin Trips
+    description: Trip management for dispatchers and admins
+  - name: Driver Trips
+    description: Trip operations for drivers
+
+paths:
+  # ============================================
+  # ADMIN ENDPOINTS (Dispatchers & Admins)
+  # ============================================
+
+  /admin/trips:
+    get:
+      tags: [Admin Trips]
+      summary: List all trips with filters
+      description: Get paginated list of trips. Supports filtering by status, driver, truck, and date range.
+      operationId: listTrips
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/TripStatus'
+        - name: driverId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: truckId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: fromDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: toDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 25
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            default: createdAt
+        - name: sortDir
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        '200':
+          description: Paginated list of trips
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      tags: [Admin Trips]
+      summary: Create a new trip
+      description: Create a new trip with origin and destination. Trip is created in PENDING status.
+      operationId: createTrip
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTripRequest'
+      responses:
+        '201':
+          description: Trip created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/trips/{tripId}:
+    get:
+      tags: [Admin Trips]
+      summary: Get trip details
+      operationId: getTripById
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TripId'
+      responses:
+        '200':
+          description: Trip details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Admin Trips]
+      summary: Update trip details
+      description: Update origin, destination, notes, or scheduled time. Cannot modify completed/cancelled trips.
+      operationId: updateTrip
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TripId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTripRequest'
+      responses:
+        '200':
+          description: Trip updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/trips/{tripId}/assign:
+    post:
+      tags: [Admin Trips]
+      summary: Assign trip to truck and driver
+      description: Assign a PENDING trip to a specific truck and driver. Changes status to ASSIGNED.
+      operationId: assignTrip
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TripId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignTripRequest'
+      responses:
+        '200':
+          description: Trip assigned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripResponse'
+        '400':
+          description: Invalid assignment (truck unavailable, invalid driver, etc.)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/trips/{tripId}/reassign:
+    post:
+      tags: [Admin Trips]
+      summary: Reassign trip to different truck/driver
+      description: Reassign an ASSIGNED trip to a different truck and/or driver.
+      operationId: reassignTrip
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TripId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignTripRequest'
+      responses:
+        '200':
+          description: Trip reassigned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /admin/trips/{tripId}/cancel:
+    post:
+      tags: [Admin Trips]
+      summary: Cancel a trip
+      description: Cancel a trip. Can cancel PENDING, ASSIGNED, or IN_PROGRESS trips.
+      operationId: cancelTrip
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TripId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  maxLength: 500
+                  description: Optional cancellation reason
+      responses:
+        '200':
+          description: Trip cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripResponse'
+        '400':
+          description: Cannot cancel completed trips
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/trips/{tripId}/history:
+    get:
+      tags: [Admin Trips]
+      summary: Get trip status history
+      description: Get audit trail of all status changes for a trip
+      operationId: getTripHistory
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TripId'
+      responses:
+        '200':
+          description: List of status changes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TripHistoryEntry'
+
+  # ============================================
+  # DRIVER ENDPOINTS
+  # ============================================
+
+  /location/v1/trips/my:
+    get:
+      tags: [Driver Trips]
+      summary: Get my assigned trips
+      description: Get all trips assigned to the authenticated driver
+      operationId: getMyTrips
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          description: Filter by status (default returns non-completed trips)
+          schema:
+            $ref: '#/components/schemas/TripStatus'
+      responses:
+        '200':
+          description: List of assigned trips
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TripResponse'
+
+  /location/v1/trips/{tripId}:
+    get:
+      tags: [Driver Trips]
+      summary: Get trip details
+      description: Get details of a specific trip (must be assigned to driver)
+      operationId: getDriverTripById
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TripId'
+      responses:
+        '200':
+          description: Trip details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripResponse'
+        '403':
+          description: Trip not assigned to this driver
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /location/v1/trips/{tripId}/start:
+    post:
+      tags: [Driver Trips]
+      summary: Start a trip
+      description: Mark an ASSIGNED trip as IN_PROGRESS. Records start time.
+      operationId: startTrip
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TripId'
+      responses:
+        '200':
+          description: Trip started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripResponse'
+        '400':
+          description: Trip not in ASSIGNED status
+        '403':
+          description: Trip not assigned to this driver
+
+  /location/v1/trips/{tripId}/complete:
+    post:
+      tags: [Driver Trips]
+      summary: Complete a trip
+      description: Mark an IN_PROGRESS trip as COMPLETED. Records completion time.
+      operationId: completeTrip
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TripId'
+      responses:
+        '200':
+          description: Trip completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripResponse'
+        '400':
+          description: Trip not in IN_PROGRESS status
+        '403':
+          description: Trip not assigned to this driver
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    TripId:
+      name: tripId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    TripStatus:
+      type: string
+      enum:
+        - PENDING
+        - ASSIGNED
+        - IN_PROGRESS
+        - COMPLETED
+        - CANCELLED
+
+    CreateTripRequest:
+      type: object
+      required:
+        - origin
+        - destination
+      properties:
+        origin:
+          type: string
+          maxLength: 500
+          example: "Entrepôt Paris Nord, 93200 Saint-Denis"
+        destination:
+          type: string
+          maxLength: 500
+          example: "Centre Distribution Lyon, 69007 Lyon"
+        scheduledAt:
+          type: string
+          format: date-time
+          description: Planned departure time
+        notes:
+          type: string
+          maxLength: 2000
+          description: Instructions for driver
+
+    UpdateTripRequest:
+      type: object
+      properties:
+        origin:
+          type: string
+          maxLength: 500
+        destination:
+          type: string
+          maxLength: 500
+        scheduledAt:
+          type: string
+          format: date-time
+        notes:
+          type: string
+          maxLength: 2000
+
+    AssignTripRequest:
+      type: object
+      required:
+        - truckId
+        - driverId
+      properties:
+        truckId:
+          type: string
+          format: uuid
+          description: ID of truck to assign
+        driverId:
+          type: string
+          format: uuid
+          description: ID of driver to assign
+
+    TripResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        origin:
+          type: string
+        destination:
+          type: string
+        status:
+          $ref: '#/components/schemas/TripStatus'
+        scheduledAt:
+          type: string
+          format: date-time
+        startedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        notes:
+          type: string
+        assignedTruck:
+          $ref: '#/components/schemas/TruckSummary'
+        assignedDriver:
+          $ref: '#/components/schemas/DriverSummary'
+        createdBy:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    TruckSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        truckId:
+          type: string
+          example: "TRUCK-001"
+        licensePlate:
+          type: string
+
+    DriverSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+
+    TripHistoryEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        previousStatus:
+          $ref: '#/components/schemas/TripStatus'
+        newStatus:
+          $ref: '#/components/schemas/TripStatus'
+        changedBy:
+          type: string
+          format: uuid
+        changedByName:
+          type: string
+        changedAt:
+          type: string
+          format: date-time
+        notes:
+          type: string
+
+    TripPage:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/TripResponse'
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Missing or invalid authentication
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'

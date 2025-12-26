@@ -1,13 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   TruckAdminResponse,
   CreateTruckRequest,
   UpdateTruckRequest,
   PageResponse,
-  TruckStatus
+  TruckStatus,
+  DriverOption
 } from './truck.model';
 
 /**
@@ -100,5 +101,27 @@ export class TruckAdminService {
    */
   updateTruckGroups(id: string, groupIds: string[]): Observable<string[]> {
     return this.http.put<string[]>(`${this.baseUrl}/${id}/groups`, groupIds);
+  }
+
+  /**
+   * Get list of available drivers for truck assignment.
+   * Fetches users with DRIVER role from auth service.
+   */
+  getAvailableDrivers(): Observable<DriverOption[]> {
+    const usersUrl = `${environment.apiUrl}/admin/users`;
+    const params = new HttpParams()
+      .set('role', 'DRIVER')
+      .set('isActive', 'true')
+      .set('size', '100');
+
+    return this.http.get<PageResponse<any>>(usersUrl, { params }).pipe(
+      map(response => response.content.map((user: any) => ({
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        fullName: user.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email
+      })))
+    );
   }
 }

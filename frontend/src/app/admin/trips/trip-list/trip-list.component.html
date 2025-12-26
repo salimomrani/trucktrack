@@ -1,0 +1,137 @@
+<div class="trip-list-container">
+  <!-- Breadcrumb -->
+  <app-breadcrumb [items]="[{ label: 'Trips', icon: 'route' }]"></app-breadcrumb>
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1>Trip Management</h1>
+      <p class="subtitle">Create, assign, and monitor trips</p>
+    </div>
+    <div class="header-actions">
+      <mat-slide-toggle
+        [checked]="autoRefreshEnabled"
+        (change)="toggleAutoRefresh()"
+        matTooltip="Auto-refresh every 10 seconds">
+        Auto-refresh
+      </mat-slide-toggle>
+      <button mat-raised-button color="primary" (click)="createTrip()">
+        <mat-icon>add</mat-icon>
+        Create Trip
+      </button>
+    </div>
+  </div>
+
+  <!-- Status Summary Cards -->
+  <div class="status-cards">
+    @for (status of statuses; track status.value) {
+      <mat-card
+        class="status-card"
+        [class.active]="selectedStatus === status.value"
+        [class.highlight]="isActiveStatus(status.value)"
+        (click)="onStatusChipClick(status.value)">
+        <div class="status-icon" [style.background-color]="status.color">
+          <mat-icon>{{ status.icon }}</mat-icon>
+        </div>
+        <div class="status-info">
+          <span class="status-count">{{ getStatusCount(status.value) }}</span>
+          <span class="status-label">{{ status.label }}</span>
+        </div>
+      </mat-card>
+    }
+  </div>
+
+  <!-- Filters -->
+  <mat-card class="filters-card">
+    <div class="filters-row">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search</mat-label>
+        <input matInput
+          placeholder="Search by origin, destination..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearch()">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="selectedStatus" (selectionChange)="onFilterChange()">
+          <mat-option [value]="null">All Statuses</mat-option>
+          @for (status of statuses; track status.value) {
+            <mat-option [value]="status.value">
+              {{ status.label }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="date-field">
+        <mat-label>From</mat-label>
+        <input matInput [matDatepicker]="startPicker"
+          [(ngModel)]="startDate"
+          (dateChange)="onDateRangeChange()"
+          placeholder="Start date">
+        <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
+        <mat-datepicker #startPicker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="date-field">
+        <mat-label>To</mat-label>
+        <input matInput [matDatepicker]="endPicker"
+          [(ngModel)]="endDate"
+          (dateChange)="onDateRangeChange()"
+          placeholder="End date">
+        <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
+        <mat-datepicker #endPicker></mat-datepicker>
+      </mat-form-field>
+
+      @if (hasFilters()) {
+        <button mat-stroked-button (click)="clearFilters()">
+          <mat-icon>clear</mat-icon>
+          Clear
+        </button>
+      }
+
+      <button mat-icon-button (click)="loadTrips()" matTooltip="Refresh">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+  </mat-card>
+
+  <!-- Trips Table -->
+  <mat-card class="table-card">
+    <app-data-table
+      [columns]="columns"
+      [data]="trips()"
+      [totalElements]="totalElements()"
+      [pageSize]="pageSize"
+      [pageIndex]="pageIndex"
+      [isLoading]="loading()"
+      [searchable]="false"
+      [showActions]="false"
+      [rowClickable]="true"
+      (pageChange)="onPageChange($event)"
+      (onRowClick)="onRowClick($event)">
+    </app-data-table>
+
+    <!-- Actions column rendered separately -->
+    <ng-template #actionsTemplate let-trip>
+      <button mat-icon-button [matMenuTriggerFor]="menu" (click)="$event.stopPropagation()">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="viewTrip(trip)">
+          <mat-icon>visibility</mat-icon>
+          <span>View Details</span>
+        </button>
+        @if (trip.status === 'PENDING' || trip.status === 'ASSIGNED') {
+          <button mat-menu-item
+            (click)="confirmCancel(trip)">
+            <mat-icon color="warn">cancel</mat-icon>
+            <span>Cancel Trip</span>
+          </button>
+        }
+      </mat-menu>
+    </ng-template>
+  </mat-card>
+</div>

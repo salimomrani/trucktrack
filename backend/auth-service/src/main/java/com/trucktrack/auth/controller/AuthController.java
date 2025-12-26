@@ -5,6 +5,7 @@ import com.trucktrack.auth.dto.LoginRequest;
 import com.trucktrack.auth.dto.LoginResponse;
 import com.trucktrack.auth.dto.RefreshTokenRequest;
 import com.trucktrack.auth.dto.RefreshTokenResponse;
+import com.trucktrack.auth.dto.UpdatePushTokenRequest;
 import com.trucktrack.auth.dto.UserResponse;
 import com.trucktrack.auth.model.User;
 import com.trucktrack.auth.repository.UserGroupAssignmentRepository;
@@ -310,6 +311,101 @@ public class AuthController {
 
         } catch (Exception e) {
             log.error("Error changing password", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "INTERNAL_ERROR", "message", "Error processing request"));
+        }
+    }
+
+    /**
+     * Update user's Expo push notification token.
+     * T033: Add endpoint POST /auth/v1/me/push-token
+     * Feature: 010-trip-management (US3: Push Notifications)
+     */
+    @PostMapping("/me/push-token")
+    public ResponseEntity<?> updatePushToken(
+            @RequestHeader("Authorization") String authHeader,
+            @Valid @RequestBody UpdatePushTokenRequest request) {
+
+        log.debug("Push token update request");
+
+        try {
+            // Extract token from Authorization header
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                log.warn("Invalid Authorization header");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "INVALID_HEADER", "message", "Invalid Authorization header"));
+            }
+
+            String token = authHeader.substring(7);
+
+            // Validate token
+            if (!authService.validateToken(token)) {
+                log.warn("Invalid or expired token");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "INVALID_TOKEN", "message", "Invalid or expired token"));
+            }
+
+            // Get user from database
+            String userId = authService.getUserIdFromToken(token);
+            User user = userRepository.findById(UUID.fromString(userId)).orElse(null);
+
+            if (user == null) {
+                log.warn("User not found for ID: {}", userId);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "USER_NOT_FOUND", "message", "User not found"));
+            }
+
+            // Update push token
+            user.setExpoPushToken(request.getPushToken());
+            userRepository.save(user);
+
+            log.info("Push token updated for user: {}", user.getEmail());
+            return ResponseEntity.ok(Map.of("message", "Push token updated successfully"));
+
+        } catch (Exception e) {
+            log.error("Error updating push token", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "INTERNAL_ERROR", "message", "Error processing request"));
+        }
+    }
+
+    /**
+     * Delete user's Expo push notification token (on logout).
+     */
+    @DeleteMapping("/me/push-token")
+    public ResponseEntity<?> deletePushToken(@RequestHeader("Authorization") String authHeader) {
+
+        log.debug("Push token delete request");
+
+        try {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "INVALID_HEADER", "message", "Invalid Authorization header"));
+            }
+
+            String token = authHeader.substring(7);
+
+            if (!authService.validateToken(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "INVALID_TOKEN", "message", "Invalid or expired token"));
+            }
+
+            String userId = authService.getUserIdFromToken(token);
+            User user = userRepository.findById(UUID.fromString(userId)).orElse(null);
+
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "USER_NOT_FOUND", "message", "User not found"));
+            }
+
+            user.setExpoPushToken(null);
+            userRepository.save(user);
+
+            log.info("Push token deleted for user: {}", user.getEmail());
+            return ResponseEntity.ok(Map.of("message", "Push token deleted successfully"));
+
+        } catch (Exception e) {
+            log.error("Error deleting push token", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "INTERNAL_ERROR", "message", "Error processing request"));
         }

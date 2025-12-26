@@ -179,3 +179,60 @@
   font-size: 12px;
   color: #757575;
 }
+
+// Trip Analytics Widget
+.trips-card {
+  margin-bottom: 24px;
+
+  &.clickable {
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  mat-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  mat-card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+
+    mat-icon {
+      color: #1976d2;
+    }
+  }
+
+  .header-action {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #757575;
+    font-size: 14px;
+    transition: color 0.2s ease;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      transition: transform 0.2s ease;
+    }
+  }
+
+  &:hover .header-action {
+    color: #1976d2;
+
+    mat-icon {
+      transform: translateX(4px);
+    }
+  }
+}
