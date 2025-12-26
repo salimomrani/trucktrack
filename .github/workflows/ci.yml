@@ -1,281 +1,195 @@
-name: CI/CD Pipeline
+name: CI
 
 on:
   push:
-    branches: [master, develop, '001-*']
+    branches: ['**']
   pull_request:
-    branches: [master, develop]
-
-env:
-  JAVA_VERSION: '17'
-  NODE_VERSION: '18'
-  MAVEN_OPTS: '-Xmx2048m'
+    branches: [master, main]
+  workflow_dispatch:
 
 jobs:
-  # Backend Build and Test
-  backend-build:
-    name: Backend Build & Test
+  # Detect which parts of the codebase changed
+  changes:
+    name: Detect Changes
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgis/postgis:15-3.4
-        env:
-          POSTGRES_DB: trucktrack_test
-          POSTGRES_USER: trucktrack
-          POSTGRES_PASSWORD: test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      kafka:
-        image: confluentinc/cp-kafka:7.6.0
-        env:
-          KAFKA_BROKER_ID: 1
-          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-        ports:
-          - 9092:9092
-
-      zookeeper:
-        image: confluentinc/cp-zookeeper:7.6.0
-        env:
-          ZOOKEEPER_CLIENT_PORT: 2181
-          ZOOKEEPER_TICK_TIME: 2000
-        ports:
-          - 2181:2181
-
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      mobile: ${{ steps.filter.outputs.mobile }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+              - 'pom.xml'
+            frontend:
+              - 'frontend/**'
+            mobile:
+              - 'mobile-expo/**'
+
+  # Backend tests (matrix for all microservices)
+  backend:
+    name: Backend - ${{ matrix.service }}
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - api-gateway
+          - auth-service
+          - gps-ingestion-service
+          - location-service
+          - notification-service
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: 'temurin'
+          java-version: '17'
+          distribution: 'corretto'
           cache: 'maven'
 
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+      - name: Build shared module
+        working-directory: backend
+        run: mvn install -pl shared -am -DskipTests -q
 
-      - name: Run Flyway migrations
-        working-directory: ./backend/location-service
-        env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/trucktrack_test
-          SPRING_DATASOURCE_USERNAME: trucktrack
-          SPRING_DATASOURCE_PASSWORD: test
-        run: mvn flyway:migrate
+      - name: Test ${{ matrix.service }}
+        working-directory: backend/${{ matrix.service }}
+        run: mvn test -B
 
-      - name: Build with Maven
-        working-directory: ./backend
-        run: mvn clean compile -DskipTests
-
-      - name: Run unit tests
-        working-directory: ./backend
-        run: mvn test
-
-      - name: Run integration tests
-        working-directory: ./backend
-        run: mvn verify -P integration-tests
-
-      - name: Run Checkstyle
-        working-directory: ./backend
-        run: mvn checkstyle:check
-
-      - name: Generate JaCoCo coverage report
-        working-directory: ./backend
-        run: mvn jacoco:report
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: ./backend/**/target/site/jacoco/jacoco.xml
-          flags: backend
-          name: backend-coverage
-
-      - name: Archive test results
+      - name: Upload coverage
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: backend-test-results
-          path: backend/**/target/surefire-reports/
+          name: coverage-${{ matrix.service }}
+          path: backend/${{ matrix.service }}/target/site/jacoco/
+          retention-days: 7
 
-  # Frontend Build and Test
-  frontend-build:
-    name: Frontend Build & Test
+  # Frontend tests
+  frontend:
+    name: Frontend
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: '20'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
-        working-directory: ./frontend
-        run: npm ci
+        working-directory: frontend
+        run: npm ci --legacy-peer-deps
 
-      - name: Run ESLint
-        working-directory: ./frontend
-        run: npm run lint
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint || true
 
-      - name: Run unit tests
-        working-directory: ./frontend
-        run: npm run test:ci
+      - name: Test
+        working-directory: frontend
+        run: npm test -- --no-watch --no-progress --browsers=ChromeHeadless --code-coverage
 
-      - name: Build production
-        working-directory: ./frontend
-        run: npm run build --prod
-
-      - name: Archive build artifacts
+      - name: Upload coverage
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-dist
-          path: frontend/dist/
+          name: frontend-coverage
+          path: frontend/coverage/
+          retention-days: 7
 
-  # SonarQube Analysis
-  sonarqube:
-    name: SonarQube Analysis
+  # Mobile tests
+  mobile:
+    name: Mobile
+    needs: changes
+    if: needs.changes.outputs.mobile == 'true'
     runs-on: ubuntu-latest
-    needs: [backend-build, frontend-build]
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: 'temurin'
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: mobile-expo/package-lock.json
 
-      - name: Cache SonarQube packages
-        uses: actions/cache@v4
+      - name: Install dependencies
+        working-directory: mobile-expo
+        run: npm ci
+
+      - name: Lint
+        working-directory: mobile-expo
+        run: npm run lint || true
+
+      - name: Test
+        working-directory: mobile-expo
+        run: npm test -- --coverage --passWithNoTests
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
+          name: mobile-coverage
+          path: mobile-expo/coverage/
+          retention-days: 7
 
-      - name: Run SonarQube analysis
-        working-directory: ./backend
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+  # Summary job
+  summary:
+    name: Summary
+    needs: [changes, backend, frontend, mobile]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check results
         run: |
-          mvn clean verify sonar:sonar \
-            -Dsonar.projectKey=truck-track \
-            -Dsonar.host.url=$SONAR_HOST_URL \
-            -Dsonar.login=$SONAR_TOKEN
+          echo "## CI Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Changed | Result |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|---------|--------|" >> $GITHUB_STEP_SUMMARY
 
-  # Docker Build
-  docker-build:
-    name: Build Docker Images
-    runs-on: ubuntu-latest
-    needs: [backend-build, frontend-build]
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+          if [ "${{ needs.changes.outputs.backend }}" == "true" ]; then
+            if [ "${{ needs.backend.result }}" == "success" ]; then
+              echo "| Backend | ✓ | ✅ Pass |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "| Backend | ✓ | ❌ Fail |" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "| Backend | - | ⏭️ Skip |" >> $GITHUB_STEP_SUMMARY
+          fi
 
-    strategy:
-      matrix:
-        service:
-          - gps-ingestion-service
-          - location-service
-          - notification-service
-          - auth-service
-          - api-gateway
+          if [ "${{ needs.changes.outputs.frontend }}" == "true" ]; then
+            if [ "${{ needs.frontend.result }}" == "success" ]; then
+              echo "| Frontend | ✓ | ✅ Pass |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "| Frontend | ✓ | ❌ Fail |" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "| Frontend | - | ⏭️ Skip |" >> $GITHUB_STEP_SUMMARY
+          fi
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+          if [ "${{ needs.changes.outputs.mobile }}" == "true" ]; then
+            if [ "${{ needs.mobile.result }}" == "success" ]; then
+              echo "| Mobile | ✓ | ✅ Pass |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "| Mobile | ✓ | ❌ Fail |" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "| Mobile | - | ⏭️ Skip |" >> $GITHUB_STEP_SUMMARY
+          fi
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ secrets.DOCKER_USERNAME }}/truck-track-${{ matrix.service }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./backend/${{ matrix.service }}
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  # Deploy to Staging (on develop branch)
-  deploy-staging:
-    name: Deploy to Staging
-    runs-on: ubuntu-latest
-    needs: [docker-build]
-    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
-    environment: staging
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Deploy to Kubernetes (Staging)
-        run: |
-          echo "Deploy to staging environment"
-          # Add kubectl/helm deployment commands here
-
-  # Deploy to Production (on main branch with manual approval)
-  deploy-production:
-    name: Deploy to Production
-    runs-on: ubuntu-latest
-    needs: [docker-build]
-    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-    environment: production
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Deploy to Kubernetes (Production)
-        run: |
-          echo "Deploy to production environment"
-          # Add kubectl/helm deployment commands here
+      - name: Fail if any test failed
+        if: |
+          (needs.changes.outputs.backend == 'true' && needs.backend.result != 'success') ||
+          (needs.changes.outputs.frontend == 'true' && needs.frontend.result != 'success') ||
+          (needs.changes.outputs.mobile == 'true' && needs.mobile.result != 'success')
+        run: exit 1

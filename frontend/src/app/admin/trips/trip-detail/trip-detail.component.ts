@@ -19,7 +19,7 @@ import { TripResponse, TripStatusHistoryResponse, TRIP_STATUS_COLORS, TRIP_STATU
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.component';
 import { TruckAdminService } from '../../trucks/truck-admin.service';
-import { TruckAdminResponse, DriverOption } from '../../trucks/truck.model';
+import { TruckAdminResponse } from '../../trucks/truck.model';
 import { LocationPickerComponent, LocationValue } from '../../shared/location-picker/location-picker.component';
 
 /**
@@ -65,7 +65,8 @@ export class TripDetailComponent implements OnInit {
   trip = signal<TripResponse | null>(null);
   history = signal<TripStatusHistoryResponse[]>([]);
   trucks = signal<TruckAdminResponse[]>([]);
-  drivers = signal<DriverOption[]>([]);
+  /** Drivers with their assigned trucks (only drivers who have a truck assigned) */
+  assignableDrivers = signal<{ driverId: string; driverName: string; truckId: string; truckName: string; truckStatus: string }[]>([]);
   loading = signal(true);
   saving = signal(false);
   isEditMode = signal(false);
@@ -105,13 +106,12 @@ export class TripDetailComponent implements OnInit {
       notes: ['']
     });
 
+    // Only driverId is required - truckId is auto-filled from driver's assigned truck
     this.assignForm = this.fb.group({
-      truckId: ['', Validators.required],
       driverId: ['', Validators.required]
     });
 
     this.reassignForm = this.fb.group({
-      truckId: ['', Validators.required],
       driverId: ['', Validators.required]
     });
   }
@@ -148,21 +148,26 @@ export class TripDetailComponent implements OnInit {
   }
 
   loadTrucksAndDrivers() {
-    // Load available trucks (ACTIVE and IDLE - both are online and assignable)
+    // Load trucks and build assignable drivers list
     this.truckService.getTrucks(0, 100, undefined, undefined).subscribe({
       next: (response) => {
-        // Filter to show only online trucks (ACTIVE or IDLE), exclude OFFLINE and OUT_OF_SERVICE
-        const assignableTrucks = response.content.filter(
+        // Filter to online trucks (ACTIVE or IDLE)
+        const onlineTrucks = response.content.filter(
           (t: TruckAdminResponse) => t.status === 'ACTIVE' || t.status === 'IDLE'
         );
-        this.trucks.set(assignableTrucks);
-      }
-    });
+        this.trucks.set(onlineTrucks);
 
-    // Load available drivers
-    this.truckService.getAvailableDrivers().subscribe({
-      next: (drivers) => {
-        this.drivers.set(drivers);
+        // Build assignable drivers list from trucks that have a driver assigned
+        const driversWithTrucks = onlineTrucks
+          .filter((t: TruckAdminResponse) => t.driverId && t.driverName)
+          .map((t: TruckAdminResponse) => ({
+            driverId: t.driverId!,
+            driverName: t.driverName!,
+            truckId: t.id,
+            truckName: `${t.licensePlate || t.truckId} - ${t.vehicleType}`,
+            truckStatus: t.status
+          }));
+        this.assignableDrivers.set(driversWithTrucks);
       }
     });
   }
@@ -218,9 +223,8 @@ export class TripDetailComponent implements OnInit {
   toggleReassignPanel() {
     this.showReassignPanel.update(v => !v);
     if (this.showReassignPanel() && this.trip()) {
-      // Pre-fill with current assignment
+      // Pre-fill with current driver
       this.reassignForm.patchValue({
-        truckId: this.trip()?.assignedTruckId || '',
         driverId: this.trip()?.assignedDriverId || ''
       });
     } else {
@@ -291,10 +295,18 @@ export class TripDetailComponent implements OnInit {
   assignTrip() {
     if (this.assignForm.invalid || !this.tripId) return;
 
+    const selectedDriverId = this.assignForm.value.driverId;
+    const selectedDriver = this.assignableDrivers().find(d => d.driverId === selectedDriverId);
+
+    if (!selectedDriver) {
+      this.snackBar.open('Driver not found', 'Close', { duration: 3000 });
+      return;
+    }
+
     this.saving.set(true);
     const request: AssignTripRequest = {
-      truckId: this.assignForm.value.truckId,
-      driverId: this.assignForm.value.driverId
+      truckId: selectedDriver.truckId,
+      driverId: selectedDriver.driverId
     };
 
     this.tripService.assignTrip(this.tripId, request).subscribe({
@@ -321,10 +333,18 @@ export class TripDetailComponent implements OnInit {
   reassignTrip() {
     if (this.reassignForm.invalid || !this.tripId) return;
 
+    const selectedDriverId = this.reassignForm.value.driverId;
+    const selectedDriver = this.assignableDrivers().find(d => d.driverId === selectedDriverId);
+
+    if (!selectedDriver) {
+      this.snackBar.open('Driver not found', 'Close', { duration: 3000 });
+      return;
+    }
+
     this.saving.set(true);
     const request: AssignTripRequest = {
-      truckId: this.reassignForm.value.truckId,
-      driverId: this.reassignForm.value.driverId
+      truckId: selectedDriver.truckId,
+      driverId: selectedDriver.driverId
     };
 
     this.tripService.reassignTrip(this.tripId, request).subscribe({
