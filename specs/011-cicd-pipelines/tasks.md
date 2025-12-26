@@ -33,7 +33,7 @@
 
 ### Implementation for User Story 1
 
-- [x] T004 [US1] Create backend CI workflow in .github/workflows/ci-backend.yml
+- [x] T004 [US1] Create backend CI workflow in .github/workflows/ci.yml (consolidated)
 - [x] T005 [US1] Configure matrix strategy for 5 microservices (api-gateway, auth-service, gps-ingestion-service, location-service, notification-service)
 - [x] T006 [US1] Add Maven dependency caching with hash-based keys
 - [x] T007 [US1] Configure path filters for backend/** changes only
@@ -52,7 +52,7 @@
 
 ### Implementation for User Story 2
 
-- [x] T010 [P] [US2] Create frontend CI workflow in .github/workflows/ci-frontend.yml
+- [x] T010 [P] [US2] Create frontend CI workflow in .github/workflows/ci.yml (consolidated)
 - [x] T011 [US2] Configure npm ci with built-in caching
 - [x] T012 [US2] Add Jest test execution with coverage
 - [x] T013 [US2] Add ESLint check step
@@ -78,6 +78,7 @@
 - [x] T020 [US3] Configure Docker buildx for multi-platform builds
 - [x] T021 [US3] Add image tagging (sha-{commit}, latest, version)
 - [x] T022 [US3] Configure build caching for faster rebuilds
+- [x] T022b [US3] Create Dockerfiles for all 5 microservices
 
 **Checkpoint**: Docker images are built and pushed to ghcr.io on master merge
 
@@ -91,7 +92,7 @@
 
 ### Implementation for User Story 4
 
-- [x] T023 [P] [US4] Create mobile CI workflow in .github/workflows/ci-mobile.yml
+- [x] T023 [P] [US4] Create mobile CI workflow in .github/workflows/ci.yml (consolidated)
 - [x] T024 [US4] Configure npm ci with caching for mobile-expo
 - [x] T025 [US4] Add Jest test execution with coverage
 - [x] T026 [US4] Configure path filters for mobile-expo/** changes only
@@ -123,10 +124,10 @@
 
 **Purpose**: Final improvements and documentation
 
-- [x] T033 [P] Create combined PR check workflow in .github/workflows/pr-check.yml
+- [x] T033 [P] Consolidate all CI into single .github/workflows/ci.yml
 - [x] T034 [P] Add status badges to README.md
 - [x] T035 Update quickstart.md with actual workflow paths
-- [ ] T036 Test all workflows end-to-end (requires push to GitHub)
+- [x] T036 Test all workflows end-to-end
 - [ ] T037 Configure branch protection rules (manual step - documented)
 
 ---
