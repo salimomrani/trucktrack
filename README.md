@@ -2,6 +2,9 @@
 
 ![CI](https://github.com/salimomrani/truck_track/actions/workflows/ci.yml/badge.svg)
 ![Docker Build](https://github.com/salimomrani/truck_track/actions/workflows/docker-build.yml/badge.svg)
+[![Vercel](https://img.shields.io/badge/Vercel-Deployed-black?logo=vercel)](https://trucktrack-salims-projects-1bde5f7a.vercel.app)
+
+**Live Demo:** https://trucktrack-salims-projects-1bde5f7a.vercel.app
 
 Système de suivi GPS en temps réel pour la gestion de flottes de camions.
 

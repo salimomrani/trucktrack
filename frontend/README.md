@@ -1,5 +1,9 @@
 # TruckTrack Frontend
 
+[![Vercel](https://img.shields.io/badge/Vercel-Deployed-black?logo=vercel)](https://trucktrack-salims-projects-1bde5f7a.vercel.app)
+
+**Live:** https://trucktrack-salims-projects-1bde5f7a.vercel.app
+
 Interface utilisateur Angular 21 pour le suivi GPS de flottes de camions en temps réel.
 
 L'application permet aux gestionnaires de flotte de :
