@@ -176,23 +176,11 @@ cd backend/<service> && mvn spring-boot:run
 cd frontend && npm install && npm start
 ```
 
-### Mobile App (Expo - Recommandé)
+### Mobile App (Expo)
 ```bash
 cd mobile-expo && npm install
 npx expo start
 # Scanner le QR code avec Expo Go (Android/iOS)
-```
-
-### Mobile App (React Native - Legacy)
-```bash
-cd mobile && npm install
-
-# Android
-cd android && ./gradlew assembleDebug
-
-# iOS (macOS only)
-cd ios && pod install
-npx react-native run-ios
 ```
 
 ## Project Structure
@@ -211,12 +199,11 @@ truck-track/
 │       ├── core/              # Services, guards
 │       ├── features/          # Map, history, alerts
 │       └── admin/             # Users, trucks, trips
-├── mobile-expo/                # Expo mobile app (recommended)
+├── mobile-expo/                # Expo mobile app
 │   └── src/
 │       ├── screens/           # Map, Trips, Home
 │       ├── services/          # API, GPS, notifications
 │       └── store/             # Zustand state
-├── mobile/                     # React Native app (legacy)
 ├── scripts/                    # Start/stop scripts
 ├── infra/                      # Docker configs
 └── specs/                      # Feature specifications
@@ -226,8 +213,7 @@ truck-track/
 
 - [Backend](backend/README.md) - Microservices architecture
 - [Frontend](frontend/README.md) - Angular web app
-- [Mobile Expo](mobile-expo/README.md) - Expo driver app (recommended)
-- [Mobile Legacy](mobile/README.md) - React Native driver app
+- [Mobile](mobile-expo/README.md) - Expo driver app
 
 ## Troubleshooting
 
