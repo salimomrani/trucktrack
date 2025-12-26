@@ -1,0 +1,90 @@
+name: PR Check
+
+on:
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  detect-changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.changes.outputs.backend }}
+      frontend: ${{ steps.changes.outputs.frontend }}
+      mobile: ${{ steps.changes.outputs.mobile }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Detect file changes
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+              - 'pom.xml'
+            frontend:
+              - 'frontend/**'
+            mobile:
+              - 'mobile-expo/**'
+
+  backend-tests:
+    name: Backend Tests
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend == 'true'
+    uses: ./.github/workflows/ci-backend.yml
+
+  frontend-tests:
+    name: Frontend Tests
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend == 'true'
+    uses: ./.github/workflows/ci-frontend.yml
+
+  mobile-tests:
+    name: Mobile Tests
+    needs: detect-changes
+    if: needs.detect-changes.outputs.mobile == 'true'
+    uses: ./.github/workflows/ci-mobile.yml
+
+  summary:
+    name: PR Summary
+    needs: [detect-changes, backend-tests, frontend-tests, mobile-tests]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## PR Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "### Changes Detected" >> $GITHUB_STEP_SUMMARY
+          echo "- Backend: ${{ needs.detect-changes.outputs.backend }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Frontend: ${{ needs.detect-changes.outputs.frontend }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Mobile: ${{ needs.detect-changes.outputs.mobile }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "### Test Results" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.backend-tests.result }}" != "skipped" ]; then
+            if [ "${{ needs.backend-tests.result }}" == "success" ]; then
+              echo "- ✅ Backend tests passed" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- ❌ Backend tests failed" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+          if [ "${{ needs.frontend-tests.result }}" != "skipped" ]; then
+            if [ "${{ needs.frontend-tests.result }}" == "success" ]; then
+              echo "- ✅ Frontend tests passed" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- ❌ Frontend tests failed" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+          if [ "${{ needs.mobile-tests.result }}" != "skipped" ]; then
+            if [ "${{ needs.mobile-tests.result }}" == "success" ]; then
+              echo "- ✅ Mobile tests passed" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- ❌ Mobile tests failed" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi

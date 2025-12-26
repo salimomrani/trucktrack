@@ -646,15 +646,21 @@ public class TripService {
     }
 
     /**
-     * Enrich trip response with truck name.
+     * Enrich trip response with truck and driver names.
      */
     private TripResponse enrichTripResponse(Trip trip) {
         TripResponse response = TripResponse.fromEntity(trip);
 
-        // Get truck name if assigned
+        // Get truck and driver info if assigned
         if (trip.getAssignedTruckId() != null) {
             truckRepository.findById(trip.getAssignedTruckId())
-                .ifPresent(truck -> response.setAssignedTruckName(truck.getTruckId()));
+                .ifPresent(truck -> {
+                    response.setAssignedTruckName(truck.getTruckId());
+                    // Get driver name from truck (driver is assigned to truck)
+                    if (truck.getDriverName() != null) {
+                        response.setAssignedDriverName(truck.getDriverName());
+                    }
+                });
         }
 
         return response;

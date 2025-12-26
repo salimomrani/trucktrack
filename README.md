@@ -1,5 +1,10 @@
 # Truck Track - GPS Fleet Tracking System
 
+![Backend Tests](https://github.com/salimomrani/truck_track/actions/workflows/ci-backend.yml/badge.svg)
+![Frontend Tests](https://github.com/salimomrani/truck_track/actions/workflows/ci-frontend.yml/badge.svg)
+![Mobile Tests](https://github.com/salimomrani/truck_track/actions/workflows/ci-mobile.yml/badge.svg)
+![Docker Build](https://github.com/salimomrani/truck_track/actions/workflows/docker-build.yml/badge.svg)
+
 Système de suivi GPS en temps réel pour la gestion de flottes de camions.
 
 **Fonctionnalités principales :**
