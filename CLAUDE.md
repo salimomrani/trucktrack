@@ -58,20 +58,23 @@ npm test && npm run lint
 
 ## Git Workflow (CRITIQUE - OBLIGATOIRE)
 
-**INTERDIT**: Ne JAMAIS commiter directement sur `master` ou `main`.
+**INTERDIT**:
+- Ne JAMAIS commiter directement sur `master` ou `main`
+- Ne JAMAIS merger une PR soi-même (`gh pr merge` est INTERDIT)
 
 **OBLIGATOIRE**: Toujours suivre ce workflow:
 1. Créer une feature branch: `git checkout -b feature/nom-descriptif`
 2. Faire les commits sur la feature branch
 3. Push la branch: `git push -u origin feature/nom-descriptif`
 4. Créer une Pull Request via `gh pr create`
-5. Attendre l'approbation/merge de la PR
-6. Supprimer la branch après merge
+5. **STOP** - Attendre que l'utilisateur merge la PR lui-même
+6. Après merge par l'utilisateur: `git checkout master && git pull`
 
 ```bash
 # ❌ INTERDIT
 git commit -m "feat: something"
 git push origin master
+gh pr merge 123  # JAMAIS merger soi-même!
 
 # ✅ CORRECT
 git checkout -b feature/dark-mode
@@ -79,9 +82,7 @@ git add -A
 git commit -m "feat: implement dark mode"
 git push -u origin feature/dark-mode
 gh pr create --title "feat: dark mode" --body "..."
-# Après merge:
-git checkout master && git pull
-git branch -d feature/dark-mode
+# STOP ICI - L'utilisateur mergera la PR
 ```
 
 **RAPPEL**: Cette règle s'applique à TOUTES les modifications, même les plus petites.
