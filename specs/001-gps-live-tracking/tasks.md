@@ -547,7 +547,7 @@ All 4 user stories (Live Map, Search/Filter, History, Alerts) are fully implemen
 - [ ] T180 [P] Create Helm chart in infra/helm/truck-track/ (templated K8s deployment)
 - [ ] T181 [P] Write quickstart validation script in scripts/validate-quickstart.sh (verify Docker Compose setup, run smoke tests)
 - [ ] T182 [P] Add unit tests for all service classes (LocationService, TruckStatusService, AlertRuleEngine, etc.) in backend/<service>/src/test/java/
-- [ ] T183 [P] Add unit tests for all Angular services and components in frontend/src/app/**/*.spec.ts
+- [X] T183 [P] Add unit tests for all Angular services and components in frontend/src/app/**/*.spec.ts ✅ (12 spec files)
 - [ ] T184 [P] Create ER diagram (entity relationship diagram) for database schema in docs/database-er-diagram.png
 - [ ] T185 [P] Create architecture diagram in docs/architecture-diagram.png (microservices, Kafka, PostgreSQL, Redis, frontend)
 - [ ] T186 [P] Add performance budget configuration in frontend/angular.json (max bundle size 500KB, enforce via CI)
@@ -556,7 +556,7 @@ All 4 user stories (Live Map, Search/Filter, History, Alerts) are fully implemen
 - [ ] T189 [P] Implement rate limiting in API Gateway (10 requests/second per user for GPS ingestion)
 - [ ] T190 [P] Add database connection pooling optimization (tune HikariCP settings in application.yml)
 - [ ] T191 [P] Add Redis memory optimization (set maxmemory-policy=allkeys-lru in Docker Compose)
-- [ ] T192 [P] Create Docker images for all services (Dockerfiles in backend/<service>/Dockerfile and frontend/Dockerfile)
+- [X] T192 [P] Create Docker images for all services (Dockerfiles in backend/<service>/Dockerfile) ✅ (5 backend Dockerfiles)
 - [ ] T193 Code review and refactoring pass (remove code smells, improve naming, add comments for complex logic)
 - [X] T194 SonarQube analysis pass (ensure 0 critical issues, <5% technical debt) - SonarQube 9.9 LTS setup complete, analysis running
 - [ ] T195 Run all tests (unit, integration, E2E, load) and ensure 100% pass rate
