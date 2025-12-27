@@ -56,6 +56,38 @@ npm test && npm run lint
 
 <!-- MANUAL ADDITIONS START -->
 
+## Git Workflow (CRITIQUE - OBLIGATOIRE)
+
+**INTERDIT**: Ne JAMAIS commiter directement sur `master` ou `main`.
+
+**OBLIGATOIRE**: Toujours suivre ce workflow:
+1. Créer une feature branch: `git checkout -b feature/nom-descriptif`
+2. Faire les commits sur la feature branch
+3. Push la branch: `git push -u origin feature/nom-descriptif`
+4. Créer une Pull Request via `gh pr create`
+5. Attendre l'approbation/merge de la PR
+6. Supprimer la branch après merge
+
+```bash
+# ❌ INTERDIT
+git commit -m "feat: something"
+git push origin master
+
+# ✅ CORRECT
+git checkout -b feature/dark-mode
+git add -A
+git commit -m "feat: implement dark mode"
+git push -u origin feature/dark-mode
+gh pr create --title "feat: dark mode" --body "..."
+# Après merge:
+git checkout master && git pull
+git branch -d feature/dark-mode
+```
+
+**RAPPEL**: Cette règle s'applique à TOUTES les modifications, même les plus petites.
+
+---
+
 ## Backend Java/Spring Conventions (OBLIGATOIRE)
 
 ### Authentification dans les Controllers
