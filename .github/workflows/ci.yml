@@ -110,6 +110,7 @@ jobs:
         working-directory: backend/${{ matrix.service }}
         run: mvn test -B
         env:
+          SPRING_DATASOURCE_DRIVER: org.postgresql.Driver
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/testdb
           SPRING_DATASOURCE_USERNAME: testuser
           SPRING_DATASOURCE_PASSWORD: testpass
