@@ -548,8 +548,8 @@ All 4 user stories (Live Map, Search/Filter, History, Alerts) are fully implemen
 - [ ] T181 [P] Write quickstart validation script in scripts/validate-quickstart.sh (verify Docker Compose setup, run smoke tests)
 - [ ] T182 [P] Add unit tests for all service classes (LocationService, TruckStatusService, AlertRuleEngine, etc.) in backend/<service>/src/test/java/
 - [X] T183 [P] Add unit tests for all Angular services and components in frontend/src/app/**/*.spec.ts ✅ (12 spec files)
-- [ ] T184 [P] Create ER diagram (entity relationship diagram) for database schema in docs/database-er-diagram.png
-- [ ] T185 [P] Create architecture diagram in docs/architecture-diagram.png (microservices, Kafka, PostgreSQL, Redis, frontend)
+- [X] T184 [P] Create ER diagram (entity relationship diagram) for database schema in docs/database-er-diagram.md ✅
+- [X] T185 [P] Create architecture diagram in docs/architecture-diagram.md (microservices, Kafka, PostgreSQL, Redis, frontend) ✅
 - [ ] T186 [P] Add performance budget configuration in frontend/angular.json (max bundle size 500KB, enforce via CI)
 - [ ] T187 [P] Implement WCAG 2.1 AA audit using axe-core in frontend (automated accessibility testing in Cypress)
 - [ ] T188 [P] Add security headers in API Gateway (Content-Security-Policy, X-Frame-Options, HSTS)
