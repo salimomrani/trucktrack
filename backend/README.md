@@ -1,8 +1,5 @@
 # TruckTrack Backend
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=salimomrani_trucktrack&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=salimomrani_trucktrack)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=salimomrani_trucktrack&metric=coverage)](https://sonarcloud.io/summary/new_code?id=salimomrani_trucktrack)
-
 Backend microservices en Java 17 / Spring Boot 3.2 pour le système de suivi GPS.
 
 ## Architecture
@@ -259,15 +256,3 @@ L'endpoint `/auth/v1/login` est protégé contre les attaques brute-force:
 mvn test           # Tests unitaires
 mvn verify         # Tests d'intégration
 ```
-
-## Development Credentials
-
-Test user accounts are documented in `DEVELOPMENT.md` (git-ignored for security).
-
-| Role | Email | Description |
-|------|-------|-------------|
-| ADMIN | sysadmin@trucktrack.com | Full system access |
-| FLEET_MANAGER | fleetmanager@trucktrack.com | Fleet management access |
-| DISPATCHER | dispatcher@trucktrack.com | Dispatch operations |
-| DRIVER | driver@trucktrack.com | Driver mobile app |
-| VIEWER | viewer@trucktrack.com | Read-only access |
