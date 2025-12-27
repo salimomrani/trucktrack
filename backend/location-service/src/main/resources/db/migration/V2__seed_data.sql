@@ -15,10 +15,10 @@ VALUES (
 );
 
 -- ====================
--- ADMIN USER
+-- ADMIN USER (Development Only)
 -- ====================
--- Default password: AdminPass123!
--- BCrypt hash generated with strength 10
+-- NOTE: Test credentials - DO NOT use in production
+-- See development documentation for test account passwords
 
 INSERT INTO users (id, email, password_hash, first_name, last_name, role, is_active)
 VALUES (
@@ -39,9 +39,8 @@ VALUES (
 );
 
 -- ====================
--- SAMPLE DISPATCHER USER
+-- SAMPLE DISPATCHER USER (Development Only)
 -- ====================
--- Password: DispatcherPass123!
 
 INSERT INTO users (id, email, password_hash, first_name, last_name, role, is_active)
 VALUES (

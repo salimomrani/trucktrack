@@ -89,6 +89,7 @@ frontend/coverage/
 *.env
 application-local.yml
 application-local.properties
+DEVELOPMENT.md
 
 ### Docker ###
 .dockerignore

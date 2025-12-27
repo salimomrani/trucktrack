@@ -87,13 +87,13 @@
           <td mat-cell *matCellDef="let row">
             <button mat-icon-button
                     matTooltip="Edit"
-                    (click)="onEdit.emit(row)"
+                    (click)="editRow.emit(row)"
                     aria-label="Edit row">
               <mat-icon>edit</mat-icon>
             </button>
             <button mat-icon-button
                     matTooltip="Delete"
-                    (click)="onDelete.emit(row)"
+                    (click)="deleteRow.emit(row)"
                     aria-label="Delete row">
               <mat-icon color="warn">delete</mat-icon>
             </button>
@@ -103,7 +103,7 @@
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns();"
-          (click)="onRowClick.emit(row)"
+          (click)="rowClicked.emit(row)"
           [class.clickable]="rowClickable()">
       </tr>
 

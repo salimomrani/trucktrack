@@ -4,10 +4,8 @@
 -- Feature: 008-rbac-permissions, T039
 
 -- ====================
--- ADMIN USER
+-- ADMIN USER (Development Only)
 -- ====================
--- Email: sysadmin@trucktrack.com
--- Password: AdminPass123!
 
 INSERT INTO users (id, email, password_hash, first_name, last_name, role, is_active)
 VALUES (
@@ -30,10 +28,8 @@ WHERE NOT EXISTS (
 );
 
 -- ====================
--- FLEET MANAGER USER
+-- FLEET MANAGER USER (Development Only)
 -- ====================
--- Email: fleetmanager@trucktrack.com
--- Password: AdminPass123!
 
 INSERT INTO users (id, email, password_hash, first_name, last_name, role, is_active)
 VALUES (
@@ -56,10 +52,8 @@ WHERE NOT EXISTS (
 );
 
 -- ====================
--- DRIVER USER
+-- DRIVER USER (Development Only)
 -- ====================
--- Email: driver@trucktrack.com
--- Password: AdminPass123!
 
 INSERT INTO users (id, email, password_hash, first_name, last_name, role, is_active)
 VALUES (
@@ -82,10 +76,8 @@ WHERE NOT EXISTS (
 );
 
 -- ====================
--- VIEWER USER
+-- VIEWER USER (Development Only)
 -- ====================
--- Email: viewer@trucktrack.com
--- Password: AdminPass123!
 
 INSERT INTO users (id, email, password_hash, first_name, last_name, role, is_active)
 VALUES (
@@ -110,13 +102,13 @@ WHERE NOT EXISTS (
 -- ====================
 -- SUMMARY
 -- ====================
--- Test users for RBAC testing (ALL use password: AdminPass123!):
--- | Role          | Email                        | Password        |
--- |---------------|------------------------------|-----------------|
--- | ADMIN         | sysadmin@trucktrack.com      | AdminPass123!   |
--- | FLEET_MANAGER | fleetmanager@trucktrack.com  | AdminPass123!   |
--- | DISPATCHER    | dispatcher@trucktrack.com    | AdminPass123!   |
--- | DRIVER        | driver@trucktrack.com        | AdminPass123!   |
--- | VIEWER        | viewer@trucktrack.com        | AdminPass123!   |
+-- Test users for RBAC testing. See DEVELOPMENT.md for test credentials.
+-- | Role          | Email                        |
+-- |---------------|------------------------------|
+-- | ADMIN         | sysadmin@trucktrack.com      |
+-- | FLEET_MANAGER | fleetmanager@trucktrack.com  |
+-- | DISPATCHER    | dispatcher@trucktrack.com    |
+-- | DRIVER        | driver@trucktrack.com        |
+-- | VIEWER        | viewer@trucktrack.com        |
 
 COMMENT ON TABLE users IS 'Updated with RBAC test users for each role (Feature: 008-rbac-permissions)';

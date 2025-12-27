@@ -2,7 +2,6 @@ import {
   Component,
   OnInit,
   OnDestroy,
-  AfterViewInit,
   inject,
   signal,
   input,
@@ -68,7 +67,7 @@ export interface LocationValue {
     }
   ]
 })
-export class LocationPickerComponent implements OnInit, AfterViewInit, OnDestroy, ControlValueAccessor {
+export class LocationPickerComponent implements OnInit, OnDestroy, ControlValueAccessor {
   private readonly geocodingService = inject(GeocodingService);
   private readonly elementRef = inject(ElementRef);
 
@@ -114,10 +113,6 @@ export class LocationPickerComponent implements OnInit, AfterViewInit, OnDestroy
       this.suggestions.set(results);
       this.isSearching.set(false);
     });
-  }
-
-  ngAfterViewInit() {
-    // Map will be initialized when toggled
   }
 
   ngOnDestroy() {

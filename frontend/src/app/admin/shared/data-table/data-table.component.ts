@@ -77,10 +77,10 @@ export class DataTableComponent<T> implements OnInit, OnChanges {
 
   // Signal outputs
   readonly pageChange = output<PageInfo>();
-  readonly search = output<string>();
-  readonly onEdit = output<T>();
-  readonly onDelete = output<T>();
-  readonly onRowClick = output<T>();
+  readonly searchChange = output<string>();
+  readonly editRow = output<T>();
+  readonly deleteRow = output<T>();
+  readonly rowClicked = output<T>();
   readonly selectionChange = output<T[]>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -119,7 +119,7 @@ export class DataTableComponent<T> implements OnInit, OnChanges {
 
   onSearch(event: Event) {
     const value = (event.target as HTMLInputElement).value;
-    this.search.emit(value);
+    this.searchChange.emit(value);
   }
 
   onSort(sort: Sort) {
