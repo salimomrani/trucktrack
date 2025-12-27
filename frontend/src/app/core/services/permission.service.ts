@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
-import { environment } from '../../../../environments/environment';
+import { environment } from '../../../environments/environment';
 import { AppState } from '../../store';
 import { selectCurrentUser } from '../../store/auth/auth.selectors';
 import {
