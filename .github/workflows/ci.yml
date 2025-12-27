@@ -120,6 +120,40 @@ jobs:
         working-directory: frontend
         run: npm test -- --no-watch --no-progress --browsers=ChromeHeadless --code-coverage
 
+      - name: Check coverage thresholds
+        working-directory: frontend
+        run: |
+          echo "## Frontend Test Coverage" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Extract coverage from lcov report
+          STATEMENTS=$(grep -m1 'Statements' coverage/frontend/index.html | grep -oP '\d+\.\d+(?=%)' || echo "0")
+          LINES=$(grep -m1 'Lines' coverage/frontend/index.html | grep -oP '\d+\.\d+(?=%)' || echo "0")
+
+          echo "| Metric | Coverage |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Statements | ${STATEMENTS}% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Lines | ${LINES}% |" >> $GITHUB_STEP_SUMMARY
+
+          # Check critical services coverage (guards, interceptors, core services)
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Critical Services Coverage" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "coverage/frontend/app/core/guards/index.html" ]; then
+            GUARDS=$(grep -m1 'Statements' coverage/frontend/app/core/guards/index.html | grep -oP '\d+(?=%)' || echo "0")
+            echo "- Guards: ${GUARDS}%" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ -f "coverage/frontend/app/core/interceptors/index.html" ]; then
+            INTERCEPTORS=$(grep -m1 'Statements' coverage/frontend/app/core/interceptors/index.html | grep -oP '\d+(?=%)' || echo "0")
+            echo "- Interceptors: ${INTERCEPTORS}%" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ -f "coverage/frontend/app/core/services/index.html" ]; then
+            SERVICES=$(grep -m1 'Statements' coverage/frontend/app/core/services/index.html | grep -oP '\d+(?=%)' || echo "0")
+            echo "- Core Services: ${SERVICES}%" >> $GITHUB_STEP_SUMMARY
+          fi
+
       - name: Upload coverage
         if: always()
         uses: actions/upload-artifact@v4
