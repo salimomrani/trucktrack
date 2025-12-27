@@ -14,6 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useThemeColors } from '../store/themeStore';
 
 const FAQ_ITEMS = [
   {
@@ -40,6 +41,7 @@ const FAQ_ITEMS = [
 
 export default function HelpSupportScreen() {
   const navigation = useNavigation();
+  const colors = useThemeColors();
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [feedbackText, setFeedbackText] = useState('');
 
@@ -73,13 +75,76 @@ export default function HelpSupportScreen() {
     setExpandedFaq(expandedFaq === index ? null : index);
   };
 
+  const dynamicStyles = {
+    container: { flex: 1, backgroundColor: colors.background },
+    header: {
+      flexDirection: 'row' as const,
+      alignItems: 'center' as const,
+      justifyContent: 'space-between' as const,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      backgroundColor: colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    headerTitle: { fontSize: 18, fontWeight: '600' as const, color: colors.text },
+    sectionTitle: {
+      fontSize: 14,
+      fontWeight: '600' as const,
+      color: colors.textSecondary,
+      marginBottom: 12,
+      textTransform: 'uppercase' as const,
+      letterSpacing: 0.5,
+    },
+    contactButton: {
+      flex: 1,
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: 20,
+      alignItems: 'center' as const,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    contactLabel: { fontSize: 15, fontWeight: '500' as const, color: colors.text },
+    faqItem: { backgroundColor: colors.card, borderRadius: 12, padding: 16, marginBottom: 8 },
+    faqQuestion: { fontSize: 15, fontWeight: '500' as const, color: colors.text, flex: 1, paddingRight: 8 },
+    faqAnswer: { fontSize: 14, color: colors.textSecondary, marginTop: 12, lineHeight: 20 },
+    feedbackCard: { backgroundColor: colors.card, borderRadius: 12, padding: 16 },
+    feedbackInput: {
+      fontSize: 15,
+      color: colors.text,
+      minHeight: 100,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 8,
+      padding: 12,
+      marginBottom: 12,
+      backgroundColor: colors.inputBackground,
+    },
+    emergencyCard: {
+      flexDirection: 'row' as const,
+      alignItems: 'center' as const,
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: 16,
+      borderWidth: 1,
+      borderColor: `${colors.error}20`,
+      marginBottom: 24,
+    },
+    emergencyTitle: { fontSize: 15, fontWeight: '600' as const, color: colors.error },
+    emergencyDescription: { fontSize: 12, color: colors.textSecondary, marginTop: 2 },
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={dynamicStyles.container}>
+      <View style={dynamicStyles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#333" />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Help & Support</Text>
+        <Text style={dynamicStyles.headerTitle}>Help & Support</Text>
         <View style={styles.placeholder} />
       </View>
 
@@ -90,46 +155,46 @@ export default function HelpSupportScreen() {
         <ScrollView contentContainerStyle={styles.content}>
           {/* Contact Options */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Contact Fleet Manager</Text>
+            <Text style={dynamicStyles.sectionTitle}>Contact Fleet Manager</Text>
 
             <View style={styles.contactRow}>
-              <TouchableOpacity style={styles.contactButton} onPress={handleCall}>
-                <View style={[styles.contactIcon, { backgroundColor: '#28A74520' }]}>
-                  <Ionicons name="call" size={24} color="#28A745" />
+              <TouchableOpacity style={dynamicStyles.contactButton} onPress={handleCall}>
+                <View style={[styles.contactIcon, { backgroundColor: `${colors.success}20` }]}>
+                  <Ionicons name="call" size={24} color={colors.success} />
                 </View>
-                <Text style={styles.contactLabel}>Call</Text>
+                <Text style={dynamicStyles.contactLabel}>Call</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.contactButton} onPress={handleEmail}>
-                <View style={[styles.contactIcon, { backgroundColor: '#1976D220' }]}>
-                  <Ionicons name="mail" size={24} color="#1976D2" />
+              <TouchableOpacity style={dynamicStyles.contactButton} onPress={handleEmail}>
+                <View style={[styles.contactIcon, { backgroundColor: colors.primaryLight }]}>
+                  <Ionicons name="mail" size={24} color={colors.primary} />
                 </View>
-                <Text style={styles.contactLabel}>Email</Text>
+                <Text style={dynamicStyles.contactLabel}>Email</Text>
               </TouchableOpacity>
             </View>
           </View>
 
           {/* FAQ Section */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Frequently Asked Questions</Text>
+            <Text style={dynamicStyles.sectionTitle}>Frequently Asked Questions</Text>
 
             {FAQ_ITEMS.map((item, index) => (
               <TouchableOpacity
                 key={index}
-                style={styles.faqItem}
+                style={dynamicStyles.faqItem}
                 onPress={() => toggleFaq(index)}
                 activeOpacity={0.7}
               >
                 <View style={styles.faqHeader}>
-                  <Text style={styles.faqQuestion}>{item.question}</Text>
+                  <Text style={dynamicStyles.faqQuestion}>{item.question}</Text>
                   <Ionicons
                     name={expandedFaq === index ? 'chevron-up' : 'chevron-down'}
                     size={20}
-                    color="#666"
+                    color={colors.textSecondary}
                   />
                 </View>
                 {expandedFaq === index && (
-                  <Text style={styles.faqAnswer}>{item.answer}</Text>
+                  <Text style={dynamicStyles.faqAnswer}>{item.answer}</Text>
                 )}
               </TouchableOpacity>
             ))}
@@ -137,13 +202,13 @@ export default function HelpSupportScreen() {
 
           {/* Feedback Form */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Send Feedback</Text>
+            <Text style={dynamicStyles.sectionTitle}>Send Feedback</Text>
 
-            <View style={styles.feedbackCard}>
+            <View style={dynamicStyles.feedbackCard}>
               <TextInput
-                style={styles.feedbackInput}
+                style={dynamicStyles.feedbackInput}
                 placeholder="Describe your issue or feedback..."
-                placeholderTextColor="#999"
+                placeholderTextColor={colors.placeholder}
                 multiline
                 numberOfLines={4}
                 value={feedbackText}
@@ -153,7 +218,8 @@ export default function HelpSupportScreen() {
               <TouchableOpacity
                 style={[
                   styles.submitButton,
-                  !feedbackText.trim() && styles.submitButtonDisabled,
+                  { backgroundColor: colors.primary },
+                  !feedbackText.trim() && { backgroundColor: colors.textMuted },
                 ]}
                 onPress={handleSubmitFeedback}
                 disabled={!feedbackText.trim()}
@@ -165,16 +231,16 @@ export default function HelpSupportScreen() {
           </View>
 
           {/* Emergency */}
-          <View style={styles.emergencyCard}>
-            <Ionicons name="warning" size={24} color="#DC3545" />
+          <View style={dynamicStyles.emergencyCard}>
+            <Ionicons name="warning" size={24} color={colors.error} />
             <View style={styles.emergencyText}>
-              <Text style={styles.emergencyTitle}>Emergency?</Text>
-              <Text style={styles.emergencyDescription}>
+              <Text style={dynamicStyles.emergencyTitle}>Emergency?</Text>
+              <Text style={dynamicStyles.emergencyDescription}>
                 For urgent issues, call the emergency hotline directly
               </Text>
             </View>
             <TouchableOpacity
-              style={styles.emergencyButton}
+              style={[styles.emergencyButton, { backgroundColor: colors.error }]}
               onPress={() => Linking.openURL('tel:911')}
             >
               <Ionicons name="call" size={18} color="#fff" />

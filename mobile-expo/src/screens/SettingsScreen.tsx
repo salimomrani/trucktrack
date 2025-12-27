@@ -4,13 +4,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
+import { useThemeStore, useThemeColors } from '../store/themeStore';
 
 export default function SettingsScreen() {
   const navigation = useNavigation();
+  const colors = useThemeColors();
+  const { isDark, toggleTheme } = useThemeStore();
+
   const [gpsEnabled, setGpsEnabled] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [highAccuracyGps, setHighAccuracyGps] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState(true);
 
   const handleGpsToggle = async (value: boolean) => {
@@ -45,50 +48,99 @@ export default function SettingsScreen() {
     );
   };
 
+  const dynamicStyles = {
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      flexDirection: 'row' as const,
+      alignItems: 'center' as const,
+      justifyContent: 'space-between' as const,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      backgroundColor: colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: '600' as const,
+      color: colors.text,
+    },
+    sectionTitle: {
+      fontSize: 14,
+      fontWeight: '600' as const,
+      color: colors.textSecondary,
+      marginBottom: 12,
+      textTransform: 'uppercase' as const,
+      letterSpacing: 0.5,
+    },
+    settingRow: {
+      flexDirection: 'row' as const,
+      alignItems: 'center' as const,
+      justifyContent: 'space-between' as const,
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: 16,
+      marginBottom: 8,
+    },
+    settingTitle: {
+      fontSize: 15,
+      fontWeight: '500' as const,
+      color: colors.text,
+    },
+    settingDescription: {
+      fontSize: 12,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={dynamicStyles.container}>
+      <View style={dynamicStyles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#333" />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>App Settings</Text>
+        <Text style={dynamicStyles.headerTitle}>App Settings</Text>
         <View style={styles.placeholder} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
         {/* GPS Settings */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Location</Text>
+          <Text style={dynamicStyles.sectionTitle}>Location</Text>
 
-          <View style={styles.settingRow}>
+          <View style={dynamicStyles.settingRow}>
             <View style={styles.settingInfo}>
-              <Ionicons name="location" size={22} color="#1976D2" />
+              <Ionicons name="location" size={22} color={colors.primary} />
               <View style={styles.settingText}>
-                <Text style={styles.settingTitle}>GPS Tracking</Text>
-                <Text style={styles.settingDescription}>Enable location tracking</Text>
+                <Text style={dynamicStyles.settingTitle}>GPS Tracking</Text>
+                <Text style={dynamicStyles.settingDescription}>Enable location tracking</Text>
               </View>
             </View>
             <Switch
               value={gpsEnabled}
               onValueChange={handleGpsToggle}
-              trackColor={{ false: '#ddd', true: '#1976D280' }}
-              thumbColor={gpsEnabled ? '#1976D2' : '#f4f3f4'}
+              trackColor={{ false: colors.border, true: colors.primaryLight }}
+              thumbColor={gpsEnabled ? colors.primary : colors.textMuted}
             />
           </View>
 
-          <View style={styles.settingRow}>
+          <View style={dynamicStyles.settingRow}>
             <View style={styles.settingInfo}>
-              <Ionicons name="speedometer" size={22} color="#1976D2" />
+              <Ionicons name="speedometer" size={22} color={colors.primary} />
               <View style={styles.settingText}>
-                <Text style={styles.settingTitle}>High Accuracy GPS</Text>
-                <Text style={styles.settingDescription}>Uses more battery</Text>
+                <Text style={dynamicStyles.settingTitle}>High Accuracy GPS</Text>
+                <Text style={dynamicStyles.settingDescription}>Uses more battery</Text>
               </View>
             </View>
             <Switch
               value={highAccuracyGps}
               onValueChange={setHighAccuracyGps}
-              trackColor={{ false: '#ddd', true: '#1976D280' }}
-              thumbColor={highAccuracyGps ? '#1976D2' : '#f4f3f4'}
+              trackColor={{ false: colors.border, true: colors.primaryLight }}
+              thumbColor={highAccuracyGps ? colors.primary : colors.textMuted}
               disabled={!gpsEnabled}
             />
           </View>
@@ -96,76 +148,77 @@ export default function SettingsScreen() {
 
         {/* Notifications Settings */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Notifications</Text>
+          <Text style={dynamicStyles.sectionTitle}>Notifications</Text>
 
-          <View style={styles.settingRow}>
+          <View style={dynamicStyles.settingRow}>
             <View style={styles.settingInfo}>
-              <Ionicons name="notifications" size={22} color="#1976D2" />
+              <Ionicons name="notifications" size={22} color={colors.primary} />
               <View style={styles.settingText}>
-                <Text style={styles.settingTitle}>Push Notifications</Text>
-                <Text style={styles.settingDescription}>Receive trip alerts</Text>
+                <Text style={dynamicStyles.settingTitle}>Push Notifications</Text>
+                <Text style={dynamicStyles.settingDescription}>Receive trip alerts</Text>
               </View>
             </View>
             <Switch
               value={notificationsEnabled}
               onValueChange={setNotificationsEnabled}
-              trackColor={{ false: '#ddd', true: '#1976D280' }}
-              thumbColor={notificationsEnabled ? '#1976D2' : '#f4f3f4'}
+              trackColor={{ false: colors.border, true: colors.primaryLight }}
+              thumbColor={notificationsEnabled ? colors.primary : colors.textMuted}
             />
           </View>
         </View>
 
         {/* Display Settings */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Display</Text>
+          <Text style={dynamicStyles.sectionTitle}>Display</Text>
 
-          <View style={styles.settingRow}>
+          <View style={dynamicStyles.settingRow}>
             <View style={styles.settingInfo}>
-              <Ionicons name="moon" size={22} color="#1976D2" />
+              <Ionicons name={isDark ? 'moon' : 'sunny'} size={22} color={colors.primary} />
               <View style={styles.settingText}>
-                <Text style={styles.settingTitle}>Dark Mode</Text>
-                <Text style={styles.settingDescription}>Coming soon</Text>
+                <Text style={dynamicStyles.settingTitle}>Dark Mode</Text>
+                <Text style={dynamicStyles.settingDescription}>
+                  {isDark ? 'Dark theme enabled' : 'Light theme enabled'}
+                </Text>
               </View>
             </View>
             <Switch
-              value={darkMode}
-              onValueChange={setDarkMode}
-              trackColor={{ false: '#ddd', true: '#1976D280' }}
-              thumbColor={darkMode ? '#1976D2' : '#f4f3f4'}
-              disabled={true}
+              value={isDark}
+              onValueChange={toggleTheme}
+              trackColor={{ false: colors.border, true: colors.primaryLight }}
+              thumbColor={isDark ? colors.primary : colors.textMuted}
             />
           </View>
 
-          <View style={styles.settingRow}>
+          <View style={dynamicStyles.settingRow}>
             <View style={styles.settingInfo}>
-              <Ionicons name="refresh" size={22} color="#1976D2" />
+              <Ionicons name="refresh" size={22} color={colors.primary} />
               <View style={styles.settingText}>
-                <Text style={styles.settingTitle}>Auto Refresh</Text>
-                <Text style={styles.settingDescription}>Update data automatically</Text>
+                <Text style={dynamicStyles.settingTitle}>Auto Refresh</Text>
+                <Text style={dynamicStyles.settingDescription}>Update data automatically</Text>
               </View>
             </View>
             <Switch
               value={autoRefresh}
               onValueChange={setAutoRefresh}
-              trackColor={{ false: '#ddd', true: '#1976D280' }}
-              thumbColor={autoRefresh ? '#1976D2' : '#f4f3f4'}
+              trackColor={{ false: colors.border, true: colors.primaryLight }}
+              thumbColor={autoRefresh ? colors.primary : colors.textMuted}
             />
           </View>
         </View>
 
         {/* Data Settings */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Data</Text>
+          <Text style={dynamicStyles.sectionTitle}>Data</Text>
 
-          <TouchableOpacity style={styles.actionRow} onPress={handleClearCache}>
+          <TouchableOpacity style={dynamicStyles.settingRow} onPress={handleClearCache}>
             <View style={styles.settingInfo}>
-              <Ionicons name="trash-outline" size={22} color="#DC3545" />
+              <Ionicons name="trash-outline" size={22} color={colors.error} />
               <View style={styles.settingText}>
-                <Text style={[styles.settingTitle, { color: '#DC3545' }]}>Clear Cache</Text>
-                <Text style={styles.settingDescription}>Free up storage space</Text>
+                <Text style={[dynamicStyles.settingTitle, { color: colors.error }]}>Clear Cache</Text>
+                <Text style={dynamicStyles.settingDescription}>Free up storage space</Text>
               </View>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#ccc" />
+            <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -174,27 +227,8 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
   backButton: {
     padding: 4,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
   },
   placeholder: {
     width: 32,
@@ -205,32 +239,6 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 24,
   },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#666',
-    marginBottom: 12,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  settingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 8,
-  },
-  actionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 8,
-  },
   settingInfo: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -239,15 +247,5 @@ const styles = StyleSheet.create({
   settingText: {
     marginLeft: 12,
     flex: 1,
-  },
-  settingTitle: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: '#333',
-  },
-  settingDescription: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 2,
   },
 });
