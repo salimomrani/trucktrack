@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    # CI/CD: Uses environment variables SPRING_DATASOURCE_URL/USERNAME/PASSWORD
+    # Local: Falls back to TestContainers
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.testcontainers.jdbc.ContainerDatabaseDriver}
+    url: ${SPRING_DATASOURCE_URL:jdbc:tc:postgresql:15:///testdb}
+    username: ${SPRING_DATASOURCE_USERNAME:}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: false
+
+jwt:
+  secret: VGhpc0lzQVZlcnlMb25nU2VjcmV0S2V5Rm9yVGVzdGluZ1B1cnBvc2VzT25seURvTm90VXNlSW5Qcm9kdWN0aW9uMTIzNDU2Nzg5MA==
+  access-expiration: 3600000
+  refresh-expiration: 604800000
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.testcontainers: INFO

@@ -14,9 +14,9 @@
 
 **Purpose**: Configurer les dépendances et l'infrastructure de test
 
-- [ ] T001 Vérifier dépendances test dans backend/pom.xml (JUnit5, Mockito, AssertJ, TestContainers)
-- [ ] T002 [P] Ajouter TestContainers PostgreSQL si manquant dans backend/pom.xml
-- [ ] T003 [P] Créer classe de base TestContainersConfig dans backend/shared/src/test/java/
+- [x] T001 Vérifier dépendances test dans backend/pom.xml (JUnit5, Mockito, AssertJ, TestContainers)
+- [x] T002 [P] Ajouter TestContainers PostgreSQL si manquant dans backend/pom.xml
+- [x] T003 [P] Créer classe de base TestContainersConfig dans backend/shared/src/test/java/
 
 ---
 
@@ -28,30 +28,30 @@
 
 ### Implementation
 
-- [ ] T004 [P] [US1] Créer AuthServiceTest dans backend/auth-service/src/test/java/com/trucktrack/auth/service/AuthServiceTest.java
+- [x] T004 [P] [US1] Créer AuthServiceTest dans backend/auth-service/src/test/java/com/trucktrack/auth/service/AuthServiceTest.java
   - Test login avec credentials valides → JWT retourné
   - Test login avec mauvais password → 401
   - Test login avec user inexistant → 401
   - Test refresh token valide → nouveau JWT
   - Test refresh token expiré → 401
 
-- [ ] T005 [P] [US1] Créer PermissionServiceTest dans backend/auth-service/src/test/java/com/trucktrack/auth/service/PermissionServiceTest.java
+- [x] T005 [P] [US1] Créer PermissionServiceTest dans backend/auth-service/src/test/java/com/trucktrack/auth/service/PermissionServiceTest.java
   - Test hasPermission avec rôle admin → true pour toutes permissions
   - Test hasPermission avec rôle driver → true seulement pour permissions driver
   - Test hasPermission avec permission inexistante → false
 
-- [ ] T006 [P] [US1] Créer LoginRateLimiterTest dans backend/auth-service/src/test/java/com/trucktrack/auth/service/LoginRateLimiterTest.java
+- [x] T006 [P] [US1] Créer LoginRateLimiterTest dans backend/auth-service/src/test/java/com/trucktrack/auth/service/LoginRateLimiterTest.java
   - Test 5 tentatives OK → pas de blocage
   - Test 6ème tentative → blocage 15 min
   - Test après délai → déblocage
 
-- [ ] T007 [P] [US1] Créer AdminUserServiceTest dans backend/auth-service/src/test/java/com/trucktrack/auth/service/AdminUserServiceTest.java
+- [x] T007 [P] [US1] Créer AdminUserServiceTest dans backend/auth-service/src/test/java/com/trucktrack/auth/service/AdminUserServiceTest.java
   - Test création utilisateur → user créé avec rôle
   - Test création avec email existant → exception
   - Test update utilisateur → données mises à jour
   - Test suppression utilisateur → user désactivé
 
-- [ ] T008 [US1] Créer UserRepositoryTest dans backend/auth-service/src/test/java/com/trucktrack/auth/repository/UserRepositoryTest.java
+- [x] T008 [US1] Créer UserRepositoryTest dans backend/auth-service/src/test/java/com/trucktrack/auth/repository/UserRepositoryTest.java
   - Test findByEmail existant → user trouvé
   - Test findByEmail inexistant → Optional.empty
   - Test save user → persisté en DB
@@ -68,37 +68,37 @@
 
 ### Implementation
 
-- [ ] T009 [P] [US2] Créer LocationServiceTest dans backend/location-service/src/test/java/com/trucktrack/location/service/LocationServiceTest.java
+- [x] T009 [P] [US2] Créer LocationServiceTest dans backend/location-service/src/test/java/com/trucktrack/location/service/LocationServiceTest.java
   - Test updatePosition → position mise à jour
   - Test updatePosition → publie event Kafka
   - Test getLastPosition → retourne dernière position
   - Test getPositionHistory → retourne historique
 
-- [ ] T010 [P] [US2] Créer GeofenceServiceTest dans backend/location-service/src/test/java/com/trucktrack/location/service/GeofenceServiceTest.java
+- [x] T010 [P] [US2] Créer GeofenceServiceTest dans backend/location-service/src/test/java/com/trucktrack/location/service/GeofenceServiceTest.java
   - Test isInsideGeofence point dedans → true
   - Test isInsideGeofence point dehors → false
   - Test checkGeofenceTransition ENTER → event publié
   - Test checkGeofenceTransition EXIT → event publié
   - Test checkGeofenceTransition pas de changement → pas d'event
 
-- [ ] T011 [P] [US2] Créer TripServiceTest dans backend/location-service/src/test/java/com/trucktrack/location/service/TripServiceTest.java
+- [x] T011 [P] [US2] Créer TripServiceTest dans backend/location-service/src/test/java/com/trucktrack/location/service/TripServiceTest.java
   - Test createTrip → trip créé avec statut PENDING
   - Test assignTrip → truck et driver assignés
   - Test startTrip → statut IN_PROGRESS, startTime set
   - Test completeTrip → statut COMPLETED, distance/durée calculées
   - Test cancelTrip → statut CANCELLED
 
-- [ ] T012 [P] [US2] Créer TruckStatusServiceTest dans backend/location-service/src/test/java/com/trucktrack/location/service/TruckStatusServiceTest.java
+- [x] T012 [P] [US2] Créer TruckStatusServiceTest dans backend/location-service/src/test/java/com/trucktrack/location/service/TruckStatusServiceTest.java
   - Test updateStatus → statut mis à jour
   - Test calculateIdleTime → durée correcte
   - Test detectOffline → marqué offline après timeout
 
-- [ ] T013 [P] [US2] Créer FleetStatisticsServiceTest dans backend/location-service/src/test/java/com/trucktrack/location/service/FleetStatisticsServiceTest.java
+- [x] T013 [P] [US2] Créer FleetStatisticsServiceTest dans backend/location-service/src/test/java/com/trucktrack/location/service/FleetStatisticsServiceTest.java
   - Test getActiveCount → nombre correct
   - Test getAverageSpeed → moyenne calculée
   - Test getTotalDistance → somme correcte
 
-- [ ] T014 [US2] Créer TruckRepositoryTest dans backend/location-service/src/test/java/com/trucktrack/location/repository/TruckRepositoryTest.java
+- [x] T014 [US2] Créer TruckRepositoryTest dans backend/location-service/src/test/java/com/trucktrack/location/repository/TruckRepositoryTest.java
   - Test findByStatus → liste filtrée
   - Test findNearby → trucks dans rayon
 
@@ -114,7 +114,7 @@
 
 ### Implementation
 
-- [ ] T015 [P] [US3] Créer GPSValidationServiceTest dans backend/gps-ingestion-service/src/test/java/com/trucktrack/gps/service/GPSValidationServiceTest.java
+- [x] T015 [P] [US3] Créer GPSValidationServiceTest dans backend/gps-ingestion-service/src/test/java/com/trucktrack/gps/service/GPSValidationServiceTest.java
   - Test coordonnées valides → accepté
   - Test latitude > 90 → rejeté
   - Test latitude < -90 → rejeté
@@ -124,7 +124,7 @@
   - Test timestamp trop ancien → rejeté
   - Test speed négative → rejeté
 
-- [ ] T016 [P] [US3] Créer KafkaProducerServiceTest dans backend/gps-ingestion-service/src/test/java/com/trucktrack/gps/service/KafkaProducerServiceTest.java
+- [x] T016 [P] [US3] Créer KafkaProducerServiceTest dans backend/gps-ingestion-service/src/test/java/com/trucktrack/gps/service/KafkaProducerServiceTest.java
   - Test publish position → message envoyé sur topic
   - Test publish avec Kafka down → exception gérée
 
@@ -140,7 +140,7 @@
 
 ### Implementation
 
-- [ ] T017 [P] [US4] Créer AlertRuleEngineTest dans backend/notification-service/src/test/java/com/trucktrack/notification/service/AlertRuleEngineTest.java
+- [x] T017 [P] [US4] Créer AlertRuleEngineTest dans backend/notification-service/src/test/java/com/trucktrack/notification/service/AlertRuleEngineTest.java
   - Test règle SPEED_LIMIT dépassée → alerte
   - Test règle SPEED_LIMIT respectée → pas d'alerte
   - Test règle IDLE_TIME dépassée → alerte
@@ -149,18 +149,18 @@
   - Test règle désactivée → pas d'alerte
   - Test multiple règles → toutes évaluées
 
-- [ ] T018 [P] [US4] Créer AlertCooldownCacheTest dans backend/notification-service/src/test/java/com/trucktrack/notification/service/AlertCooldownCacheTest.java
+- [x] T018 [P] [US4] Créer AlertCooldownCacheTest dans backend/notification-service/src/test/java/com/trucktrack/notification/service/AlertCooldownCacheTest.java
   - Test première alerte → autorisée
   - Test alerte pendant cooldown → bloquée
   - Test alerte après cooldown → autorisée
 
-- [ ] T019 [P] [US4] Créer AlertRuleServiceTest dans backend/notification-service/src/test/java/com/trucktrack/notification/service/AlertRuleServiceTest.java
+- [x] T019 [P] [US4] Créer AlertRuleServiceTest dans backend/notification-service/src/test/java/com/trucktrack/notification/service/AlertRuleServiceTest.java
   - Test createRule → règle créée
   - Test updateRule → règle mise à jour
   - Test deleteRule → règle supprimée
   - Test getActiveRules → liste filtrée
 
-- [ ] T020 [P] [US4] Créer NotificationServiceTest dans backend/notification-service/src/test/java/com/trucktrack/notification/service/NotificationServiceTest.java
+- [x] T020 [P] [US4] Créer NotificationServiceTest dans backend/notification-service/src/test/java/com/trucktrack/notification/service/NotificationServiceTest.java
   - Test sendNotification → notification persistée
   - Test sendNotification → WebSocket envoyé
   - Test markAsRead → notification marquée lue
@@ -177,11 +177,11 @@
 
 ### Implementation
 
-- [ ] T021 [US5] Créer KafkaIntegrationTest dans backend/location-service/src/test/java/com/trucktrack/location/integration/KafkaIntegrationTest.java
+- [x] T021 [US5] Créer KafkaIntegrationTest dans backend/location-service/src/test/java/com/trucktrack/location/integration/KafkaIntegrationTest.java
   - Test GPS position publiée → consommée et stockée
   - Test geofence event → notification générée
 
-- [ ] T022 [US5] Créer AuthFlowIntegrationTest dans backend/auth-service/src/test/java/com/trucktrack/auth/integration/AuthFlowIntegrationTest.java
+- [x] T022 [US5] Créer AuthFlowIntegrationTest dans backend/auth-service/src/test/java/com/trucktrack/auth/integration/AuthFlowIntegrationTest.java
   - Test login → JWT → accès API protégée
 
 **Checkpoint**: Integration tests complets
@@ -192,10 +192,10 @@
 
 **Purpose**: Validation finale et documentation
 
-- [ ] T023 Exécuter tous les tests et vérifier coverage
-- [ ] T024 [P] Corriger les tests qui échouent
-- [ ] T025 [P] Ajouter @DisplayName pour lisibilité
-- [ ] T026 Vérifier que CI passe avec tous les tests
+- [x] T023 Exécuter tous les tests et vérifier coverage
+- [x] T024 [P] Corriger les tests qui échouent
+- [x] T025 [P] Ajouter @DisplayName pour lisibilité
+- [x] T026 Vérifier que CI passe avec tous les tests
 
 ---
 
