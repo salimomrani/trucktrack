@@ -19,15 +19,21 @@ import MapScreen from './src/screens/MapScreen';
 import TripsScreen from './src/screens/TripsScreen';
 import TripDetailScreen from './src/screens/TripDetailScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
+import AboutScreen from './src/screens/AboutScreen';
+import HelpSupportScreen from './src/screens/HelpSupportScreen';
 
 // Store
 import { useAuthStore } from './src/store/authStore';
 
 // Navigation types
-type RootStackParamList = {
+export type RootStackParamList = {
   Login: undefined;
   Main: undefined;
   TripDetail: { tripId: string };
+  Settings: undefined;
+  About: undefined;
+  HelpSupport: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -120,6 +126,9 @@ export default function App() {
           <>
             <Stack.Screen name="Main" component={MainTabs} />
             <Stack.Screen name="TripDetail" component={TripDetailScreen} />
+            <Stack.Screen name="Settings" component={SettingsScreen} />
+            <Stack.Screen name="About" component={AboutScreen} />
+            <Stack.Screen name="HelpSupport" component={HelpSupportScreen} />
           </>
         )}
       </Stack.Navigator>
