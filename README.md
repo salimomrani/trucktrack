@@ -75,71 +75,87 @@ cd mobile-expo && npm install && npx expo start
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                                    CLIENTS                                           │
-│                                                                                      │
-│    ┌──────────────────────┐              ┌──────────────────────┐                   │
-│    │   📱 Mobile App      │              │   🖥️  Web Frontend   │                   │
-│    │   React Native       │              │   Angular 17         │                   │
-│    │   iOS / Android      │              │   localhost:4200     │                   │
-│    │                      │              │                      │                   │
-│    │  • GPS Background    │              │  • Live Map          │                   │
-│    │  • Status Updates    │              │  • Admin Panel       │                   │
-│    │  • Push Notifications│              │  • History/Alerts    │                   │
-│    │  • Offline Mode      │              │  • Geofences         │                   │
-│    └──────────┬───────────┘              └──────────┬───────────┘                   │
-│               │                                      │                               │
-└───────────────┼──────────────────────────────────────┼───────────────────────────────┘
-                │ REST / WebSocket                     │ HTTP / WebSocket
-                │                                      │
-                ▼                                      ▼
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                              API GATEWAY :8000                                       │
-│                        JWT Validation • Routing • CORS                               │
-└───────────┬─────────────────┬─────────────────┬─────────────────┬───────────────────┘
-            │                 │                 │                 │
-            ▼                 ▼                 ▼                 ▼
-      ┌───────────┐     ┌───────────┐     ┌───────────┐     ┌───────────┐
-      │   AUTH    │     │    GPS    │     │ LOCATION  │     │  NOTIF    │
-      │  :8083    │     │ INGESTION │     │  :8081    │     │  :8082    │
-      │           │     │  :8080    │     │           │     │           │
-      │  Login    │     │  Receive  │     │  Trucks   │     │  Alerts   │
-      │  JWT      │     │  Validate │     │  History  │     │  Rules    │
-      │  Users    │     │  Publish  │     │  Geofence │     │  WebSocket│
-      │  Groups   │     │           │     │  Admin    │     │  FCM Push │
-      └─────┬─────┘     └─────┬─────┘     └─────┬─────┘     └─────┬─────┘
-            │                 │                 │                 │
-            │                 │    ┌────────────┴────────────┐    │
-            │                 │    │                         │    │
-            │                 ▼    ▼                         ▼    ▼
-            │           ┌─────────────────────────────────────────────┐
-            │           │              KAFKA :9092                     │
-            │           │                                              │
-            │           │  📨 truck-track.gps.position                │
-            │           │  📨 truck-track.location.status-change      │
-            │           │  📨 truck-track.notification.alert          │
-            │           └─────────────────────────────────────────────┘
-            │
-            ▼
-      ┌───────────┐     ┌───────────┐     ┌───────────┐     ┌───────────┐
-      │ POSTGRES  │     │   REDIS   │     │ PROMETHEUS│     │  JAEGER   │
-      │  :5432    │     │  :6379    │     │  :9090    │     │  :16686   │
-      │           │     │           │     │           │     │           │
-      │ + PostGIS │     │  Cache    │     │  Metrics  │     │  Tracing  │
-      └───────────┘     └───────────┘     └───────────┘     └───────────┘
+```mermaid
+flowchart TB
+    subgraph Clients["📱 Clients"]
+        MOBILE["Mobile App<br/>React Native (Expo)<br/>iOS / Android"]
+        WEB["Web Frontend<br/>Angular 21<br/>localhost:4200"]
+    end
+
+    subgraph Gateway["🔐 API Gateway :8000"]
+        GW["JWT Validation • Routing • CORS"]
+    end
+
+    subgraph Services["⚙️ Microservices"]
+        AUTH["Auth Service<br/>:8083<br/>Login, JWT, Users"]
+        GPS["GPS Ingestion<br/>:8080<br/>Receive, Validate"]
+        LOCATION["Location Service<br/>:8081<br/>Trucks, Trips, Geofences"]
+        NOTIF["Notification<br/>:8082<br/>Alerts, WebSocket, Push"]
+    end
+
+    subgraph Messaging["📨 Event Streaming"]
+        KAFKA["Kafka :9092<br/>gps.position | location.status | notification.alert"]
+    end
+
+    subgraph Data["💾 Data Layer"]
+        PG["PostgreSQL + PostGIS<br/>:5432"]
+        REDIS["Redis Cache<br/>:6379"]
+    end
+
+    subgraph Monitoring["📊 Observability"]
+        PROM["Prometheus :9090"]
+        GRAF["Grafana :3000"]
+        JAEGER["Jaeger :16686"]
+    end
+
+    MOBILE --> GW
+    WEB --> GW
+    GW --> AUTH
+    GW --> GPS
+    GW --> LOCATION
+    GW --> NOTIF
+
+    GPS --> KAFKA
+    LOCATION --> KAFKA
+    KAFKA --> LOCATION
+    KAFKA --> NOTIF
+
+    AUTH --> PG
+    AUTH --> REDIS
+    LOCATION --> PG
+    LOCATION --> REDIS
+    NOTIF --> PG
+
+    AUTH -.-> PROM
+    LOCATION -.-> PROM
+    GPS -.-> PROM
+    NOTIF -.-> PROM
+    PROM --> GRAF
 ```
 
-**Flux de données :**
-```
-🚛 Camion (Mobile App)
-     │
-     ▼ GPS Position
-GPS Ingestion ──► Kafka ──► Location Service ──► PostgreSQL
-                    │               │
-                    │               └──► WebSocket ──► 📱 Web/Mobile
-                    │
-                    └──► Notification Service ──► Alertes ──► FCM Push ──► 📱 Mobile
+**Flux de données GPS :**
+
+```mermaid
+sequenceDiagram
+    participant Truck as 🚛 Camion
+    participant GPS as GPS Ingestion
+    participant Kafka as Kafka
+    participant Location as Location Service
+    participant DB as PostgreSQL
+    participant WS as WebSocket
+    participant Notif as Notification
+    participant Mobile as 📱 Clients
+
+    Truck->>GPS: GPS Position
+    GPS->>Kafka: Publish event
+    Kafka->>Location: Consume
+    Location->>DB: Store position
+    Location->>WS: Push update
+    WS->>Mobile: Real-time position
+
+    Kafka->>Notif: Consume
+    Notif->>Notif: Check alert rules
+    Notif->>Mobile: Push notification (if alert)
 ```
 
 ## Applications
@@ -221,6 +237,8 @@ truck-track/
 - [Backend](backend/README.md) - Microservices architecture
 - [Frontend](frontend/README.md) - Angular web app
 - [Mobile](mobile-expo/README.md) - Expo driver app
+- [ER Diagram](docs/database-er-diagram.md) - Database schema
+- [Architecture](docs/architecture-diagram.md) - System architecture details
 
 ## Troubleshooting
 
