@@ -1,5 +1,5 @@
 -- Reseed test users (V10 ran before users table existed)
--- All passwords: AdminPass123!
+-- NOTE: Test credentials - See DEVELOPMENT.md for passwords
 
 -- ADMIN
 INSERT INTO users (id, email, password_hash, first_name, last_name, role, is_active)
@@ -77,10 +77,11 @@ ON CONFLICT DO NOTHING;
 -- ====================
 -- TEST USERS SUMMARY
 -- ====================
--- | Role          | Email                        | Password      |
--- |---------------|------------------------------|---------------|
--- | ADMIN         | sysadmin@trucktrack.com      | AdminPass123! |
--- | FLEET_MANAGER | fleetmanager@trucktrack.com  | AdminPass123! |
--- | DISPATCHER    | dispatcher@trucktrack.com    | AdminPass123! |
--- | DRIVER        | driver@trucktrack.com        | AdminPass123! |
--- | VIEWER        | viewer@trucktrack.com        | AdminPass123! |
+-- See DEVELOPMENT.md for test account credentials
+-- | Role          | Email                        |
+-- |---------------|------------------------------|
+-- | ADMIN         | sysadmin@trucktrack.com      |
+-- | FLEET_MANAGER | fleetmanager@trucktrack.com  |
+-- | DISPATCHER    | dispatcher@trucktrack.com    |
+-- | DRIVER        | driver@trucktrack.com        |
+-- | VIEWER        | viewer@trucktrack.com        |

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, effect, signal, computed } from '@angular/core';
+import { Component, OnDestroy, inject, effect, signal, computed } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -23,7 +23,7 @@ import { DEFAULT_NAV_CONFIG } from './core/models/navigation.model';
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss'
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnDestroy {
   title = 'frontend';
 
   private readonly notificationService = inject(NotificationService);
@@ -97,10 +97,6 @@ export class AppComponent implements OnInit, OnDestroy {
           this.sidenavOpen.set(true);
         }
       });
-  }
-
-  ngOnInit(): void {
-    // Initialization handled in constructor via effects
   }
 
   ngOnDestroy(): void {
