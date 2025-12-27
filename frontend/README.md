@@ -1,6 +1,7 @@
 # TruckTrack Frontend
 
 [![Vercel](https://img.shields.io/badge/Vercel-Deployed-black?logo=vercel)](https://trucktrack-salims-projects-1bde5f7a.vercel.app)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=salimomrani_trucktrack&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=salimomrani_trucktrack)
 
 **Live:** https://trucktrack-salims-projects-1bde5f7a.vercel.app
 
