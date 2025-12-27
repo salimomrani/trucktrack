@@ -2,7 +2,10 @@ name: CI
 
 on:
   push:
-    branches: ['**']
+    branches:
+      - main
+      - master
+      - develop
   pull_request:
     branches: [master, main]
   workflow_dispatch:
@@ -30,10 +33,36 @@ jobs:
             mobile:
               - 'mobile-expo/**'
 
+  # Build shared module once (avoid rebuilding N times in matrix)
+  backend-build:
+    name: Backend Build
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+          cache: 'maven'
+
+      - name: Build shared module
+        working-directory: backend
+        run: mvn install -pl shared -am -DskipTests
+
+      - name: Cache built shared module
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.m2/repository/com/trucktrack/shared
+          key: shared-module-${{ github.sha }}
+
   # Backend tests (matrix for all microservices)
   backend:
     name: Backend - ${{ matrix.service }}
-    needs: changes
+    needs: [changes, backend-build]
     if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
 
@@ -71,9 +100,11 @@ jobs:
           distribution: 'corretto'
           cache: 'maven'
 
-      - name: Build shared module
-        working-directory: backend
-        run: mvn install -pl shared -am -DskipTests -q
+      - name: Restore shared module from cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.m2/repository/com/trucktrack/shared
+          key: shared-module-${{ github.sha }}
 
       - name: Test ${{ matrix.service }}
         working-directory: backend/${{ matrix.service }}
@@ -82,7 +113,6 @@ jobs:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/testdb
           SPRING_DATASOURCE_USERNAME: testuser
           SPRING_DATASOURCE_PASSWORD: testpass
-          SPRING_DATASOURCE_DRIVER: org.postgresql.Driver
 
       - name: Upload coverage
         if: always()
@@ -263,7 +293,7 @@ jobs:
   # Summary job
   summary:
     name: Summary
-    needs: [changes, backend, frontend, mobile, sonarcloud]
+    needs: [changes, backend-build, backend, frontend, mobile, sonarcloud]
     if: always()
     runs-on: ubuntu-latest
     steps:
