@@ -1,7 +1,8 @@
 # Truck Track - GPS Fleet Tracking System
 
-![CI](https://github.com/salimomrani/truck_track/actions/workflows/ci.yml/badge.svg)
-![Docker Build](https://github.com/salimomrani/truck_track/actions/workflows/docker-build.yml/badge.svg)
+![CI](https://github.com/salimomrani/trucktrack/actions/workflows/ci.yml/badge.svg)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=salimomrani_trucktrack&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=salimomrani_trucktrack)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=salimomrani_trucktrack&metric=coverage)](https://sonarcloud.io/summary/new_code?id=salimomrani_trucktrack)
 [![Vercel](https://img.shields.io/badge/Vercel-Deployed-black?logo=vercel)](https://trucktrack-salims-projects-1bde5f7a.vercel.app)
 
 **Live Demo:** https://trucktrack-salims-projects-1bde5f7a.vercel.app
