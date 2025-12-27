@@ -242,6 +242,10 @@ jobs:
           name: frontend-coverage
           path: frontend/coverage/
 
+      - name: Build backend for SonarCloud
+        working-directory: backend
+        run: mvn compile -DskipTests -q
+
       - name: Cache SonarCloud packages
         uses: actions/cache@v4
         with:
