@@ -1,29 +1,40 @@
+// Profile Component Styles - Modern UI Redesign
+// Feature 017: Professional Blue Theme with Flat Design
+// T046: Update profile form
+
 @use '../../../styles/theme' as theme;
 
 .profile-container {
-  padding: theme.$spacing-lg;
+  padding: theme.$space-6;
   max-width: 800px;
   margin: 0 auto;
   min-height: calc(100vh - 64px);
+  background-color: theme.$color-background-gray;
 }
 
 .error-card {
+  background: white;
+  border: 1px solid theme.$color-danger-100;
+  border-radius: theme.$radius-lg;
+  box-shadow: theme.$shadow-sm;
+
   mat-card-content {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: theme.$spacing-md;
-    padding: theme.$spacing-xl;
+    gap: theme.$space-4;
+    padding: theme.$space-8;
     text-align: center;
 
     mat-icon {
       font-size: 48px;
       width: 48px;
       height: 48px;
+      color: theme.$color-danger-500;
     }
 
     p {
-      color: theme.$color-text-secondary;
+      color: theme.$color-gray-500;
       margin: 0;
     }
   }
@@ -32,16 +43,21 @@
 .profile-content {
   display: flex;
   flex-direction: column;
-  gap: theme.$spacing-lg;
+  gap: theme.$space-6;
 }
 
 .profile-card {
+  background: white;
+  border: 1px solid theme.$color-gray-100;
+  border-radius: theme.$radius-lg;
+  box-shadow: theme.$shadow-sm;
+
   .profile-avatar {
     background: theme.$gradient-primary;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
+    border-radius: theme.$radius-full;
     width: 56px;
     height: 56px;
 
@@ -56,7 +72,8 @@
   mat-card-title {
     font-size: theme.$font-size-xl;
     font-weight: theme.$font-weight-semibold;
-    margin-bottom: theme.$spacing-xs;
+    margin-bottom: theme.$space-1;
+    color: theme.$color-gray-800;
   }
 
   mat-card-subtitle {
@@ -66,13 +83,13 @@
 }
 
 .profile-info {
-  margin-top: theme.$spacing-md;
+  margin-top: theme.$space-4;
 
   .info-row {
     display: flex;
     align-items: center;
-    gap: theme.$spacing-md;
-    padding: theme.$spacing-md 0;
+    gap: theme.$space-4;
+    padding: theme.$space-4 0;
 
     mat-icon {
       color: theme.$color-primary-500;
@@ -82,16 +99,16 @@
     .info-content {
       display: flex;
       flex-direction: column;
-      gap: theme.$spacing-xs;
+      gap: theme.$space-1;
 
       .info-label {
         font-size: theme.$font-size-sm;
-        color: theme.$color-text-secondary;
+        color: theme.$color-gray-500;
       }
 
       .info-value {
         font-size: theme.$font-size-base;
-        color: theme.$color-text-primary;
+        color: theme.$color-gray-800;
         font-weight: theme.$font-weight-medium;
       }
     }
@@ -99,14 +116,19 @@
 }
 
 .password-card {
+  background: white;
+  border: 1px solid theme.$color-gray-100;
+  border-radius: theme.$radius-lg;
+  box-shadow: theme.$shadow-sm;
+
   mat-card-header {
     mat-icon[mat-card-avatar] {
-      background: theme.$color-warning-100;
-      color: theme.$color-warning-700;
+      background: theme.$color-warning-50;
+      color: theme.$color-warning-600;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 50%;
+      border-radius: theme.$radius-full;
       width: 40px;
       height: 40px;
       font-size: 20px;
@@ -114,13 +136,13 @@
   }
 
   mat-card-content {
-    padding-top: theme.$spacing-lg;
+    padding-top: theme.$space-6;
   }
 
   form {
     display: flex;
     flex-direction: column;
-    gap: theme.$spacing-sm;
+    gap: theme.$space-2;
   }
 
   .full-width {
@@ -130,13 +152,13 @@
   .form-actions {
     display: flex;
     justify-content: flex-end;
-    margin-top: theme.$spacing-md;
+    margin-top: theme.$space-4;
 
     button {
       min-width: 160px;
 
       mat-icon {
-        margin-right: theme.$spacing-xs;
+        margin-right: theme.$space-1;
       }
 
       mat-spinner {
@@ -149,7 +171,7 @@
 // Responsive adjustments
 @media (max-width: 600px) {
   .profile-container {
-    padding: theme.$spacing-md;
+    padding: theme.$space-4;
   }
 
   .profile-card {

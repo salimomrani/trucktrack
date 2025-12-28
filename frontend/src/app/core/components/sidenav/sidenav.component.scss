@@ -1,8 +1,10 @@
-// Sidenav component styles - Operations navigation only
-// Simple CSS approach - no Material overrides needed
+// Sidenav Component Styles - Modern UI Redesign
+// Feature 017: Professional Blue Theme with Flat Design
+// T020: Update sidenav styles
+
+@use '../../../../styles/theme' as theme;
 
 $sidenav-mini-width: 56px;
-$primary-color: #3f51b5;
 
 // Sidenav panel
 .sidenav-panel {
@@ -10,15 +12,16 @@ $primary-color: #3f51b5;
   flex-direction: column;
   height: 100%;
   width: 100%;
-  background-color: #fafafa;
+  background-color: white;
+  border-right: 1px solid theme.$color-gray-100;
 }
 
 // Navigation container
 .sidenav-nav {
   display: flex;
   flex-direction: column;
-  padding: 8px 0;
-  gap: 4px;
+  padding: theme.$space-2 0;
+  gap: theme.$space-1;
 }
 
 // ============================
@@ -28,33 +31,33 @@ $primary-color: #3f51b5;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  margin: 0 auto;
-  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  margin: theme.$space-1 auto;
+  border-radius: theme.$radius-md;
   text-decoration: none;
-  color: rgba(0, 0, 0, 0.7);
+  color: theme.$color-gray-600;
   position: relative;
-  transition: all 150ms ease;
+  transition: all theme.$transition-base;
 
   mat-icon {
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
   }
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.04);
-    color: rgba(0, 0, 0, 0.87);
+    background-color: theme.$color-gray-50;
+    color: theme.$color-gray-800;
   }
 
   &.active-link {
-    background-color: rgba($primary-color, 0.12);
-    color: $primary-color;
+    background-color: theme.$color-primary-50;
+    color: theme.$color-primary-700;
   }
 
   &:focus-visible {
-    outline: 2px solid $primary-color;
+    outline: 2px solid theme.$color-primary-500;
     outline-offset: 2px;
   }
 }
@@ -67,11 +70,11 @@ $primary-color: #3f51b5;
   min-width: 16px;
   height: 16px;
   padding: 0 4px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #ff5252 0%, #f44336 100%);
+  border-radius: theme.$radius-full;
+  background-color: theme.$color-danger-500;
   color: white;
   font-size: 9px;
-  font-weight: 700;
+  font-weight: theme.$font-weight-semibold;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -83,54 +86,61 @@ $primary-color: #3f51b5;
 .nav-item-full {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 12px 16px;
+  gap: theme.$space-3;
+  padding: theme.$space-3 theme.$space-4;
+  margin: 0 theme.$space-2;
+  border-radius: theme.$radius-md;
   text-decoration: none;
-  color: rgba(0, 0, 0, 0.7);
+  color: theme.$color-gray-600;
   position: relative;
-  transition: all 150ms ease;
+  transition: all theme.$transition-base;
 
   mat-icon {
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
     flex-shrink: 0;
   }
 
   span {
-    font-size: 14px;
-    font-weight: 400;
+    font-size: theme.$font-size-base;
+    font-weight: theme.$font-weight-normal;
+    color: inherit;
   }
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.04);
+    background-color: theme.$color-gray-50;
+    color: theme.$color-gray-800;
   }
 
   &.active-link {
-    background-color: rgba($primary-color, 0.08);
+    background-color: theme.$color-primary-50;
+    color: theme.$color-primary-700;
 
     mat-icon, span {
-      color: $primary-color;
+      color: theme.$color-primary-700;
     }
 
     span {
-      font-weight: 500;
+      font-weight: theme.$font-weight-medium;
     }
 
+    // Active indicator bar
     &::before {
       content: '';
       position: absolute;
       left: 0;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-      background-color: $primary-color;
+      top: theme.$space-2;
+      bottom: theme.$space-2;
+      width: 3px;
+      border-radius: 0 2px 2px 0;
+      background-color: theme.$color-primary-700;
     }
   }
 
   &:focus-visible {
-    outline: 2px solid $primary-color;
-    outline-offset: -2px;
+    outline: 2px solid theme.$color-primary-500;
+    outline-offset: 2px;
   }
 }
 
@@ -139,13 +149,30 @@ $primary-color: #3f51b5;
   margin-left: auto;
   min-width: 20px;
   height: 20px;
-  padding: 0 6px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #ff5252 0%, #f44336 100%);
+  padding: 0 theme.$space-2;
+  border-radius: theme.$radius-full;
+  background-color: theme.$color-danger-500;
   color: white;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: theme.$font-size-xs;
+  font-weight: theme.$font-weight-semibold;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+// Section divider (if needed)
+.nav-divider {
+  height: 1px;
+  background-color: theme.$color-gray-100;
+  margin: theme.$space-2 theme.$space-4;
+}
+
+// Section label (if needed)
+.nav-section-label {
+  padding: theme.$space-3 theme.$space-4 theme.$space-2;
+  font-size: theme.$font-size-xs;
+  font-weight: theme.$font-weight-medium;
+  color: theme.$color-gray-400;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }

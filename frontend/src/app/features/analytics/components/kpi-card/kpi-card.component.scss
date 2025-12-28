@@ -1,13 +1,21 @@
+// KPI Card Component Styles - Modern UI Redesign
+// Feature 017: Professional Blue Theme with Flat Design
+// T024: Update chart container styles
+
 @use '../../../../../styles/theme' as theme;
 
 .kpi-card {
   height: 100%;
   min-height: 120px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: white;
+  border: 1px solid theme.$color-gray-100;
+  border-radius: theme.$radius-lg;
+  box-shadow: theme.$shadow-sm;
+  transition: all theme.$transition-base;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: theme.$shadow-md;
+    border-color: theme.$color-gray-200;
   }
 
   &.loading {
@@ -21,14 +29,14 @@
 }
 
 mat-card-content {
-  padding: theme.$spacing-md;
+  padding: theme.$space-4;
 }
 
 .kpi-header {
   display: flex;
   align-items: center;
-  gap: theme.$spacing-sm;
-  margin-bottom: theme.$spacing-sm;
+  gap: theme.$space-2;
+  margin-bottom: theme.$space-2;
 
   mat-icon {
     font-size: 20px;
@@ -58,7 +66,7 @@ mat-card-content {
 
   .kpi-label {
     font-size: theme.$font-size-sm;
-    color: theme.$color-text-secondary;
+    color: theme.$color-gray-500;
     font-weight: theme.$font-weight-medium;
   }
 }
@@ -66,24 +74,24 @@ mat-card-content {
 .kpi-value {
   display: flex;
   align-items: baseline;
-  gap: theme.$spacing-xs;
+  gap: theme.$space-1;
 
   .value {
     font-size: theme.$font-size-2xl;
     font-weight: theme.$font-weight-bold;
-    color: theme.$color-text-primary;
+    color: theme.$color-gray-800;
   }
 
   .unit {
     font-size: theme.$font-size-sm;
-    color: theme.$color-text-secondary;
+    color: theme.$color-gray-500;
   }
 }
 
 .kpi-subtitle {
-  margin-top: theme.$spacing-xs;
+  margin-top: theme.$space-1;
   font-size: theme.$font-size-xs;
-  color: theme.$color-text-secondary;
+  color: theme.$color-gray-500;
 }
 
 .loading-state {
@@ -106,28 +114,28 @@ mat-card-content {
 .skeleton-state {
   display: flex;
   flex-direction: column;
-  gap: theme.$spacing-sm;
+  gap: theme.$space-2;
 }
 
 .skeleton-header {
   display: flex;
   align-items: center;
-  gap: theme.$spacing-sm;
+  gap: theme.$space-2;
 }
 
 .skeleton-icon,
 .skeleton-label,
 .skeleton-value {
-  background: linear-gradient(90deg, #f0f0f0 8%, #e0e0e0 18%, #f0f0f0 33%);
+  background: linear-gradient(90deg, theme.$color-gray-100 8%, theme.$color-gray-200 18%, theme.$color-gray-100 33%);
   background-size: 200px 100%;
   animation: shimmer 1.5s infinite;
-  border-radius: theme.$border-radius-sm;
+  border-radius: theme.$radius-sm;
 }
 
 .skeleton-icon {
   width: 20px;
   height: 20px;
-  border-radius: 50%;
+  border-radius: theme.$radius-full;
 }
 
 .skeleton-label {
@@ -138,5 +146,5 @@ mat-card-content {
 .skeleton-value {
   width: 120px;
   height: 32px;
-  margin-top: theme.$spacing-xs;
+  margin-top: theme.$space-1;
 }

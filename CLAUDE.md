@@ -21,6 +21,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-23
 - PostgreSQL 15+ (DeliveryProof, ProofPhoto tables), Images en Base64 dans PostgreSQL (015-proof-of-delivery)
 - Java 17 (Spring Boot 3.2.x) + Spring Boot Starter, Spring Kafka, SendGrid SDK, Firebase Admin SDK, Thymeleaf, Resilience4j (016-016-email-notifications)
 - PostgreSQL 15+ (tables notification_logs, user_notification_preferences, push_tokens, notification_templates, email_recipients) (016-016-email-notifications)
+- TypeScript 5.9 with Angular 21.0.6 + Angular Material 21.0.5, NgRx 21.x, RxJS 7.8.2, Leaflet 1.9.4, ngx-charts 23.1.0 (017-modern-ui-redesign)
+- N/A (visual styling only, no data model changes) (017-modern-ui-redesign)
 
 ### Backend
 - Java 17 + Spring Boot 3.2.1, Spring Security, Spring Data JPA
@@ -51,9 +53,9 @@ npm test && npm run lint
 - **Frontend**: TypeScript 5.9 with Angular 21 conventions (signals, block control flow)
 
 ## Recent Changes
+- 017-modern-ui-redesign: Added TypeScript 5.9 with Angular 21.0.6 + Angular Material 21.0.5, NgRx 21.x, RxJS 7.8.2, Leaflet 1.9.4, ngx-charts 23.1.0
 - 016-016-email-notifications: Added Java 17 (Spring Boot 3.2.x) + Spring Boot Starter, Spring Kafka, SendGrid SDK, Firebase Admin SDK, Thymeleaf, Resilience4j
 - 015-proof-of-delivery: Added Java 17 (backend), TypeScript 5.x (mobile Expo, frontend Angular)
-- 014-frontend-tests: Added TypeScript 5.4 avec Angular 17 + Jasmine, Karma, Angular Testing Utilities
   - Block control flow (`@if`/`@for`) now default
   - Signals for reactive state
   - Esbuild for faster builds

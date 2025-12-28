@@ -1,8 +1,12 @@
+// Entity Filter Component Styles - Modern UI Redesign
+// Feature 017: Professional Blue Theme with Flat Design
+// T024: Update chart container styles
+
 @use '../../../../../styles/theme' as theme;
 
 .entity-filter {
   display: flex;
-  gap: theme.$spacing-md;
+  gap: theme.$space-4;
   align-items: flex-start;
 }
 
@@ -15,7 +19,7 @@
 }
 
 .license-plate {
-  color: theme.$color-text-secondary;
+  color: theme.$color-gray-500;
   font-size: theme.$font-size-sm;
 }
 

@@ -1,88 +1,110 @@
+// Stats Dashboard Component Styles - Modern UI Redesign
+// Feature 017: Professional Blue Theme with Flat Design
+// T023: Update dashboard stats styles
+
+@use '../../../styles/theme' as theme;
+
 .dashboard-container {
-  padding: 24px;
+  padding: theme.$space-6;
   max-width: 1200px;
   margin: 0 auto;
+  background-color: theme.$color-background-gray;
+  min-height: calc(100vh - 64px);
 }
 
 .page-header {
-  margin-bottom: 24px;
-}
+  margin-bottom: theme.$space-6;
 
-.page-header h1 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 500;
+  h1 {
+    margin: 0;
+    font-size: theme.$font-size-3xl;
+    font-weight: theme.$font-weight-semibold;
+    color: theme.$color-gray-800;
+    letter-spacing: -0.01em;
+  }
 }
 
 .subtitle {
-  margin: 4px 0 0 0;
-  color: #757575;
+  margin: theme.$space-1 0 0 0;
+  color: theme.$color-gray-500;
+  font-size: theme.$font-size-base;
 }
 
 .loading-container {
   display: flex;
   justify-content: center;
-  padding: 48px;
+  padding: theme.$space-12;
 }
 
-.error-card mat-card-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 24px;
-  color: #f44336;
+.error-card {
+  background: white;
+  border: 1px solid theme.$color-danger-100;
+  border-radius: theme.$radius-lg;
+
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: theme.$space-6;
+    color: theme.$color-danger-500;
+  }
 }
 
+// Stats Grid
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: theme.$space-4;
+  margin-bottom: theme.$space-6;
 }
 
 .stat-card {
   display: flex;
   align-items: center;
-  padding: 20px;
-  gap: 16px;
+  padding: theme.$space-5;
+  gap: theme.$space-4;
   position: relative;
-}
+  background: white;
+  border: 1px solid theme.$color-gray-100;
+  border-radius: theme.$radius-lg;
+  box-shadow: theme.$shadow-sm;
+  transition: all theme.$transition-base;
 
-.stat-card.clickable {
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
+  &.clickable {
+    cursor: pointer;
 
-.stat-card.clickable:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
+    &:hover {
+      box-shadow: theme.$shadow-md;
+      border-color: theme.$color-gray-200;
+    }
 
-.stat-card.clickable:active {
-  transform: translateY(0);
+    &:active {
+      background-color: theme.$color-gray-50;
+    }
+  }
 }
 
 .nav-arrow {
   margin-left: auto;
-  color: #bdbdbd;
-  transition: color 0.2s ease, transform 0.2s ease;
+  color: theme.$color-gray-300;
+  transition: all theme.$transition-base;
 }
 
 .stat-card.clickable:hover .nav-arrow {
-  color: #757575;
+  color: theme.$color-gray-500;
   transform: translateX(4px);
 }
 
 .stat-icon {
-  font-size: 40px;
-  width: 40px;
-  height: 40px;
-}
+  font-size: 36px;
+  width: 36px;
+  height: 36px;
 
-.stat-icon.users { color: #2196f3; }
-.stat-icon.trucks { color: #ff9800; }
-.stat-icon.groups { color: #9c27b0; }
-.stat-icon.alerts { color: #607d8b; }
+  &.users { color: theme.$color-primary-500; }
+  &.trucks { color: theme.$color-warning-500; }
+  &.groups { color: theme.$color-secondary-500; }
+  &.alerts { color: theme.$color-gray-500; }
+}
 
 .stat-content {
   display: flex;
@@ -90,78 +112,101 @@
 }
 
 .stat-value {
-  font-size: 28px;
-  font-weight: 600;
-  color: #212121;
+  font-size: theme.$font-size-2xl;
+  font-weight: theme.$font-weight-semibold;
+  color: theme.$color-gray-800;
+  line-height: theme.$line-height-tight;
 }
 
 .stat-label {
-  font-size: 14px;
-  color: #757575;
+  font-size: theme.$font-size-sm;
+  color: theme.$color-gray-500;
+  margin-top: theme.$space-1;
 }
 
 .stat-sub {
-  font-size: 12px;
-  color: #9e9e9e;
+  font-size: theme.$font-size-xs;
+  color: theme.$color-gray-400;
 }
 
-.status-card, .actions-card, .mileage-card {
-  margin-bottom: 24px;
+// Cards
+.status-card,
+.actions-card,
+.mileage-card,
+.trips-card {
+  margin-bottom: theme.$space-6;
+  background: white;
+  border: 1px solid theme.$color-gray-100;
+  border-radius: theme.$radius-lg;
+  box-shadow: theme.$shadow-sm;
 }
 
+// Status Grid
 .status-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  padding: 16px 0;
+  gap: theme.$space-4;
+  padding: theme.$space-4;
 }
 
 .status-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 16px;
-  border-radius: 8px;
-}
+  padding: theme.$space-4;
+  border-radius: theme.$radius-lg;
+  transition: all theme.$transition-base;
 
-.status-item.active { background: #e8f5e9; }
-.status-item.idle { background: #fff3e0; }
-.status-item.offline { background: #fafafa; }
-.status-item.out-of-service { background: #ffebee; }
+  &.active {
+    background: theme.$color-success-50;
+  }
+  &.idle {
+    background: theme.$color-warning-50;
+  }
+  &.offline {
+    background: theme.$color-gray-50;
+  }
+  &.out-of-service {
+    background: theme.$color-danger-50;
+  }
+}
 
 .status-count {
-  font-size: 24px;
-  font-weight: 600;
-}
+  font-size: theme.$font-size-2xl;
+  font-weight: theme.$font-weight-semibold;
+  line-height: theme.$line-height-tight;
 
-.status-item.active .status-count { color: #4caf50; }
-.status-item.idle .status-count { color: #ff9800; }
-.status-item.offline .status-count { color: #9e9e9e; }
-.status-item.out-of-service .status-count { color: #f44336; }
+  .status-item.active & { color: theme.$color-success-600; }
+  .status-item.idle & { color: theme.$color-warning-600; }
+  .status-item.offline & { color: theme.$color-gray-500; }
+  .status-item.out-of-service & { color: theme.$color-danger-600; }
+}
 
 .status-label {
-  font-size: 12px;
-  color: #757575;
-  margin-top: 4px;
+  font-size: theme.$font-size-sm;
+  color: theme.$color-gray-500;
+  margin-top: theme.$space-1;
 }
 
+// Actions Grid
 .actions-grid {
   display: flex;
-  gap: 16px;
+  gap: theme.$space-4;
   flex-wrap: wrap;
-  padding: 16px 0;
+  padding: theme.$space-4;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: theme.$space-2;
+  }
 }
 
-.actions-grid button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
+// Mileage Summary
 .mileage-summary {
   display: flex;
-  gap: 48px;
-  padding: 16px 0;
+  gap: theme.$space-12;
+  padding: theme.$space-4;
 }
 
 .mileage-stat {
@@ -170,27 +215,25 @@
 }
 
 .mileage-value {
-  font-size: 24px;
-  font-weight: 600;
-  color: #212121;
+  font-size: theme.$font-size-2xl;
+  font-weight: theme.$font-weight-semibold;
+  color: theme.$color-gray-800;
 }
 
 .mileage-label {
-  font-size: 12px;
-  color: #757575;
+  font-size: theme.$font-size-sm;
+  color: theme.$color-gray-500;
 }
 
 // Trip Analytics Widget
 .trips-card {
-  margin-bottom: 24px;
-
   &.clickable {
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all theme.$transition-base;
 
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      box-shadow: theme.$shadow-md;
+      border-color: theme.$color-gray-200;
     }
   }
 
@@ -198,41 +241,68 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: theme.$space-2;
+    padding: theme.$space-4 theme.$space-4 0;
   }
 
   mat-card-title {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: theme.$space-2;
     margin: 0;
+    font-size: theme.$font-size-lg;
+    font-weight: theme.$font-weight-semibold;
+    color: theme.$color-gray-800;
 
     mat-icon {
-      color: #1976d2;
+      color: theme.$color-primary-700;
     }
   }
 
   .header-action {
     display: flex;
     align-items: center;
-    gap: 4px;
-    color: #757575;
-    font-size: 14px;
-    transition: color 0.2s ease;
+    gap: theme.$space-1;
+    color: theme.$color-gray-500;
+    font-size: theme.$font-size-sm;
+    transition: color theme.$transition-base;
 
     mat-icon {
       font-size: 18px;
       width: 18px;
       height: 18px;
-      transition: transform 0.2s ease;
+      transition: transform theme.$transition-base;
     }
   }
 
   &:hover .header-action {
-    color: #1976d2;
+    color: theme.$color-primary-700;
 
     mat-icon {
       transform: translateX(4px);
     }
+  }
+}
+
+// Responsive
+@media (max-width: 900px) {
+  .status-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-container {
+    padding: theme.$space-4;
+  }
+
+  .status-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: theme.$space-2;
+  }
+
+  .mileage-summary {
+    flex-direction: column;
+    gap: theme.$space-4;
   }
 }
