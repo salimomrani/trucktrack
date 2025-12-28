@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,11 +8,36 @@ import {
   ActivityIndicator,
   Alert,
   RefreshControl,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { TripService, Trip, TripStatus, TripStatusHistory } from '../services/api';
+import { useNavigation, useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { SvgXml } from 'react-native-svg';
+import { TripService, Trip, TripStatus, TripStatusHistory, ProofOfDeliveryService, ProofResponse } from '../services/api';
+
+// Helper to decode base64 SVG data URI to XML string
+const decodeSvgDataUri = (dataUri: string): string | null => {
+  try {
+    if (!dataUri.startsWith('data:image/svg+xml;base64,')) {
+      return null;
+    }
+    const base64 = dataUri.replace('data:image/svg+xml;base64,', '');
+    // Decode base64 to string
+    const decoded = atob(base64);
+    return decoded;
+  } catch (error) {
+    console.error('Error decoding SVG data URI:', error);
+    return null;
+  }
+};
+
+// Navigation types
+type RootStackParamList = {
+  TripDetail: { tripId: string };
+  Signature: { tripId: string; tripOrigin: string; tripDestination: string };
+};
 
 // Route params type
 type TripDetailRouteParams = {
@@ -28,12 +53,13 @@ const statusConfig: Record<TripStatus, { color: string; icon: keyof typeof Ionic
 };
 
 export default function TripDetailScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<TripDetailRouteParams, 'TripDetail'>>();
   const { tripId } = route.params;
 
   const [trip, setTrip] = useState<Trip | null>(null);
   const [history, setHistory] = useState<TripStatusHistory[]>([]);
+  const [proof, setProof] = useState<ProofResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
@@ -42,12 +68,14 @@ export default function TripDetailScreen() {
   const fetchTripDetails = useCallback(async () => {
     try {
       setError(null);
-      const [tripData, historyData] = await Promise.all([
+      const [tripData, historyData, proofData] = await Promise.all([
         TripService.getTripById(tripId),
         TripService.getTripHistory(tripId),
+        ProofOfDeliveryService.getProofByTripId(tripId),
       ]);
       setTrip(tripData);
       setHistory(historyData);
+      setProof(proofData);
     } catch (err) {
       console.error('Failed to fetch trip details:', err);
       setError('Unable to load trip details. Pull to retry.');
@@ -56,9 +84,12 @@ export default function TripDetailScreen() {
     }
   }, [tripId]);
 
-  useEffect(() => {
-    fetchTripDetails();
-  }, [fetchTripDetails]);
+  // Refresh trip details every time screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      fetchTripDetails();
+    }, [fetchTripDetails])
+  );
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -92,30 +123,15 @@ export default function TripDetailScreen() {
     );
   };
 
-  const handleCompleteTrip = async () => {
-    Alert.alert(
-      'Complete Trip',
-      'Have you completed the delivery?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Complete',
-          onPress: async () => {
-            setActionLoading(true);
-            try {
-              const updatedTrip = await TripService.completeTrip(tripId, 'Delivery completed successfully');
-              setTrip(updatedTrip);
-              Alert.alert('Success', 'Trip completed successfully!');
-              await fetchTripDetails(); // Refresh history
-            } catch (err: any) {
-              Alert.alert('Error', err.message || 'Failed to complete trip');
-            } finally {
-              setActionLoading(false);
-            }
-          },
-        },
-      ]
-    );
+  // T025: Navigate to SignatureScreen for POD capture
+  const handleConfirmDelivery = () => {
+    if (!trip) return;
+
+    navigation.navigate('Signature', {
+      tripId: trip.id,
+      tripOrigin: trip.origin,
+      tripDestination: trip.destination,
+    });
   };
 
   const formatDate = (dateString: string | null) => {
@@ -275,6 +291,115 @@ export default function TripDetailScreen() {
           </View>
         )}
 
+        {/* Proof of Delivery */}
+        {proof && (
+          <View style={styles.card}>
+            <View style={styles.proofHeader}>
+              <Ionicons
+                name={proof.status === 'SIGNED' ? 'checkmark-circle' : 'close-circle'}
+                size={24}
+                color={proof.status === 'SIGNED' ? '#28A745' : '#dc3545'}
+              />
+              <Text style={styles.cardTitle}>Preuve de livraison</Text>
+            </View>
+
+            {/* Status Badge */}
+            <View style={[
+              styles.proofStatusBadge,
+              { backgroundColor: proof.status === 'SIGNED' ? '#e8f5e9' : '#ffebee' }
+            ]}>
+              <Text style={[
+                styles.proofStatusText,
+                { color: proof.status === 'SIGNED' ? '#28A745' : '#dc3545' }
+              ]}>
+                {proof.statusDisplayName}
+              </Text>
+            </View>
+
+            {/* Signer Name */}
+            {proof.signerName && (
+              <View style={styles.detailRow}>
+                <Ionicons name="person-outline" size={20} color="#666" />
+                <Text style={styles.detailLabel}>Signataire:</Text>
+                <Text style={styles.detailValue}>{proof.signerName}</Text>
+              </View>
+            )}
+
+            {/* Refusal Reason */}
+            {proof.refusalReason && (
+              <View style={styles.refusalContainer}>
+                <Ionicons name="warning-outline" size={20} color="#dc3545" />
+                <Text style={styles.refusalText}>{proof.refusalReason}</Text>
+              </View>
+            )}
+
+            {/* Captured At */}
+            <View style={styles.detailRow}>
+              <Ionicons name="time-outline" size={20} color="#666" />
+              <Text style={styles.detailLabel}>Date:</Text>
+              <Text style={styles.detailValue}>{formatDate(proof.capturedAt)}</Text>
+            </View>
+
+            {/* GPS Location */}
+            <View style={styles.detailRow}>
+              <Ionicons name="location-outline" size={20} color="#666" />
+              <Text style={styles.detailLabel}>GPS:</Text>
+              <Text style={styles.detailValue}>
+                {proof.latitude.toFixed(6)}, {proof.longitude.toFixed(6)}
+              </Text>
+            </View>
+
+            {/* Signature Image */}
+            <View style={styles.signatureContainer}>
+              <Text style={styles.signatureLabel}>Signature</Text>
+              <View style={styles.signatureImageContainer}>
+                {proof.signatureImage && decodeSvgDataUri(proof.signatureImage) ? (
+                  <SvgXml
+                    xml={decodeSvgDataUri(proof.signatureImage)!}
+                    width="100%"
+                    height={150}
+                  />
+                ) : proof.signatureImage ? (
+                  <Image
+                    source={{ uri: proof.signatureImage }}
+                    style={styles.signatureImage}
+                    resizeMode="contain"
+                  />
+                ) : (
+                  <Text style={styles.noSignatureText}>Signature non disponible</Text>
+                )}
+              </View>
+            </View>
+
+            {/* Photos */}
+            {proof.photos && proof.photos.length > 0 && (
+              <View style={styles.photosContainer}>
+                <Text style={styles.photosLabel}>Photos ({proof.photos.length})</Text>
+                <View style={styles.photosGrid}>
+                  {proof.photos.map((photo, index) => (
+                    <View key={photo.id} style={styles.photoThumbnailContainer}>
+                      <Image
+                        source={{ uri: `data:image/jpeg;base64,${photo.photoImage}` }}
+                        style={styles.photoThumbnail}
+                        resizeMode="cover"
+                      />
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {/* Driver Info */}
+            {proof.createdByName && (
+              <View style={styles.detailRow}>
+                <Ionicons name="car-outline" size={20} color="#666" />
+                <Text style={styles.detailLabel}>Chauffeur:</Text>
+                <Text style={styles.detailValue}>{proof.createdByName}</Text>
+              </View>
+            )}
+          </View>
+        )}
+
         {/* Action Buttons */}
         {(canStart || canComplete) && (
           <View style={styles.actionContainer}>
@@ -298,15 +423,15 @@ export default function TripDetailScreen() {
             {canComplete && (
               <TouchableOpacity
                 style={[styles.actionButton, styles.completeButton]}
-                onPress={handleCompleteTrip}
+                onPress={handleConfirmDelivery}
                 disabled={actionLoading}
               >
                 {actionLoading ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
                   <>
-                    <Ionicons name="checkmark-circle" size={24} color="#fff" />
-                    <Text style={styles.actionButtonText}>Complete Trip</Text>
+                    <Ionicons name="create-outline" size={24} color="#fff" />
+                    <Text style={styles.actionButtonText}>Confirmer livraison</Text>
                   </>
                 )}
               </TouchableOpacity>
@@ -550,5 +675,89 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginLeft: 8,
+  },
+  // Proof of Delivery styles
+  proofHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    gap: 8,
+  },
+  proofStatusBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    marginBottom: 16,
+  },
+  proofStatusText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  refusalContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: '#ffebee',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  refusalText: {
+    fontSize: 14,
+    color: '#dc3545',
+    marginLeft: 8,
+    flex: 1,
+  },
+  signatureContainer: {
+    marginTop: 16,
+    marginBottom: 16,
+  },
+  signatureLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
+  },
+  signatureImageContainer: {
+    backgroundColor: '#fff',
+    borderWidth: 2,
+    borderColor: '#e0e0e0',
+    borderStyle: 'dashed',
+    borderRadius: 8,
+    padding: 8,
+    alignItems: 'center',
+  },
+  signatureImage: {
+    width: '100%',
+    height: 150,
+  },
+  noSignatureText: {
+    fontSize: 14,
+    color: '#999',
+    fontStyle: 'italic',
+    padding: 20,
+  },
+  photosContainer: {
+    marginTop: 16,
+  },
+  photosLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
+  },
+  photosGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  photoThumbnailContainer: {
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  photoThumbnail: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
   },
 });
