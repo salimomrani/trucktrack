@@ -222,4 +222,111 @@ export class NotificationService {
   resetUnreadCount(): void {
     this.unreadCount.set(0);
   }
+
+  // ============================================
+  // Feature 016: Notification Preferences
+  // ============================================
+
+  private readonly preferencesUrl = `${environment.apiUrl}/notification/api/notifications/preferences`;
+  private readonly pushTokenUrl = `${environment.apiUrl}/notification/api/notifications/push-tokens`;
+  private readonly historyUrl = `${environment.apiUrl}/notification/api/notifications/history`;
+
+  /**
+   * Get current user's notification preferences
+   */
+  getPreferences(): Observable<NotificationPreference[]> {
+    return this.http.get<NotificationPreference[]>(this.preferencesUrl);
+  }
+
+  /**
+   * Update user notification preferences
+   */
+  updatePreferences(preferences: UpdatePreferenceRequest[]): Observable<NotificationPreference[]> {
+    return this.http.put<NotificationPreference[]>(this.preferencesUrl, preferences);
+  }
+
+  /**
+   * Get notification history
+   */
+  getNotificationHistory(page: number = 0, size: number = 20): Observable<NotificationHistoryPage> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    return this.http.get<NotificationHistoryPage>(this.historyUrl, { params });
+  }
+
+  /**
+   * Mark history notification as read
+   */
+  markHistoryAsRead(notificationId: string): Observable<void> {
+    return this.http.post<void>(`${this.historyUrl}/${notificationId}/read`, null);
+  }
+
+  /**
+   * Get registered push tokens
+   */
+  getPushTokens(): Observable<PushToken[]> {
+    return this.http.get<PushToken[]>(this.pushTokenUrl);
+  }
+
+  /**
+   * Register a new push token
+   */
+  registerPushToken(token: string, deviceType: string, deviceName?: string): Observable<PushToken> {
+    return this.http.post<PushToken>(this.pushTokenUrl, {
+      token,
+      deviceType,
+      deviceName
+    });
+  }
+
+  /**
+   * Unregister a push token
+   */
+  unregisterPushToken(tokenId: string): Observable<void> {
+    return this.http.delete<void>(`${this.pushTokenUrl}/${tokenId}`);
+  }
+}
+
+// Types for notification preferences
+export interface NotificationPreference {
+  id: string;
+  userId: string;
+  eventType: string;
+  emailEnabled: boolean;
+  pushEnabled: boolean;
+}
+
+export interface UpdatePreferenceRequest {
+  eventType: string;
+  emailEnabled: boolean;
+  pushEnabled: boolean;
+}
+
+export interface PushToken {
+  id: string;
+  deviceType: string;
+  deviceName: string;
+  createdAt: string;
+  lastUsedAt: string;
+}
+
+export interface NotificationHistoryPage {
+  content: NotificationHistoryItem[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+}
+
+export interface NotificationHistoryItem {
+  id: string;
+  notificationType: string;
+  channel: string;
+  subject: string;
+  contentPreview: string;
+  status: string;
+  sentAt: string;
+  readAt: string;
 }

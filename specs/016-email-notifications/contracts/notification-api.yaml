@@ -1,0 +1,867 @@
+openapi: 3.0.3
+info:
+  title: TruckTrack Notification Service API
+  description: API for managing notifications, preferences, and push tokens
+  version: 1.0.0
+  contact:
+    name: TruckTrack Team
+
+servers:
+  - url: /api/notifications
+    description: Notification Service
+
+tags:
+  - name: Preferences
+    description: User notification preferences
+  - name: Push Tokens
+    description: Mobile push token management
+  - name: Notifications
+    description: Notification history and management
+  - name: Admin
+    description: Admin endpoints for managing notifications
+  - name: Webhooks
+    description: Webhook endpoints for email providers
+
+paths:
+  # ============================================
+  # User Preferences
+  # ============================================
+  /preferences:
+    get:
+      tags: [Preferences]
+      summary: Get current user's notification preferences
+      operationId: getMyPreferences
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User preferences
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotificationPreference'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    put:
+      tags: [Preferences]
+      summary: Update current user's notification preferences
+      operationId: updateMyPreferences
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/UpdatePreferenceRequest'
+      responses:
+        '200':
+          description: Preferences updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotificationPreference'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ============================================
+  # Push Tokens
+  # ============================================
+  /push-tokens:
+    get:
+      tags: [Push Tokens]
+      summary: Get current user's registered push tokens
+      operationId: getMyPushTokens
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of push tokens
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PushToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      tags: [Push Tokens]
+      summary: Register a new push token
+      operationId: registerPushToken
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterPushTokenRequest'
+      responses:
+        '201':
+          description: Token registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PushToken'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /push-tokens/{tokenId}:
+    delete:
+      tags: [Push Tokens]
+      summary: Unregister a push token
+      operationId: unregisterPushToken
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tokenId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Token deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ============================================
+  # Notification History
+  # ============================================
+  /history:
+    get:
+      tags: [Notifications]
+      summary: Get current user's notification history
+      operationId: getMyNotificationHistory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: channel
+          in: query
+          schema:
+            $ref: '#/components/schemas/NotificationChannel'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/NotificationStatus'
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Notification history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationHistoryPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /history/{notificationId}/read:
+    post:
+      tags: [Notifications]
+      summary: Mark notification as read
+      operationId: markNotificationAsRead
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Notification marked as read
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ============================================
+  # Admin Endpoints
+  # ============================================
+  /admin/notifications:
+    get:
+      tags: [Admin]
+      summary: List all notifications (admin)
+      operationId: listNotifications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/NotificationType'
+        - name: channel
+          in: query
+          schema:
+            $ref: '#/components/schemas/NotificationChannel'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/NotificationStatus'
+        - name: recipientEmail
+          in: query
+          schema:
+            type: string
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Notification list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationHistoryPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/notifications/stats:
+    get:
+      tags: [Admin]
+      summary: Get notification statistics
+      operationId: getNotificationStats
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Notification statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationStats'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/notifications/{notificationId}/resend:
+    post:
+      tags: [Admin]
+      summary: Resend a failed notification
+      operationId: resendNotification
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Notification queued for resend
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationLog'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/templates:
+    get:
+      tags: [Admin]
+      summary: List notification templates
+      operationId: listTemplates
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: channel
+          in: query
+          schema:
+            $ref: '#/components/schemas/NotificationChannel'
+        - name: locale
+          in: query
+          schema:
+            type: string
+            enum: [fr, en]
+      responses:
+        '200':
+          description: Template list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotificationTemplate'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      tags: [Admin]
+      summary: Create a notification template
+      operationId: createTemplate
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTemplateRequest'
+      responses:
+        '201':
+          description: Template created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationTemplate'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/templates/{templateId}:
+    put:
+      tags: [Admin]
+      summary: Update a notification template
+      operationId: updateTemplate
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: templateId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTemplateRequest'
+      responses:
+        '200':
+          description: Template updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationTemplate'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ============================================
+  # Webhooks (for SendGrid)
+  # ============================================
+  /webhooks/sendgrid:
+    post:
+      tags: [Webhooks]
+      summary: SendGrid event webhook
+      description: Receives delivery, bounce, open, and click events from SendGrid
+      operationId: handleSendGridWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/SendGridEvent'
+      responses:
+        '200':
+          description: Events processed
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  # ============================================
+  # Internal Endpoints (Service-to-Service)
+  # ============================================
+  /internal/send:
+    post:
+      tags: [Notifications]
+      summary: Send notification (internal use)
+      description: Called by other services to trigger notifications
+      operationId: sendNotification
+      security:
+        - serviceAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendNotificationRequest'
+      responses:
+        '202':
+          description: Notification queued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationLog'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    serviceAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Service account token
+
+  schemas:
+    # ============================================
+    # Enums
+    # ============================================
+    NotificationType:
+      type: string
+      enum:
+        - DELIVERY_CONFIRMED
+        - TRIP_ASSIGNED
+        - TRIP_REASSIGNED
+        - TRIP_CANCELLED
+        - ETA_30MIN
+        - ETA_10MIN
+        - DAILY_REPORT
+
+    NotificationChannel:
+      type: string
+      enum:
+        - EMAIL
+        - PUSH
+
+    NotificationStatus:
+      type: string
+      enum:
+        - PENDING
+        - SENT
+        - DELIVERED
+        - READ
+        - FAILED
+        - BOUNCED
+
+    DeviceType:
+      type: string
+      enum:
+        - IOS
+        - ANDROID
+
+    RecipientType:
+      type: string
+      enum:
+        - DRIVER
+        - FLEET_MANAGER
+        - DISPATCHER
+        - CLIENT
+
+    # ============================================
+    # Request/Response Schemas
+    # ============================================
+    NotificationPreference:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        eventType:
+          $ref: '#/components/schemas/NotificationType'
+        emailEnabled:
+          type: boolean
+        pushEnabled:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UpdatePreferenceRequest:
+      type: object
+      required:
+        - eventType
+      properties:
+        eventType:
+          $ref: '#/components/schemas/NotificationType'
+        emailEnabled:
+          type: boolean
+        pushEnabled:
+          type: boolean
+
+    PushToken:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        token:
+          type: string
+        deviceType:
+          $ref: '#/components/schemas/DeviceType'
+        deviceName:
+          type: string
+        isActive:
+          type: boolean
+        lastUsedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    RegisterPushTokenRequest:
+      type: object
+      required:
+        - token
+        - deviceType
+      properties:
+        token:
+          type: string
+          minLength: 10
+          maxLength: 500
+        deviceType:
+          $ref: '#/components/schemas/DeviceType'
+        deviceName:
+          type: string
+          maxLength: 100
+
+    NotificationLog:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        notificationType:
+          $ref: '#/components/schemas/NotificationType'
+        channel:
+          $ref: '#/components/schemas/NotificationChannel'
+        recipientId:
+          type: string
+          format: uuid
+        recipientEmail:
+          type: string
+        recipientType:
+          $ref: '#/components/schemas/RecipientType'
+        subject:
+          type: string
+        contentPreview:
+          type: string
+        status:
+          $ref: '#/components/schemas/NotificationStatus'
+        sentAt:
+          type: string
+          format: date-time
+        deliveredAt:
+          type: string
+          format: date-time
+        readAt:
+          type: string
+          format: date-time
+        errorMessage:
+          type: string
+        retryCount:
+          type: integer
+        metadata:
+          type: object
+        createdAt:
+          type: string
+          format: date-time
+
+    NotificationHistoryPage:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationLog'
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+        page:
+          type: integer
+        size:
+          type: integer
+
+    NotificationStats:
+      type: object
+      properties:
+        period:
+          type: object
+          properties:
+            from:
+              type: string
+              format: date-time
+            to:
+              type: string
+              format: date-time
+        totalSent:
+          type: integer
+        byChannel:
+          type: object
+          additionalProperties:
+            type: integer
+        byStatus:
+          type: object
+          additionalProperties:
+            type: integer
+        byType:
+          type: object
+          additionalProperties:
+            type: integer
+        deliveryRate:
+          type: number
+          format: float
+        bounceRate:
+          type: number
+          format: float
+        openRate:
+          type: number
+          format: float
+
+    NotificationTemplate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        channel:
+          $ref: '#/components/schemas/NotificationChannel'
+        subjectTemplate:
+          type: string
+        bodyTemplate:
+          type: string
+        locale:
+          type: string
+          enum: [fr, en]
+        isActive:
+          type: boolean
+        variables:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateTemplateRequest:
+      type: object
+      required:
+        - code
+        - name
+        - channel
+        - bodyTemplate
+      properties:
+        code:
+          type: string
+          minLength: 3
+          maxLength: 50
+        name:
+          type: string
+          minLength: 3
+          maxLength: 100
+        channel:
+          $ref: '#/components/schemas/NotificationChannel'
+        subjectTemplate:
+          type: string
+          maxLength: 255
+        bodyTemplate:
+          type: string
+        locale:
+          type: string
+          enum: [fr, en]
+          default: fr
+        variables:
+          type: array
+          items:
+            type: string
+
+    UpdateTemplateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 100
+        subjectTemplate:
+          type: string
+          maxLength: 255
+        bodyTemplate:
+          type: string
+        isActive:
+          type: boolean
+        variables:
+          type: array
+          items:
+            type: string
+
+    SendNotificationRequest:
+      type: object
+      required:
+        - notificationType
+        - recipientType
+      properties:
+        notificationType:
+          $ref: '#/components/schemas/NotificationType'
+        recipientType:
+          $ref: '#/components/schemas/RecipientType'
+        recipientId:
+          type: string
+          format: uuid
+          description: User ID (for registered users)
+        recipientEmail:
+          type: string
+          format: email
+          description: Email (for clients without account)
+        recipientName:
+          type: string
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationChannel'
+          description: If not specified, uses user preferences
+        variables:
+          type: object
+          description: Template variables
+
+    SendGridEvent:
+      type: object
+      properties:
+        event:
+          type: string
+          enum: [processed, dropped, delivered, deferred, bounce, open, click, spam_report, unsubscribe]
+        email:
+          type: string
+        timestamp:
+          type: integer
+        sg_message_id:
+          type: string
+        reason:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Access denied
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
