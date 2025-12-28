@@ -1,11 +1,19 @@
+// Alerts Chart Component Styles - Modern UI Redesign
+// Feature 017: Professional Blue Theme with Flat Design
+// T024: Update chart container styles
+
 @use '../../../../../styles/theme' as theme;
 
 .chart-card {
   height: 100%;
+  background: white;
+  border: 1px solid theme.$color-gray-100;
+  border-radius: theme.$radius-lg;
+  box-shadow: theme.$shadow-sm;
 }
 
 mat-card-content {
-  padding: theme.$spacing-md;
+  padding: theme.$space-4;
   display: flex;
   justify-content: center;
 }
@@ -19,5 +27,5 @@ mat-card-content {
 }
 
 .empty-state p {
-  color: theme.$color-text-secondary;
+  color: theme.$color-gray-500;
 }

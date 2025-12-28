@@ -12,13 +12,13 @@
 
 .geofence-panel {
   position: fixed;
-  top: 70px;
+  top: 140px; // Below app header (64px) + map header (72px)
   right: -400px;
   width: 380px;
-  height: calc(100vh - 90px);
+  height: calc(100vh - 160px);
   background: white;
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
-  z-index: 999;
+  z-index: 1003; // Above map header
   transition: right 0.3s ease;
   display: flex;
   flex-direction: column;

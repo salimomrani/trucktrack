@@ -1,16 +1,18 @@
-// Navigation optimization - Header compact styles
-// Pattern: Hamburger + Logo + Indicators + User menu
+// Header Component Styles - Modern UI Redesign
+// Feature 017: Professional Blue Theme with Flat Design
+// T019: Update header styles
+
+@use '../../../../styles/theme' as theme;
 
 $breakpoint-mobile: 768px;
-$nav-animation-duration: 250ms;
-$nav-animation-easing: cubic-bezier(0.4, 0, 0.2, 1);
 
 .app-header {
   position: sticky;
   top: 0;
-  z-index: 1000;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: theme.$z-index-fixed;
   height: 64px;
+  background: linear-gradient(135deg, theme.$color-primary-600 0%, theme.$color-primary-700 100%);
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
 }
 
 .header-container {
@@ -19,18 +21,25 @@ $nav-animation-easing: cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 8px;
-  gap: 4px;
+  padding: 0 theme.$space-4;
+  gap: theme.$space-2;
 
   @media (min-width: 1920px) {
     max-width: 1600px;
   }
 }
 
-// Hamburger button - always visible
+// Hamburger button
 .hamburger-button {
   display: flex;
-  margin-right: 4px;
+  margin-right: theme.$space-2;
+  color: white;
+  border-radius: theme.$radius-md;
+  transition: background-color theme.$transition-base;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
 
   &:focus-visible {
     outline: 2px solid white;
@@ -41,32 +50,35 @@ $nav-animation-easing: cubic-bezier(0.4, 0, 0.2, 1);
 .logo-section {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: theme.$space-2;
   cursor: pointer;
   text-decoration: none;
-  color: inherit;
-  transition: opacity $nav-animation-duration $nav-animation-easing;
+  color: white;
+  padding: theme.$space-2;
+  border-radius: theme.$radius-md;
+  transition: background-color theme.$transition-base;
 
   &:hover {
-    opacity: 0.9;
+    background-color: rgba(0, 0, 0, 0.1);
   }
 
   &:focus-visible {
     outline: 2px solid white;
-    outline-offset: 4px;
-    border-radius: 4px;
+    outline-offset: 2px;
   }
 
   .logo-icon {
     font-size: 28px;
     width: 28px;
     height: 28px;
+    color: white;
   }
 
   .app-title {
-    font-size: 18px;
-    font-weight: 500;
-    letter-spacing: 0.5px;
+    font-size: theme.$font-size-lg;
+    font-weight: theme.$font-weight-semibold;
+    letter-spacing: -0.01em;
+    color: white;
 
     @media (max-width: #{$breakpoint-mobile - 1px}) {
       display: none;
@@ -74,53 +86,30 @@ $nav-animation-easing: cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
-// Spacer - pushes right-side elements to the end
+// Spacer
 .spacer {
   flex: 1;
 }
 
-// Analytics button - Feature: 006-fleet-analytics
-.analytics-button {
-  color: inherit;
-  text-decoration: none;
-
-  &:focus-visible {
-    outline: 2px solid white;
-    outline-offset: 2px;
-  }
-
-  &.analytics-active {
-    background-color: rgba(255, 255, 255, 0.15);
-  }
-
-  mat-icon {
-    font-size: 24px;
-  }
-}
-
-// Admin button - visible for admin users
-.admin-button {
-  color: inherit;
-  text-decoration: none;
-
-  &:focus-visible {
-    outline: 2px solid white;
-    outline-offset: 2px;
-  }
-
-  &.admin-active {
-    background-color: rgba(255, 255, 255, 0.15);
-  }
-
-  mat-icon {
-    font-size: 24px;
-  }
-}
-
-// Alerts button with Material badge
+// Header icon buttons base style
+.analytics-button,
+.admin-button,
 .alerts-button {
-  color: inherit;
+  color: rgba(255, 255, 255, 0.85) !important;
   text-decoration: none;
+  border-radius: theme.$radius-md;
+  transition: all theme.$transition-base;
+
+  // Override Material ripple and hover
+  &::ng-deep .mat-mdc-button-persistent-ripple,
+  &::ng-deep .mat-mdc-focus-indicator {
+    display: none;
+  }
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.15) !important;
+    color: white !important;
+  }
 
   &:focus-visible {
     outline: 2px solid white;
@@ -129,28 +118,59 @@ $nav-animation-easing: cubic-bezier(0.4, 0, 0.2, 1);
 
   mat-icon {
     font-size: 24px;
+    width: 24px;
+    height: 24px;
+    color: inherit !important;
   }
+}
 
-  // Pulse animation for badge when alerts are present
+// Active state for nav buttons
+.analytics-button.analytics-active,
+.admin-button.admin-active {
+  background-color: rgba(0, 0, 0, 0.2) !important;
+  color: white !important;
+}
+
+// Alerts button with badge
+.alerts-button {
   ::ng-deep .mat-badge-content {
+    background-color: theme.$color-danger-500;
+    color: white;
+    font-size: 10px;
+    font-weight: theme.$font-weight-semibold;
+    // Subtle pulse animation
     animation: pulse-badge 2s ease-in-out infinite;
   }
 }
 
-// Pulse animation keyframes for alerts badge
 @keyframes pulse-badge {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.4);
+    opacity: 1;
   }
   50% {
-    transform: scale(1.1);
-    box-shadow: 0 0 0 4px rgba(244, 67, 54, 0);
+    transform: scale(1.05);
+    opacity: 0.9;
   }
 }
 
 // User menu button
 .user-menu-button {
+  color: rgba(255, 255, 255, 0.85) !important;
+  border-radius: theme.$radius-md;
+  transition: all theme.$transition-base;
+
+  // Override Material ripple and hover
+  &::ng-deep .mat-mdc-button-persistent-ripple,
+  &::ng-deep .mat-mdc-focus-indicator {
+    display: none;
+  }
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.15) !important;
+    color: white !important;
+  }
+
   &:focus-visible {
     outline: 2px solid white;
     outline-offset: 2px;
@@ -158,6 +178,9 @@ $nav-animation-easing: cubic-bezier(0.4, 0, 0.2, 1);
 
   mat-icon {
     font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: inherit !important;
   }
 }
 
@@ -165,37 +188,38 @@ $nav-animation-easing: cubic-bezier(0.4, 0, 0.2, 1);
 .user-menu-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  background-color: #f5f5f5;
+  gap: theme.$space-3;
+  padding: theme.$space-3 theme.$space-4;
+  background-color: theme.$color-gray-50;
+  border-bottom: 1px solid theme.$color-gray-100;
 
   mat-icon {
-    color: #666;
+    color: theme.$color-gray-400;
   }
 
   .user-info {
     .user-name {
-      font-weight: 500;
-      font-size: 14px;
-      color: #333;
+      font-weight: theme.$font-weight-medium;
+      font-size: theme.$font-size-base;
+      color: theme.$color-gray-800;
     }
 
     .user-role {
-      font-size: 12px;
-      color: #666;
+      font-size: theme.$font-size-sm;
+      color: theme.$color-gray-500;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.05em;
     }
   }
 }
 
-// Logout item red styling
+// Logout item
 .logout-item {
   mat-icon {
-    color: #f44336;
+    color: theme.$color-danger-500;
   }
 
   &:hover {
-    background-color: rgba(244, 67, 54, 0.08);
+    background-color: theme.$color-danger-50;
   }
 }

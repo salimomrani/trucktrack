@@ -1,61 +1,67 @@
+// Analytics Component Styles - Modern UI Redesign
+// Feature 017: Professional Blue Theme with Flat Design
+// T022: Update analytics page - KPI card hierarchy
+
 @use '../../../styles/theme' as theme;
 
 .analytics-container {
-  padding: theme.$spacing-lg;
+  padding: theme.$space-6;
   max-width: 1400px;
   margin: 0 auto;
   min-height: calc(100vh - 64px);
+  background-color: theme.$color-background-gray;
 }
 
 .analytics-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: theme.$spacing-xl;
+  margin-bottom: theme.$space-8;
   flex-wrap: wrap;
-  gap: theme.$spacing-md;
+  gap: theme.$space-4;
 
   .header-title {
     display: flex;
     align-items: center;
-    gap: theme.$spacing-sm;
+    gap: theme.$space-3;
 
     mat-icon {
-      font-size: 32px;
-      width: 32px;
-      height: 32px;
-      color: theme.$color-primary-500;
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+      color: theme.$color-primary-700;
     }
 
     h1 {
       margin: 0;
-      font-size: theme.$font-size-2xl;
-      font-weight: theme.$font-weight-bold;
-      color: theme.$color-text-primary;
+      font-size: theme.$font-size-3xl;
+      font-weight: theme.$font-weight-semibold;
+      color: theme.$color-gray-800;
+      letter-spacing: -0.01em;
     }
   }
 
   .header-actions {
     display: flex;
     align-items: center;
-    gap: theme.$spacing-lg;
+    gap: theme.$space-6;
     flex-wrap: wrap;
   }
 
   .filters {
     display: flex;
-    gap: theme.$spacing-md;
+    gap: theme.$space-4;
     align-items: center;
   }
 
   .export-buttons {
     display: flex;
-    gap: theme.$spacing-sm;
+    gap: theme.$space-2;
 
     button {
       display: flex;
       align-items: center;
-      gap: theme.$spacing-xs;
+      gap: theme.$space-1;
 
       mat-icon {
         font-size: 18px;
@@ -64,7 +70,7 @@
       }
 
       mat-spinner {
-        margin-right: theme.$spacing-xs;
+        margin-right: theme.$space-1;
       }
     }
   }
@@ -78,61 +84,71 @@
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: theme.$spacing-md;
-  margin-bottom: theme.$spacing-xl;
+  gap: theme.$space-4;
+  margin-bottom: theme.$space-8;
 }
 
 // Error card
 .error-card {
+  background: white;
+  border: 1px solid theme.$color-gray-100;
+  border-radius: theme.$radius-lg;
+
   mat-card-content {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: theme.$spacing-md;
-    padding: theme.$spacing-xl;
+    gap: theme.$space-4;
+    padding: theme.$space-8;
     text-align: center;
 
     mat-icon {
       font-size: 48px;
       width: 48px;
       height: 48px;
+      color: theme.$color-danger-400;
     }
 
     p {
-      color: theme.$color-text-secondary;
+      color: theme.$color-gray-500;
       margin: 0;
+      font-size: theme.$font-size-base;
     }
   }
 }
 
 // Empty state card
 .empty-card {
+  background: white;
+  border: 1px solid theme.$color-gray-100;
+  border-radius: theme.$radius-lg;
+
   mat-card-content {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: theme.$spacing-md;
-    padding: theme.$spacing-2xl;
+    gap: theme.$space-4;
+    padding: theme.$space-12;
     text-align: center;
 
     mat-icon {
       font-size: 64px;
       width: 64px;
       height: 64px;
-      color: theme.$color-text-secondary;
-      opacity: 0.5;
+      color: theme.$color-gray-300;
     }
 
     h2 {
       margin: 0;
       font-size: theme.$font-size-xl;
       font-weight: theme.$font-weight-semibold;
-      color: theme.$color-text-primary;
+      color: theme.$color-gray-700;
     }
 
     p {
       margin: 0;
-      color: theme.$color-text-secondary;
+      color: theme.$color-gray-500;
+      font-size: theme.$font-size-base;
     }
   }
 }
@@ -141,13 +157,14 @@
 .entity-info {
   display: flex;
   align-items: center;
-  gap: theme.$spacing-sm;
-  padding: theme.$spacing-md;
-  background: theme.$color-gray-100;
-  border-radius: theme.$border-radius-md;
-  color: theme.$color-text-secondary;
+  gap: theme.$space-2;
+  padding: theme.$space-4;
+  background: theme.$color-primary-50;
+  border: 1px solid theme.$color-primary-100;
+  border-radius: theme.$radius-lg;
+  color: theme.$color-primary-700;
   font-size: theme.$font-size-sm;
-  margin-bottom: theme.$spacing-xl;
+  margin-bottom: theme.$space-8;
 
   mat-icon {
     font-size: 18px;
@@ -158,22 +175,22 @@
 
 // Charts section
 .charts-section {
-  margin-top: theme.$spacing-xl;
+  margin-top: theme.$space-8;
 
   .section-title {
     display: flex;
     align-items: center;
-    gap: theme.$spacing-sm;
-    margin: 0 0 theme.$spacing-lg 0;
+    gap: theme.$space-2;
+    margin: 0 0 theme.$space-6 0;
     font-size: theme.$font-size-xl;
     font-weight: theme.$font-weight-semibold;
-    color: theme.$color-text-primary;
+    color: theme.$color-gray-800;
 
     mat-icon {
       font-size: 24px;
       width: 24px;
       height: 24px;
-      color: theme.$color-primary-500;
+      color: theme.$color-primary-700;
     }
   }
 }
@@ -182,7 +199,7 @@
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: theme.$spacing-lg;
+  gap: theme.$space-6;
   overflow: visible;
 
   // Ensure chart cards don't clip their content
@@ -191,6 +208,15 @@
   app-trucks-ranking {
     overflow: visible;
     min-height: 350px;
+
+    // Card styling for charts
+    mat-card {
+      height: 100%;
+      background: white;
+      border: 1px solid theme.$color-gray-100;
+      border-radius: theme.$radius-lg;
+      box-shadow: theme.$shadow-sm;
+    }
   }
 
   // Full width for ranking chart on desktop
@@ -222,7 +248,7 @@
 
 @media (max-width: 600px) {
   .analytics-container {
-    padding: theme.$spacing-md;
+    padding: theme.$space-4;
   }
 
   .analytics-header {
@@ -232,7 +258,7 @@
     .header-actions {
       flex-direction: column;
       align-items: stretch;
-      gap: theme.$spacing-md;
+      gap: theme.$space-4;
     }
 
     .filters {
@@ -254,7 +280,7 @@
   }
 
   .charts-grid {
-    gap: theme.$spacing-md;
+    gap: theme.$space-4;
   }
 
   .entity-info {

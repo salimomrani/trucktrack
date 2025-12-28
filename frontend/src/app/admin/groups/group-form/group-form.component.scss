@@ -1,41 +1,58 @@
+// Group Form Component Styles - Modern UI Redesign
+// Feature 017: Professional Blue Theme with Flat Design
+// T035: Update group management cards
+
+@use '../../../../styles/theme' as theme;
+
 .group-form-container {
-  padding: 24px;
+  padding: theme.$space-6;
   max-width: 900px;
   margin: 0 auto;
+  background-color: theme.$color-background-gray;
+  min-height: calc(100vh - 64px);
 }
 
 .page-header {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
+  gap: theme.$space-4;
+  margin-bottom: theme.$space-6;
 }
 
 .header-text h1 {
   margin: 0;
-  font-size: 28px;
-  font-weight: 500;
+  font-size: theme.$font-size-3xl;
+  font-weight: theme.$font-weight-semibold;
+  color: theme.$color-gray-800;
+  letter-spacing: -0.01em;
 }
 
 .subtitle {
-  margin: 4px 0 0 0;
-  color: #757575;
+  margin: theme.$space-1 0 0 0;
+  color: theme.$color-gray-500;
+  font-size: theme.$font-size-base;
 }
 
 .loading-container {
   display: flex;
   justify-content: center;
-  padding: 48px;
+  padding: theme.$space-12;
 }
 
 .form-content {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: theme.$space-6;
 }
 
-.form-card, .stats-card, .meta-card {
-  padding: 24px;
+.form-card,
+.stats-card,
+.meta-card {
+  padding: theme.$space-6;
+  background: white;
+  border: 1px solid theme.$color-gray-100;
+  border-radius: theme.$radius-lg;
+  box-shadow: theme.$shadow-sm;
 }
 
 .full-width {
@@ -43,82 +60,92 @@
 }
 
 mat-form-field {
-  margin-bottom: 8px;
+  margin-bottom: theme.$space-2;
 }
 
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 16px;
-  margin-top: 24px;
+  gap: theme.$space-4;
+  margin-top: theme.$space-6;
 }
 
 mat-divider {
-  margin: 24px 0;
+  margin: theme.$space-6 0;
 }
 
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-  margin-bottom: 24px;
+  gap: theme.$space-6;
+  margin-bottom: theme.$space-6;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .stat-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px;
-  background: #f5f5f5;
-  border-radius: 8px;
+  padding: theme.$space-6;
+  background: theme.$color-gray-50;
+  border-radius: theme.$radius-lg;
+  transition: all theme.$transition-base;
+
+  &:hover {
+    background: theme.$color-primary-50;
+  }
 }
 
 .stat-item mat-icon {
   font-size: 32px;
   width: 32px;
   height: 32px;
-  margin-bottom: 8px;
-  color: #1976d2;
+  margin-bottom: theme.$space-2;
+  color: theme.$color-primary-500;
 }
 
 .stat-value {
-  font-size: 32px;
-  font-weight: 500;
-  color: #424242;
+  font-size: theme.$font-size-3xl;
+  font-weight: theme.$font-weight-semibold;
+  color: theme.$color-gray-800;
 }
 
 .stat-label {
-  font-size: 14px;
-  color: #757575;
-  margin-top: 4px;
+  font-size: theme.$font-size-sm;
+  color: theme.$color-gray-500;
+  margin-top: theme.$space-1;
 }
 
 .stats-info {
-  padding: 16px;
-  background: #e3f2fd;
-  border-radius: 8px;
+  padding: theme.$space-4;
+  background: theme.$color-primary-50;
+  border-radius: theme.$radius-lg;
 }
 
 .info-text {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
+  gap: theme.$space-2;
   margin: 0;
-  color: #1565c0;
-  font-size: 14px;
+  color: theme.$color-primary-700;
+  font-size: theme.$font-size-sm;
 }
 
 .info-text mat-icon {
   font-size: 20px;
   width: 20px;
   height: 20px;
+  flex-shrink: 0;
 }
 
 .meta-row {
   display: flex;
   align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid #e0e0e0;
+  padding: theme.$space-3 0;
+  border-bottom: 1px solid theme.$color-gray-100;
 }
 
 .meta-row:last-child {
@@ -127,11 +154,26 @@ mat-divider {
 
 .meta-label {
   width: 120px;
-  font-weight: 500;
-  color: #757575;
+  font-weight: theme.$font-weight-medium;
+  color: theme.$color-gray-500;
+  font-size: theme.$font-size-sm;
 }
 
 .meta-value {
-  color: #424242;
+  color: theme.$color-gray-700;
   font-family: monospace;
+  font-size: theme.$font-size-sm;
+}
+
+// Responsive
+@media (max-width: 600px) {
+  .group-form-container {
+    padding: theme.$space-4;
+  }
+
+  .form-card,
+  .stats-card,
+  .meta-card {
+    padding: theme.$space-4;
+  }
 }

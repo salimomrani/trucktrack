@@ -1,16 +1,27 @@
+// Notification Preferences Component Styles - Modern UI Redesign
+// Feature 017: Professional Blue Theme with Flat Design
+// T047: Update settings forms
+
+@use '../../../../styles/theme' as theme;
+
 .preferences-container {
   max-width: 800px;
   margin: 0 auto;
-  padding: 24px;
+  padding: theme.$space-6;
+  background-color: theme.$color-background-gray;
+  min-height: calc(100vh - 64px);
 
   h2 {
-    margin-bottom: 8px;
-    color: #1e293b;
+    margin-bottom: theme.$space-2;
+    color: theme.$color-gray-800;
+    font-size: theme.$font-size-2xl;
+    font-weight: theme.$font-weight-semibold;
   }
 
   .subtitle {
-    color: #64748b;
-    margin-bottom: 24px;
+    color: theme.$color-gray-500;
+    margin-bottom: theme.$space-6;
+    font-size: theme.$font-size-base;
   }
 }
 
@@ -19,33 +30,37 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 48px;
-  color: #64748b;
+  padding: theme.$space-12;
+  color: theme.$color-gray-500;
 
   p {
-    margin-top: 16px;
+    margin-top: theme.$space-4;
   }
 }
 
 .preference-group {
-  margin-bottom: 24px;
+  margin-bottom: theme.$space-6;
+  background: white;
+  border: 1px solid theme.$color-gray-100;
+  border-radius: theme.$radius-lg;
+  box-shadow: theme.$shadow-sm;
 
   mat-card-header {
     mat-icon {
-      color: #2563eb;
+      color: theme.$color-primary-500;
       font-size: 24px;
       width: 40px;
       height: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #eff6ff;
-      border-radius: 8px;
+      background: theme.$color-primary-50;
+      border-radius: theme.$radius-lg;
     }
   }
 
   mat-card-content {
-    padding-top: 16px;
+    padding-top: theme.$space-4;
   }
 }
 
@@ -53,26 +68,26 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 0;
+  padding: theme.$space-3 0;
 
   .preference-label {
-    font-weight: 500;
-    color: #334155;
+    font-weight: theme.$font-weight-medium;
+    color: theme.$color-gray-700;
   }
 
   .preference-toggles {
     display: flex;
-    gap: 32px;
+    gap: theme.$space-8;
   }
 
   .toggle-item {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: theme.$space-2;
 
     .toggle-label {
-      color: #64748b;
-      font-size: 14px;
+      color: theme.$color-gray-500;
+      font-size: theme.$font-size-sm;
       min-width: 40px;
     }
   }
@@ -84,16 +99,16 @@ mat-divider {
 
 .saving-overlay {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
-  background: #1e293b;
+  bottom: theme.$space-6;
+  right: theme.$space-6;
+  background: theme.$color-gray-800;
   color: white;
-  padding: 12px 20px;
-  border-radius: 8px;
+  padding: theme.$space-3 theme.$space-5;
+  border-radius: theme.$radius-lg;
   display: flex;
   align-items: center;
-  gap: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  gap: theme.$space-3;
+  box-shadow: theme.$shadow-lg;
 
   mat-spinner {
     ::ng-deep circle {
@@ -104,13 +119,13 @@ mat-divider {
 
 @media (max-width: 600px) {
   .preferences-container {
-    padding: 16px;
+    padding: theme.$space-4;
   }
 
   .preference-row {
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
+    gap: theme.$space-3;
 
     .preference-toggles {
       width: 100%;

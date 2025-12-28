@@ -1,9 +1,13 @@
+// Period Filter Component Styles - Modern UI Redesign
+// Feature 017: Professional Blue Theme with Flat Design
+// T024: Update chart container styles
+
 @use '../../../../../styles/theme' as theme;
 
 .period-filter {
   display: flex;
   flex-wrap: wrap;
-  gap: theme.$spacing-md;
+  gap: theme.$space-4;
   align-items: flex-start;
 }
 
@@ -13,7 +17,7 @@
 
 .date-range {
   display: flex;
-  gap: theme.$spacing-sm;
+  gap: theme.$space-2;
   flex-wrap: wrap;
 
   mat-form-field {
@@ -25,7 +29,7 @@
   width: 100%;
   display: flex;
   align-items: center;
-  gap: theme.$spacing-xs;
+  gap: theme.$space-1;
   color: theme.$color-danger-500;
   font-size: theme.$font-size-sm;
   margin-top: -8px;
@@ -41,12 +45,12 @@
   width: 100%;
   display: flex;
   align-items: center;
-  gap: theme.$spacing-xs;
-  color: theme.$color-text-secondary;
+  gap: theme.$space-1;
+  color: theme.$color-gray-500;
   font-size: theme.$font-size-sm;
-  padding: theme.$spacing-xs theme.$spacing-sm;
+  padding: theme.$space-1 theme.$space-2;
   background: theme.$color-gray-100;
-  border-radius: theme.$border-radius-sm;
+  border-radius: theme.$radius-sm;
 
   mat-icon {
     font-size: 16px;

@@ -1,56 +1,75 @@
+// Trip List Component Styles - Modern UI Redesign
+// Feature 017: Professional Blue Theme with Flat Design
+// T026: Update trip-list table
+
+@use '../../../../styles/theme' as theme;
+
 .trip-list-container {
-  padding: 24px;
+  padding: theme.$space-6;
   max-width: 1400px;
   margin: 0 auto;
+  background-color: theme.$color-background-gray;
+  min-height: calc(100vh - 64px);
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 24px;
+  margin-bottom: theme.$space-6;
+  flex-wrap: wrap;
+  gap: theme.$space-4;
 }
 
-.header-left h1 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 500;
+.header-left {
+  h1 {
+    margin: 0;
+    font-size: theme.$font-size-3xl;
+    font-weight: theme.$font-weight-semibold;
+    color: theme.$color-gray-800;
+    letter-spacing: -0.01em;
+  }
 }
 
 .subtitle {
-  margin: 4px 0 0 0;
-  color: #757575;
+  margin: theme.$space-1 0 0 0;
+  color: theme.$color-gray-500;
+  font-size: theme.$font-size-base;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: theme.$space-4;
 }
 
+// Status Cards
 .status-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: theme.$space-4;
+  margin-bottom: theme.$space-6;
 }
 
 .status-card {
   display: flex;
   align-items: center;
-  padding: 16px;
+  padding: theme.$space-4;
   cursor: pointer;
-  transition: all 0.2s ease;
-  border: 2px solid transparent;
+  transition: all theme.$transition-base;
+  border: 1px solid theme.$color-gray-100;
+  background: white;
+  border-radius: theme.$radius-lg;
+  box-shadow: theme.$shadow-sm;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: theme.$shadow-md;
+    border-color: theme.$color-gray-200;
   }
 
   &.active {
-    border-color: #1976d2;
-    background-color: rgba(25, 118, 210, 0.08);
+    border-color: theme.$color-primary-500;
+    background-color: theme.$color-primary-50;
   }
 
   &.highlight {
@@ -60,30 +79,30 @@
 
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(156, 39, 176, 0.3);
+    box-shadow: 0 0 0 0 rgba(theme.$color-primary-500, 0.3);
   }
   70% {
-    box-shadow: 0 0 0 8px rgba(156, 39, 176, 0);
+    box-shadow: 0 0 0 8px rgba(theme.$color-primary-500, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(156, 39, 176, 0);
+    box-shadow: 0 0 0 0 rgba(theme.$color-primary-500, 0);
   }
 }
 
 .status-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: theme.$radius-lg;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 16px;
+  margin-right: theme.$space-4;
 
   mat-icon {
     color: white;
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
   }
 }
 
@@ -93,24 +112,30 @@
 }
 
 .status-count {
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 1.2;
+  font-size: theme.$font-size-2xl;
+  font-weight: theme.$font-weight-semibold;
+  line-height: theme.$line-height-tight;
+  color: theme.$color-gray-800;
 }
 
 .status-label {
-  font-size: 13px;
-  color: #757575;
+  font-size: theme.$font-size-sm;
+  color: theme.$color-gray-500;
 }
 
+// Filters Card
 .filters-card {
-  margin-bottom: 16px;
-  padding: 16px 24px;
+  margin-bottom: theme.$space-4;
+  padding: theme.$space-4 theme.$space-6;
+  background: white;
+  border: 1px solid theme.$color-gray-100;
+  border-radius: theme.$radius-lg;
+  box-shadow: theme.$shadow-sm;
 }
 
 .filters-row {
   display: flex;
-  gap: 16px;
+  gap: theme.$space-4;
   align-items: center;
   flex-wrap: wrap;
 }
@@ -128,8 +153,14 @@
   width: 160px;
 }
 
+// Table Card
 .table-card {
   padding: 0;
+  background: white;
+  border: 1px solid theme.$color-gray-100;
+  border-radius: theme.$radius-lg;
+  box-shadow: theme.$shadow-sm;
+  overflow: hidden;
 }
 
 // T068: Handle cancelled trips display
@@ -137,10 +168,10 @@
   // Style rows containing cancelled status
   .mat-mdc-row:has(.badge-CANCELLED) {
     opacity: 0.6;
-    background-color: rgba(0, 0, 0, 0.02);
+    background-color: theme.$color-gray-50;
 
     .mat-mdc-cell {
-      color: #9e9e9e;
+      color: theme.$color-gray-400;
     }
 
     // Origin and destination columns - strikethrough
@@ -152,12 +183,71 @@
 
   // Cancelled status badge style
   .badge-CANCELLED {
-    background-color: #9e9e9e !important;
-    color: white !important;
+    background-color: theme.$color-gray-100 !important;
+    color: theme.$color-gray-500 !important;
   }
 }
 
-// Status card for cancelled - grey out
-.status-card:has(.status-icon[style*="9e9e9e"]) {
-  opacity: 0.7;
+// Status badges
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: theme.$space-1 theme.$space-2;
+  border-radius: theme.$radius-sm;
+  font-size: theme.$font-size-sm;
+  font-weight: theme.$font-weight-medium;
+
+  &-PENDING {
+    background-color: theme.$color-warning-50;
+    color: theme.$color-warning-600;
+  }
+
+  &-ASSIGNED {
+    background-color: theme.$color-info-50;
+    color: theme.$color-primary-700;
+  }
+
+  &-IN_PROGRESS {
+    background-color: theme.$color-primary-50;
+    color: theme.$color-primary-700;
+  }
+
+  &-COMPLETED {
+    background-color: theme.$color-success-50;
+    color: theme.$color-success-600;
+  }
+}
+
+// Responsive
+@media (max-width: 900px) {
+  .status-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .trip-list-container {
+    padding: theme.$space-4;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-actions {
+    justify-content: flex-end;
+  }
+
+  .filters-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-field,
+  .filter-field,
+  .date-field {
+    width: 100%;
+    min-width: auto;
+  }
 }
