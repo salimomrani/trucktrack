@@ -17,6 +17,10 @@ Auto-generated from all feature plans. Last updated: 2025-12-23
 - Redis 7+ (cache layer), PostgreSQL 15+ (existing primary storage) (012-multi-level-cache)
 - TypeScript 5.4 avec Angular 17 + Jasmine, Karma, Angular Testing Utilities (014-frontend-tests)
 - N/A (tests uniquement) (014-frontend-tests)
+- Java 17 (backend), TypeScript 5.x (mobile Expo, frontend Angular) (015-proof-of-delivery)
+- PostgreSQL 15+ (DeliveryProof, ProofPhoto tables), Images en Base64 dans PostgreSQL (015-proof-of-delivery)
+- Java 17 (Spring Boot 3.2.x) + Spring Boot Starter, Spring Kafka, SendGrid SDK, Firebase Admin SDK, Thymeleaf, Resilience4j (016-016-email-notifications)
+- PostgreSQL 15+ (tables notification_logs, user_notification_preferences, push_tokens, notification_templates, email_recipients) (016-016-email-notifications)
 
 ### Backend
 - Java 17 + Spring Boot 3.2.1, Spring Security, Spring Data JPA
@@ -47,9 +51,9 @@ npm test && npm run lint
 - **Frontend**: TypeScript 5.9 with Angular 21 conventions (signals, block control flow)
 
 ## Recent Changes
+- 016-016-email-notifications: Added Java 17 (Spring Boot 3.2.x) + Spring Boot Starter, Spring Kafka, SendGrid SDK, Firebase Admin SDK, Thymeleaf, Resilience4j
+- 015-proof-of-delivery: Added Java 17 (backend), TypeScript 5.x (mobile Expo, frontend Angular)
 - 014-frontend-tests: Added TypeScript 5.4 avec Angular 17 + Jasmine, Karma, Angular Testing Utilities
-- 012-multi-level-cache: Added Java 17 (backend), TypeScript 5.9 with Angular 21 (frontend) + Spring Boot 3.2.x, Spring Data Redis, NgRx 21.x with createSelector
-- 011-cicd-pipelines: Added YAML (GitHub Actions), Java 17, Node.js 18+, Python 3.x + GitHub Actions, Maven, npm, Docker, Expo CLI
   - Block control flow (`@if`/`@for`) now default
   - Signals for reactive state
   - Esbuild for faster builds

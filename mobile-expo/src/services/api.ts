@@ -109,6 +109,58 @@ export interface TripStatusHistory {
   notes: string | null;
 }
 
+// Proof of Delivery types - Feature: 015-proof-of-delivery
+export type ProofStatus = 'SIGNED' | 'REFUSED';
+
+export interface ProofPhoto {
+  id: string;
+  proofId: string;
+  photoImage: string;
+  displayOrder: number;
+  latitude: number;
+  longitude: number;
+  capturedAt: string;
+  createdAt: string;
+}
+
+export interface ProofResponse {
+  id: string;
+  tripId: string;
+  status: ProofStatus;
+  statusDisplayName: string;
+  signatureImage: string;
+  signerName: string | null;
+  refusalReason: string | null;
+  latitude: number;
+  longitude: number;
+  gpsAccuracy: number;
+  integrityHash: string;
+  capturedAt: string;
+  syncedAt: string;
+  createdBy: string;
+  createdByName: string | null;
+  createdAt: string;
+  photoCount: number;
+  photos: ProofPhoto[] | null;
+}
+
+export interface CreateProofRequest {
+  status: ProofStatus;
+  signatureImage: string;
+  signerName?: string;
+  refusalReason?: string;
+  latitude: number;
+  longitude: number;
+  gpsAccuracy: number;
+  capturedAt: string;
+  photos?: {
+    photoImage: string;
+    latitude: number;
+    longitude: number;
+    capturedAt: string;
+  }[];
+}
+
 // API Error class
 export class ApiError extends Error {
   status: number;
@@ -487,7 +539,22 @@ export const TripService = {
   },
 };
 
-// Push Notification Service - Feature: 010-trip-management (US3)
+// Notification Preference types - Feature: 016-email-notifications
+export interface NotificationPreference {
+  id: string;
+  userId: string;
+  eventType: string;
+  emailEnabled: boolean;
+  pushEnabled: boolean;
+}
+
+export interface UpdatePreferenceRequest {
+  eventType: string;
+  emailEnabled: boolean;
+  pushEnabled: boolean;
+}
+
+// Push Notification Service - Feature: 010-trip-management (US3) + 016-email-notifications
 export const NotificationService = {
   /**
    * Register push token with the backend
@@ -523,6 +590,87 @@ export const NotificationService = {
       console.warn('Error unregistering push token:', error);
     }
   },
+
+  /**
+   * Get notification preferences - Feature: 016
+   */
+  async getPreferences(): Promise<NotificationPreference[]> {
+    const response = await fetchWithAuth('/notification/api/notifications/preferences');
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new ApiError(
+        error.message || 'Failed to get notification preferences',
+        response.status
+      );
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Update notification preferences - Feature: 016
+   */
+  async updatePreferences(preferences: UpdatePreferenceRequest[]): Promise<NotificationPreference[]> {
+    const response = await fetchWithAuth('/notification/api/notifications/preferences', {
+      method: 'PUT',
+      body: JSON.stringify(preferences),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new ApiError(
+        error.message || 'Failed to update notification preferences',
+        response.status
+      );
+    }
+
+    return response.json();
+  },
+};
+
+// Proof of Delivery Service - Feature: 015-proof-of-delivery
+export const ProofOfDeliveryService = {
+  /**
+   * Create a proof of delivery for a trip
+   */
+  async createProof(tripId: string, request: CreateProofRequest): Promise<ProofResponse> {
+    const response = await fetchWithAuth(`${API_CONFIG.LOCATION}/trips/${tripId}/proof`, {
+      method: 'POST',
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new ApiError(
+        error.message || 'Failed to create proof of delivery',
+        response.status
+      );
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Get proof of delivery for a trip
+   */
+  async getProofByTripId(tripId: string): Promise<ProofResponse | null> {
+    const response = await fetchWithAuth(`${API_CONFIG.LOCATION}/trips/${tripId}/proof`);
+
+    if (response.status === 404) {
+      return null;
+    }
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new ApiError(
+        error.message || 'Failed to get proof of delivery',
+        response.status
+      );
+    }
+
+    return response.json();
+  },
 };
 
 export default {
@@ -531,6 +679,7 @@ export default {
   LocationService,
   TripService,
   NotificationService,
+  ProofOfDeliveryService,
   TokenService,
   API_CONFIG,
 };
