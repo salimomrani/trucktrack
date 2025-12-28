@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { TripService, Trip, TripStatus } from '../services/api';
 
@@ -43,9 +43,12 @@ export default function TripsScreen() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchTrips();
-  }, [fetchTrips]);
+  // Refresh trips every time screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      fetchTrips();
+    }, [fetchTrips])
+  );
 
   const onRefresh = async () => {
     setRefreshing(true);

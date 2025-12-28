@@ -48,14 +48,31 @@ spring:
             - name: JwtAuthenticationFilter
             - RewritePath=/admin/(?<segment>.*), /admin/$\{segment}
 
-        # Admin Routes - Location Service (stats, config, groups, trucks, trips, audit)
+        # Admin Routes - Location Service (stats, config, groups, trucks, trips, proofs, audit)
         - id: admin-location
           uri: http://localhost:8081
           predicates:
-            - Path=/admin/stats/**, /admin/config/**, /admin/groups/**, /admin/trucks/**, /admin/trips/**, /admin/audit/**
+            - Path=/admin/stats/**, /admin/config/**, /admin/groups/**, /admin/trucks/**, /admin/trips/**, /admin/proofs/**, /admin/audit/**
           filters:
             - name: JwtAuthenticationFilter
             - RewritePath=/admin/(?<segment>.*), /admin/$\{segment}
+
+        # Admin Routes - Notification Service (notifications, templates)
+        - id: admin-notifications
+          uri: http://localhost:8082
+          predicates:
+            - Path=/admin/notifications/**, /admin/templates/**
+          filters:
+            - name: JwtAuthenticationFilter
+            - RewritePath=/admin/(?<segment>.*), /admin/$\{segment}
+
+        # Notification Service Routes - Webhooks (public, no auth - for Mailjet callbacks)
+        - id: notification-webhooks
+          uri: http://localhost:8082
+          predicates:
+            - Path=/notification/api/notifications/webhooks/**
+          filters:
+            - RewritePath=/notification/(?<segment>.*), /$\{segment}
 
         # Notification Service Routes
         - id: notification-service

@@ -91,6 +91,11 @@ application-local.yml
 application-local.properties
 DEVELOPMENT.md
 
+# Firebase credentials (SENSITIVE - never commit)
+**/firebase-service-account.json
+**/firebase-credentials.json
+**/*-firebase-adminsdk-*.json
+
 ### Docker ###
 .dockerignore
 docker-compose.override.yml

@@ -18,6 +18,7 @@ import HomeScreen from './src/screens/HomeScreen';
 import MapScreen from './src/screens/MapScreen';
 import TripsScreen from './src/screens/TripsScreen';
 import TripDetailScreen from './src/screens/TripDetailScreen';
+import SignatureScreen from './src/screens/SignatureScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import AboutScreen from './src/screens/AboutScreen';
@@ -31,6 +32,7 @@ export type RootStackParamList = {
   Login: undefined;
   Main: undefined;
   TripDetail: { tripId: string };
+  Signature: { tripId: string; tripOrigin: string; tripDestination: string };
   Settings: undefined;
   About: undefined;
   HelpSupport: undefined;
@@ -126,6 +128,7 @@ export default function App() {
           <>
             <Stack.Screen name="Main" component={MainTabs} />
             <Stack.Screen name="TripDetail" component={TripDetailScreen} />
+            <Stack.Screen name="Signature" component={SignatureScreen} />
             <Stack.Screen name="Settings" component={SettingsScreen} />
             <Stack.Screen name="About" component={AboutScreen} />
             <Stack.Screen name="HelpSupport" component={HelpSupportScreen} />
