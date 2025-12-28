@@ -1,0 +1,159 @@
+<!-- Proof of Delivery Component Template -->
+<!-- Feature: 015-proof-of-delivery (T043) -->
+
+@if (loading()) {
+  <mat-card class="pod-card loading-card">
+    <mat-card-content class="loading-content">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading proof of delivery...</p>
+    </mat-card-content>
+  </mat-card>
+}
+
+@if (error()) {
+  <mat-card class="pod-card error-card">
+    <mat-card-content class="error-content">
+      <mat-icon color="warn">error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-button color="primary" (click)="loadProof()">
+        <mat-icon>refresh</mat-icon>
+        Retry
+      </button>
+    </mat-card-content>
+  </mat-card>
+}
+
+@if (proof(); as p) {
+  <mat-card class="pod-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar [style.color]="getStatusColor()">{{ getStatusIcon() }}</mat-icon>
+      <mat-card-title>Proof of Delivery</mat-card-title>
+      <mat-card-subtitle>
+        <mat-chip [style.background-color]="getStatusColor()" class="status-chip">
+          {{ p.statusDisplayName }}
+        </mat-chip>
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Signature Section -->
+      <div class="signature-section">
+        <h4>Signature</h4>
+        <div class="signature-container" (click)="openSignatureViewer()">
+          <img [src]="p.signatureImage" alt="Signature" class="signature-image">
+          <div class="signature-overlay">
+            <mat-icon>zoom_in</mat-icon>
+            <span>Click to enlarge</span>
+          </div>
+        </div>
+
+        @if (p.signerName) {
+          <p class="signer-name">
+            <mat-icon>person</mat-icon>
+            Signed by: {{ p.signerName }}
+          </p>
+        }
+      </div>
+
+      <!-- Refusal Reason (if refused) -->
+      @if (p.status === 'REFUSED' && p.refusalReason) {
+        <div class="refusal-section">
+          <h4>Refusal Reason</h4>
+          <p class="refusal-reason">{{ p.refusalReason }}</p>
+        </div>
+      }
+
+      <!-- Photos Section -->
+      @if (p.photos && p.photos.length > 0) {
+        <div class="photos-section">
+          <h4>Photos ({{ p.photoCount }})</h4>
+          <div class="photos-grid">
+            @for (photo of p.photos; track photo.id) {
+              <div class="photo-item">
+                <img [src]="photo.photoImage" alt="Proof photo" class="photo-thumbnail">
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Metadata -->
+      <div class="metadata-section">
+        <h4>Details</h4>
+        <div class="metadata-grid">
+          <div class="metadata-item">
+            <mat-icon>access_time</mat-icon>
+            <div class="metadata-content">
+              <span class="metadata-label">Captured</span>
+              <span class="metadata-value">{{ formatDate(p.capturedAt) }}</span>
+            </div>
+          </div>
+
+          <div class="metadata-item">
+            <mat-icon>sync</mat-icon>
+            <div class="metadata-content">
+              <span class="metadata-label">Synced</span>
+              <span class="metadata-value">{{ formatDate(p.syncedAt) }}</span>
+            </div>
+          </div>
+
+          <div class="metadata-item">
+            <mat-icon>location_on</mat-icon>
+            <div class="metadata-content">
+              <span class="metadata-label">Location</span>
+              <span class="metadata-value">
+                {{ p.latitude.toFixed(6) }}, {{ p.longitude.toFixed(6) }}
+              </span>
+            </div>
+          </div>
+
+          <div class="metadata-item">
+            <mat-icon>gps_fixed</mat-icon>
+            <div class="metadata-content">
+              <span class="metadata-label">GPS Accuracy</span>
+              <span class="metadata-value">{{ p.gpsAccuracy }}m</span>
+            </div>
+          </div>
+
+          @if (p.createdByName) {
+            <div class="metadata-item">
+              <mat-icon>person</mat-icon>
+              <div class="metadata-content">
+                <span class="metadata-label">Created by</span>
+                <span class="metadata-value">{{ p.createdByName }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Integrity Hash -->
+      <div class="integrity-section">
+        <mat-icon>verified</mat-icon>
+        <span class="integrity-label">Integrity Hash:</span>
+        <code class="integrity-hash">{{ p.integrityHash.substring(0, 16) }}...</code>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions align="end">
+      <button mat-button color="primary" (click)="downloadPdf()" [disabled]="downloadingPdf()">
+        @if (downloadingPdf()) {
+          <mat-spinner diameter="20"></mat-spinner>
+        } @else {
+          <mat-icon>download</mat-icon>
+        }
+        Download PDF
+      </button>
+    </mat-card-actions>
+  </mat-card>
+}
+
+@if (!hasProof && !loading()) {
+  <mat-card class="pod-card no-proof-card">
+    <mat-card-content class="no-proof-content">
+      <mat-icon>edit_off</mat-icon>
+      <p>No proof of delivery yet</p>
+      <span class="hint">Proof will be available when the driver completes the delivery</span>
+    </mat-card-content>
+  </mat-card>
+}
