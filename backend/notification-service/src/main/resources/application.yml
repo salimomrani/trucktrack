@@ -87,6 +87,9 @@ kafka:
     gps-position: truck-track.gps.position
     alert: truck-track.notification.alert
     status-change: truck-track.location.status-change
+    trips-completed: truck-track.trips.completed
+    trips-assigned: truck-track.trips.assigned
+    trips-eta-alert: truck-track.trips.eta-alert
 
 # Alert Configuration
 alert:
@@ -97,3 +100,36 @@ alert:
   # Cooldown period in minutes - after an alert, suppress duplicates for this duration
   # This prevents alert flooding when trucks continuously exceed thresholds
   cooldown-minutes: 5
+
+# Mailjet Configuration (Feature 016)
+mailjet:
+  api-key: ${MAILJET_API_KEY:}
+  api-secret: ${MAILJET_API_SECRET:}
+  from-email: ${MAILJET_FROM_EMAIL:notifications@trucktrack.com}
+  from-name: ${MAILJET_FROM_NAME:TruckTrack}
+
+# Firebase Configuration (Feature 016)
+firebase:
+  enabled: ${FIREBASE_ENABLED:false}
+  credentials-path: ${FIREBASE_CREDENTIALS_PATH:}
+
+# Resilience4j Configuration (Feature 016)
+resilience4j:
+  retry:
+    instances:
+      sendEmail:
+        maxAttempts: 3
+        waitDuration: 1000
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+      sendPush:
+        maxAttempts: 3
+        waitDuration: 500
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+
+# Flyway Configuration
+spring.flyway:
+  enabled: true
+  locations: classpath:db/migration
+  baseline-on-migrate: true

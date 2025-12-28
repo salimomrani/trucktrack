@@ -1,0 +1,58 @@
+<div class="preferences-container">
+  <h2>Préférences de notifications</h2>
+  <p class="subtitle">Choisissez comment vous souhaitez être notifié pour chaque type d'événement.</p>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Chargement des préférences...</p>
+    </div>
+  } @else {
+    @for (group of preferenceGroups; track group.title) {
+      <mat-card class="preference-group">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>{{ group.icon }}</mat-icon>
+          <mat-card-title>{{ group.title }}</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+          @for (eventType of group.eventTypes; track eventType) {
+            <div class="preference-row">
+              <div class="preference-label">
+                {{ getEventLabel(eventType) }}
+              </div>
+              <div class="preference-toggles">
+                <div class="toggle-item">
+                  <span class="toggle-label">Email</span>
+                  <mat-slide-toggle
+                    [checked]="isEmailEnabled(eventType)"
+                    [disabled]="saving()"
+                    (change)="onToggleEmail(eventType, $event.checked)">
+                  </mat-slide-toggle>
+                </div>
+                <div class="toggle-item">
+                  <span class="toggle-label">Push</span>
+                  <mat-slide-toggle
+                    [checked]="isPushEnabled(eventType)"
+                    [disabled]="saving()"
+                    (change)="onTogglePush(eventType, $event.checked)">
+                  </mat-slide-toggle>
+                </div>
+              </div>
+            </div>
+            @if (!$last) {
+              <mat-divider></mat-divider>
+            }
+          }
+        </mat-card-content>
+      </mat-card>
+    }
+  }
+
+  @if (saving()) {
+    <div class="saving-overlay">
+      <mat-spinner diameter="24"></mat-spinner>
+      <span>Enregistrement...</span>
+    </div>
+  }
+</div>
