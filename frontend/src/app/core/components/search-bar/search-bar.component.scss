@@ -15,11 +15,12 @@
 
     ::ng-deep {
       .mat-mdc-form-field-flex {
-        background-color: rgba(255, 255, 255, 0.15);
+        background-color: rgba(255, 255, 255, 0.9);
         border-radius: theme.$radius-md;
         padding: 0 theme.$space-2;
-        border: 1px solid rgba(255, 255, 255, 0.25);
+        border: 1px solid rgba(255, 255, 255, 1);
         transition: all theme.$transition-base;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
 
       .mat-mdc-form-field-infix {
@@ -36,14 +37,14 @@
       }
 
       input {
-        color: white !important;
+        color: theme.$color-gray-800 !important;
         cursor: text;
         font-weight: theme.$font-weight-normal;
         font-size: theme.$font-size-base;
-        caret-color: white;
+        caret-color: theme.$color-primary-600;
 
         &::placeholder {
-          color: rgba(255, 255, 255, 0.7) !important;
+          color: theme.$color-gray-400 !important;
           font-size: theme.$font-size-base;
           font-weight: theme.$font-weight-normal;
         }
@@ -54,28 +55,21 @@
       }
 
       .mat-icon {
-        color: rgba(255, 255, 255, 0.7) !important;
+        color: theme.$color-gray-400 !important;
       }
 
       // Hover state
       .mat-mdc-text-field-wrapper:hover .mat-mdc-form-field-flex {
-        background-color: rgba(255, 255, 255, 0.25);
-        border-color: rgba(255, 255, 255, 0.4);
+        background-color: white;
+        border-color: theme.$color-gray-300;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
       }
 
       // Focus state
       .mat-mdc-form-field.mat-focused .mat-mdc-form-field-flex {
         background-color: white;
-        border-color: white;
-        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
-      }
-
-      .mat-mdc-form-field.mat-focused input {
-        color: theme.$color-gray-800 !important;
-
-        &::placeholder {
-          color: theme.$color-gray-400 !important;
-        }
+        border-color: theme.$color-primary-500;
+        box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.2), 0 2px 8px rgba(0, 0, 0, 0.1);
       }
 
       .mat-mdc-form-field.mat-focused .mat-icon {
