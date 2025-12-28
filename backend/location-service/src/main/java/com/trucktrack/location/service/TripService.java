@@ -43,6 +43,7 @@ public class TripService {
     private final TruckRepository truckRepository;
     private final UserPushTokenRepository userPushTokenRepository;
     private final PushNotificationService pushNotificationService;
+    private final TripEventPublisher tripEventPublisher;
 
     // Map entity field names to database column names for native query sorting
     private static final Map<String, String> SORT_FIELD_MAPPING = Map.of(
@@ -268,6 +269,12 @@ public class TripService {
         // T037: Send push notification to the assigned driver
         sendTripAssignmentNotification(trip);
 
+        // Feature 016: Publish Kafka event for notification-service
+        String vehiclePlate = truckRepository.findById(request.getTruckId())
+            .map(Truck::getTruckId)
+            .orElse(null);
+        tripEventPublisher.publishTripAssigned(trip, vehiclePlate);
+
         return enrichTripResponse(trip);
     }
 
@@ -339,6 +346,11 @@ public class TripService {
         log.info("Updated trip {} status from {} to {} by user {}",
             trip.getId(), previousStatus, newStatus, actorId);
 
+        // Feature 016: Publish Kafka event when trip is completed
+        if (newStatus == TripStatus.COMPLETED) {
+            tripEventPublisher.publishTripCompleted(trip, null, null, null);
+        }
+
         return enrichTripResponse(trip);
     }
 
@@ -376,6 +388,9 @@ public class TripService {
         if (previousDriverId != null) {
             sendTripCancelledNotification(trip, previousDriverId);
         }
+
+        // Feature 016: Publish Kafka event for notification-service
+        tripEventPublisher.publishTripCancelled(trip, previousDriverId, reason);
 
         return enrichTripResponse(trip);
     }
@@ -426,6 +441,12 @@ public class TripService {
             sendTripReassignedNotification(trip, previousDriverId, false);
         }
         sendTripReassignedNotification(trip, request.getDriverId(), true);
+
+        // Feature 016: Publish Kafka event for notification-service
+        String vehiclePlate = truckRepository.findById(request.getTruckId())
+            .map(Truck::getTruckId)
+            .orElse(null);
+        tripEventPublisher.publishTripReassigned(trip, previousDriverId, vehiclePlate);
 
         return enrichTripResponse(trip);
     }

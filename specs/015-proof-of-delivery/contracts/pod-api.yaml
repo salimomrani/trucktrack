@@ -1,0 +1,490 @@
+openapi: 3.0.3
+info:
+  title: Proof of Delivery API
+  description: |
+    API for electronic signature capture and delivery proof management.
+    Part of TruckTrack location-service.
+  version: 1.0.0
+  contact:
+    name: TruckTrack Team
+
+servers:
+  - url: http://localhost:8000/location/v1
+    description: Local development (via API Gateway)
+  - url: https://api.trucktrack.io/location/v1
+    description: Production
+
+tags:
+  - name: Driver POD
+    description: Endpoints for drivers (mobile app)
+  - name: Admin POD
+    description: Endpoints for fleet managers (web admin)
+
+paths:
+  # ========== DRIVER ENDPOINTS ==========
+  /trips/{tripId}/proof:
+    post:
+      tags: [Driver POD]
+      summary: Create proof of delivery
+      description: |
+        Submit a proof of delivery (signature + optional photos) for a trip.
+        This automatically completes the trip (status → COMPLETED).
+        Works offline - mobile app queues and syncs when connected.
+      operationId: createProof
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/tripId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProofRequest'
+      responses:
+        '201':
+          description: Proof created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProofResponse'
+        '400':
+          description: Invalid request (signature too small, missing fields)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Driver not assigned to this trip
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Trip not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Trip already has a proof or is not IN_PROGRESS
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      tags: [Driver POD]
+      summary: Get proof for a trip
+      description: Retrieve the proof of delivery for a specific trip.
+      operationId: getProofByTripId
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/tripId'
+      responses:
+        '200':
+          description: Proof found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProofResponse'
+        '404':
+          description: Trip or proof not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ========== ADMIN ENDPOINTS ==========
+  /admin/proofs:
+    get:
+      tags: [Admin POD]
+      summary: List all proofs
+      description: |
+        Get paginated list of delivery proofs with filters.
+        Requires FLEET_MANAGER or ADMIN role.
+      operationId: listProofs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ProofStatus'
+        - name: driverId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: Paginated list of proofs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProofPageResponse'
+        '403':
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/proofs/{proofId}:
+    get:
+      tags: [Admin POD]
+      summary: Get proof details
+      description: Get full details of a specific proof including photos.
+      operationId: getProofById
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/proofId'
+      responses:
+        '200':
+          description: Proof details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProofDetailResponse'
+        '404':
+          description: Proof not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/proofs/{proofId}/pdf:
+    get:
+      tags: [Admin POD]
+      summary: Download proof as PDF
+      description: Generate and download a PDF document for the proof.
+      operationId: downloadProofPdf
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/proofId'
+      responses:
+        '200':
+          description: PDF document
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Proof not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/proofs/stats:
+    get:
+      tags: [Admin POD]
+      summary: Get POD statistics
+      description: Get statistics about proofs of delivery.
+      operationId: getProofStats
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: POD statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProofStatsResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    tripId:
+      name: tripId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Trip identifier
+
+    proofId:
+      name: proofId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Proof identifier
+
+  schemas:
+    ProofStatus:
+      type: string
+      enum: [SIGNED, REFUSED]
+      description: Status of the proof
+
+    CreateProofRequest:
+      type: object
+      required:
+        - status
+        - signatureImage
+        - latitude
+        - longitude
+        - gpsAccuracy
+        - capturedAt
+      properties:
+        status:
+          $ref: '#/components/schemas/ProofStatus'
+        signatureImage:
+          type: string
+          description: PNG image as Base64 (max 100KB)
+          maxLength: 150000
+        signerName:
+          type: string
+          description: Name of person who signed (optional)
+          maxLength: 200
+        refusalReason:
+          type: string
+          description: Reason for refusal (required if status=REFUSED)
+          maxLength: 500
+        latitude:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+        gpsAccuracy:
+          type: number
+          format: double
+          minimum: 0
+          description: GPS accuracy in meters
+        capturedAt:
+          type: string
+          format: date-time
+          description: Timestamp when signature was captured on device
+        photos:
+          type: array
+          maxItems: 3
+          items:
+            $ref: '#/components/schemas/CreatePhotoRequest'
+
+    CreatePhotoRequest:
+      type: object
+      required:
+        - photoImage
+        - latitude
+        - longitude
+        - capturedAt
+      properties:
+        photoImage:
+          type: string
+          description: JPEG image as Base64 (max 500KB)
+          maxLength: 700000
+        latitude:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+        capturedAt:
+          type: string
+          format: date-time
+
+    ProofResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tripId:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/ProofStatus'
+        statusDisplay:
+          type: string
+          description: Human-readable status
+        signerName:
+          type: string
+        refusalReason:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        gpsAccuracy:
+          type: number
+        integrityHash:
+          type: string
+          description: SHA-256 hash for verification
+        capturedAt:
+          type: string
+          format: date-time
+        syncedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          format: uuid
+        createdByName:
+          type: string
+        hasPhotos:
+          type: boolean
+        photoCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+
+    ProofDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/ProofResponse'
+        - type: object
+          properties:
+            signatureImage:
+              type: string
+              description: Base64 PNG signature
+            photos:
+              type: array
+              items:
+                $ref: '#/components/schemas/PhotoResponse'
+            trip:
+              $ref: '#/components/schemas/TripSummary'
+
+    PhotoResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        displayOrder:
+          type: integer
+        photoImage:
+          type: string
+          description: Base64 JPEG photo
+        latitude:
+          type: number
+        longitude:
+          type: number
+        capturedAt:
+          type: string
+          format: date-time
+
+    TripSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        origin:
+          type: string
+        destination:
+          type: string
+        assignedDriverName:
+          type: string
+        completedAt:
+          type: string
+          format: date-time
+
+    ProofPageResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProofResponse'
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+        number:
+          type: integer
+        size:
+          type: integer
+
+    ProofStatsResponse:
+      type: object
+      properties:
+        totalProofs:
+          type: integer
+        signedCount:
+          type: integer
+        refusedCount:
+          type: integer
+        withPhotosCount:
+          type: integer
+        averagePhotosPerProof:
+          type: number
+        proofsPerDay:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              count:
+                type: integer
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Human-readable message
+        details:
+          type: object
+          description: Additional error details

@@ -55,6 +55,9 @@ class TripServiceTest {
     @Mock
     private PushNotificationService pushNotificationService;
 
+    @Mock
+    private TripEventPublisher tripEventPublisher;
+
     @InjectMocks
     private TripService tripService;
 

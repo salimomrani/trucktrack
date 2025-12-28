@@ -99,6 +99,30 @@ public class Trip {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    /**
+     * Indicates if a proof of delivery has been captured for this trip.
+     * Feature: 015-proof-of-delivery
+     */
+    @Column(name = "has_proof", nullable = false)
+    @Builder.Default
+    private Boolean hasProof = false;
+
+    /**
+     * Client/recipient information for notifications.
+     * Feature: 016-email-notifications
+     */
+    @Size(max = 255)
+    @Column(name = "recipient_email")
+    private String recipientEmail;
+
+    @Size(max = 100)
+    @Column(name = "recipient_name")
+    private String recipientName;
+
+    @Size(max = 20)
+    @Column(name = "recipient_phone")
+    private String recipientPhone;
+
     // Transient fields for response enrichment (not persisted)
     @Transient
     private String assignedTruckName;
