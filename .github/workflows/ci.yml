@@ -51,7 +51,7 @@ jobs:
 
       - name: Build shared module
         working-directory: backend
-        run: mvn install -pl shared -am -DskipTests
+        run: mvn install -pl shared -am -DskipTests -T 1C
 
       - name: Cache built shared module
         uses: actions/cache/save@v4
@@ -108,7 +108,7 @@ jobs:
 
       - name: Test ${{ matrix.service }}
         working-directory: backend/${{ matrix.service }}
-        run: mvn test -B
+        run: mvn test -B -T 1C
         env:
           SPRING_DATASOURCE_DRIVER: org.postgresql.Driver
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/testdb
@@ -122,6 +122,14 @@ jobs:
           name: coverage-${{ matrix.service }}
           path: backend/${{ matrix.service }}/target/site/jacoco/
           retention-days: 7
+
+      - name: Upload compiled classes
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: classes-${{ matrix.service }}
+          path: backend/${{ matrix.service }}/target/classes/
+          retention-days: 1
 
   # Frontend tests
   frontend:
@@ -229,20 +237,23 @@ jobs:
           path: mobile-expo/coverage/
           retention-days: 7
 
-  # SonarCloud Analysis
-  sonarcloud:
-    name: SonarCloud Analysis
-    needs: [changes, backend, frontend]
+  # SonarCloud Analysis - Backend (runs in parallel with frontend)
+  sonarcloud-backend:
+    name: SonarCloud Backend
+    needs: [changes, backend]
     if: |
       always() &&
-      (needs.changes.outputs.backend == 'true' || needs.changes.outputs.frontend == 'true') &&
-      (needs.backend.result == 'success' || needs.backend.result == 'skipped') &&
-      (needs.frontend.result == 'success' || needs.frontend.result == 'skipped')
+      needs.changes.outputs.backend == 'true' &&
+      needs.backend.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Required for SonarCloud blame data
+          fetch-depth: 50  # Shallow clone - sufficient for most PRs
+
+      - name: Fetch base branch for blame
+        run: |
+          git fetch --depth=50 origin ${{ github.base_ref || 'master' }}
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -251,6 +262,82 @@ jobs:
           distribution: 'corretto'
           cache: 'maven'
 
+      - name: Download backend coverage
+        uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-*
+          path: backend-coverage/
+          merge-multiple: true
+
+      - name: Download compiled classes
+        uses: actions/download-artifact@v4
+        with:
+          pattern: classes-*
+          path: backend-classes/
+          merge-multiple: true
+
+      - name: Restore compiled classes to target directories
+        run: |
+          for service in api-gateway auth-service gps-ingestion-service location-service notification-service; do
+            if [ -d "backend-classes/" ]; then
+              mkdir -p backend/$service/target/classes
+              cp -r backend-classes/* backend/$service/target/classes/ 2>/dev/null || true
+            fi
+          done
+
+      - name: Build shared module only
+        working-directory: backend
+        run: mvn install -pl shared -am -DskipTests -q -T 1C
+
+      - name: Restore coverage reports
+        run: |
+          for service in api-gateway auth-service gps-ingestion-service location-service notification-service; do
+            if [ -d "backend-coverage/" ]; then
+              mkdir -p backend/$service/target/site/jacoco
+              cp -r backend-coverage/* backend/$service/target/site/jacoco/ 2>/dev/null || true
+            fi
+          done
+
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar-backend
+          restore-keys: ${{ runner.os }}-sonar-backend
+
+      - name: SonarCloud Backend Scan
+        working-directory: backend
+        run: |
+          mvn sonar:sonar \
+            -Dsonar.projectKey=salimomrani_trucktrack-backend \
+            -Dsonar.organization=salimomrani \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.java.binaries=**/target/classes \
+            -Dsonar.coverage.jacoco.xmlReportPaths=**/target/site/jacoco/jacoco.xml \
+            -Dsonar.exclusions="**/generated/**,**/target/**,**/*Application.java,**/*Config*.java,**/migrations/**" \
+            -Dsonar.cpd.exclusions="**/model/**,**/dto/**,**/entity/**" \
+            -DskipTests -q -T 1C
+        continue-on-error: true
+
+  # SonarCloud Analysis - Frontend (runs in parallel with backend)
+  sonarcloud-frontend:
+    name: SonarCloud Frontend
+    needs: [changes, frontend]
+    if: |
+      always() &&
+      needs.changes.outputs.frontend == 'true' &&
+      needs.frontend.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 50  # Shallow clone
+
+      - name: Fetch base branch for blame
+        run: |
+          git fetch --depth=50 origin ${{ github.base_ref || 'master' }}
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -258,34 +345,31 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Download backend coverage
-        if: needs.changes.outputs.backend == 'true'
-        uses: actions/download-artifact@v4
-        with:
-          pattern: coverage-*
-          path: backend/
-          merge-multiple: true
-
       - name: Download frontend coverage
-        if: needs.changes.outputs.frontend == 'true'
         uses: actions/download-artifact@v4
         with:
           name: frontend-coverage
           path: frontend/coverage/
 
-      - name: Build backend for SonarCloud
-        working-directory: backend
-        run: mvn compile -DskipTests -q
-
       - name: Cache SonarCloud packages
         uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
+          key: ${{ runner.os }}-sonar-frontend
+          restore-keys: ${{ runner.os }}-sonar-frontend
 
-      - name: SonarCloud Scan
+      - name: SonarCloud Frontend Scan
         uses: SonarSource/sonarcloud-github-action@master
+        with:
+          projectBaseDir: frontend
+          args: >
+            -Dsonar.projectKey=salimomrani_trucktrack-frontend
+            -Dsonar.organization=salimomrani
+            -Dsonar.sources=src
+            -Dsonar.tests=src
+            -Dsonar.test.inclusions=**/*.spec.ts
+            -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/coverage/**,**/*.spec.ts,**/environments/**
+            -Dsonar.typescript.lcov.reportPaths=coverage/frontend/lcov.info
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -294,7 +378,7 @@ jobs:
   # Summary job
   summary:
     name: Summary
-    needs: [changes, backend-build, backend, frontend, mobile, sonarcloud]
+    needs: [changes, backend-build, backend, frontend, mobile, sonarcloud-backend, sonarcloud-frontend]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -335,17 +419,30 @@ jobs:
             echo "| Mobile | - | ⏭️ Skip |" >> $GITHUB_STEP_SUMMARY
           fi
 
-          # SonarCloud result
-          if [ "${{ needs.changes.outputs.backend }}" == "true" ] || [ "${{ needs.changes.outputs.frontend }}" == "true" ]; then
-            if [ "${{ needs.sonarcloud.result }}" == "success" ]; then
-              echo "| SonarCloud | ✓ | ✅ Pass |" >> $GITHUB_STEP_SUMMARY
-            elif [ "${{ needs.sonarcloud.result }}" == "skipped" ]; then
-              echo "| SonarCloud | - | ⏭️ Skip |" >> $GITHUB_STEP_SUMMARY
+          # SonarCloud Backend result
+          if [ "${{ needs.changes.outputs.backend }}" == "true" ]; then
+            if [ "${{ needs.sonarcloud-backend.result }}" == "success" ]; then
+              echo "| SonarCloud Backend | ✓ | ✅ Pass |" >> $GITHUB_STEP_SUMMARY
+            elif [ "${{ needs.sonarcloud-backend.result }}" == "skipped" ]; then
+              echo "| SonarCloud Backend | - | ⏭️ Skip |" >> $GITHUB_STEP_SUMMARY
             else
-              echo "| SonarCloud | ✓ | ⚠️ Warning |" >> $GITHUB_STEP_SUMMARY
+              echo "| SonarCloud Backend | ✓ | ⚠️ Warning |" >> $GITHUB_STEP_SUMMARY
             fi
           else
-            echo "| SonarCloud | - | ⏭️ Skip |" >> $GITHUB_STEP_SUMMARY
+            echo "| SonarCloud Backend | - | ⏭️ Skip |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # SonarCloud Frontend result
+          if [ "${{ needs.changes.outputs.frontend }}" == "true" ]; then
+            if [ "${{ needs.sonarcloud-frontend.result }}" == "success" ]; then
+              echo "| SonarCloud Frontend | ✓ | ✅ Pass |" >> $GITHUB_STEP_SUMMARY
+            elif [ "${{ needs.sonarcloud-frontend.result }}" == "skipped" ]; then
+              echo "| SonarCloud Frontend | - | ⏭️ Skip |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "| SonarCloud Frontend | ✓ | ⚠️ Warning |" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "| SonarCloud Frontend | - | ⏭️ Skip |" >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Fail if any test failed
