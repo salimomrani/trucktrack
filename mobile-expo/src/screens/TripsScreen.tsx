@@ -4,7 +4,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { TripService, Trip, TripStatus } from '../services/api';
+import { TripService, Trip, TripStatus, ProofStatus } from '../services/api';
+
+// Proof status config for visual indicators
+const proofStatusConfig: Record<ProofStatus, { color: string; bgColor: string; icon: keyof typeof Ionicons.glyphMap; label: string }> = {
+  SIGNED: { color: '#28A745', bgColor: '#e8f5e9', icon: 'checkmark-circle', label: 'Signed' },
+  REFUSED: { color: '#dc3545', bgColor: '#ffebee', icon: 'close-circle', label: 'Refused' },
+};
 
 // Navigation types
 type RootStackParamList = {
@@ -68,6 +74,11 @@ export default function TripsScreen() {
   const renderTrip = ({ item }: { item: Trip }) => {
     const config = statusConfig[item.status] || statusConfig.PENDING;
 
+    // Debug: log proof status for completed trips
+    if (item.status === 'COMPLETED') {
+      console.log(`Trip ${item.id} proofStatus:`, item.proofStatus, typeof item.proofStatus);
+    }
+
     return (
       <TouchableOpacity style={styles.tripCard} onPress={() => handleTripPress(item)}>
         <View style={styles.tripHeader}>
@@ -119,9 +130,30 @@ export default function TripsScreen() {
         </View>
 
         <View style={styles.tripFooter}>
-          <Text style={[styles.statusText, { color: config.color }]}>
-            {config.label}
-          </Text>
+          <View style={styles.statusContainer}>
+            <Text style={[styles.statusText, { color: config.color }]}>
+              {config.label}
+            </Text>
+            {/* Show POD status badge for completed trips */}
+            {item.status === 'COMPLETED' && item.proofStatus && (
+              <View style={[
+                styles.proofBadge,
+                { backgroundColor: proofStatusConfig[item.proofStatus].bgColor }
+              ]}>
+                <Ionicons
+                  name={proofStatusConfig[item.proofStatus].icon}
+                  size={14}
+                  color={proofStatusConfig[item.proofStatus].color}
+                />
+                <Text style={[
+                  styles.proofBadgeText,
+                  { color: proofStatusConfig[item.proofStatus].color }
+                ]}>
+                  {proofStatusConfig[item.proofStatus].label}
+                </Text>
+              </View>
+            )}
+          </View>
           <Ionicons name="chevron-forward" size={20} color="#ccc" />
         </View>
       </TouchableOpacity>
@@ -300,8 +332,25 @@ const styles = StyleSheet.create({
     borderTopColor: '#f0f0f0',
     paddingTop: 12,
   },
+  statusContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   statusText: {
     fontSize: 13,
+    fontWeight: '600',
+  },
+  proofBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  proofBadgeText: {
+    fontSize: 12,
     fontWeight: '600',
   },
 });

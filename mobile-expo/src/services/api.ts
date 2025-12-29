@@ -94,6 +94,9 @@ export interface Trip {
   createdByName: string | null;
   createdAt: string;
   updatedAt: string;
+  // Proof of Delivery info (Feature: 015)
+  proofStatus: ProofStatus | null;
+  proofStatusDisplay: string | null;
 }
 
 export interface TripStatusHistory {
