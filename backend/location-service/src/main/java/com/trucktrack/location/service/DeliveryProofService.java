@@ -34,6 +34,7 @@ public class DeliveryProofService {
 
     private final DeliveryProofRepository proofRepository;
     private final TripRepository tripRepository;
+    private final TripEventPublisher tripEventPublisher;
 
     // Minimum signature coverage: 15% of canvas pixels must be non-transparent
     private static final double MIN_SIGNATURE_COVERAGE = 0.15;
@@ -111,6 +112,12 @@ public class DeliveryProofService {
         trip.setStatus(TripStatus.COMPLETED);
         trip.setCompletedAt(Instant.now());
         tripRepository.save(trip);
+
+        // Publish trip completed event to Kafka for notification-service (Feature 016)
+        List<String> photoUrls = saved.getPhotos() != null
+            ? saved.getPhotos().stream().map(p -> "photo-" + p.getId()).toList()
+            : List.of();
+        tripEventPublisher.publishTripCompleted(trip, request.signerName(), "signature-" + saved.getId(), photoUrls);
 
         log.info("Created proof {} for trip {} with {} photos", saved.getId(), tripId, saved.getPhotoCount());
 

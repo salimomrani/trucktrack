@@ -1,6 +1,7 @@
 package com.trucktrack.location.dto;
 
 import com.trucktrack.common.util.ConversionUtils;
+import com.trucktrack.location.model.ProofStatus;
 import com.trucktrack.location.model.Trip;
 import com.trucktrack.location.model.TripStatus;
 import lombok.AllArgsConstructor;
@@ -47,6 +48,10 @@ public class TripResponse {
     private String createdByName;
     private Instant createdAt;
     private Instant updatedAt;
+
+    // Proof of Delivery info (Feature: 015-proof-of-delivery)
+    private ProofStatus proofStatus;
+    private String proofStatusDisplay;
 
     /**
      * Factory method to create response from entity.
