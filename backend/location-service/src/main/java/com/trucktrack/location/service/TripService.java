@@ -3,10 +3,13 @@ package com.trucktrack.location.service;
 import com.trucktrack.common.dto.PageResponse;
 import com.trucktrack.common.util.ConversionUtils;
 import com.trucktrack.location.dto.*;
+import com.trucktrack.location.model.DeliveryProof;
+import com.trucktrack.location.model.ProofStatus;
 import com.trucktrack.location.model.Trip;
 import com.trucktrack.location.model.TripStatus;
 import com.trucktrack.location.model.TripStatusHistory;
 import com.trucktrack.location.model.Truck;
+import com.trucktrack.location.repository.DeliveryProofRepository;
 import com.trucktrack.location.repository.TripRepository;
 import com.trucktrack.location.repository.TripStatusHistoryRepository;
 import com.trucktrack.location.repository.TruckRepository;
@@ -42,6 +45,7 @@ public class TripService {
     private final TripStatusHistoryRepository historyRepository;
     private final TruckRepository truckRepository;
     private final UserPushTokenRepository userPushTokenRepository;
+    private final DeliveryProofRepository deliveryProofRepository;
     private final PushNotificationService pushNotificationService;
     private final TripEventPublisher tripEventPublisher;
 
@@ -453,11 +457,15 @@ public class TripService {
 
     /**
      * Get trips for a specific driver.
+     * Feature 015: Enriched with proof of delivery status.
      */
     @Transactional(readOnly = true)
     public List<TripResponse> getTripsForDriver(UUID driverId) {
-        return tripRepository.findByAssignedDriverId(driverId).stream()
-            .map(this::enrichTripResponse)
+        List<Trip> trips = tripRepository.findByAssignedDriverId(driverId);
+        List<UUID> tripIds = trips.stream().map(Trip::getId).collect(Collectors.toList());
+        Map<UUID, ProofStatus> proofStatusMap = getProofStatusMap(tripIds);
+        return trips.stream()
+            .map(trip -> enrichTripResponseWithProof(trip, proofStatusMap.get(trip.getId())))
             .collect(Collectors.toList());
     }
 
@@ -685,5 +693,43 @@ public class TripService {
         }
 
         return response;
+    }
+
+    /**
+     * Enrich trip response with proof of delivery status.
+     * Feature 015: Proof of Delivery status enrichment.
+     */
+    private TripResponse enrichTripResponseWithProof(Trip trip, ProofStatus proofStatus) {
+        TripResponse response = enrichTripResponse(trip);
+        if (proofStatus != null) {
+            response.setProofStatus(proofStatus);
+            response.setProofStatusDisplay(getProofStatusDisplay(proofStatus));
+        }
+        return response;
+    }
+
+    /**
+     * Batch fetch proof statuses for multiple trips.
+     * Feature 015: Efficient batch loading for POD status.
+     */
+    private Map<UUID, ProofStatus> getProofStatusMap(List<UUID> tripIds) {
+        if (tripIds.isEmpty()) {
+            return Map.of();
+        }
+        return deliveryProofRepository.findByTripIdIn(tripIds).stream()
+            .collect(Collectors.toMap(DeliveryProof::getTripId, DeliveryProof::getStatus));
+    }
+
+    /**
+     * Get display label for proof status.
+     */
+    private String getProofStatusDisplay(ProofStatus status) {
+        if (status == null) {
+            return null;
+        }
+        return switch (status) {
+            case SIGNED -> "Signed";
+            case REFUSED -> "Refused";
+        };
     }
 }

@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { TripService, Trip, TripStatus } from '../services/api';
+import { TripService, Trip, TripStatus, ProofStatus } from '../services/api';
 
 // Navigation types
 type RootStackParamList = {
@@ -20,6 +20,12 @@ const statusConfig: Record<TripStatus, { color: string; icon: keyof typeof Ionic
   IN_PROGRESS: { color: '#1976D2', icon: 'car', label: 'In Progress' },
   COMPLETED: { color: '#28A745', icon: 'checkmark-circle', label: 'Completed' },
   CANCELLED: { color: '#dc3545', icon: 'close-circle', label: 'Cancelled' },
+};
+
+// Feature 015: Proof of Delivery status configuration
+const proofStatusConfig: Record<ProofStatus, { color: string; bgColor: string; icon: keyof typeof Ionicons.glyphMap; label: string }> = {
+  SIGNED: { color: '#28A745', bgColor: '#e8f5e9', icon: 'checkmark-circle', label: 'Signed' },
+  REFUSED: { color: '#dc3545', bgColor: '#ffebee', icon: 'close-circle', label: 'Refused' },
 };
 
 export default function TripsScreen() {
@@ -122,7 +128,18 @@ export default function TripsScreen() {
           <Text style={[styles.statusText, { color: config.color }]}>
             {config.label}
           </Text>
-          <Ionicons name="chevron-forward" size={20} color="#ccc" />
+          <View style={styles.tripFooterRight}>
+            {/* Feature 015: Show proof status badge for completed trips */}
+            {item.status === 'COMPLETED' && item.proofStatus && (
+              <View style={[styles.proofBadge, { backgroundColor: proofStatusConfig[item.proofStatus].bgColor }]}>
+                <Ionicons name={proofStatusConfig[item.proofStatus].icon} size={14} color={proofStatusConfig[item.proofStatus].color} />
+                <Text style={[styles.proofBadgeText, { color: proofStatusConfig[item.proofStatus].color }]}>
+                  {proofStatusConfig[item.proofStatus].label}
+                </Text>
+              </View>
+            )}
+            <Ionicons name="chevron-forward" size={20} color="#ccc" />
+          </View>
         </View>
       </TouchableOpacity>
     );
@@ -302,6 +319,23 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 13,
+    fontWeight: '600',
+  },
+  tripFooterRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  proofBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  proofBadgeText: {
+    fontSize: 12,
     fontWeight: '600',
   },
 });
