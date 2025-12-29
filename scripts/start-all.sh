@@ -21,6 +21,16 @@ BUILD_BACKEND=false
 SHOW_LOGS=false
 
 # ============================================
+# Load environment variables from .env.local
+# ============================================
+if [ -f "$BACKEND_DIR/.env.local" ]; then
+  echo -e "${BLUE}Loading environment from .env.local...${NC}"
+  set -a
+  source "$BACKEND_DIR/.env.local"
+  set +a
+fi
+
+# ============================================
 # Environment variables for local development
 # ============================================
 # Spring profile (dev = readable logs, debug enabled)

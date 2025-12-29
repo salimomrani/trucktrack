@@ -3,12 +3,12 @@ package com.trucktrack.location.service;
 import com.trucktrack.common.dto.PageResponse;
 import com.trucktrack.common.util.ConversionUtils;
 import com.trucktrack.location.dto.*;
-import com.trucktrack.location.model.DeliveryProof;
-import com.trucktrack.location.model.ProofStatus;
 import com.trucktrack.location.model.Trip;
 import com.trucktrack.location.model.TripStatus;
 import com.trucktrack.location.model.TripStatusHistory;
 import com.trucktrack.location.model.Truck;
+import com.trucktrack.location.model.DeliveryProof;
+import com.trucktrack.location.model.ProofStatus;
 import com.trucktrack.location.repository.DeliveryProofRepository;
 import com.trucktrack.location.repository.TripRepository;
 import com.trucktrack.location.repository.TripStatusHistoryRepository;
@@ -350,8 +350,14 @@ public class TripService {
         log.info("Updated trip {} status from {} to {} by user {}",
             trip.getId(), previousStatus, newStatus, actorId);
 
-        // Feature 016: Publish Kafka event when trip is completed
-        if (newStatus == TripStatus.COMPLETED) {
+        // Feature 016: Publish Kafka events for notification-service
+        if (newStatus == TripStatus.IN_PROGRESS) {
+            // Trip started - notify client
+            String vehiclePlate = truckRepository.findById(trip.getAssignedTruckId())
+                .map(Truck::getTruckId)
+                .orElse(null);
+            tripEventPublisher.publishTripStarted(trip, vehiclePlate);
+        } else if (newStatus == TripStatus.COMPLETED) {
             tripEventPublisher.publishTripCompleted(trip, null, null, null);
         }
 
@@ -457,13 +463,16 @@ public class TripService {
 
     /**
      * Get trips for a specific driver.
-     * Feature 015: Enriched with proof of delivery status.
+     * Enriched with proof of delivery status for completed trips.
      */
     @Transactional(readOnly = true)
     public List<TripResponse> getTripsForDriver(UUID driverId) {
         List<Trip> trips = tripRepository.findByAssignedDriverId(driverId);
+
+        // Fetch proof statuses for all trips in batch (for efficiency)
         List<UUID> tripIds = trips.stream().map(Trip::getId).collect(Collectors.toList());
         Map<UUID, ProofStatus> proofStatusMap = getProofStatusMap(tripIds);
+
         return trips.stream()
             .map(trip -> enrichTripResponseWithProof(trip, proofStatusMap.get(trip.getId())))
             .collect(Collectors.toList());
@@ -696,37 +705,41 @@ public class TripService {
     }
 
     /**
-     * Enrich trip response with proof of delivery status.
-     * Feature 015: Proof of Delivery status enrichment.
+     * Enrich trip response with truck, driver names and proof status.
+     * Feature: 015-proof-of-delivery
      */
     private TripResponse enrichTripResponseWithProof(Trip trip, ProofStatus proofStatus) {
         TripResponse response = enrichTripResponse(trip);
+
+        // Add proof status if available
         if (proofStatus != null) {
             response.setProofStatus(proofStatus);
             response.setProofStatusDisplay(getProofStatusDisplay(proofStatus));
         }
+
         return response;
     }
 
     /**
-     * Batch fetch proof statuses for multiple trips.
-     * Feature 015: Efficient batch loading for POD status.
+     * Get proof status map for multiple trips in batch.
+     * Feature: 015-proof-of-delivery
      */
     private Map<UUID, ProofStatus> getProofStatusMap(List<UUID> tripIds) {
         if (tripIds.isEmpty()) {
             return Map.of();
         }
         return deliveryProofRepository.findByTripIdIn(tripIds).stream()
-            .collect(Collectors.toMap(DeliveryProof::getTripId, DeliveryProof::getStatus));
+            .collect(Collectors.toMap(
+                DeliveryProof::getTripId,
+                DeliveryProof::getStatus
+            ));
     }
 
     /**
-     * Get display label for proof status.
+     * Get display name for proof status.
      */
     private String getProofStatusDisplay(ProofStatus status) {
-        if (status == null) {
-            return null;
-        }
+        if (status == null) return null;
         return switch (status) {
             case SIGNED -> "Signed";
             case REFUSED -> "Refused";
