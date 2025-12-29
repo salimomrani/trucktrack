@@ -350,8 +350,14 @@ public class TripService {
         log.info("Updated trip {} status from {} to {} by user {}",
             trip.getId(), previousStatus, newStatus, actorId);
 
-        // Feature 016: Publish Kafka event when trip is completed
-        if (newStatus == TripStatus.COMPLETED) {
+        // Feature 016: Publish Kafka events for notification-service
+        if (newStatus == TripStatus.IN_PROGRESS) {
+            // Trip started - notify client
+            String vehiclePlate = truckRepository.findById(trip.getAssignedTruckId())
+                .map(Truck::getTruckId)
+                .orElse(null);
+            tripEventPublisher.publishTripStarted(trip, vehiclePlate);
+        } else if (newStatus == TripStatus.COMPLETED) {
             tripEventPublisher.publishTripCompleted(trip, null, null, null);
         }
 

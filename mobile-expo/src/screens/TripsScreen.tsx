@@ -74,6 +74,11 @@ export default function TripsScreen() {
   const renderTrip = ({ item }: { item: Trip }) => {
     const config = statusConfig[item.status] || statusConfig.PENDING;
 
+    // Debug: log proof status for completed trips
+    if (item.status === 'COMPLETED') {
+      console.log(`Trip ${item.id} proofStatus:`, item.proofStatus, typeof item.proofStatus);
+    }
+
     return (
       <TouchableOpacity style={styles.tripCard} onPress={() => handleTripPress(item)}>
         <View style={styles.tripHeader}>

@@ -14,6 +14,7 @@ public enum NotificationType {
     // Email/Push notification types (Feature 016)
     DELIVERY_CONFIRMED,
     TRIP_ASSIGNED,
+    TRIP_STARTED,
     TRIP_REASSIGNED,
     TRIP_CANCELLED,
     ETA_30MIN,

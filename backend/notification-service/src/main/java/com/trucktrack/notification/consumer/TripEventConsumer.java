@@ -71,6 +71,39 @@ public class TripEventConsumer {
         }
     }
 
+    @KafkaListener(topics = "truck-track.trips.started", groupId = "notification-service-group")
+    public void handleTripStarted(ConsumerRecord<String, String> record) {
+        try {
+            TripStartedPayload payload = objectMapper.readValue(record.value(), TripStartedPayload.class);
+            log.info("Received trip started event for trip: {}", payload.tripId);
+
+            // Send email to client when driver starts delivery
+            if (payload.recipientEmail != null && !payload.recipientEmail.isBlank()) {
+                Map<String, Object> variables = new HashMap<>();
+                variables.put("recipientName", payload.recipientName != null ? payload.recipientName : "Client");
+                variables.put("orderNumber", payload.orderNumber != null ? payload.orderNumber : payload.tripId);
+                variables.put("origin", payload.origin);
+                variables.put("destination", payload.destination);
+                variables.put("vehiclePlate", payload.vehiclePlate);
+                variables.put("startedAt", payload.startedAt != null ?
+                        payload.startedAt : java.time.LocalDateTime.now().format(DATE_FORMATTER));
+
+                emailService.sendEmail(
+                        payload.recipientEmail,
+                        payload.recipientName,
+                        NotificationType.TRIP_STARTED,
+                        variables,
+                        null,
+                        RecipientType.CLIENT,
+                        "fr"
+                );
+            }
+
+        } catch (Exception e) {
+            log.error("Error processing trip started event: {}", e.getMessage(), e);
+        }
+    }
+
     @KafkaListener(topics = "truck-track.trips.assigned", groupId = "notification-service-group")
     public void handleTripAssigned(ConsumerRecord<String, String> record) {
         try {
@@ -174,6 +207,21 @@ public class TripEventConsumer {
         String signerName;
         String signatureUrl;
         java.util.List<String> photoUrls;
+        String orderNumber;
+    }
+
+    @lombok.Data
+    static class TripStartedPayload {
+        String tripId;
+        String driverId;
+        String truckId;
+        String vehiclePlate;
+        String origin;
+        String destination;
+        String startedAt;
+        String scheduledAt;
+        String recipientEmail;
+        String recipientName;
         String orderNumber;
     }
 

@@ -29,6 +29,30 @@ public class TripEventPublisher {
     @Value("${kafka.topics.trips-assigned:truck-track.trips.assigned}")
     private String tripsAssignedTopic;
 
+    @Value("${kafka.topics.trips-started:truck-track.trips.started}")
+    private String tripsStartedTopic;
+
+    /**
+     * Publish event when a trip is started (driver begins delivery)
+     */
+    public void publishTripStarted(Trip trip, String vehiclePlate) {
+        Map<String, Object> event = new HashMap<>();
+        event.put("tripId", trip.getId().toString());
+        event.put("driverId", trip.getAssignedDriverId() != null ? trip.getAssignedDriverId().toString() : null);
+        event.put("truckId", trip.getAssignedTruckId() != null ? trip.getAssignedTruckId().toString() : null);
+        event.put("vehiclePlate", vehiclePlate);
+        event.put("origin", trip.getOrigin());
+        event.put("destination", trip.getDestination());
+        event.put("startedAt", trip.getStartedAt() != null ? trip.getStartedAt().toString() : Instant.now().toString());
+        event.put("recipientEmail", trip.getRecipientEmail());
+        event.put("recipientName", trip.getRecipientName());
+        event.put("scheduledAt", trip.getScheduledAt() != null ? trip.getScheduledAt().toString() : null);
+        event.put("orderNumber", trip.getId().toString().substring(0, 8).toUpperCase());
+
+        kafkaTemplate.send(tripsStartedTopic, trip.getId().toString(), event);
+        log.info("Published trip started event for trip: {}", trip.getId());
+    }
+
     /**
      * Publish event when a trip is completed
      */
