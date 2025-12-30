@@ -9,10 +9,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/breadcrumb/breadcrumb.component';
 import { GroupService, GroupDetailResponse, CreateGroupRequest, UpdateGroupRequest } from '../group.service';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 
 /**
  * Group form component for create and edit.
@@ -31,7 +31,6 @@ import { GroupService, GroupDetailResponse, CreateGroupRequest, UpdateGroupReque
         MatInputModule,
         MatProgressSpinnerModule,
         MatDividerModule,
-        MatSnackBarModule,
         MatChipsModule,
         BreadcrumbComponent
     ],
@@ -44,7 +43,7 @@ export class GroupFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly groupService = inject(GroupService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   // State
   groupId = signal<string | null>(null);
@@ -86,7 +85,7 @@ export class GroupFormComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load group:', err);
-        this.snackBar.open('Failed to load group', 'Close', { duration: 3000 });
+        this.toast.error('Failed to load group');
         this.loading.set(false);
         this.router.navigate(['/admin/groups']);
       }
@@ -115,12 +114,12 @@ export class GroupFormComponent implements OnInit {
 
     this.groupService.createGroup(request).subscribe({
       next: (group) => {
-        this.snackBar.open(`Group "${group.name}" created successfully`, 'Close', { duration: 3000 });
+        this.toast.success(`Group "${group.name}" created successfully`);
         this.router.navigate(['/admin/groups']);
       },
       error: (err) => {
         console.error('Failed to create group:', err);
-        this.snackBar.open(err.error?.message || 'Failed to create group', 'Close', { duration: 3000 });
+        this.toast.error(err.error?.message || 'Failed to create group');
         this.saving.set(false);
       }
     });
@@ -134,12 +133,12 @@ export class GroupFormComponent implements OnInit {
 
     this.groupService.updateGroup(this.groupId()!, request).subscribe({
       next: (group) => {
-        this.snackBar.open(`Group "${group.name}" updated successfully`, 'Close', { duration: 3000 });
+        this.toast.success(`Group "${group.name}" updated successfully`);
         this.router.navigate(['/admin/groups']);
       },
       error: (err) => {
         console.error('Failed to update group:', err);
-        this.snackBar.open(err.error?.message || 'Failed to update group', 'Close', { duration: 3000 });
+        this.toast.error(err.error?.message || 'Failed to update group');
         this.saving.set(false);
       }
     });
