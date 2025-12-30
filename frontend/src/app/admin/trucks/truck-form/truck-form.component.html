@@ -1,185 +1,264 @@
-<div class="truck-form-container">
+<div class="p-6">
   <!-- Breadcrumb -->
   <app-breadcrumb [items]="breadcrumbItems()"></app-breadcrumb>
 
   <!-- Header -->
-  <div class="page-header">
-    <button mat-icon-button (click)="goBack()">
-      <mat-icon>arrow_back</mat-icon>
+  <div class="flex items-center gap-4 mb-6">
+    <button
+      type="button"
+      class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
+      (click)="goBack()">
+      <span class="material-icons">arrow_back</span>
     </button>
-    <div class="header-text">
-      <h1>{{ isEditMode() ? 'Edit Truck' : 'Add Truck' }}</h1>
+    <div>
+      <h1 class="text-2xl font-semibold text-gray-800">{{ isEditMode() ? 'Edit Truck' : 'Add Truck' }}</h1>
       @if (isEditMode()) {
-        <p class="subtitle">{{ truck()?.truckId }}</p>
+        <p class="text-gray-500 mt-1">{{ truck()?.truckId }}</p>
       }
     </div>
   </div>
 
   <!-- Loading -->
   @if (loading()) {
-    <div class="loading-container">
-      <mat-spinner diameter="40"></mat-spinner>
+    <div class="flex items-center justify-center py-16">
+      <div class="animate-spin rounded-full h-10 w-10 border-4 border-primary-500 border-t-transparent"></div>
     </div>
   }
 
   <!-- Form -->
   @if (!loading()) {
-    <div class="form-content">
-      <mat-card class="form-card">
-        <mat-card-header>
-          <mat-card-title>Truck Information</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <form [formGroup]="form" (ngSubmit)="onSubmit()">
-            @if (!isEditMode()) {
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Truck ID</mat-label>
-                <input matInput formControlName="truckId" placeholder="TRUCK-001">
-                <mat-icon matSuffix>local_shipping</mat-icon>
-                <mat-hint>Unique identifier for the truck</mat-hint>
-                @if (form.get('truckId')?.hasError('required')) {
-                  <mat-error>
-                    Truck ID is required
-                  </mat-error>
-                }
-              </mat-form-field>
-            }
-            <div class="form-row">
-              <mat-form-field appearance="outline" class="half-width">
-                <mat-label>License Plate</mat-label>
-                <input matInput formControlName="licensePlate" placeholder="ABC-1234">
-                @if (form.get('licensePlate')?.hasError('maxlength')) {
-                  <mat-error>
-                    License plate must not exceed 100 characters
-                  </mat-error>
-                }
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="half-width">
-                <mat-label>Vehicle Type</mat-label>
-                <mat-select formControlName="vehicleType">
-                  @for (type of vehicleTypes; track type) {
-                    <mat-option [value]="type">
-                      {{ type }}
-                    </mat-option>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Main Form Card -->
+      <div class="lg:col-span-2">
+        <div class="bg-white rounded-lg shadow-card">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-800">Truck Information</h2>
+          </div>
+          <div class="p-6">
+            <form [formGroup]="form" (ngSubmit)="onSubmit()">
+              <!-- Truck ID (Create mode only) -->
+              @if (!isEditMode()) {
+                <div class="mb-6">
+                  <label class="block text-sm font-medium text-gray-700 mb-1" for="truckId">
+                    Truck ID <span class="text-danger-500">*</span>
+                  </label>
+                  <div class="relative">
+                    <input
+                      id="truckId"
+                      type="text"
+                      formControlName="truckId"
+                      placeholder="TRUCK-001"
+                      class="w-full px-3 py-2 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      [class.border-danger-500]="form.get('truckId')?.invalid && form.get('truckId')?.touched"
+                      [class.border-gray-200]="!(form.get('truckId')?.invalid && form.get('truckId')?.touched)">
+                    <span class="material-icons absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl">local_shipping</span>
+                  </div>
+                  <p class="mt-1 text-xs text-gray-500">Unique identifier for the truck</p>
+                  @if (form.get('truckId')?.hasError('required') && form.get('truckId')?.touched) {
+                    <p class="mt-1 text-xs text-danger-600">Truck ID is required</p>
                   }
-                </mat-select>
-                @if (form.get('vehicleType')?.hasError('required')) {
-                  <mat-error>
-                    Vehicle type is required
-                  </mat-error>
-                }
-              </mat-form-field>
+                </div>
+              }
+
+              <!-- License Plate & Vehicle Type Row -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1" for="licensePlate">
+                    License Plate
+                  </label>
+                  <input
+                    id="licensePlate"
+                    type="text"
+                    formControlName="licensePlate"
+                    placeholder="ABC-1234"
+                    class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    [class.border-danger-500]="form.get('licensePlate')?.invalid && form.get('licensePlate')?.touched">
+                  @if (form.get('licensePlate')?.hasError('maxlength')) {
+                    <p class="mt-1 text-xs text-danger-600">License plate must not exceed 100 characters</p>
+                  }
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1" for="vehicleType">
+                    Vehicle Type <span class="text-danger-500">*</span>
+                  </label>
+                  <select
+                    id="vehicleType"
+                    formControlName="vehicleType"
+                    class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                    [class.border-danger-500]="form.get('vehicleType')?.invalid && form.get('vehicleType')?.touched"
+                    [class.border-gray-200]="!(form.get('vehicleType')?.invalid && form.get('vehicleType')?.touched)">
+                    <option value="">Select vehicle type</option>
+                    @for (type of vehicleTypes; track type) {
+                      <option [value]="type">{{ type }}</option>
+                    }
+                  </select>
+                  @if (form.get('vehicleType')?.hasError('required') && form.get('vehicleType')?.touched) {
+                    <p class="mt-1 text-xs text-danger-600">Vehicle type is required</p>
+                  }
+                </div>
+              </div>
+
+              <!-- Driver Name & Phone Row -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1" for="driverName">
+                    Driver Name
+                  </label>
+                  <div class="relative">
+                    <input
+                      id="driverName"
+                      type="text"
+                      formControlName="driverName"
+                      placeholder="John Doe"
+                      class="w-full px-3 py-2 pr-10 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    <span class="material-icons absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl">person</span>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1" for="driverPhone">
+                    Driver Phone
+                  </label>
+                  <div class="relative">
+                    <input
+                      id="driverPhone"
+                      type="text"
+                      formControlName="driverPhone"
+                      placeholder="+1 555-123-4567"
+                      class="w-full px-3 py-2 pr-10 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    <span class="material-icons absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl">phone</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Assigned Driver -->
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1" for="driverId">
+                  Assigned Driver (User Account)
+                </label>
+                <div class="relative">
+                  <select
+                    id="driverId"
+                    formControlName="driverId"
+                    class="w-full px-3 py-2 pr-10 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white">
+                    <option [value]="null">-- No driver assigned --</option>
+                    @for (driver of drivers(); track driver.id) {
+                      <option [value]="driver.id">{{ driver.fullName }} ({{ driver.email }})</option>
+                    }
+                  </select>
+                  <span class="material-icons absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl pointer-events-none">badge</span>
+                </div>
+                <p class="mt-1 text-xs text-gray-500">Link this truck to a driver's user account for mobile app access</p>
+              </div>
+
+              <!-- Primary Group (Create mode only) -->
+              @if (!isEditMode()) {
+                <div class="mb-6">
+                  <label class="block text-sm font-medium text-gray-700 mb-1" for="primaryGroupId">
+                    Primary Group <span class="text-danger-500">*</span>
+                  </label>
+                  <select
+                    id="primaryGroupId"
+                    formControlName="primaryGroupId"
+                    class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                    [class.border-danger-500]="form.get('primaryGroupId')?.invalid && form.get('primaryGroupId')?.touched"
+                    [class.border-gray-200]="!(form.get('primaryGroupId')?.invalid && form.get('primaryGroupId')?.touched)">
+                    <option value="">Select a group</option>
+                    <!-- Groups would be loaded from API -->
+                  </select>
+                  <p class="mt-1 text-xs text-gray-500">The main group this truck belongs to</p>
+                  @if (form.get('primaryGroupId')?.hasError('required') && form.get('primaryGroupId')?.touched) {
+                    <p class="mt-1 text-xs text-danger-600">Primary group is required</p>
+                  }
+                </div>
+              }
+
+              <!-- Divider and Actions -->
+              <div class="border-t border-gray-200 pt-6 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                  (click)="goBack()">
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  [disabled]="form.invalid || saving()">
+                  @if (saving()) {
+                    <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                  } @else {
+                    <span>{{ isEditMode() ? 'Save Changes' : 'Add Truck' }}</span>
+                  }
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="lg:col-span-1 space-y-6">
+        <!-- Status Card (Edit Mode Only) -->
+        @if (isEditMode() && truck()) {
+          <div class="bg-white rounded-lg shadow-card">
+            <div class="px-6 py-4 border-b border-gray-200">
+              <h2 class="text-lg font-semibold text-gray-800">Truck Status</h2>
             </div>
-            <div class="form-row">
-              <mat-form-field appearance="outline" class="half-width">
-                <mat-label>Driver Name</mat-label>
-                <input matInput formControlName="driverName" placeholder="John Doe">
-                <mat-icon matSuffix>person</mat-icon>
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="half-width">
-                <mat-label>Driver Phone</mat-label>
-                <input matInput formControlName="driverPhone" placeholder="+1 555-123-4567">
-                <mat-icon matSuffix>phone</mat-icon>
-              </mat-form-field>
-            </div>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Assigned Driver (User Account)</mat-label>
-              <mat-select formControlName="driverId">
-                <mat-option [value]="null">-- No driver assigned --</mat-option>
-                @for (driver of drivers(); track driver.id) {
-                  <mat-option [value]="driver.id">
-                    {{ driver.fullName }} ({{ driver.email }})
-                  </mat-option>
-                }
-              </mat-select>
-              <mat-icon matSuffix>badge</mat-icon>
-              <mat-hint>Link this truck to a driver's user account for mobile app access</mat-hint>
-            </mat-form-field>
-            @if (!isEditMode()) {
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Primary Group</mat-label>
-                <mat-select formControlName="primaryGroupId">
-                  <mat-option value="">Select a group</mat-option>
-                  <!-- Groups would be loaded from API -->
-                </mat-select>
-                <mat-hint>The main group this truck belongs to</mat-hint>
-                @if (form.get('primaryGroupId')?.hasError('required')) {
-                  <mat-error>
-                    Primary group is required
-                  </mat-error>
-                }
-              </mat-form-field>
-            }
-            <mat-divider></mat-divider>
-            <div class="form-actions">
-              <button mat-button type="button" (click)="goBack()">Cancel</button>
-              <button mat-raised-button color="primary" type="submit"
-                [disabled]="form.invalid || saving()">
-                @if (saving()) {
-                  <mat-spinner diameter="20"></mat-spinner>
-                }
-                @if (!saving()) {
-                  <span>{{ isEditMode() ? 'Save Changes' : 'Add Truck' }}</span>
-                }
-              </button>
-            </div>
-          </form>
-        </mat-card-content>
-      </mat-card>
-      <!-- Status Card (Edit Mode Only) -->
-      @if (isEditMode() && truck()) {
-        <mat-card class="status-card">
-          <mat-card-header>
-            <mat-card-title>Truck Status</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="status-info">
-              <div class="status-row">
-                <span class="label">Status:</span>
-                <mat-chip [class]="'status-' + truck()?.status?.toLowerCase()">
+            <div class="p-6 space-y-4">
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-500">Status:</span>
+                <span class="px-2.5 py-1 text-xs font-medium rounded-full"
+                  [class.bg-success-100]="truck()?.status === 'ACTIVE'"
+                  [class.text-success-700]="truck()?.status === 'ACTIVE'"
+                  [class.bg-warning-100]="truck()?.status === 'IDLE'"
+                  [class.text-warning-700]="truck()?.status === 'IDLE'"
+                  [class.bg-gray-100]="truck()?.status === 'OFFLINE'"
+                  [class.text-gray-700]="truck()?.status === 'OFFLINE'"
+                  [class.bg-danger-100]="truck()?.status === 'MAINTENANCE'"
+                  [class.text-danger-700]="truck()?.status === 'MAINTENANCE'">
                   {{ truck()?.statusDisplay }}
-                </mat-chip>
+                </span>
               </div>
-              <div class="status-row">
-                <span class="label">Last Update:</span>
-                <span>{{ truck()?.lastUpdate ? (truck()?.lastUpdate | date:'medium') : 'Never' }}</span>
+              <div class="flex justify-between">
+                <span class="text-sm text-gray-500">Last Update:</span>
+                <span class="text-sm text-gray-700">{{ truck()?.lastUpdate ? (truck()?.lastUpdate | date:'medium') : 'Never' }}</span>
               </div>
-              <div class="status-row">
-                <span class="label">Location:</span>
+              <div class="flex justify-between">
+                <span class="text-sm text-gray-500">Location:</span>
                 @if (truck()?.currentLatitude && truck()?.currentLongitude) {
-                  <span>
+                  <span class="text-sm text-gray-700 font-mono">
                     {{ truck()?.currentLatitude | number:'1.4-4' }}, {{ truck()?.currentLongitude | number:'1.4-4' }}
                   </span>
+                } @else {
+                  <span class="text-sm text-gray-400">No location data</span>
                 }
-                @if (!truck()?.currentLatitude) {
-                  <span>No location data</span>
-                }
               </div>
-              <div class="status-row">
-                <span class="label">Speed:</span>
-                <span>{{ truck()?.currentSpeed ? (truck()?.currentSpeed + ' km/h') : 'N/A' }}</span>
+              <div class="flex justify-between">
+                <span class="text-sm text-gray-500">Speed:</span>
+                <span class="text-sm text-gray-700">{{ truck()?.currentSpeed ? (truck()?.currentSpeed + ' km/h') : 'N/A' }}</span>
               </div>
-              <div class="status-row">
-                <span class="label">Primary Group:</span>
-                <span>{{ truck()?.primaryGroupName || 'None' }}</span>
+              <div class="flex justify-between">
+                <span class="text-sm text-gray-500">Primary Group:</span>
+                <span class="text-sm text-gray-700">{{ truck()?.primaryGroupName || 'None' }}</span>
               </div>
-              <div class="status-row">
-                <span class="label">Created:</span>
-                <span>{{ truck()?.createdAt | date:'medium' }}</span>
+              <div class="flex justify-between">
+                <span class="text-sm text-gray-500">Created:</span>
+                <span class="text-sm text-gray-700">{{ truck()?.createdAt | date:'medium' }}</span>
               </div>
             </div>
-          </mat-card-content>
-        </mat-card>
-      }
-      <!-- Audit Log (Edit Mode Only) -->
-      @if (isEditMode() && truckId()) {
-        <mat-card class="audit-card">
-          <app-audit-log
-            entityType="TRUCK"
-            [entityId]="truckId()!">
-          </app-audit-log>
-        </mat-card>
-      }
+          </div>
+        }
+
+        <!-- Audit Log (Edit Mode Only) -->
+        @if (isEditMode() && truckId()) {
+          <div class="bg-white rounded-lg shadow-card overflow-hidden">
+            <app-audit-log
+              entityType="TRUCK"
+              [entityId]="truckId()!">
+            </app-audit-log>
+          </div>
+        }
+      </div>
     </div>
   }
 </div>

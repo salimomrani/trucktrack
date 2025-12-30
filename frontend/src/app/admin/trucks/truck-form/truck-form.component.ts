@@ -2,15 +2,6 @@ import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } 
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDividerModule } from '@angular/material/divider';
 import { TruckAdminService } from '../truck-admin.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { TruckAdminResponse, CreateTruckRequest, UpdateTruckRequest, VEHICLE_TYPES, TRUCK_STATUSES, DriverOption } from '../truck.model';
@@ -27,15 +18,6 @@ import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/breadcrumb/bre
     imports: [
         CommonModule,
         ReactiveFormsModule,
-        MatCardModule,
-        MatButtonModule,
-        MatIconModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatChipsModule,
-        MatProgressSpinnerModule,
-        MatDividerModule,
         AuditLogComponent,
         BreadcrumbComponent
     ],
