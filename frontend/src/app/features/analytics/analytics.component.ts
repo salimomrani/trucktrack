@@ -1,7 +1,6 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { FormsModule } from '@angular/forms';
 import { Subject, forkJoin, takeUntil } from 'rxjs';
 
@@ -54,7 +53,6 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
   private readonly exportService = inject(ExportService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly toast = inject(ToastService);
   private readonly destroy$ = new Subject<void>();
 
@@ -154,22 +152,27 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     ];
   });
 
+  @HostListener('window:resize')
+  onResize(): void {
+    this.updateChartWidth();
+  }
+
+  private updateChartWidth(): void {
+    const width = window.innerWidth;
+    if (width < 576) {
+      this.chartWidth.set(300);
+    } else if (width < 768) {
+      this.chartWidth.set(400);
+    } else if (width < 992) {
+      this.chartWidth.set(450);
+    } else {
+      this.chartWidth.set(500);
+    }
+  }
+
   ngOnInit(): void {
     // Setup responsive chart sizing
-    this.breakpointObserver
-      .observe([Breakpoints.XSmall, Breakpoints.Small, Breakpoints.Medium, Breakpoints.Large])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(result => {
-        if (result.breakpoints[Breakpoints.XSmall]) {
-          this.chartWidth.set(300);
-        } else if (result.breakpoints[Breakpoints.Small]) {
-          this.chartWidth.set(400);
-        } else if (result.breakpoints[Breakpoints.Medium]) {
-          this.chartWidth.set(450);
-        } else {
-          this.chartWidth.set(500);
-        }
-      });
+    this.updateChartWidth();
 
     // Load filters from URL query params
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
