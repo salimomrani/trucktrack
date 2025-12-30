@@ -1,70 +1,87 @@
-<div class="audit-log-container">
-  <h3 class="section-title">
-    <mat-icon>history</mat-icon>
+<div class="bg-white rounded-lg shadow-card p-4">
+  <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-4">
+    <span class="material-icons text-gray-600">history</span>
     Audit History
   </h3>
 
   <!-- Loading spinner -->
   @if (loading()) {
-    <div class="loading">
-      <mat-spinner diameter="30"></mat-spinner>
+    <div class="flex items-center justify-center py-8">
+      <div class="animate-spin rounded-full h-8 w-8 border-4 border-primary-500 border-t-transparent"></div>
     </div>
   }
 
   <!-- Empty state -->
   @if (!loading() && logs().length === 0) {
-    <div class="empty-state">
-      <mat-icon>inbox</mat-icon>
+    <div class="flex flex-col items-center justify-center py-8 text-gray-400">
+      <span class="material-icons text-4xl mb-2">inbox</span>
       <span>No audit history available</span>
     </div>
   }
 
   <!-- Audit log entries -->
   @if (!loading() && logs().length > 0) {
-    <div class="log-entries">
-      <mat-accordion>
-        @for (log of logs(); track log) {
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                <mat-chip [class]="'action-chip ' + log.action.toLowerCase()">
-                  {{ getActionIcon(log.action) }}
-                  {{ log.action }}
-                </mat-chip>
-              </mat-panel-title>
-              <mat-panel-description>
-                <span class="log-meta">
-                  <span class="username">{{ log.username }}</span>
-                  <span class="separator">•</span>
-                  <span class="timestamp">{{ log.timestamp | date:'medium' }}</span>
-                </span>
-              </mat-panel-description>
-            </mat-expansion-panel-header>
-            <div class="log-details">
-              <div class="detail-row">
-                <span class="label">User ID:</span>
-                <span class="value">{{ log.userId }}</span>
+    <div class="space-y-2">
+      @for (log of logs(); track log.id) {
+        <div class="border border-gray-200 rounded-lg overflow-hidden">
+          <!-- Header (clickable) -->
+          <button
+            type="button"
+            class="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors text-left"
+            (click)="toggleExpand(log.id)">
+            <div class="flex items-center gap-3">
+              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium"
+                [class]="log.action === 'CREATE' ? 'bg-success-100 text-success-700' :
+                         log.action === 'UPDATE' ? 'bg-info-100 text-info-700' :
+                         log.action === 'DELETE' ? 'bg-danger-100 text-danger-700' :
+                         log.action === 'DEACTIVATE' ? 'bg-warning-100 text-warning-700' :
+                         log.action === 'REACTIVATE' ? 'bg-success-100 text-success-700' :
+                         'bg-gray-100 text-gray-700'">
+                {{ getActionIcon(log.action) }}
+                {{ log.action }}
+              </span>
+            </div>
+            <div class="flex items-center gap-3 text-sm text-gray-600">
+              <span class="font-medium">{{ log.username }}</span>
+              <span class="text-gray-400">•</span>
+              <span>{{ log.timestamp | date:'medium' }}</span>
+              <span class="material-icons text-lg transition-transform" [class.rotate-180]="isExpanded(log.id)">
+                expand_more
+              </span>
+            </div>
+          </button>
+
+          <!-- Details (collapsible) -->
+          @if (isExpanded(log.id)) {
+            <div class="px-4 py-3 border-t border-gray-200 bg-white space-y-2">
+              <div class="flex gap-2 text-sm">
+                <span class="text-gray-500 min-w-[100px]">User ID:</span>
+                <span class="text-gray-800 font-mono text-xs">{{ log.userId }}</span>
               </div>
               @if (log.ipAddress) {
-                <div class="detail-row">
-                  <span class="label">IP Address:</span>
-                  <span class="value">{{ log.ipAddress }}</span>
+                <div class="flex gap-2 text-sm">
+                  <span class="text-gray-500 min-w-[100px]">IP Address:</span>
+                  <span class="text-gray-800">{{ log.ipAddress }}</span>
                 </div>
               }
               @if (log.changes) {
-                <div class="detail-row">
-                  <span class="label">Changes:</span>
-                  <pre class="changes-json">{{ formatChanges(log.changes) }}</pre>
+                <div class="text-sm">
+                  <span class="text-gray-500">Changes:</span>
+                  <pre class="mt-1 p-2 bg-gray-50 rounded text-xs font-mono overflow-x-auto">{{ formatChanges(log.changes) }}</pre>
                 </div>
               }
             </div>
-          </mat-expansion-panel>
-        }
-      </mat-accordion>
+          }
+        </div>
+      }
+
       <!-- Load more button -->
       @if (hasMore()) {
-        <div class="load-more">
-          <button mat-stroked-button (click)="loadMore()">
+        <div class="flex justify-center pt-4">
+          <button
+            type="button"
+            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+            (click)="loadMore()">
             Load More
           </button>
         </div>
