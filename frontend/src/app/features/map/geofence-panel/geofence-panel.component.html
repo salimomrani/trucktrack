@@ -1,153 +1,231 @@
 <!-- Geofence Panel Toggle Button -->
 <button
-  mat-fab
-  color="primary"
-  class="geofence-toggle-btn"
-  (click)="togglePanel()"
-  matTooltip="Manage Geofences">
-  <mat-icon>{{ isPanelOpen() ? 'close' : 'fence' }}</mat-icon>
+  type="button"
+  class="fixed bottom-4 right-4 z-[1000] w-14 h-14 rounded-full bg-primary-600 text-white shadow-lg hover:bg-primary-700 transition-colors flex items-center justify-center"
+  title="Manage Geofences"
+  (click)="togglePanel()">
+  <span class="material-icons text-2xl">{{ isPanelOpen() ? 'close' : 'fence' }}</span>
 </button>
 
 <!-- Geofence Panel -->
-<div class="geofence-panel" [class.open]="isPanelOpen()">
-  <div class="panel-header">
-    <h3>
-      <mat-icon>fence</mat-icon>
+<div
+  class="fixed top-0 right-0 z-[999] h-full w-80 bg-white shadow-xl transform transition-transform duration-300"
+  [class.translate-x-0]="isPanelOpen()"
+  [class.translate-x-full]="!isPanelOpen()">
+
+  <!-- Panel Header -->
+  <div class="flex items-center justify-between px-4 py-3 bg-primary-600 text-white">
+    <h3 class="flex items-center gap-2 font-semibold">
+      <span class="material-icons">fence</span>
       Geofences
     </h3>
-    <button mat-icon-button (click)="togglePanel()">
-      <mat-icon>close</mat-icon>
+    <button
+      type="button"
+      class="p-1 rounded hover:bg-primary-700 transition-colors"
+      (click)="togglePanel()">
+      <span class="material-icons">close</span>
     </button>
   </div>
 
-  <div class="panel-content">
+  <div class="h-[calc(100%-56px)] overflow-y-auto">
     <!-- Loading Spinner -->
     @if (isLoading()) {
-      <div class="loading-overlay">
-        <mat-spinner diameter="40"></mat-spinner>
+      <div class="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
+        <div class="animate-spin rounded-full h-10 w-10 border-4 border-primary-500 border-t-transparent"></div>
       </div>
     }
 
     <!-- Drawing Mode Section (only for ADMIN, FLEET_MANAGER, DISPATCHER) -->
     @if (canCreateGeofence()) {
-    <mat-expansion-panel [expanded]="isDrawing() || drawnCoordinates.length > 0">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon>add_circle</mat-icon>
-          Créer une Geofence
-        </mat-panel-title>
-      </mat-expansion-panel-header>
+      <div class="border-b border-gray-200">
+        <!-- Collapsible Header -->
+        <button
+          type="button"
+          class="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+          (click)="toggleCreatePanel()">
+          <span class="flex items-center gap-2 font-medium text-gray-700">
+            <span class="material-icons text-primary-500">add_circle</span>
+            Create Geofence
+          </span>
+          <span class="material-icons text-gray-400 transition-transform"
+            [class.rotate-180]="isCreatePanelExpanded() || isDrawing() || drawnCoordinates.length > 0">
+            expand_more
+          </span>
+        </button>
 
-      <div class="create-section">
-        @if (!isDrawing() && drawnCoordinates.length === 0) {
-          <p class="hint-text">Draw a polygon on the map to define the geofence boundary.</p>
-          <button mat-raised-button color="primary" (click)="startDrawing()">
-            <mat-icon>edit</mat-icon>
-            Start Drawing
-          </button>
-        }
-
-        @if (isDrawing()) {
-          <p class="hint-text">Click on the map to draw a polygon. Double-click to finish.</p>
-          <button mat-button color="warn" (click)="cancelDrawing()">
-            <mat-icon>cancel</mat-icon>
-            Cancel
-          </button>
-        }
-
-        @if (drawnCoordinates.length > 0) {
-          <div class="geofence-form">
-            <mat-form-field appearance="outline">
-              <mat-label>Name</mat-label>
-              <input matInput [(ngModel)]="newGeofence.name" placeholder="e.g., Warehouse A" required>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Description</mat-label>
-              <textarea matInput [(ngModel)]="newGeofence.description" rows="2" placeholder="Optional description"></textarea>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Zone Type</mat-label>
-              <mat-select [(ngModel)]="newGeofence.zoneType">
-                @for (type of zoneTypes; track type.value) {
-                  <mat-option [value]="type.value">{{ type.label }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-
-            <div class="form-actions">
-              <button mat-button (click)="cancelDrawing()">Cancel</button>
-              <button mat-raised-button color="primary" (click)="saveGeofence()" [disabled]="!newGeofence.name">
-                <mat-icon>save</mat-icon>
-                Save Geofence
+        <!-- Collapsible Content -->
+        @if (isCreatePanelExpanded() || isDrawing() || drawnCoordinates.length > 0) {
+          <div class="px-4 pb-4 space-y-4">
+            @if (!isDrawing() && drawnCoordinates.length === 0) {
+              <p class="text-sm text-gray-500">Draw a polygon on the map to define the geofence boundary.</p>
+              <button
+                type="button"
+                class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                (click)="startDrawing()">
+                <span class="material-icons text-lg">edit</span>
+                Start Drawing
               </button>
-            </div>
+            }
+
+            @if (isDrawing()) {
+              <p class="text-sm text-gray-500">Click on the map to draw a polygon. Double-click to finish.</p>
+              <button
+                type="button"
+                class="w-full flex items-center justify-center gap-2 px-4 py-2 border border-danger-500 text-danger-600 rounded-lg hover:bg-danger-50 transition-colors"
+                (click)="cancelDrawing()">
+                <span class="material-icons text-lg">cancel</span>
+                Cancel
+              </button>
+            }
+
+            @if (drawnCoordinates.length > 0) {
+              <div class="space-y-4">
+                <!-- Name Field -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                  <input
+                    type="text"
+                    [(ngModel)]="newGeofence.name"
+                    placeholder="e.g., Warehouse A"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                </div>
+
+                <!-- Description Field -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <textarea
+                    [(ngModel)]="newGeofence.description"
+                    rows="2"
+                    placeholder="Optional description"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm resize-none"></textarea>
+                </div>
+
+                <!-- Zone Type Field -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Zone Type</label>
+                  <select
+                    [(ngModel)]="newGeofence.zoneType"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                    @for (type of zoneTypes; track type.value) {
+                      <option [value]="type.value">{{ type.label }}</option>
+                    }
+                  </select>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex gap-3">
+                  <button
+                    type="button"
+                    class="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                    (click)="cancelDrawing()">
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    class="flex-1 flex items-center justify-center gap-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    (click)="saveGeofence()"
+                    [disabled]="!newGeofence.name">
+                    <span class="material-icons text-lg">save</span>
+                    Save
+                  </button>
+                </div>
+              </div>
+            }
           </div>
         }
       </div>
-    </mat-expansion-panel>
     }
 
     <!-- Existing Geofences List -->
-    <mat-expansion-panel [expanded]="true">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon>list</mat-icon>
+    <div class="border-b border-gray-200">
+      <!-- Collapsible Header -->
+      <button
+        type="button"
+        class="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+        (click)="toggleListPanel()">
+        <span class="flex items-center gap-2 font-medium text-gray-700">
+          <span class="material-icons text-gray-500">list</span>
           Existing Geofences ({{ geofences().length }})
-        </mat-panel-title>
-      </mat-expansion-panel-header>
+        </span>
+        <span class="material-icons text-gray-400 transition-transform"
+          [class.rotate-180]="isListPanelExpanded()">
+          expand_more
+        </span>
+      </button>
 
-      <div class="geofences-list">
-        @if (geofences().length === 0) {
-          <p class="empty-text">No geofences created yet.</p>
-        }
+      <!-- Collapsible Content -->
+      @if (isListPanelExpanded()) {
+        <div class="px-4 pb-4">
+          @if (geofences().length === 0) {
+            <p class="text-sm text-gray-500 text-center py-4">No geofences created yet.</p>
+          }
 
-        @for (geofence of geofences(); track geofence.id) {
-          <div class="geofence-item" [class]="'zone-' + geofence.zoneType.toLowerCase()">
-            <div class="geofence-info" (click)="focusOnGeofence(geofence)">
-              <div class="zone-indicator" [style.background-color]="getZoneColor(geofence.zoneType)"></div>
-              <div class="geofence-details">
-                <span class="geofence-name">{{ geofence.name }}</span>
-                <span class="geofence-type">{{ geofence.zoneType }}</span>
+          <div class="space-y-2">
+            @for (geofence of geofences(); track geofence.id) {
+              <div class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 group">
+                <div
+                  class="cursor-pointer flex-1 flex items-center gap-3"
+                  (click)="focusOnGeofence(geofence)">
+                  <div
+                    class="w-3 h-3 rounded-full flex-shrink-0"
+                    [style.background-color]="getZoneColor(geofence.zoneType)"></div>
+                  <div class="min-w-0">
+                    <span class="block text-sm font-medium text-gray-900 truncate">{{ geofence.name }}</span>
+                    <span class="block text-xs text-gray-500">{{ geofence.zoneType }}</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    type="button"
+                    class="p-1 text-gray-400 hover:text-primary-600 rounded transition-colors"
+                    title="Center on map"
+                    (click)="focusOnGeofence(geofence)">
+                    <span class="material-icons text-lg">my_location</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="p-1 text-gray-400 hover:text-primary-600 rounded transition-colors"
+                    title="Show/Hide"
+                    (click)="toggleGeofenceVisibility(geofence)">
+                    <span class="material-icons text-lg">visibility</span>
+                  </button>
+                  @if (canDeleteGeofence()) {
+                    <button
+                      type="button"
+                      class="p-1 text-gray-400 hover:text-danger-600 rounded transition-colors"
+                      title="Delete"
+                      (click)="deleteGeofence(geofence)">
+                      <span class="material-icons text-lg">delete</span>
+                    </button>
+                  }
+                </div>
               </div>
-            </div>
-            <div class="geofence-actions">
-              <button mat-icon-button matTooltip="Centrer sur la carte" (click)="focusOnGeofence(geofence)">
-                <mat-icon>my_location</mat-icon>
-              </button>
-              <button mat-icon-button matTooltip="Afficher/Masquer" (click)="toggleGeofenceVisibility(geofence)">
-                <mat-icon>visibility</mat-icon>
-              </button>
-              @if (canDeleteGeofence()) {
-              <button mat-icon-button color="warn" matTooltip="Supprimer" (click)="deleteGeofence(geofence)">
-                <mat-icon>delete</mat-icon>
-              </button>
-              }
-            </div>
+            }
           </div>
-        }
-      </div>
-    </mat-expansion-panel>
+        </div>
+      }
+    </div>
 
     <!-- Legend -->
-    <div class="legend">
-      <h4>Legend</h4>
-      <div class="legend-item">
-        <span class="legend-color" style="background: #4CAF50;"></span>
-        <span>Depot</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-color" style="background: #2196F3;"></span>
-        <span>Delivery Area</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-color" style="background: #F44336;"></span>
-        <span>Restricted Zone</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-color" style="background: #9C27B0;"></span>
-        <span>Custom</span>
+    <div class="px-4 py-3">
+      <h4 class="text-sm font-medium text-gray-700 mb-2">Legend</h4>
+      <div class="space-y-1">
+        <div class="flex items-center gap-2 text-sm text-gray-600">
+          <span class="w-3 h-3 rounded-full" style="background: #4CAF50;"></span>
+          <span>Depot</span>
+        </div>
+        <div class="flex items-center gap-2 text-sm text-gray-600">
+          <span class="w-3 h-3 rounded-full" style="background: #2196F3;"></span>
+          <span>Delivery Area</span>
+        </div>
+        <div class="flex items-center gap-2 text-sm text-gray-600">
+          <span class="w-3 h-3 rounded-full" style="background: #F44336;"></span>
+          <span>Restricted Zone</span>
+        </div>
+        <div class="flex items-center gap-2 text-sm text-gray-600">
+          <span class="w-3 h-3 rounded-full" style="background: #9C27B0;"></span>
+          <span>Custom</span>
+        </div>
       </div>
     </div>
   </div>

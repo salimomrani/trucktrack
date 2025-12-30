@@ -1,9 +1,5 @@
 import { Component, ChangeDetectionStrategy, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
 import { TruckService } from '../services/truck.service';
 import { Truck, TruckStatus } from '../models/truck.model';
 
@@ -16,18 +12,13 @@ import { Truck, TruckStatus } from '../models/truck.model';
  * ✅ computed() pour les valeurs dérivées
  * ✅ effect() pour les side-effects
  * ✅ OnPush change detection
+ * Migrated to Tailwind CSS (Feature 020)
  */
 @Component({
   selector: 'app-truck-list-modern',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatChipsModule
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush,  // ✅ Always use OnPush
+  imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './truck-list-modern.component.html',
   styleUrls: ['./truck-list-modern.component.scss']
 })
