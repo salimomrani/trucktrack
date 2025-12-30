@@ -1,11 +1,10 @@
 import { Component, inject, signal, effect, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-
 import { StoreFacade } from '../../../store/store.facade';
 import { LoginRequest } from '../../../core/models/auth.model';
 import { ButtonComponent, InputComponent } from '../../../shared/components';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 
 /**
  * Login Component - Handles user authentication
@@ -17,7 +16,6 @@ import { ButtonComponent, InputComponent } from '../../../shared/components';
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    MatSnackBarModule,
     ButtonComponent,
     InputComponent
   ],
@@ -29,7 +27,7 @@ export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly facade = inject(StoreFacade);
   private readonly router = inject(Router);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   loginForm: FormGroup;
   hidePassword = signal(true);
@@ -166,24 +164,14 @@ export class LoginComponent {
    * Show success message
    */
   private showSuccess(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      duration: 3000,
-      horizontalPosition: 'end',
-      verticalPosition: 'top',
-      panelClass: ['snackbar-success']
-    });
+    this.toast.success(message);
   }
 
   /**
    * Show error message
    */
   private showError(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      duration: 5000,
-      horizontalPosition: 'end',
-      verticalPosition: 'top',
-      panelClass: ['snackbar-danger']
-    });
+    this.toast.error(message);
   }
 
   /**

@@ -1,11 +1,5 @@
-import { Component, inject, signal, effect, ChangeDetectionStrategy } from '@angular/core';
-
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { StoreFacade } from '../../../store/store.facade';
 
 /**
@@ -18,24 +12,23 @@ import { StoreFacade } from '../../../store/store.facade';
  * - Clear button
  */
 @Component({
-    selector: 'app-search-bar',
-    imports: [
-    FormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    MatButtonModule,
-    MatAutocompleteModule
-],
-    templateUrl: './search-bar.component.html',
-    styleUrl: './search-bar.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-search-bar',
+  standalone: true,
+  imports: [
+    FormsModule
+  ],
+  templateUrl: './search-bar.component.html',
+  styleUrl: './search-bar.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SearchBarComponent {
   private readonly facade = inject(StoreFacade);
 
   // Search query signal
   searchQuery = signal('');
+
+  // Dropdown visibility
+  showDropdown = signal(false);
 
   // Search results from store - filtered by status filters
   // If user deselects "Active" in filters, active trucks won't appear in search results
@@ -72,10 +65,20 @@ export class SearchBarComponent {
   clearSearch(): void {
     this.searchQuery.set('');
     this.facade.clearSearch();
+    this.showDropdown.set(false);
 
     if (this.searchTimeout) {
       clearTimeout(this.searchTimeout);
     }
+  }
+
+  /**
+   * Handle blur event - hide dropdown with delay for click to register
+   */
+  onBlur(): void {
+    setTimeout(() => {
+      this.showDropdown.set(false);
+    }, 200);
   }
 
   /**

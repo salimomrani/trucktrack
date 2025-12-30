@@ -1,7 +1,5 @@
 import { Component, inject, ChangeDetectionStrategy, OnInit, OnDestroy, computed, signal, output } from '@angular/core';
-
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { MatMenuModule } from '@angular/material/menu';
 import { StoreFacade } from '../../../store/store.facade';
 import { NotificationService } from '../../../services/notification.service';
 import { NavigationService } from '../../services/navigation.service';
@@ -18,15 +16,15 @@ import { UserRole } from '../../models/auth.model';
  * - Migrated to Tailwind CSS (Feature 020)
  */
 @Component({
-    selector: 'app-header',
-    imports: [
+  selector: 'app-header',
+  standalone: true,
+  imports: [
     RouterLink,
-    RouterLinkActive,
-    MatMenuModule
-],
-    templateUrl: './header.component.html',
-    styleUrl: './header.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    RouterLinkActive
+  ],
+  templateUrl: './header.component.html',
+  styleUrl: './header.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   private readonly facade = inject(StoreFacade);
@@ -43,6 +41,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   // Mobile sidenav state
   sidenavOpen = signal(false);
+
+  // User menu dropdown state
+  userMenuOpen = signal(false);
 
   // Current user role computed from currentUser
   currentUserRole = computed(() => {
@@ -140,6 +141,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
    */
   closeSidenav(): void {
     this.sidenavOpen.set(false);
+  }
+
+  /**
+   * Toggle user menu dropdown
+   */
+  toggleUserMenu(): void {
+    this.userMenuOpen.update(open => !open);
+  }
+
+  /**
+   * Close user menu dropdown
+   */
+  closeUserMenu(): void {
+    this.userMenuOpen.set(false);
   }
 
   /**

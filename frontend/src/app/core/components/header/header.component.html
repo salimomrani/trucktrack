@@ -57,34 +57,54 @@
         <span class="absolute top-full mt-2 px-2 py-1 text-xs font-medium text-white bg-gray-800 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">Alertes</span>
       </a>
 
-      <!-- User menu - keeping MatMenu for dropdown functionality -->
-      <button
-        type="button"
-        [matMenuTriggerFor]="userMenu"
-        class="flex items-center justify-center w-10 h-10 text-white/85 rounded-md transition-all duration-200 hover:bg-black/15 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-        aria-label="Menu utilisateur">
-        <span class="material-icons text-[28px]">account_circle</span>
-      </button>
-      <mat-menu #userMenu="matMenu" class="user-menu-panel">
-        <!-- User info header -->
-        <div class="flex items-center gap-3 px-4 py-3 bg-gray-50 border-b border-gray-100">
-          <span class="material-icons text-gray-400">person</span>
-          <div>
-            <div class="font-medium text-gray-800">{{ getUserDisplayName() }}</div>
-            <div class="text-sm text-gray-500 uppercase tracking-wide">{{ currentUser()?.role }}</div>
-          </div>
-        </div>
-
-        <!-- Profile & Logout only -->
-        <a mat-menu-item routerLink="/profile">
-          <span class="material-icons mr-3 text-gray-500">settings</span>
-          <span>Profil & Paramètres</span>
-        </a>
-        <button mat-menu-item (click)="logout()" class="logout-item">
-          <span class="material-icons mr-3 text-danger-500">logout</span>
-          <span>Déconnexion</span>
+      <!-- User menu - Custom Tailwind dropdown -->
+      <div class="relative">
+        <button
+          type="button"
+          class="flex items-center justify-center w-10 h-10 text-white/85 rounded-md transition-all duration-200 hover:bg-black/15 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          (click)="toggleUserMenu()"
+          aria-label="Menu utilisateur"
+          aria-expanded="userMenuOpen()"
+          aria-haspopup="true">
+          <span class="material-icons text-[28px]">account_circle</span>
         </button>
-      </mat-menu>
+
+        <!-- Dropdown menu -->
+        @if (userMenuOpen()) {
+          <!-- Backdrop to close menu on click outside -->
+          <div
+            class="fixed inset-0 z-40"
+            (click)="closeUserMenu()">
+          </div>
+
+          <div class="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50 overflow-hidden">
+            <!-- User info header -->
+            <div class="flex items-center gap-3 px-4 py-3 bg-gray-50 border-b border-gray-100">
+              <span class="material-icons text-gray-400">person</span>
+              <div>
+                <div class="font-medium text-gray-800">{{ getUserDisplayName() }}</div>
+                <div class="text-sm text-gray-500 uppercase tracking-wide">{{ currentUser()?.role }}</div>
+              </div>
+            </div>
+
+            <!-- Menu items -->
+            <a
+              routerLink="/profile"
+              class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
+              (click)="closeUserMenu()">
+              <span class="material-icons text-gray-500">settings</span>
+              <span>Profil & Paramètres</span>
+            </a>
+            <button
+              type="button"
+              class="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors border-t border-gray-100"
+              (click)="logout()">
+              <span class="material-icons text-danger-500">logout</span>
+              <span>Déconnexion</span>
+            </button>
+          </div>
+        }
+      </div>
     </div>
   </header>
 }
