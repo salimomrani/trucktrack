@@ -1,24 +1,15 @@
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { DataTableComponent, ColumnDef, PageInfo } from '../../shared/data-table/data-table.component';
 import { TruckAdminService } from '../truck-admin.service';
 import { TruckAdminResponse, TruckStatus, TRUCK_STATUSES, TRUCK_STATUS_COLORS } from '../truck.model';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.component';
 import { StoreFacade } from '../../../store/store.facade';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 
 /**
  * Truck list component with search, filter, and pagination.
@@ -30,18 +21,8 @@ import { StoreFacade } from '../../../store/store.facade';
     selector: 'app-truck-list',
     imports: [
     FormsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatChipsModule,
     MatMenuModule,
     MatDialogModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
     DataTableComponent,
     BreadcrumbComponent
 ],
@@ -53,7 +34,7 @@ export class TruckListComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly truckService = inject(TruckAdminService);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly facade = inject(StoreFacade);
 
   // State
@@ -105,7 +86,7 @@ export class TruckListComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load trucks:', err);
-        this.snackBar.open('Failed to load trucks', 'Close', { duration: 3000 });
+        this.toast.error('Failed to load trucks');
         this.loading.set(false);
       }
     });
@@ -187,14 +168,14 @@ export class TruckListComponent implements OnInit {
   private markOutOfService(truck: TruckAdminResponse) {
     this.truckService.markOutOfService(truck.id).subscribe({
       next: () => {
-        this.snackBar.open(`Truck ${truck.truckId} marked as out of service`, 'Close', { duration: 3000 });
+        this.toast.success(`Truck ${truck.truckId} marked as out of service`);
         // T023: Invalidate cache after CRUD operation
         this.facade.invalidateTrucksCache();
         this.loadTrucks();
       },
       error: (err) => {
         console.error('Failed to mark truck out of service:', err);
-        this.snackBar.open(err.error?.message || 'Failed to update truck', 'Close', { duration: 3000 });
+        this.toast.error(err.error?.message || 'Failed to update truck');
       }
     });
   }
@@ -202,14 +183,14 @@ export class TruckListComponent implements OnInit {
   private activateTruck(truck: TruckAdminResponse) {
     this.truckService.activateTruck(truck.id).subscribe({
       next: () => {
-        this.snackBar.open(`Truck ${truck.truckId} activated`, 'Close', { duration: 3000 });
+        this.toast.success(`Truck ${truck.truckId} activated`);
         // T023: Invalidate cache after CRUD operation
         this.facade.invalidateTrucksCache();
         this.loadTrucks();
       },
       error: (err) => {
         console.error('Failed to activate truck:', err);
-        this.snackBar.open(err.error?.message || 'Failed to activate truck', 'Close', { duration: 3000 });
+        this.toast.error(err.error?.message || 'Failed to activate truck');
       }
     });
   }

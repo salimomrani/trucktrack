@@ -1,21 +1,5 @@
 import { Component, OnInit, signal, inject, ChangeDetectionStrategy, computed, DestroyRef, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
-
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { StoreFacade } from '../../store/store.facade';
@@ -25,6 +9,7 @@ import { GeofenceService } from '../../services/geofence.service';
 import { Notification, NotificationSeverity, NotificationType, NotificationStats } from '../../models/notification.model';
 import { AlertRule, AlertRuleType, CreateAlertRuleRequest } from '../../models/alert-rule.model';
 import { Geofence } from '../../models/geofence.model';
+import { ToastService } from '../../shared/components/toast/toast.service';
 
 interface AlertStats {
   total: number;
@@ -42,22 +27,7 @@ interface AlertStats {
 @Component({
     selector: 'app-alerts',
     imports: [
-    ReactiveFormsModule,
-    MatCardModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatChipsModule,
-    MatBadgeModule,
-    MatTooltipModule,
-    MatDividerModule,
-    MatSnackBarModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatSlideToggleModule,
-    MatExpansionModule
+    ReactiveFormsModule
 ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './alerts.component.html',
@@ -70,7 +40,7 @@ export class AlertsComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly notificationService = inject(NotificationService);
   private readonly alertRuleService = inject(AlertRuleService);
   private readonly geofenceService = inject(GeofenceService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly fb = inject(FormBuilder);
@@ -575,17 +545,11 @@ export class AlertsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private showError(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      duration: 5000,
-      panelClass: ['error-snackbar']
-    });
+    this.toast.error(message);
   }
 
   private showSuccess(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      duration: 3000,
-      panelClass: ['success-snackbar']
-    });
+    this.toast.success(message);
   }
 
   private generateMockNotifications(): void {

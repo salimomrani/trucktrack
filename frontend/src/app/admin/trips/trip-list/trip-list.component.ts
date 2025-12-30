@@ -2,19 +2,10 @@ import { Component, OnInit, OnDestroy, inject, signal, DestroyRef, ChangeDetecti
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { interval, Subscription } from 'rxjs';
@@ -23,6 +14,7 @@ import { TripService } from '../trip.service';
 import { TripResponse, TripStatus, TRIP_STATUSES, TRIP_STATUS_COLORS } from '../trip.model';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.component';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 
 /**
  * Trip list component with search, filter, pagination, and auto-refresh.
@@ -34,19 +26,10 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
   standalone: true,
   imports: [
     FormsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatChipsModule,
     MatMenuModule,
     MatDialogModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
-    MatSlideToggleModule,
+    MatFormFieldModule,
+    MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
     DataTableComponent,
@@ -60,7 +43,7 @@ export class TripListComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly tripService = inject(TripService);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   // State
@@ -126,7 +109,7 @@ export class TripListComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Failed to load trips:', err);
-        this.snackBar.open('Failed to load trips', 'Close', { duration: 3000 });
+        this.toast.error('Failed to load trips');
         this.loading.set(false);
       }
     });
@@ -199,10 +182,10 @@ export class TripListComponent implements OnInit, OnDestroy {
     this.autoRefreshEnabled = !this.autoRefreshEnabled;
     if (this.autoRefreshEnabled) {
       this.startAutoRefresh();
-      this.snackBar.open('Auto-refresh enabled (every 10s)', 'Close', { duration: 2000 });
+      this.toast.info('Auto-refresh enabled (every 10s)');
     } else {
       this.stopAutoRefresh();
-      this.snackBar.open('Auto-refresh disabled', 'Close', { duration: 2000 });
+      this.toast.info('Auto-refresh disabled');
     }
   }
 
@@ -247,13 +230,13 @@ export class TripListComponent implements OnInit, OnDestroy {
   private cancelTrip(trip: TripResponse) {
     this.tripService.cancelTrip(trip.id).subscribe({
       next: () => {
-        this.snackBar.open('Trip cancelled', 'Close', { duration: 3000 });
+        this.toast.success('Trip cancelled');
         this.loadTrips();
         this.loadStats();
       },
       error: (err) => {
         console.error('Failed to cancel trip:', err);
-        this.snackBar.open(err.error?.message || 'Failed to cancel trip', 'Close', { duration: 3000 });
+        this.toast.error(err.error?.message || 'Failed to cancel trip');
       }
     });
   }
