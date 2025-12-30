@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -46,7 +46,8 @@ import { forkJoin } from 'rxjs';
         BreadcrumbComponent
     ],
     templateUrl: './user-form.component.html',
-    styleUrls: ['./user-form.component.scss']
+    styleUrls: ['./user-form.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UserFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

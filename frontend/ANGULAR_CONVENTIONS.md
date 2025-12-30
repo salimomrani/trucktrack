@@ -1,7 +1,7 @@
 # Angular Development Conventions
 
-**Version**: Angular 17+
-**Last Updated**: 2025-12-22
+**Version**: Angular 21+
+**Last Updated**: 2025-12-30
 
 Ce document définit les conventions obligatoires pour tout développement frontend Angular dans ce projet.
 
@@ -209,7 +209,131 @@ constructor(private http: HttpClient) {}
 
 ---
 
-## 5. Bonnes Pratiques
+## 5. Memory Management (OBLIGATOIRE)
+
+### Subscription Cleanup avec takeUntilDestroyed()
+
+**OBLIGATOIRE**: Toutes les subscriptions doivent utiliser `takeUntilDestroyed()` pour éviter les memory leaks.
+
+```typescript
+import { Component, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
+@Component({...})
+export class MyComponent {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly http = inject(HttpClient);
+
+  loadData() {
+    // ✅ OBLIGATOIRE - takeUntilDestroyed avec DestroyRef
+    this.http.get('/api/data')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => this.data.set(data),
+        error: (err) => console.error(err)
+      });
+  }
+}
+```
+
+**Patterns à éviter:**
+
+```typescript
+// ❌ INTERDIT - Subscription sans cleanup
+this.http.get('/api/data').subscribe(...);
+
+// ❌ INTERDIT - Subject manuel (plus nécessaire avec takeUntilDestroyed)
+private destroy$ = new Subject<void>();
+ngOnDestroy() {
+  this.destroy$.next();
+  this.destroy$.complete();
+}
+```
+
+### Dialog et MatDialogRef
+
+```typescript
+// ✅ OBLIGATOIRE - Cleanup des dialog subscriptions
+const dialogRef = this.dialog.open(ConfirmDialogComponent, {...});
+dialogRef.afterClosed()
+  .pipe(takeUntilDestroyed(this.destroyRef))
+  .subscribe(result => { ... });
+```
+
+### Intervals et Timers
+
+```typescript
+// ✅ OBLIGATOIRE - Cleanup des intervals
+interval(5000)
+  .pipe(takeUntilDestroyed(this.destroyRef))
+  .subscribe(() => this.refresh());
+```
+
+### Map/Leaflet Cleanup
+
+Pour les composants utilisant Leaflet, nettoyer explicitement dans ngOnDestroy:
+
+```typescript
+ngOnDestroy() {
+  if (this.marker) {
+    this.marker.off();
+    this.marker.remove();
+  }
+  if (this.map) {
+    this.map.off();
+    this.map.remove();
+  }
+}
+```
+
+---
+
+## 6. Change Detection (OBLIGATOIRE)
+
+### OnPush Strategy
+
+**OBLIGATOIRE**: Tous les composants doivent utiliser `ChangeDetectionStrategy.OnPush` pour optimiser les performances.
+
+```typescript
+import { Component, ChangeDetectionStrategy } from '@angular/core';
+
+@Component({
+  selector: 'app-my-component',
+  templateUrl: './my-component.component.html',
+  styleUrls: ['./my-component.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush  // OBLIGATOIRE
+})
+export class MyComponent { }
+```
+
+### Compatibilité avec OnPush
+
+OnPush fonctionne parfaitement avec:
+- **Signals** (`signal()`, `computed()`, `input()`) - change detection automatique
+- **Async pipe** (`| async`) dans les templates
+- **Immutable data** - nouvelle référence pour déclencher le change detection
+
+```typescript
+// ✅ Avec OnPush et Signals - aucune action nécessaire
+data = signal<Item[]>([]);
+loading = signal(false);
+
+loadData() {
+  this.loading.set(true);
+  this.http.get<Item[]>('/api/items')
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next: (items) => {
+        this.data.set(items);   // Triggers change detection
+        this.loading.set(false); // Triggers change detection
+      }
+    });
+}
+```
+
+---
+
+## 7. Bonnes Pratiques
 
 ### Nommage
 
@@ -255,7 +379,7 @@ imports: [MatButtonModule, RouterLink]
 
 ---
 
-## 6. Tests
+## 8. Tests
 
 ### Configuration des Inputs Signal
 
@@ -279,7 +403,7 @@ expect(component.isLoading()).toBe(false);
 
 ---
 
-## 7. Migration depuis Legacy
+## 9. Migration depuis Legacy
 
 Si du code legacy est rencontré, le migrer selon ces patterns:
 

@@ -1,4 +1,4 @@
-import { Component, input, output, OnInit, OnChanges, ViewChild, signal, computed } from '@angular/core';
+import { Component, input, output, OnInit, OnChanges, ViewChild, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -57,7 +57,8 @@ export interface PageInfo {
         MatCheckboxModule
     ],
     templateUrl: './data-table.component.html',
-    styleUrls: ['./data-table.component.scss']
+    styleUrls: ['./data-table.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataTableComponent<T> implements OnInit, OnChanges {
   // Signal inputs

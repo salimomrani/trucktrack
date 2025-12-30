@@ -246,10 +246,15 @@ export class LocationPickerComponent implements OnInit, OnDestroy, ControlValueA
   }
 
   private destroyMap() {
+    if (this.marker) {
+      this.marker.off();
+      this.marker.remove();
+      this.marker = null;
+    }
     if (this.map) {
+      this.map.off();
       this.map.remove();
       this.map = null;
-      this.marker = null;
     }
   }
 
@@ -257,7 +262,7 @@ export class LocationPickerComponent implements OnInit, OnDestroy, ControlValueA
     this.updateMapMarker(lat, lng);
 
     // Reverse geocode to get address
-    this.geocodingService.reverseGeocode(lat, lng).subscribe(result => {
+    this.geocodingService.reverseGeocode(lat, lng).pipe(takeUntil(this.destroy$)).subscribe(result => {
       const address = result?.displayName || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
       const location: LocationValue = { address, lat, lng };
 

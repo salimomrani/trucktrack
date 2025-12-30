@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -36,7 +36,8 @@ import { GroupService, GroupDetailResponse, CreateGroupRequest, UpdateGroupReque
         BreadcrumbComponent
     ],
     templateUrl: './group-form.component.html',
-    styleUrls: ['./group-form.component.scss']
+    styleUrls: ['./group-form.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GroupFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

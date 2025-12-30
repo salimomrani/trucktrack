@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -40,13 +41,15 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
         BreadcrumbComponent
     ],
     templateUrl: './group-list.component.html',
-    styleUrls: ['./group-list.component.scss']
+    styleUrls: ['./group-list.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GroupListComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly groupService = inject(GroupService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
+  private readonly destroyRef = inject(DestroyRef);
 
   loading = signal(false);
   error = signal<string | null>(null);
@@ -66,7 +69,7 @@ export class GroupListComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
-    this.groupService.getGroups(this.currentPage(), this.pageSize, this.searchTerm || undefined).subscribe({
+    this.groupService.getGroups(this.currentPage(), this.pageSize, this.searchTerm || undefined).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.groups.set(response.content);
         this.totalElements.set(response.totalElements);
@@ -109,9 +112,9 @@ export class GroupListComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe((confirmed) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((confirmed) => {
       if (confirmed) {
-        this.groupService.deleteGroup(group.id).subscribe({
+        this.groupService.deleteGroup(group.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
           next: () => {
             this.snackBar.open('Group deleted successfully', 'Close', { duration: 3000 });
             this.loadGroups();
