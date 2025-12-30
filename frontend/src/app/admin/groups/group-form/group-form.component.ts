@@ -1,15 +1,7 @@
 import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatChipsModule } from '@angular/material/chips';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/breadcrumb/breadcrumb.component';
 import { GroupService, GroupDetailResponse, CreateGroupRequest, UpdateGroupRequest } from '../group.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
@@ -24,15 +16,8 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
     imports: [
         CommonModule,
         ReactiveFormsModule,
-        MatCardModule,
-        MatButtonModule,
-        MatIconModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatProgressSpinnerModule,
-        MatDividerModule,
-        MatChipsModule,
-        BreadcrumbComponent
+        BreadcrumbComponent,
+        DatePipe
     ],
     templateUrl: './group-form.component.html',
     styleUrls: ['./group-form.component.scss'],

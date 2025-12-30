@@ -2,16 +2,6 @@ import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } 
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDividerModule } from '@angular/material/divider';
 import { UserService } from '../user.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { UserAdminResponse, CreateUserRequest, UpdateUserRequest, USER_ROLES, UserRole } from '../user.model';
@@ -31,16 +21,6 @@ import { forkJoin } from 'rxjs';
     imports: [
         CommonModule,
         ReactiveFormsModule,
-        MatCardModule,
-        MatButtonModule,
-        MatIconModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatCheckboxModule,
-        MatChipsModule,
-        MatProgressSpinnerModule,
-        MatDividerModule,
         AuditLogComponent,
         BreadcrumbComponent
     ],
@@ -222,6 +202,16 @@ export class UserFormComponent implements OnInit {
 
   onGroupsChange(groupIds: string[]) {
     this.selectedGroupIds.set(groupIds);
+  }
+
+  onGroupToggle(groupId: string, event: Event) {
+    const checkbox = event.target as HTMLInputElement;
+    const currentIds = this.selectedGroupIds();
+    if (checkbox.checked) {
+      this.selectedGroupIds.set([...currentIds, groupId]);
+    } else {
+      this.selectedGroupIds.set(currentIds.filter(id => id !== groupId));
+    }
   }
 
   private saveUserGroups(userId: string) {

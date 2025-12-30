@@ -1,174 +1,243 @@
-<div class="user-form-container">
+<div class="p-6">
   <!-- Breadcrumb -->
   <app-breadcrumb [items]="breadcrumbItems()"></app-breadcrumb>
 
   <!-- Header -->
-  <div class="page-header">
-    <button mat-icon-button (click)="goBack()">
-      <mat-icon>arrow_back</mat-icon>
+  <div class="flex items-center gap-4 mb-6">
+    <button
+      type="button"
+      class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
+      (click)="goBack()">
+      <span class="material-icons">arrow_back</span>
     </button>
-    <div class="header-text">
-      <h1>{{ isEditMode() ? 'Edit User' : 'Create User' }}</h1>
+    <div>
+      <h1 class="text-2xl font-semibold text-gray-800">{{ isEditMode() ? 'Edit User' : 'Create User' }}</h1>
       @if (isEditMode()) {
-        <p class="subtitle">{{ user()?.email }}</p>
+        <p class="text-gray-500 mt-1">{{ user()?.email }}</p>
       }
     </div>
   </div>
 
   <!-- Loading -->
   @if (loading()) {
-    <div class="loading-container">
-      <mat-spinner diameter="40"></mat-spinner>
+    <div class="flex items-center justify-center py-16">
+      <div class="animate-spin rounded-full h-10 w-10 border-4 border-primary-500 border-t-transparent"></div>
     </div>
   }
 
   <!-- Form -->
   @if (!loading()) {
-    <div class="form-content">
-      <mat-card class="form-card">
-        <mat-card-header>
-          <mat-card-title>Account Information</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <form [formGroup]="form" (ngSubmit)="onSubmit()">
-            <div class="form-row">
-              <mat-form-field appearance="outline" class="half-width">
-                <mat-label>First Name</mat-label>
-                <input matInput formControlName="firstName" placeholder="John">
-                @if (form.get('firstName')?.hasError('required')) {
-                  <mat-error>
-                    First name is required
-                  </mat-error>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Main Form Card -->
+      <div class="lg:col-span-2">
+        <div class="bg-white rounded-lg shadow-card">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-800">Account Information</h2>
+          </div>
+          <div class="p-6">
+            <form [formGroup]="form" (ngSubmit)="onSubmit()">
+              <!-- First Name & Last Name Row -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1" for="firstName">
+                    First Name <span class="text-danger-500">*</span>
+                  </label>
+                  <input
+                    id="firstName"
+                    type="text"
+                    formControlName="firstName"
+                    placeholder="John"
+                    class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    [class.border-danger-500]="form.get('firstName')?.invalid && form.get('firstName')?.touched"
+                    [class.border-gray-200]="!(form.get('firstName')?.invalid && form.get('firstName')?.touched)">
+                  @if (form.get('firstName')?.hasError('required') && form.get('firstName')?.touched) {
+                    <p class="mt-1 text-xs text-danger-600">First name is required</p>
+                  }
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1" for="lastName">
+                    Last Name <span class="text-danger-500">*</span>
+                  </label>
+                  <input
+                    id="lastName"
+                    type="text"
+                    formControlName="lastName"
+                    placeholder="Doe"
+                    class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    [class.border-danger-500]="form.get('lastName')?.invalid && form.get('lastName')?.touched"
+                    [class.border-gray-200]="!(form.get('lastName')?.invalid && form.get('lastName')?.touched)">
+                  @if (form.get('lastName')?.hasError('required') && form.get('lastName')?.touched) {
+                    <p class="mt-1 text-xs text-danger-600">Last name is required</p>
+                  }
+                </div>
+              </div>
+
+              <!-- Email Field -->
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1" for="email">
+                  Email <span class="text-danger-500">*</span>
+                </label>
+                <div class="relative">
+                  <input
+                    id="email"
+                    type="email"
+                    formControlName="email"
+                    placeholder="john.doe@example.com"
+                    class="w-full px-3 py-2 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    [class.border-danger-500]="form.get('email')?.invalid && form.get('email')?.touched"
+                    [class.border-gray-200]="!(form.get('email')?.invalid && form.get('email')?.touched)">
+                  <span class="material-icons absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl">email</span>
+                </div>
+                @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
+                  <p class="mt-1 text-xs text-danger-600">Email is required</p>
                 }
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="half-width">
-                <mat-label>Last Name</mat-label>
-                <input matInput formControlName="lastName" placeholder="Doe">
-                @if (form.get('lastName')?.hasError('required')) {
-                  <mat-error>
-                    Last name is required
-                  </mat-error>
+                @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
+                  <p class="mt-1 text-xs text-danger-600">Please enter a valid email</p>
                 }
-              </mat-form-field>
+              </div>
+
+              <!-- Password Field -->
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1" for="password">
+                  {{ isEditMode() ? 'New Password (leave blank to keep current)' : 'Password' }}
+                  @if (!isEditMode()) {
+                    <span class="text-danger-500">*</span>
+                  }
+                </label>
+                <div class="relative">
+                  <input
+                    id="password"
+                    type="password"
+                    formControlName="password"
+                    class="w-full px-3 py-2 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    [class.border-danger-500]="form.get('password')?.invalid && form.get('password')?.touched"
+                    [class.border-gray-200]="!(form.get('password')?.invalid && form.get('password')?.touched)">
+                  <span class="material-icons absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl">lock</span>
+                </div>
+                <p class="mt-1 text-xs text-gray-500">Min 8 characters, 1 uppercase, 1 lowercase, 1 digit</p>
+                @if (form.get('password')?.hasError('required') && form.get('password')?.touched) {
+                  <p class="mt-1 text-xs text-danger-600">Password is required</p>
+                }
+                @if (form.get('password')?.hasError('minlength')) {
+                  <p class="mt-1 text-xs text-danger-600">Password must be at least 8 characters</p>
+                }
+                @if (form.get('password')?.hasError('pattern')) {
+                  <p class="mt-1 text-xs text-danger-600">Password must have 1 uppercase, 1 lowercase, and 1 digit</p>
+                }
+              </div>
+
+              <!-- Role Field -->
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1" for="role">
+                  Role <span class="text-danger-500">*</span>
+                </label>
+                <select
+                  id="role"
+                  formControlName="role"
+                  class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                  [class.border-danger-500]="form.get('role')?.invalid && form.get('role')?.touched"
+                  [class.border-gray-200]="!(form.get('role')?.invalid && form.get('role')?.touched)">
+                  @for (role of roles; track role.value) {
+                    <option [value]="role.value">{{ role.label }} - {{ role.description }}</option>
+                  }
+                </select>
+                @if (form.get('role')?.hasError('required') && form.get('role')?.touched) {
+                  <p class="mt-1 text-xs text-danger-600">Role is required</p>
+                }
+              </div>
+
+              <!-- Groups Field (Multi-select with checkboxes) -->
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Groups
+                </label>
+                <div class="border border-gray-200 rounded-md p-3 max-h-48 overflow-y-auto bg-gray-50">
+                  @if (availableGroups().length === 0) {
+                    <p class="text-sm text-gray-500 italic">No groups available</p>
+                  }
+                  @for (group of availableGroups(); track group.id) {
+                    <label class="flex items-center gap-2 py-1.5 px-2 hover:bg-white rounded cursor-pointer">
+                      <input
+                        type="checkbox"
+                        class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                        [checked]="selectedGroupIds().includes(group.id)"
+                        (change)="onGroupToggle(group.id, $event)">
+                      <span class="text-sm text-gray-700">{{ group.name }}</span>
+                    </label>
+                  }
+                </div>
+                <p class="mt-1 text-xs text-gray-500">Select groups to assign this user to</p>
+              </div>
+
+              <!-- Divider and Actions -->
+              <div class="border-t border-gray-200 pt-6 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                  (click)="goBack()">
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  [disabled]="form.invalid || saving()">
+                  @if (saving()) {
+                    <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                  } @else {
+                    <span>{{ isEditMode() ? 'Save Changes' : 'Create User' }}</span>
+                  }
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="lg:col-span-1 space-y-6">
+        <!-- User Status Card (Edit Mode Only) -->
+        @if (isEditMode() && user()) {
+          <div class="bg-white rounded-lg shadow-card">
+            <div class="px-6 py-4 border-b border-gray-200">
+              <h2 class="text-lg font-semibold text-gray-800">Account Status</h2>
             </div>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Email</mat-label>
-              <input matInput formControlName="email" type="email" placeholder="john.doe@example.com">
-              <mat-icon matSuffix>email</mat-icon>
-              @if (form.get('email')?.hasError('required')) {
-                <mat-error>
-                  Email is required
-                </mat-error>
-              }
-              @if (form.get('email')?.hasError('email')) {
-                <mat-error>
-                  Please enter a valid email
-                </mat-error>
-              }
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ isEditMode() ? 'New Password (leave blank to keep current)' : 'Password' }}</mat-label>
-              <input matInput formControlName="password" type="password">
-              <mat-icon matSuffix>lock</mat-icon>
-              <mat-hint>Min 8 characters, 1 uppercase, 1 lowercase, 1 digit</mat-hint>
-              @if (form.get('password')?.hasError('required')) {
-                <mat-error>
-                  Password is required
-                </mat-error>
-              }
-              @if (form.get('password')?.hasError('minlength')) {
-                <mat-error>
-                  Password must be at least 8 characters
-                </mat-error>
-              }
-              @if (form.get('password')?.hasError('pattern')) {
-                <mat-error>
-                  Password must have 1 uppercase, 1 lowercase, and 1 digit
-                </mat-error>
-              }
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Role</mat-label>
-              <mat-select formControlName="role">
-                @for (role of roles; track role) {
-                  <mat-option [value]="role.value">
-                    <div class="role-option">
-                      <span class="role-name">{{ role.label }}</span>
-                      <span class="role-desc">{{ role.description }}</span>
-                    </div>
-                  </mat-option>
-                }
-              </mat-select>
-              @if (form.get('role')?.hasError('required')) {
-                <mat-error>
-                  Role is required
-                </mat-error>
-              }
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Groups</mat-label>
-              <mat-select multiple [value]="selectedGroupIds()" (selectionChange)="onGroupsChange($event.value)">
-                @for (group of availableGroups(); track group.id) {
-                  <mat-option [value]="group.id">{{ group.name }}</mat-option>
-                }
-              </mat-select>
-              <mat-hint>Select groups to assign this user to</mat-hint>
-            </mat-form-field>
-            <mat-divider></mat-divider>
-            <div class="form-actions">
-              <button mat-button type="button" (click)="goBack()">Cancel</button>
-              <button mat-raised-button color="primary" type="submit"
-                [disabled]="form.invalid || saving()">
-                @if (saving()) {
-                  <mat-spinner diameter="20"></mat-spinner>
-                }
-                @if (!saving()) {
-                  <span>{{ isEditMode() ? 'Save Changes' : 'Create User' }}</span>
-                }
-              </button>
-            </div>
-          </form>
-        </mat-card-content>
-      </mat-card>
-      <!-- User Status Card (Edit Mode Only) -->
-      @if (isEditMode() && user()) {
-        <mat-card class="status-card">
-          <mat-card-header>
-            <mat-card-title>Account Status</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="status-info">
-              <div class="status-row">
-                <span class="label">Status:</span>
-                <mat-chip [class]="user()?.isActive ? 'active' : 'inactive'">
+            <div class="p-6 space-y-4">
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-500">Status:</span>
+                <span class="px-2.5 py-1 text-xs font-medium rounded-full"
+                  [class.bg-success-100]="user()?.isActive"
+                  [class.text-success-700]="user()?.isActive"
+                  [class.bg-gray-100]="!user()?.isActive"
+                  [class.text-gray-700]="!user()?.isActive">
                   {{ user()?.isActive ? 'Active' : 'Inactive' }}
-                </mat-chip>
+                </span>
               </div>
-              <div class="status-row">
-                <span class="label">Last Login:</span>
-                <span>{{ user()?.lastLogin ? (user()?.lastLogin | date:'medium') : 'Never' }}</span>
+              <div class="flex justify-between">
+                <span class="text-sm text-gray-500">Last Login:</span>
+                <span class="text-sm text-gray-700">{{ user()?.lastLogin ? (user()?.lastLogin | date:'medium') : 'Never' }}</span>
               </div>
-              <div class="status-row">
-                <span class="label">Created:</span>
-                <span>{{ user()?.createdAt | date:'medium' }}</span>
+              <div class="flex justify-between">
+                <span class="text-sm text-gray-500">Created:</span>
+                <span class="text-sm text-gray-700">{{ user()?.createdAt | date:'medium' }}</span>
               </div>
-              <div class="status-row">
-                <span class="label">Groups:</span>
-                <span>{{ user()?.groupCount || 0 }} assigned</span>
+              <div class="flex justify-between">
+                <span class="text-sm text-gray-500">Groups:</span>
+                <span class="text-sm text-gray-700">{{ user()?.groupCount || 0 }} assigned</span>
               </div>
             </div>
-          </mat-card-content>
-        </mat-card>
-      }
-      <!-- Audit Log (Edit Mode Only) -->
-      @if (isEditMode() && userId()) {
-        <mat-card class="audit-card">
-          <app-audit-log
-            entityType="USER"
-            [entityId]="userId()!">
-          </app-audit-log>
-        </mat-card>
-      }
+          </div>
+        }
+
+        <!-- Audit Log (Edit Mode Only) -->
+        @if (isEditMode() && userId()) {
+          <div class="bg-white rounded-lg shadow-card overflow-hidden">
+            <app-audit-log
+              entityType="USER"
+              [entityId]="userId()!">
+            </app-audit-log>
+          </div>
+        }
+      </div>
     </div>
   }
 </div>
