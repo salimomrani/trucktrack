@@ -1,342 +1,449 @@
-<div class="alerts-container">
+<div class="p-6">
   <!-- Alert Rules Management Section (T162) -->
-  <mat-card class="rules-section">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>rule</mat-icon>
-        Alert Rules
-      </mat-card-title>
-      <button mat-raised-button color="primary" (click)="toggleRuleForm()"
-              [attr.aria-expanded]="showRuleForm()"
-              aria-controls="alert-rule-form">
-        <mat-icon>{{ showRuleForm() ? 'close' : 'add' }}</mat-icon>
+  <div class="bg-white rounded-lg shadow-card mb-6">
+    <div class="flex items-center justify-between p-4 border-b border-gray-100">
+      <div class="flex items-center gap-2">
+        <span class="material-icons text-gray-600">rule</span>
+        <h2 class="text-lg font-semibold text-gray-800">Alert Rules</h2>
+      </div>
+      <button
+        type="button"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
+        (click)="toggleRuleForm()"
+        [attr.aria-expanded]="showRuleForm()"
+        aria-controls="alert-rule-form">
+        <span class="material-icons">{{ showRuleForm() ? 'close' : 'add' }}</span>
         {{ showRuleForm() ? 'Cancel' : 'New Rule' }}
       </button>
-    </mat-card-header>
+    </div>
 
-    <mat-card-content>
+    <div class="p-4">
       <!-- Alert Rule Form -->
       @if (showRuleForm()) {
-        <div class="rule-form" id="alert-rule-form" role="region" aria-label="Create new alert rule form">
+        <div class="mb-6 p-4 bg-gray-50 rounded-lg" id="alert-rule-form" role="region" aria-label="Create new alert rule form">
           <form [formGroup]="alertRuleForm" (ngSubmit)="createAlertRule()" aria-label="Alert rule configuration">
-            <div class="form-row">
-              <mat-form-field appearance="outline">
-                <mat-label>Rule Name</mat-label>
-                <input matInput formControlName="name" placeholder="e.g., Speed Alert"
-                       aria-required="true"
-                       aria-describedby="name-hint">
-                <mat-hint id="name-hint">Enter a descriptive name for this alert rule</mat-hint>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <!-- Rule Name -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Rule Name *</label>
+                <input
+                  type="text"
+                  formControlName="name"
+                  class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  placeholder="e.g., Speed Alert"
+                  aria-required="true"
+                  aria-describedby="name-hint">
+                <p id="name-hint" class="mt-1 text-xs text-gray-500">Enter a descriptive name for this alert rule</p>
                 @if (alertRuleForm.get('name')?.hasError('required') && alertRuleForm.get('name')?.touched) {
-                  <mat-error>Name is required</mat-error>
+                  <p class="mt-1 text-xs text-danger-500">Name is required</p>
                 }
                 @if (alertRuleForm.get('name')?.hasError('minlength')) {
-                  <mat-error>Name must be at least 3 characters</mat-error>
+                  <p class="mt-1 text-xs text-danger-500">Name must be at least 3 characters</p>
                 }
-              </mat-form-field>
+              </div>
 
-              <mat-form-field appearance="outline">
-                <mat-label>Rule Type</mat-label>
-                <mat-select formControlName="ruleType"
-                            aria-required="true"
-                            aria-describedby="type-hint">
+              <!-- Rule Type -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Rule Type *</label>
+                <select
+                  formControlName="ruleType"
+                  class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  aria-required="true"
+                  aria-describedby="type-hint">
                   @for (type of ruleTypes; track type.value) {
-                    <mat-option [value]="type.value">
-                      <mat-icon>{{ type.icon }}</mat-icon>
-                      {{ type.label }}
-                    </mat-option>
+                    <option [value]="type.value">{{ type.label }}</option>
                   }
-                </mat-select>
-                <mat-hint id="type-hint">Select the type of condition to monitor</mat-hint>
-              </mat-form-field>
+                </select>
+                <p id="type-hint" class="mt-1 text-xs text-gray-500">Select the type of condition to monitor</p>
+              </div>
             </div>
 
-            <div class="form-row">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Description (optional)</mat-label>
-                <textarea matInput formControlName="description" rows="2" placeholder="Describe this alert rule"
-                          aria-describedby="desc-hint"></textarea>
-                <mat-hint id="desc-hint">Optional description to explain this rule's purpose</mat-hint>
-              </mat-form-field>
+            <!-- Description -->
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Description (optional)</label>
+              <textarea
+                formControlName="description"
+                rows="2"
+                class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                placeholder="Describe this alert rule"
+                aria-describedby="desc-hint"></textarea>
+              <p id="desc-hint" class="mt-1 text-xs text-gray-500">Optional description to explain this rule's purpose</p>
             </div>
 
-            <div class="form-row">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <!-- Threshold Value -->
               @if (requiresThreshold(alertRuleForm.get('ruleType')?.value)) {
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ getThresholdLabel(alertRuleForm.get('ruleType')?.value) }}</mat-label>
-                  <input matInput type="number" formControlName="thresholdValue" min="0"
-                         aria-describedby="threshold-hint">
-                  <mat-hint id="threshold-hint">Set the threshold value to trigger the alert</mat-hint>
-                </mat-form-field>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">{{ getThresholdLabel(alertRuleForm.get('ruleType')?.value) }}</label>
+                  <input
+                    type="number"
+                    formControlName="thresholdValue"
+                    min="0"
+                    class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    aria-describedby="threshold-hint">
+                  <p id="threshold-hint" class="mt-1 text-xs text-gray-500">Set the threshold value to trigger the alert</p>
+                </div>
               }
 
+              <!-- Geofence Selection -->
               @if (requiresGeofence(alertRuleForm.get('ruleType')?.value)) {
-                <mat-form-field appearance="outline">
-                  <mat-label>Select Geofence</mat-label>
-                  <mat-select formControlName="geofenceId"
-                              aria-describedby="geofence-hint">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Select Geofence</label>
+                  <select
+                    formControlName="geofenceId"
+                    class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    aria-describedby="geofence-hint">
+                    <option value="">Select a geofence</option>
                     @for (geofence of geofences(); track geofence.id) {
-                      <mat-option [value]="geofence.id">
-                        {{ geofence.name }}
-                      </mat-option>
+                      <option [value]="geofence.id">{{ geofence.name }}</option>
                     }
-                  </mat-select>
-                  <mat-hint id="geofence-hint">Select an existing geofence to monitor</mat-hint>
-                </mat-form-field>
+                  </select>
+                  <p id="geofence-hint" class="mt-1 text-xs text-gray-500">Select an existing geofence to monitor</p>
+                </div>
               }
 
-              <mat-slide-toggle formControlName="isEnabled" color="primary"
-                                aria-label="Enable or disable this alert rule">
-                Enabled
-              </mat-slide-toggle>
+              <!-- Enabled Toggle -->
+              <div class="flex items-center">
+                <label class="inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    formControlName="isEnabled"
+                    class="sr-only peer">
+                  <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600 relative"></div>
+                  <span class="ml-3 text-sm font-medium text-gray-700">Enabled</span>
+                </label>
+              </div>
             </div>
 
-            <div class="form-actions" role="group" aria-label="Form actions">
-              <button mat-button type="button" (click)="toggleRuleForm()" aria-label="Cancel creating alert rule">Cancel</button>
-              <button mat-raised-button color="primary" type="submit"
-                      [disabled]="alertRuleForm.invalid || isCreatingRule()"
-                      [attr.aria-busy]="isCreatingRule()"
-                      aria-label="Create new alert rule">
+            <div class="flex justify-end gap-3" role="group" aria-label="Form actions">
+              <button
+                type="button"
+                class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                (click)="toggleRuleForm()"
+                aria-label="Cancel creating alert rule">
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                [disabled]="alertRuleForm.invalid || isCreatingRule()"
+                [attr.aria-busy]="isCreatingRule()"
+                aria-label="Create new alert rule">
                 @if (isCreatingRule()) {
-                  <mat-spinner diameter="20" aria-label="Creating rule"></mat-spinner>
+                  <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" aria-label="Creating rule"></div>
                 } @else {
-                  <ng-container>
-                    <mat-icon>add</mat-icon>
-                    Create Rule
-                  </ng-container>
+                  <span class="material-icons text-lg">add</span>
                 }
+                Create Rule
               </button>
             </div>
           </form>
         </div>
-        <mat-divider></mat-divider>
+        <hr class="border-gray-200 mb-4">
       }
 
       <!-- Existing Alert Rules List -->
-      <div class="rules-list" role="list" aria-label="Configured alert rules">
+      <div class="space-y-3" role="list" aria-label="Configured alert rules">
         @if (alertRules().length === 0) {
-          <div class="no-rules" role="status" aria-live="polite">
-            <mat-icon>rule_folder</mat-icon>
+          <div class="text-center py-8 text-gray-400" role="status" aria-live="polite">
+            <span class="material-icons text-4xl mb-2">rule_folder</span>
             <p>No alert rules configured yet. Create your first rule to get started!</p>
           </div>
         } @else {
           @for (rule of alertRules(); track rule.id) {
-            <div class="rule-item" [class.disabled]="!rule.isEnabled"
-                 role="listitem"
-                 [attr.aria-label]="rule.name + ' - ' + rule.ruleType + (rule.isEnabled ? ' (enabled)' : ' (disabled)')">
-              <div class="rule-icon" aria-hidden="true">
-                <mat-icon>{{ getRuleTypeIcon(rule.ruleType) }}</mat-icon>
+            <div
+              class="flex items-center gap-4 p-4 rounded-lg border transition-colors"
+              [class.bg-gray-50]="!rule.isEnabled"
+              [class.border-gray-200]="rule.isEnabled"
+              [class.border-gray-100]="!rule.isEnabled"
+              [class.opacity-60]="!rule.isEnabled"
+              role="listitem"
+              [attr.aria-label]="rule.name + ' - ' + rule.ruleType + (rule.isEnabled ? ' (enabled)' : ' (disabled)')">
+              <div class="flex items-center justify-center w-10 h-10 rounded-full bg-primary-50" aria-hidden="true">
+                <span class="material-icons text-primary-600">{{ getRuleTypeIcon(rule.ruleType) }}</span>
               </div>
-              <div class="rule-info">
-                <div class="rule-name">{{ rule.name }}</div>
-                <div class="rule-meta">
-                  <mat-chip>{{ rule.ruleType }}</mat-chip>
+              <div class="flex-1 min-w-0">
+                <div class="font-medium text-gray-800">{{ rule.name }}</div>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">{{ rule.ruleType }}</span>
                   @if (rule.thresholdValue) {
-                    <span class="threshold">Threshold: {{ rule.thresholdValue }}</span>
+                    <span class="text-xs text-gray-500">Threshold: {{ rule.thresholdValue }}</span>
                   }
                 </div>
               </div>
-              <div class="rule-actions" role="group" [attr.aria-label]="'Actions for ' + rule.name">
-                <mat-slide-toggle
-                  [checked]="rule.isEnabled"
-                  (change)="toggleRuleEnabled(rule)"
-                  color="primary"
-                  [attr.aria-label]="(rule.isEnabled ? 'Disable' : 'Enable') + ' rule ' + rule.name"
-                  matTooltip="{{ rule.isEnabled ? 'Disable' : 'Enable' }} rule">
-                </mat-slide-toggle>
-                <button mat-icon-button color="warn" (click)="deleteAlertRule(rule)"
-                        [attr.aria-label]="'Delete rule ' + rule.name"
-                        matTooltip="Delete rule">
-                  <mat-icon>delete</mat-icon>
+              <div class="flex items-center gap-2" role="group" [attr.aria-label]="'Actions for ' + rule.name">
+                <label class="inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    [checked]="rule.isEnabled"
+                    (change)="toggleRuleEnabled(rule)"
+                    class="sr-only peer"
+                    [attr.aria-label]="(rule.isEnabled ? 'Disable' : 'Enable') + ' rule ' + rule.name">
+                  <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-600 relative"></div>
+                </label>
+                <button
+                  type="button"
+                  class="p-2 text-danger-500 hover:bg-danger-50 rounded-full transition-colors"
+                  (click)="deleteAlertRule(rule)"
+                  [attr.aria-label]="'Delete rule ' + rule.name">
+                  <span class="material-icons">delete</span>
                 </button>
               </div>
             </div>
           }
         }
       </div>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </div>
 
   <!-- Stats Cards -->
-  <div class="stats-grid">
-    <mat-card class="stat-card total">
-      <mat-card-content>
-        <div class="stat-icon">
-          <mat-icon>notifications</mat-icon>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-lg shadow-card p-4">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100">
+          <span class="material-icons text-gray-600">notifications</span>
         </div>
-        <div class="stat-info">
-          <div class="stat-value">{{ stats().total }}</div>
-          <div class="stat-label">Total Alerts</div>
+        <div>
+          <div class="text-2xl font-bold text-gray-800">{{ stats().total }}</div>
+          <div class="text-xs text-gray-500">Total Alerts</div>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </div>
 
-    <mat-card class="stat-card unread" [matBadge]="stats().unread" matBadgeColor="warn" [matBadgeHidden]="stats().unread === 0">
-      <mat-card-content>
-        <div class="stat-icon">
-          <mat-icon>mark_email_unread</mat-icon>
+    <div class="bg-white rounded-lg shadow-card p-4 relative">
+      @if (stats().unread > 0) {
+        <span class="absolute -top-2 -right-2 flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-warning-500 rounded-full">{{ stats().unread }}</span>
+      }
+      <div class="flex items-center gap-3">
+        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-warning-50">
+          <span class="material-icons text-warning-600">mark_email_unread</span>
         </div>
-        <div class="stat-info">
-          <div class="stat-value">{{ stats().unread }}</div>
-          <div class="stat-label">Unread</div>
+        <div>
+          <div class="text-2xl font-bold text-gray-800">{{ stats().unread }}</div>
+          <div class="text-xs text-gray-500">Unread</div>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </div>
 
-    <mat-card class="stat-card critical">
-      <mat-card-content>
-        <div class="stat-icon">
-          <mat-icon>error</mat-icon>
+    <div class="bg-white rounded-lg shadow-card p-4">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-danger-50">
+          <span class="material-icons text-danger-600">error</span>
         </div>
-        <div class="stat-info">
-          <div class="stat-value">{{ stats().critical }}</div>
-          <div class="stat-label">Critical</div>
+        <div>
+          <div class="text-2xl font-bold text-gray-800">{{ stats().critical }}</div>
+          <div class="text-xs text-gray-500">Critical</div>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </div>
 
-    <mat-card class="stat-card warning">
-      <mat-card-content>
-        <div class="stat-icon">
-          <mat-icon>warning</mat-icon>
+    <div class="bg-white rounded-lg shadow-card p-4">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-warning-50">
+          <span class="material-icons text-warning-600">warning</span>
         </div>
-        <div class="stat-info">
-          <div class="stat-value">{{ stats().warning }}</div>
-          <div class="stat-label">Warning</div>
+        <div>
+          <div class="text-2xl font-bold text-gray-800">{{ stats().warning }}</div>
+          <div class="text-xs text-gray-500">Warning</div>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </div>
   </div>
 
   <!-- Filters and Actions -->
-  <mat-card class="controls-card">
-    <mat-card-content>
-      <div class="controls">
-        <div class="severity-filters">
-          <button mat-button [class.active]="selectedSeverity() === null" (click)="filterBySeverity(null)">
-            All
-          </button>
-          <button mat-button [class.active]="selectedSeverity() === 'CRITICAL'" (click)="filterBySeverity('CRITICAL')">
-            <mat-icon>error</mat-icon>
-            Critical
-          </button>
-          <button mat-button [class.active]="selectedSeverity() === 'WARNING'" (click)="filterBySeverity('WARNING')">
-            <mat-icon>warning</mat-icon>
-            Warning
-          </button>
-          <button mat-button [class.active]="selectedSeverity() === 'INFO'" (click)="filterBySeverity('INFO')">
-            <mat-icon>info</mat-icon>
-            Info
-          </button>
-        </div>
-
-        <div class="actions">
-          <button mat-stroked-button (click)="toggleShowRead()">
-            <mat-icon>{{ showRead() ? 'visibility_off' : 'visibility' }}</mat-icon>
-            {{ showRead() ? 'Hide' : 'Show' }} Read
-          </button>
-          <button mat-raised-button color="primary" (click)="markAllAsRead()" [disabled]="stats().unread === 0">
-            <mat-icon>done_all</mat-icon>
-            Mark All Read
-          </button>
-        </div>
+  <div class="bg-white rounded-lg shadow-card p-4 mb-6">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div class="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+          [class.bg-primary-100]="selectedSeverity() === null"
+          [class.text-primary-700]="selectedSeverity() === null"
+          [class.text-gray-600]="selectedSeverity() !== null"
+          [class.hover:bg-gray-100]="selectedSeverity() !== null"
+          (click)="filterBySeverity(null)">
+          All
+        </button>
+        <button
+          type="button"
+          class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+          [class.bg-danger-100]="selectedSeverity() === 'CRITICAL'"
+          [class.text-danger-700]="selectedSeverity() === 'CRITICAL'"
+          [class.text-gray-600]="selectedSeverity() !== 'CRITICAL'"
+          [class.hover:bg-gray-100]="selectedSeverity() !== 'CRITICAL'"
+          (click)="filterBySeverity('CRITICAL')">
+          <span class="material-icons text-base">error</span>
+          Critical
+        </button>
+        <button
+          type="button"
+          class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+          [class.bg-warning-100]="selectedSeverity() === 'WARNING'"
+          [class.text-warning-700]="selectedSeverity() === 'WARNING'"
+          [class.text-gray-600]="selectedSeverity() !== 'WARNING'"
+          [class.hover:bg-gray-100]="selectedSeverity() !== 'WARNING'"
+          (click)="filterBySeverity('WARNING')">
+          <span class="material-icons text-base">warning</span>
+          Warning
+        </button>
+        <button
+          type="button"
+          class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+          [class.bg-primary-100]="selectedSeverity() === 'INFO'"
+          [class.text-primary-700]="selectedSeverity() === 'INFO'"
+          [class.text-gray-600]="selectedSeverity() !== 'INFO'"
+          [class.hover:bg-gray-100]="selectedSeverity() !== 'INFO'"
+          (click)="filterBySeverity('INFO')">
+          <span class="material-icons text-base">info</span>
+          Info
+        </button>
       </div>
-    </mat-card-content>
-  </mat-card>
+
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors text-sm"
+          (click)="toggleShowRead()">
+          <span class="material-icons text-base">{{ showRead() ? 'visibility_off' : 'visibility' }}</span>
+          {{ showRead() ? 'Hide' : 'Show' }} Read
+        </button>
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 px-3 py-1.5 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          (click)="markAllAsRead()"
+          [disabled]="stats().unread === 0">
+          <span class="material-icons text-base">done_all</span>
+          Mark All Read
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Notifications List Header with Count -->
-  <div class="list-header">
-    <h3>
-      <mat-icon>notifications</mat-icon>
-      Recent Notifications
-      @if (totalNotifications() > 0) {
-        <span class="count-badge">({{ filteredNotifications().length }} of {{ totalNotifications() }})</span>
-      }
-    </h3>
+  <div class="flex items-center gap-2 mb-4">
+    <span class="material-icons text-gray-600">notifications</span>
+    <h3 class="text-lg font-semibold text-gray-800">Recent Notifications</h3>
+    @if (totalNotifications() > 0) {
+      <span class="text-sm text-gray-500">({{ filteredNotifications().length }} of {{ totalNotifications() }})</span>
+    }
   </div>
 
   <!-- Notifications List -->
-  <div class="alerts-list" #notificationList role="list" aria-label="Notifications list">
+  <div class="space-y-3" #notificationList role="list" aria-label="Notifications list">
     @if (isLoading()) {
-      <div class="loading-spinner" role="status" aria-live="polite">
-        <mat-spinner aria-label="Loading notifications" />
-        <p>Loading notifications...</p>
+      <div class="flex flex-col items-center justify-center py-12" role="status" aria-live="polite">
+        <div class="w-8 h-8 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mb-3" aria-label="Loading notifications"></div>
+        <p class="text-gray-500">Loading notifications...</p>
       </div>
     } @else if (filteredNotifications().length === 0) {
-      <mat-card class="no-alerts" role="status" aria-live="polite">
-        <mat-card-content>
-          <mat-icon>check_circle_outline</mat-icon>
-          <h3>No notifications found</h3>
-          <p>Great! There are no notifications matching your filters.</p>
-        </mat-card-content>
-      </mat-card>
+      <div class="bg-white rounded-lg shadow-card p-8 text-center" role="status" aria-live="polite">
+        <span class="material-icons text-4xl text-success-500 mb-3">check_circle_outline</span>
+        <h3 class="text-lg font-medium text-gray-800 mb-1">No notifications found</h3>
+        <p class="text-gray-500">Great! There are no notifications matching your filters.</p>
+      </div>
     } @else {
       @for (notification of filteredNotifications(); track notification.id; let i = $index) {
-        <mat-card class="alert-card" [class.unread]="!notification.isRead" [class]="getSeverityClass(notification.severity)"
-                  role="listitem"
-                  tabindex="0"
-                  [attr.aria-label]="getNotificationAriaLabel(notification)"
-                  (keydown)="onNotificationKeydown($event, notification)">
-          <mat-card-content>
-            <div class="alert-icon" [class]="getSeverityClass(notification.severity)" aria-hidden="true">
-              <mat-icon>{{ getSeverityIcon(notification.severity) }}</mat-icon>
+        <div
+          class="bg-white rounded-lg shadow-card p-4 border-l-4 transition-colors"
+          [class.border-danger-500]="notification.severity === 'CRITICAL'"
+          [class.border-warning-500]="notification.severity === 'WARNING'"
+          [class.border-primary-500]="notification.severity === 'INFO'"
+          [class.bg-gray-50]="notification.isRead"
+          role="listitem"
+          tabindex="0"
+          [attr.aria-label]="getNotificationAriaLabel(notification)"
+          (keydown)="onNotificationKeydown($event, notification)">
+          <div class="flex gap-4">
+            <!-- Severity Icon -->
+            <div
+              class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full"
+              [class.bg-danger-100]="notification.severity === 'CRITICAL'"
+              [class.bg-warning-100]="notification.severity === 'WARNING'"
+              [class.bg-primary-100]="notification.severity === 'INFO'"
+              aria-hidden="true">
+              <span
+                class="material-icons"
+                [class.text-danger-600]="notification.severity === 'CRITICAL'"
+                [class.text-warning-600]="notification.severity === 'WARNING'"
+                [class.text-primary-600]="notification.severity === 'INFO'">
+                {{ getSeverityIcon(notification.severity) }}
+              </span>
             </div>
 
-            <div class="alert-content">
-              <div class="alert-header">
-                <div class="alert-title">
-                  <mat-icon class="type-icon" aria-hidden="true">{{ getTypeIcon(notification.notificationType) }}</mat-icon>
-                  <strong>{{ notification.title }}</strong>
+            <!-- Content -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-gray-400 text-base" aria-hidden="true">{{ getTypeIcon(notification.notificationType) }}</span>
+                  <strong class="text-gray-800">{{ notification.title }}</strong>
                   @if (!notification.isRead) {
-                    <mat-chip class="unread-badge" aria-label="Unread notification">New</mat-chip>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-100 text-primary-700" aria-label="Unread notification">New</span>
                   }
                 </div>
-                <div class="alert-time">{{ formatDate(notification.triggeredAt) }}</div>
+                <span class="text-xs text-gray-400 whitespace-nowrap">{{ formatDate(notification.triggeredAt) }}</span>
               </div>
 
-              <div class="alert-message">{{ notification.message }}</div>
+              <p class="text-sm text-gray-600 mt-1">{{ notification.message }}</p>
 
-              <div class="alert-meta">
-                <mat-chip>{{ notification.truckId }}</mat-chip>
-                <mat-chip [class]="getSeverityClass(notification.severity)">{{ notification.severity }}</mat-chip>
-                <mat-chip>{{ notification.notificationType }}</mat-chip>
+              <div class="flex items-center gap-2 mt-2">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">{{ notification.truckId }}</span>
+                <span
+                  class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
+                  [class.bg-danger-100]="notification.severity === 'CRITICAL'"
+                  [class.text-danger-700]="notification.severity === 'CRITICAL'"
+                  [class.bg-warning-100]="notification.severity === 'WARNING'"
+                  [class.text-warning-700]="notification.severity === 'WARNING'"
+                  [class.bg-primary-100]="notification.severity === 'INFO'"
+                  [class.text-primary-700]="notification.severity === 'INFO'">
+                  {{ notification.severity }}
+                </span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">{{ notification.notificationType }}</span>
               </div>
             </div>
 
-            <div class="alert-actions" role="group" [attr.aria-label]="'Actions for notification: ' + notification.title">
+            <!-- Actions -->
+            <div class="flex-shrink-0 flex items-start gap-1" role="group" [attr.aria-label]="'Actions for notification: ' + notification.title">
               @if (notification.latitude && notification.longitude) {
-                <button mat-icon-button color="accent" (click)="viewOnMap(notification)"
-                        [attr.aria-label]="'View ' + notification.title + ' on map'"
-                        matTooltip="View on map">
-                  <mat-icon>map</mat-icon>
+                <button
+                  type="button"
+                  class="p-2 text-primary-600 hover:bg-primary-50 rounded-full transition-colors"
+                  (click)="viewOnMap(notification)"
+                  [attr.aria-label]="'View ' + notification.title + ' on map'">
+                  <span class="material-icons">map</span>
                 </button>
               }
               @if (!notification.isRead) {
-                <button mat-icon-button (click)="markAsRead(notification)"
-                        [attr.aria-label]="'Mark ' + notification.title + ' as read'"
-                        matTooltip="Mark as read">
-                  <mat-icon>mark_email_read</mat-icon>
+                <button
+                  type="button"
+                  class="p-2 text-gray-500 hover:bg-gray-100 rounded-full transition-colors"
+                  (click)="markAsRead(notification)"
+                  [attr.aria-label]="'Mark ' + notification.title + ' as read'">
+                  <span class="material-icons">mark_email_read</span>
                 </button>
               }
             </div>
-          </mat-card-content>
-        </mat-card>
+          </div>
+        </div>
       }
 
       <!-- Infinite Scroll Sentinel & Loading More Indicator -->
-      <div id="scroll-sentinel" class="scroll-sentinel">
+      <div id="scroll-sentinel" class="py-4">
         @if (isLoadingMore()) {
-          <div class="loading-more" role="status" aria-live="polite">
-            <mat-spinner diameter="30" aria-label="Loading more notifications" />
-            <span>Loading more notifications...</span>
+          <div class="flex items-center justify-center gap-3" role="status" aria-live="polite">
+            <div class="w-6 h-6 border-3 border-primary-600 border-t-transparent rounded-full animate-spin" aria-label="Loading more notifications"></div>
+            <span class="text-gray-500">Loading more notifications...</span>
           </div>
         } @else if (hasMorePages()) {
-          <button mat-stroked-button (click)="loadMoreNotifications()" class="load-more-btn">
-            <mat-icon>expand_more</mat-icon>
+          <button
+            type="button"
+            class="w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+            (click)="loadMoreNotifications()">
+            <span class="material-icons">expand_more</span>
             Load More
           </button>
         } @else if (filteredNotifications().length > 0) {
-          <div class="end-of-list">
-            <mat-icon>check_circle</mat-icon>
+          <div class="flex items-center justify-center gap-2 text-gray-400">
+            <span class="material-icons">check_circle</span>
             <span>You've reached the end</span>
           </div>
         }

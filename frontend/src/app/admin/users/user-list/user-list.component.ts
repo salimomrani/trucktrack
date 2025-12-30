@@ -1,23 +1,14 @@
-import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { DataTableComponent, ColumnDef, PageInfo } from '../../shared/data-table/data-table.component';
 import { UserService } from '../user.service';
 import { UserAdminResponse, UserRole, USER_ROLES, ROLE_COLORS } from '../user.model';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.component';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 
 /**
  * User list component with search, filter, and pagination.
@@ -29,18 +20,8 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
     selector: 'app-user-list',
     imports: [
     FormsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatChipsModule,
     MatMenuModule,
     MatDialogModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
     DataTableComponent,
     BreadcrumbComponent
 ],
@@ -52,7 +33,7 @@ export class UserListComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly userService = inject(UserService);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   // State
   users = signal<UserAdminResponse[]>([]);
@@ -101,7 +82,7 @@ export class UserListComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load users:', err);
-        this.snackBar.open('Failed to load users', 'Close', { duration: 3000 });
+        this.toast.error('Failed to load users');
         this.loading.set(false);
       }
     });
@@ -184,12 +165,12 @@ export class UserListComponent implements OnInit {
   private deactivateUser(user: UserAdminResponse) {
     this.userService.deactivateUser(user.id).subscribe({
       next: () => {
-        this.snackBar.open(`${user.fullName} has been deactivated`, 'Close', { duration: 3000 });
+        this.toast.success(`${user.fullName} has been deactivated`);
         this.loadUsers();
       },
       error: (err) => {
         console.error('Failed to deactivate user:', err);
-        this.snackBar.open(err.error?.message || 'Failed to deactivate user', 'Close', { duration: 3000 });
+        this.toast.error(err.error?.message || 'Failed to deactivate user');
       }
     });
   }
@@ -197,12 +178,12 @@ export class UserListComponent implements OnInit {
   private reactivateUser(user: UserAdminResponse) {
     this.userService.reactivateUser(user.id).subscribe({
       next: () => {
-        this.snackBar.open(`${user.fullName} has been reactivated`, 'Close', { duration: 3000 });
+        this.toast.success(`${user.fullName} has been reactivated`);
         this.loadUsers();
       },
       error: (err) => {
         console.error('Failed to reactivate user:', err);
-        this.snackBar.open(err.error?.message || 'Failed to reactivate user', 'Close', { duration: 3000 });
+        this.toast.error(err.error?.message || 'Failed to reactivate user');
       }
     });
   }
@@ -210,11 +191,11 @@ export class UserListComponent implements OnInit {
   resendEmail(user: UserAdminResponse) {
     this.userService.resendActivationEmail(user.id).subscribe({
       next: () => {
-        this.snackBar.open('Activation email sent', 'Close', { duration: 3000 });
+        this.toast.success('Activation email sent');
       },
       error: (err) => {
         console.error('Failed to send email:', err);
-        this.snackBar.open('Failed to send activation email', 'Close', { duration: 3000 });
+        this.toast.error('Failed to send activation email');
       }
     });
   }

@@ -1,63 +1,80 @@
-<div class="user-list-container">
+<div class="p-6">
   <!-- Breadcrumb -->
   <app-breadcrumb [items]="[{ label: 'Users', icon: 'people' }]"></app-breadcrumb>
 
   <!-- Header -->
-  <div class="page-header">
-    <div class="header-left">
-      <h1>User Management</h1>
-      <p class="subtitle">Manage user accounts and permissions</p>
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div>
+      <h1 class="text-2xl font-semibold text-gray-800">User Management</h1>
+      <p class="text-gray-500 mt-1">Manage user accounts and permissions</p>
     </div>
-    <button mat-raised-button color="primary" (click)="createUser()">
-      <mat-icon>add</mat-icon>
+    <button
+      type="button"
+      class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
+      (click)="createUser()">
+      <span class="material-icons text-lg">add</span>
       Add User
     </button>
   </div>
 
   <!-- Filters -->
-  <mat-card class="filters-card">
-    <div class="filters-row">
-      <mat-form-field appearance="outline" class="search-field">
-        <mat-label>Search</mat-label>
-        <input matInput
-          placeholder="Search by name or email..."
-          [(ngModel)]="searchTerm"
-          (input)="onSearch()">
-        <mat-icon matSuffix>search</mat-icon>
-      </mat-form-field>
+  <div class="bg-white rounded-lg shadow-card p-4 mb-6">
+    <div class="flex flex-wrap items-end gap-4">
+      <!-- Search Field -->
+      <div class="flex-1 min-w-[250px]">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+        <div class="relative">
+          <input
+            type="text"
+            class="w-full px-3 py-2 pl-10 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            placeholder="Search by name or email..."
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()">
+          <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl">search</span>
+        </div>
+      </div>
 
-      <mat-form-field appearance="outline" class="filter-field">
-        <mat-label>Role</mat-label>
-        <mat-select [(ngModel)]="selectedRole" (selectionChange)="onFilterChange()">
-          <mat-option [value]="null">All Roles</mat-option>
-          @for (role of roles; track role) {
-            <mat-option [value]="role.value">
-              {{ role.label }}
-            </mat-option>
+      <!-- Role Filter -->
+      <div class="w-48">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+        <select
+          class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          [(ngModel)]="selectedRole"
+          (ngModelChange)="onFilterChange()">
+          <option [ngValue]="null">All Roles</option>
+          @for (role of roles; track role.value) {
+            <option [ngValue]="role.value">{{ role.label }}</option>
           }
-        </mat-select>
-      </mat-form-field>
+        </select>
+      </div>
 
-      <mat-form-field appearance="outline" class="filter-field">
-        <mat-label>Status</mat-label>
-        <mat-select [(ngModel)]="selectedStatus" (selectionChange)="onFilterChange()">
-          <mat-option [value]="null">All Statuses</mat-option>
-          <mat-option [value]="true">Active</mat-option>
-          <mat-option [value]="false">Inactive</mat-option>
-        </mat-select>
-      </mat-form-field>
+      <!-- Status Filter -->
+      <div class="w-48">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+        <select
+          class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          [(ngModel)]="selectedStatus"
+          (ngModelChange)="onFilterChange()">
+          <option [ngValue]="null">All Statuses</option>
+          <option [ngValue]="true">Active</option>
+          <option [ngValue]="false">Inactive</option>
+        </select>
+      </div>
 
       @if (hasFilters()) {
-        <button mat-stroked-button (click)="clearFilters()">
-          <mat-icon>clear</mat-icon>
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+          (click)="clearFilters()">
+          <span class="material-icons text-lg">clear</span>
           Clear
         </button>
       }
     </div>
-  </mat-card>
+  </div>
 
   <!-- Users Table -->
-  <mat-card class="table-card">
+  <div class="bg-white rounded-lg shadow-card">
     <app-data-table
       [columns]="columns"
       [data]="users()"
@@ -74,33 +91,35 @@
 
     <!-- Actions column rendered separately -->
     <ng-template #actionsTemplate let-user>
-      <button mat-icon-button [matMenuTriggerFor]="menu" (click)="$event.stopPropagation()">
-        <mat-icon>more_vert</mat-icon>
+      <button
+        type="button"
+        [matMenuTriggerFor]="menu"
+        class="flex items-center justify-center w-8 h-8 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
+        (click)="$event.stopPropagation()">
+        <span class="material-icons">more_vert</span>
       </button>
       <mat-menu #menu="matMenu">
         <button mat-menu-item (click)="editUser(user)">
-          <mat-icon>edit</mat-icon>
+          <span class="material-icons mr-3 text-gray-500">edit</span>
           <span>Edit</span>
         </button>
         @if (user.isActive) {
-          <button mat-menu-item
-            (click)="confirmDeactivate(user)">
-            <mat-icon color="warn">block</mat-icon>
+          <button mat-menu-item (click)="confirmDeactivate(user)">
+            <span class="material-icons mr-3 text-danger-500">block</span>
             <span>Deactivate</span>
           </button>
         }
         @if (!user.isActive) {
-          <button mat-menu-item
-            (click)="confirmReactivate(user)">
-            <mat-icon color="primary">check_circle</mat-icon>
+          <button mat-menu-item (click)="confirmReactivate(user)">
+            <span class="material-icons mr-3 text-primary-600">check_circle</span>
             <span>Reactivate</span>
           </button>
         }
         <button mat-menu-item (click)="resendEmail(user)">
-          <mat-icon>email</mat-icon>
+          <span class="material-icons mr-3 text-gray-500">email</span>
           <span>Resend Activation</span>
         </button>
       </mat-menu>
     </ng-template>
-  </mat-card>
+  </div>
 </div>

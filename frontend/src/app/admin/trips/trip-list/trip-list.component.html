@@ -1,105 +1,143 @@
-<div class="trip-list-container">
+<div class="p-6">
   <!-- Breadcrumb -->
   <app-breadcrumb [items]="[{ label: 'Trips', icon: 'route' }]"></app-breadcrumb>
 
   <!-- Header -->
-  <div class="page-header">
-    <div class="header-left">
-      <h1>Trip Management</h1>
-      <p class="subtitle">Create, assign, and monitor trips</p>
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div>
+      <h1 class="text-2xl font-semibold text-gray-800">Trip Management</h1>
+      <p class="text-gray-500 mt-1">Create, assign, and monitor trips</p>
     </div>
-    <div class="header-actions">
-      <mat-slide-toggle
-        [checked]="autoRefreshEnabled"
-        (change)="toggleAutoRefresh()"
-        matTooltip="Auto-refresh every 10 seconds">
-        Auto-refresh
-      </mat-slide-toggle>
-      <button mat-raised-button color="primary" (click)="createTrip()">
-        <mat-icon>add</mat-icon>
+    <div class="flex items-center gap-4">
+      <!-- Auto-refresh Toggle -->
+      <label class="group relative inline-flex items-center gap-2 cursor-pointer">
+        <input
+          type="checkbox"
+          class="sr-only peer"
+          [checked]="autoRefreshEnabled"
+          (change)="toggleAutoRefresh()">
+        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+        <span class="text-sm font-medium text-gray-700">Auto-refresh</span>
+        <!-- Tooltip -->
+        <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs font-medium text-white bg-gray-800 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+          Auto-refresh every 10 seconds
+        </span>
+      </label>
+      <button
+        type="button"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
+        (click)="createTrip()">
+        <span class="material-icons text-lg">add</span>
         Create Trip
       </button>
     </div>
   </div>
 
   <!-- Status Summary Cards -->
-  <div class="status-cards">
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
     @for (status of statuses; track status.value) {
-      <mat-card
-        class="status-card"
-        [class.active]="selectedStatus === status.value"
-        [class.highlight]="isActiveStatus(status.value)"
+      <div
+        class="bg-white rounded-lg shadow-card p-4 cursor-pointer transition-all hover:shadow-lg"
+        [class.ring-2]="selectedStatus === status.value"
+        [class.ring-primary-500]="selectedStatus === status.value"
+        [class.bg-primary-50]="isActiveStatus(status.value)"
         (click)="onStatusChipClick(status.value)">
-        <div class="status-icon" [style.background-color]="status.color">
-          <mat-icon>{{ status.icon }}</mat-icon>
+        <div class="flex items-center gap-3">
+          <div
+            class="flex items-center justify-center w-10 h-10 rounded-full"
+            [style.background-color]="status.color + '20'">
+            <span class="material-icons text-xl" [style.color]="status.color">{{ status.icon }}</span>
+          </div>
+          <div>
+            <div class="text-xl font-bold text-gray-800">{{ getStatusCount(status.value) }}</div>
+            <div class="text-xs text-gray-500">{{ status.label }}</div>
+          </div>
         </div>
-        <div class="status-info">
-          <span class="status-count">{{ getStatusCount(status.value) }}</span>
-          <span class="status-label">{{ status.label }}</span>
-        </div>
-      </mat-card>
+      </div>
     }
   </div>
 
   <!-- Filters -->
-  <mat-card class="filters-card">
-    <div class="filters-row">
-      <mat-form-field appearance="outline" class="search-field">
-        <mat-label>Search</mat-label>
-        <input matInput
-          placeholder="Search by origin, destination..."
-          [(ngModel)]="searchTerm"
-          (input)="onSearch()">
-        <mat-icon matSuffix>search</mat-icon>
-      </mat-form-field>
+  <div class="bg-white rounded-lg shadow-card p-4 mb-6">
+    <div class="flex flex-wrap items-end gap-4">
+      <!-- Search Field -->
+      <div class="flex-1 min-w-[200px]">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+        <div class="relative">
+          <input
+            type="text"
+            class="w-full px-3 py-2 pl-10 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            placeholder="Search by origin, destination..."
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()">
+          <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl">search</span>
+        </div>
+      </div>
 
-      <mat-form-field appearance="outline" class="filter-field">
-        <mat-label>Status</mat-label>
-        <mat-select [(ngModel)]="selectedStatus" (selectionChange)="onFilterChange()">
-          <mat-option [value]="null">All Statuses</mat-option>
+      <!-- Status Filter -->
+      <div class="w-40">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+        <select
+          class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          [(ngModel)]="selectedStatus"
+          (ngModelChange)="onFilterChange()">
+          <option [ngValue]="null">All Statuses</option>
           @for (status of statuses; track status.value) {
-            <mat-option [value]="status.value">
-              {{ status.label }}
-            </mat-option>
+            <option [ngValue]="status.value">{{ status.label }}</option>
           }
-        </mat-select>
-      </mat-form-field>
+        </select>
+      </div>
 
-      <mat-form-field appearance="outline" class="date-field">
-        <mat-label>From</mat-label>
-        <input matInput [matDatepicker]="startPicker"
-          [(ngModel)]="startDate"
-          (dateChange)="onDateRangeChange()"
-          placeholder="Start date">
-        <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
-        <mat-datepicker #startPicker></mat-datepicker>
-      </mat-form-field>
+      <!-- Date Range Pickers (Keep Material for complex date functionality) -->
+      <div class="w-40">
+        <label class="block text-sm font-medium text-gray-700 mb-1">From</label>
+        <mat-form-field appearance="outline" class="!w-full date-field-compact">
+          <input matInput [matDatepicker]="startPicker"
+            [(ngModel)]="startDate"
+            (dateChange)="onDateRangeChange()"
+            placeholder="Start date">
+          <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
+          <mat-datepicker #startPicker></mat-datepicker>
+        </mat-form-field>
+      </div>
 
-      <mat-form-field appearance="outline" class="date-field">
-        <mat-label>To</mat-label>
-        <input matInput [matDatepicker]="endPicker"
-          [(ngModel)]="endDate"
-          (dateChange)="onDateRangeChange()"
-          placeholder="End date">
-        <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
-        <mat-datepicker #endPicker></mat-datepicker>
-      </mat-form-field>
+      <div class="w-40">
+        <label class="block text-sm font-medium text-gray-700 mb-1">To</label>
+        <mat-form-field appearance="outline" class="!w-full date-field-compact">
+          <input matInput [matDatepicker]="endPicker"
+            [(ngModel)]="endDate"
+            (dateChange)="onDateRangeChange()"
+            placeholder="End date">
+          <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
+          <mat-datepicker #endPicker></mat-datepicker>
+        </mat-form-field>
+      </div>
 
       @if (hasFilters()) {
-        <button mat-stroked-button (click)="clearFilters()">
-          <mat-icon>clear</mat-icon>
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+          (click)="clearFilters()">
+          <span class="material-icons text-lg">clear</span>
           Clear
         </button>
       }
 
-      <button mat-icon-button (click)="loadTrips()" matTooltip="Refresh">
-        <mat-icon>refresh</mat-icon>
+      <button
+        type="button"
+        class="group relative inline-flex items-center justify-center w-10 h-10 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
+        (click)="loadTrips()">
+        <span class="material-icons">refresh</span>
+        <!-- Tooltip -->
+        <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs font-medium text-white bg-gray-800 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+          Refresh
+        </span>
       </button>
     </div>
-  </mat-card>
+  </div>
 
   <!-- Trips Table -->
-  <mat-card class="table-card">
+  <div class="bg-white rounded-lg shadow-card">
     <app-data-table
       [columns]="columns"
       [data]="trips()"
@@ -116,22 +154,25 @@
 
     <!-- Actions column rendered separately -->
     <ng-template #actionsTemplate let-trip>
-      <button mat-icon-button [matMenuTriggerFor]="menu" (click)="$event.stopPropagation()">
-        <mat-icon>more_vert</mat-icon>
+      <button
+        type="button"
+        [matMenuTriggerFor]="menu"
+        class="flex items-center justify-center w-8 h-8 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
+        (click)="$event.stopPropagation()">
+        <span class="material-icons">more_vert</span>
       </button>
       <mat-menu #menu="matMenu">
         <button mat-menu-item (click)="viewTrip(trip)">
-          <mat-icon>visibility</mat-icon>
+          <span class="material-icons mr-3 text-gray-500">visibility</span>
           <span>View Details</span>
         </button>
         @if (trip.status === 'PENDING' || trip.status === 'ASSIGNED') {
-          <button mat-menu-item
-            (click)="confirmCancel(trip)">
-            <mat-icon color="warn">cancel</mat-icon>
+          <button mat-menu-item (click)="confirmCancel(trip)">
+            <span class="material-icons mr-3 text-danger-500">cancel</span>
             <span>Cancel Trip</span>
           </button>
         }
       </mat-menu>
     </ng-template>
-  </mat-card>
+  </div>
 </div>
