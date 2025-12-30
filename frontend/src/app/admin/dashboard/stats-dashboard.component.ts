@@ -1,10 +1,6 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { StatsService, DashboardStats } from './stats.service';
 import { TripStatsComponent } from '../trips/trip-stats/trip-stats.component';
 import { StoreFacade } from '../../store/store.facade';
@@ -13,16 +9,14 @@ import { StoreFacade } from '../../store/store.facade';
  * Admin dashboard with fleet statistics.
  * Feature: 002-admin-panel (US3)
  * T059: Added trip stats widget
+ * Migrated to Tailwind CSS (Feature 020)
  */
 @Component({
     selector: 'app-stats-dashboard',
     imports: [
         CommonModule,
         RouterModule,
-        MatCardModule,
-        MatButtonModule,
-        MatIconModule,
-        MatProgressSpinnerModule,
+        DecimalPipe,
         TripStatsComponent
     ],
     templateUrl: './stats-dashboard.component.html',

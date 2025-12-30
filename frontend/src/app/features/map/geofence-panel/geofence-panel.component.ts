@@ -2,42 +2,22 @@ import { Component, OnInit, OnDestroy, input, output, signal, inject, computed }
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Store } from '@ngrx/store';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatListModule } from '@angular/material/list';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import * as L from 'leaflet';
 import 'leaflet-draw';
 import { GeofenceService } from '../../../services/geofence.service';
 import { Geofence, GeofenceZoneType } from '../../../models/geofence.model';
 import { selectUserRole } from '../../../store/auth/auth.selectors';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 
 /**
  * Geofence Panel Component
  * T154: Frontend geofence drawing UI (Leaflet.draw)
  * Provides UI for creating, editing, and managing geofences on the map
+ * Migrated to Tailwind CSS (Feature 020)
  */
 @Component({
     selector: 'app-geofence-panel',
-    imports: [
-    FormsModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatListModule,
-    MatExpansionModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule
-],
+    imports: [FormsModule],
     templateUrl: './geofence-panel.component.html',
     styleUrls: ['./geofence-panel.component.scss']
 })
@@ -52,7 +32,7 @@ export class GeofencePanelComponent implements OnInit, OnDestroy {
   readonly geofenceDeleted = output<string>();
 
   private readonly geofenceService = inject(GeofenceService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly store = inject(Store);
 
   // User role and permissions
@@ -80,6 +60,10 @@ export class GeofencePanelComponent implements OnInit, OnDestroy {
   isPanelOpen = signal(false);
   isLoading = signal(false);
   geofences = signal<Geofence[]>([]);
+
+  // Expansion panel states
+  isCreatePanelExpanded = signal(false);
+  isListPanelExpanded = signal(true);
 
   // New geofence form
   newGeofence: Partial<Geofence> = {
@@ -192,7 +176,7 @@ export class GeofencePanelComponent implements OnInit, OnDestroy {
     }
 
     this.isDrawing.set(false);
-    this.snackBar.open('Polygon drawn! Fill in the details and save.', 'OK', { duration: 3000 });
+    this.toast.success('Polygon drawn! Fill in the details and save.');
   }
 
   /**
@@ -201,7 +185,7 @@ export class GeofencePanelComponent implements OnInit, OnDestroy {
   startDrawing(): void {
     this.map().addControl(this.drawControl);
     this.isDrawing.set(true);
-    this.snackBar.open('Draw a polygon on the map to create a geofence', 'OK', { duration: 5000 });
+    this.toast.info('Draw a polygon on the map to create a geofence');
   }
 
   /**
@@ -223,7 +207,7 @@ export class GeofencePanelComponent implements OnInit, OnDestroy {
    */
   saveGeofence(): void {
     if (!this.newGeofence.name || this.drawnCoordinates.length < 4) {
-      this.snackBar.open('Please provide a name and draw a valid polygon', 'OK', { duration: 3000 });
+      this.toast.warning('Please provide a name and draw a valid polygon');
       return;
     }
 
@@ -240,7 +224,7 @@ export class GeofencePanelComponent implements OnInit, OnDestroy {
     this.geofenceService.createGeofence(geofence).subscribe({
       next: (created) => {
         this.isLoading.set(false);
-        this.snackBar.open(`Geofence "${created.name}" created successfully`, 'OK', { duration: 3000 });
+        this.toast.success(`Geofence "${created.name}" created successfully`);
 
         // Add to list and render on map
         this.geofences.update(list => [...list, created]);
@@ -253,7 +237,7 @@ export class GeofencePanelComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.isLoading.set(false);
         console.error('Error creating geofence:', err);
-        this.snackBar.open('Failed to create geofence', 'Dismiss', { duration: 5000 });
+        this.toast.error('Failed to create geofence');
       }
     });
   }
@@ -359,7 +343,7 @@ export class GeofencePanelComponent implements OnInit, OnDestroy {
     this.geofenceService.deleteGeofence(geofence.id).subscribe({
       next: () => {
         this.isLoading.set(false);
-        this.snackBar.open(`Geofence "${geofence.name}" deleted`, 'OK', { duration: 3000 });
+        this.toast.success(`Geofence "${geofence.name}" deleted`);
 
         // Remove from list and map
         this.geofences.update(list => list.filter(g => g.id !== geofence.id));
@@ -374,7 +358,7 @@ export class GeofencePanelComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.isLoading.set(false);
         console.error('Error deleting geofence:', err);
-        this.snackBar.open('Failed to delete geofence', 'Dismiss', { duration: 5000 });
+        this.toast.error('Failed to delete geofence');
       }
     });
   }
@@ -421,6 +405,20 @@ export class GeofencePanelComponent implements OnInit, OnDestroy {
    */
   togglePanel(): void {
     this.isPanelOpen.update(open => !open);
+  }
+
+  /**
+   * Toggle create panel expansion
+   */
+  toggleCreatePanel(): void {
+    this.isCreatePanelExpanded.update(v => !v);
+  }
+
+  /**
+   * Toggle list panel expansion
+   */
+  toggleListPanel(): void {
+    this.isListPanelExpanded.update(v => !v);
   }
 
   /**

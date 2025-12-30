@@ -1,155 +1,189 @@
-<div class="dashboard-container">
-  <div class="page-header">
-    <h1>Admin Dashboard</h1>
-    <p class="subtitle">Fleet overview and quick actions</p>
+<div class="p-6 space-y-6">
+  <!-- Page Header -->
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+    <p class="text-gray-500 mt-1">Fleet overview and quick actions</p>
   </div>
 
   @if (loading()) {
-    <div class="loading-container">
-      <mat-spinner diameter="48"></mat-spinner>
+    <div class="flex items-center justify-center py-16">
+      <div class="animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent"></div>
     </div>
   } @else if (error()) {
-    <mat-card class="error-card">
-      <mat-card-content>
-        <mat-icon>error</mat-icon>
-        <p>{{ error() }}</p>
-        <button mat-button color="primary" (click)="loadStats()">Retry</button>
-      </mat-card-content>
-    </mat-card>
+    <div class="bg-white rounded-lg shadow-card p-6">
+      <div class="flex flex-col items-center gap-4 text-danger-600">
+        <span class="material-icons text-4xl">error</span>
+        <p class="text-gray-700">{{ error() }}</p>
+        <button
+          type="button"
+          class="px-4 py-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+          (click)="loadStats()">
+          Retry
+        </button>
+      </div>
+    </div>
   } @else {
-    <!-- Quick Stats -->
-    <div class="stats-grid">
-      <mat-card class="stat-card clickable" routerLink="/admin/users">
-        <mat-icon class="stat-icon users">people</mat-icon>
-        <div class="stat-content">
-          <span class="stat-value">{{ stats()?.totalUsers ?? 0 }}</span>
-          <span class="stat-label">Total Users</span>
-          <span class="stat-sub">{{ stats()?.activeUsers ?? 0 }} active</span>
+    <!-- Quick Stats Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Users Card -->
+      <a routerLink="/admin/users"
+         class="bg-white rounded-lg shadow-card p-4 flex items-center gap-4 hover:shadow-lg transition-shadow cursor-pointer group">
+        <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-primary-100 text-primary-600">
+          <span class="material-icons text-2xl">people</span>
         </div>
-        <mat-icon class="nav-arrow">chevron_right</mat-icon>
-      </mat-card>
+        <div class="flex-1">
+          <span class="block text-2xl font-bold text-gray-900">{{ stats()?.totalUsers ?? 0 }}</span>
+          <span class="text-sm text-gray-600">Total Users</span>
+          <span class="block text-xs text-gray-400">{{ stats()?.activeUsers ?? 0 }} active</span>
+        </div>
+        <span class="material-icons text-gray-400 group-hover:text-primary-500 transition-colors">chevron_right</span>
+      </a>
 
-      <mat-card class="stat-card clickable" routerLink="/admin/trucks">
-        <mat-icon class="stat-icon trucks">local_shipping</mat-icon>
-        <div class="stat-content">
-          <span class="stat-value">{{ stats()?.trucks?.total ?? 0 }}</span>
-          <span class="stat-label">Total Trucks</span>
-          <span class="stat-sub">{{ stats()?.trucks?.active ?? 0 }} active</span>
+      <!-- Trucks Card -->
+      <a routerLink="/admin/trucks"
+         class="bg-white rounded-lg shadow-card p-4 flex items-center gap-4 hover:shadow-lg transition-shadow cursor-pointer group">
+        <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-success-100 text-success-600">
+          <span class="material-icons text-2xl">local_shipping</span>
         </div>
-        <mat-icon class="nav-arrow">chevron_right</mat-icon>
-      </mat-card>
+        <div class="flex-1">
+          <span class="block text-2xl font-bold text-gray-900">{{ stats()?.trucks?.total ?? 0 }}</span>
+          <span class="text-sm text-gray-600">Total Trucks</span>
+          <span class="block text-xs text-gray-400">{{ stats()?.trucks?.active ?? 0 }} active</span>
+        </div>
+        <span class="material-icons text-gray-400 group-hover:text-success-500 transition-colors">chevron_right</span>
+      </a>
 
-      <mat-card class="stat-card clickable" routerLink="/admin/groups">
-        <mat-icon class="stat-icon groups">workspaces</mat-icon>
-        <div class="stat-content">
-          <span class="stat-value">{{ stats()?.totalGroups ?? 0 }}</span>
-          <span class="stat-label">Groups</span>
-          <span class="stat-sub">Fleet organization</span>
+      <!-- Groups Card -->
+      <a routerLink="/admin/groups"
+         class="bg-white rounded-lg shadow-card p-4 flex items-center gap-4 hover:shadow-lg transition-shadow cursor-pointer group">
+        <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-info-100 text-info-600">
+          <span class="material-icons text-2xl">workspaces</span>
         </div>
-        <mat-icon class="nav-arrow">chevron_right</mat-icon>
-      </mat-card>
+        <div class="flex-1">
+          <span class="block text-2xl font-bold text-gray-900">{{ stats()?.totalGroups ?? 0 }}</span>
+          <span class="text-sm text-gray-600">Groups</span>
+          <span class="block text-xs text-gray-400">Fleet organization</span>
+        </div>
+        <span class="material-icons text-gray-400 group-hover:text-info-500 transition-colors">chevron_right</span>
+      </a>
 
-      <mat-card class="stat-card clickable" routerLink="/admin/config">
-        <mat-icon class="stat-icon alerts">settings</mat-icon>
-        <div class="stat-content">
-          <span class="stat-value">{{ stats()?.alerts?.total ?? 0 }}</span>
-          <span class="stat-label">Configuration</span>
-          <span class="stat-sub">System settings</span>
+      <!-- Configuration Card -->
+      <a routerLink="/admin/config"
+         class="bg-white rounded-lg shadow-card p-4 flex items-center gap-4 hover:shadow-lg transition-shadow cursor-pointer group">
+        <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-warning-100 text-warning-600">
+          <span class="material-icons text-2xl">settings</span>
         </div>
-        <mat-icon class="nav-arrow">chevron_right</mat-icon>
-      </mat-card>
+        <div class="flex-1">
+          <span class="block text-2xl font-bold text-gray-900">{{ stats()?.alerts?.total ?? 0 }}</span>
+          <span class="text-sm text-gray-600">Configuration</span>
+          <span class="block text-xs text-gray-400">System settings</span>
+        </div>
+        <span class="material-icons text-gray-400 group-hover:text-warning-500 transition-colors">chevron_right</span>
+      </a>
     </div>
 
-    <!-- Trip Statistics Widget -->
-    <mat-card class="trips-card clickable" routerLink="/admin/trips">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>route</mat-icon>
-          Trip Analytics
-        </mat-card-title>
-        <div class="header-action">
-          <span>View All</span>
-          <mat-icon>chevron_right</mat-icon>
+    <!-- Trip Analytics Widget -->
+    <a routerLink="/admin/trips" class="block bg-white rounded-lg shadow-card hover:shadow-lg transition-shadow cursor-pointer">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div class="flex items-center gap-2 text-gray-800 font-medium">
+          <span class="material-icons text-primary-500">route</span>
+          <span>Trip Analytics</span>
         </div>
-      </mat-card-header>
-      <mat-card-content>
+        <div class="flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700">
+          <span>View All</span>
+          <span class="material-icons text-lg">chevron_right</span>
+        </div>
+      </div>
+      <div class="p-4">
         <app-trip-stats [compact]="true"></app-trip-stats>
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </a>
 
     <!-- Truck Status Breakdown -->
-    <mat-card class="status-card">
-      <mat-card-header>
-        <mat-card-title>Truck Status Breakdown</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="status-grid">
-          <div class="status-item active">
-            <span class="status-count">{{ stats()?.trucks?.active ?? 0 }}</span>
-            <span class="status-label">Active</span>
+    <div class="bg-white rounded-lg shadow-card">
+      <div class="px-6 py-4 border-b border-gray-100">
+        <h3 class="font-medium text-gray-800">Truck Status Breakdown</h3>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div class="text-center p-4 rounded-lg bg-success-50 border-l-4 border-success-500">
+            <span class="block text-2xl font-bold text-success-700">{{ stats()?.trucks?.active ?? 0 }}</span>
+            <span class="text-sm text-success-600">Active</span>
           </div>
-          <div class="status-item idle">
-            <span class="status-count">{{ stats()?.trucks?.idle ?? 0 }}</span>
-            <span class="status-label">Idle</span>
+          <div class="text-center p-4 rounded-lg bg-warning-50 border-l-4 border-warning-500">
+            <span class="block text-2xl font-bold text-warning-700">{{ stats()?.trucks?.idle ?? 0 }}</span>
+            <span class="text-sm text-warning-600">Idle</span>
           </div>
-          <div class="status-item offline">
-            <span class="status-count">{{ stats()?.trucks?.offline ?? 0 }}</span>
-            <span class="status-label">Offline</span>
+          <div class="text-center p-4 rounded-lg bg-gray-50 border-l-4 border-gray-400">
+            <span class="block text-2xl font-bold text-gray-700">{{ stats()?.trucks?.offline ?? 0 }}</span>
+            <span class="text-sm text-gray-600">Offline</span>
           </div>
-          <div class="status-item out-of-service">
-            <span class="status-count">{{ stats()?.trucks?.outOfService ?? 0 }}</span>
-            <span class="status-label">Out of Service</span>
+          <div class="text-center p-4 rounded-lg bg-danger-50 border-l-4 border-danger-500">
+            <span class="block text-2xl font-bold text-danger-700">{{ stats()?.trucks?.outOfService ?? 0 }}</span>
+            <span class="text-sm text-danger-600">Out of Service</span>
           </div>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </div>
 
     <!-- Quick Actions -->
-    <mat-card class="actions-card">
-      <mat-card-header>
-        <mat-card-title>Quick Actions</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="actions-grid">
-          <button mat-stroked-button routerLink="/admin/users/new">
-            <mat-icon>person_add</mat-icon>
-            Add User
-          </button>
-          <button mat-stroked-button routerLink="/admin/trucks/new">
-            <mat-icon>add</mat-icon>
-            Add Truck
-          </button>
-          <button mat-stroked-button routerLink="/admin/groups/new">
-            <mat-icon>group_add</mat-icon>
-            Create Group
-          </button>
-          <button mat-stroked-button routerLink="/admin/config">
-            <mat-icon>settings</mat-icon>
-            Configuration
-          </button>
+    <div class="bg-white rounded-lg shadow-card">
+      <div class="px-6 py-4 border-b border-gray-100">
+        <h3 class="font-medium text-gray-800">Quick Actions</h3>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <a routerLink="/admin/users/new"
+             class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 hover:border-primary-300 transition-colors">
+            <span class="material-icons text-xl">person_add</span>
+            <span>Add User</span>
+          </a>
+          <a routerLink="/admin/trucks/new"
+             class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 hover:border-primary-300 transition-colors">
+            <span class="material-icons text-xl">add</span>
+            <span>Add Truck</span>
+          </a>
+          <a routerLink="/admin/groups/new"
+             class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 hover:border-primary-300 transition-colors">
+            <span class="material-icons text-xl">group_add</span>
+            <span>Create Group</span>
+          </a>
+          <a routerLink="/admin/config"
+             class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 hover:border-primary-300 transition-colors">
+            <span class="material-icons text-xl">settings</span>
+            <span>Configuration</span>
+          </a>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </div>
 
     <!-- Mileage Stats -->
     @if (stats()?.mileage) {
-      <mat-card class="mileage-card">
-        <mat-card-header>
-          <mat-card-title>Fleet Mileage</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="mileage-summary">
-            <div class="mileage-stat">
-              <span class="mileage-value">{{ stats()?.mileage?.totalKilometers | number:'1.0-0' }}</span>
-              <span class="mileage-label">Total km</span>
+      <div class="bg-white rounded-lg shadow-card">
+        <div class="px-6 py-4 border-b border-gray-100">
+          <h3 class="font-medium text-gray-800">Fleet Mileage</h3>
+        </div>
+        <div class="p-6">
+          <div class="grid grid-cols-2 gap-6">
+            <div class="text-center">
+              <span class="block text-3xl font-bold text-gray-900">{{ stats()?.mileage?.totalKilometers | number:'1.0-0' }}</span>
+              <span class="text-sm text-gray-500">Total km</span>
             </div>
-            <div class="mileage-stat">
-              <span class="mileage-value">{{ stats()?.mileage?.averagePerTruck | number:'1.0-0' }}</span>
-              <span class="mileage-label">Avg per truck</span>
+            <div class="text-center">
+              <span class="block text-3xl font-bold text-gray-900">{{ stats()?.mileage?.averagePerTruck | number:'1.0-0' }}</span>
+              <span class="text-sm text-gray-500">Avg per truck</span>
             </div>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </div>
+      </div>
     }
+  }
+
+  <!-- Cache Loading Indicator -->
+  @if (isCacheLoading()) {
+    <div class="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg px-4 py-2 flex items-center gap-2 text-sm text-gray-600">
+      <div class="animate-spin rounded-full h-4 w-4 border-2 border-primary-500 border-t-transparent"></div>
+      <span>Updating...</span>
+    </div>
   }
 </div>

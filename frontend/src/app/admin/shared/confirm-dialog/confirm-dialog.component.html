@@ -1,14 +1,28 @@
-<h2 mat-dialog-title>{{ data.title }}</h2>
-<mat-dialog-content>
-  <p>{{ data.message }}</p>
-</mat-dialog-content>
-<mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>
-    {{ data.cancelText || 'Cancel' }}
-  </button>
-  <button mat-raised-button
-          [color]="data.confirmColor || 'primary'"
-          [mat-dialog-close]="true">
-    {{ data.confirmText || 'Confirm' }}
-  </button>
-</mat-dialog-actions>
+<div class="min-w-[300px] max-w-[500px]">
+  <!-- Header -->
+  <div class="px-6 py-4 border-b border-gray-200">
+    <h2 class="text-lg font-semibold text-gray-900">{{ data.title }}</h2>
+  </div>
+
+  <!-- Content -->
+  <div class="px-6 py-4">
+    <p class="text-sm text-gray-600">{{ data.message }}</p>
+  </div>
+
+  <!-- Actions -->
+  <div class="px-6 py-4 bg-gray-50 flex justify-end gap-3 rounded-b-lg">
+    <button
+      type="button"
+      class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+      (click)="cancel()">
+      {{ data.cancelText || 'Cancel' }}
+    </button>
+    <button
+      type="button"
+      class="px-4 py-2 text-sm font-medium text-white rounded-md transition-colors"
+      [class]="confirmButtonClass"
+      (click)="confirm()">
+      {{ data.confirmText || 'Confirm' }}
+    </button>
+  </div>
+</div>
