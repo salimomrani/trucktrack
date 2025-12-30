@@ -1,16 +1,6 @@
-import { Component, input, output, OnInit, OnChanges, ViewChild, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, output, OnInit, OnChanges, ChangeDetectionStrategy, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatSortModule, MatSort, Sort } from '@angular/material/sort';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { SelectionModel } from '@angular/cdk/collections';
 
 /**
@@ -39,26 +29,18 @@ export interface PageInfo {
  * Reusable DataTable component with pagination, sorting, and search
  * T021: Create reusable DataTableComponent
  * Feature: 002-admin-panel
+ * Migrated to Tailwind CSS (Feature 020)
  */
 @Component({
-    selector: 'app-data-table',
-    imports: [
-        CommonModule,
-        FormsModule,
-        MatTableModule,
-        MatPaginatorModule,
-        MatSortModule,
-        MatInputModule,
-        MatFormFieldModule,
-        MatIconModule,
-        MatButtonModule,
-        MatProgressSpinnerModule,
-        MatTooltipModule,
-        MatCheckboxModule
-    ],
-    templateUrl: './data-table.component.html',
-    styleUrls: ['./data-table.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-data-table',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule
+  ],
+  templateUrl: './data-table.component.html',
+  styleUrls: ['./data-table.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataTableComponent<T> implements OnInit, OnChanges {
   // Signal inputs
@@ -84,16 +66,13 @@ export class DataTableComponent<T> implements OnInit, OnChanges {
   readonly rowClicked = output<T>();
   readonly selectionChange = output<T[]>();
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
-
   searchValue = '';
-  dataSource = new MatTableDataSource<T>();
   selection = new SelectionModel<T>(true, []);
 
-  private currentSort: Sort | null = null;
-  private currentPageIndex = 0;
-  private currentPageSize = 25;
+  currentSortColumn: string | null = null;
+  currentSortDirection: 'asc' | 'desc' | '' = '';
+  currentPageIndex = 0;
+  currentPageSize = 25;
 
   displayedColumns = computed(() => {
     const cols = this.selectable() ? ['select'] : [];
@@ -105,7 +84,6 @@ export class DataTableComponent<T> implements OnInit, OnChanges {
   });
 
   ngOnInit() {
-    this.dataSource.data = this.data();
     this.currentPageIndex = this.pageIndex();
     this.currentPageSize = this.pageSize();
 
@@ -115,7 +93,9 @@ export class DataTableComponent<T> implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
-    this.dataSource.data = this.data();
+    // Update local state when inputs change
+    this.currentPageIndex = this.pageIndex();
+    this.currentPageSize = this.pageSize();
   }
 
   onSearch(event: Event) {
@@ -123,14 +103,33 @@ export class DataTableComponent<T> implements OnInit, OnChanges {
     this.searchChange.emit(value);
   }
 
-  onSort(sort: Sort) {
-    this.currentSort = sort;
+  toggleSort(column: string) {
+    if (this.currentSortColumn === column) {
+      // Cycle: asc -> desc -> none
+      if (this.currentSortDirection === 'asc') {
+        this.currentSortDirection = 'desc';
+      } else if (this.currentSortDirection === 'desc') {
+        this.currentSortColumn = null;
+        this.currentSortDirection = '';
+      } else {
+        this.currentSortDirection = 'asc';
+      }
+    } else {
+      this.currentSortColumn = column;
+      this.currentSortDirection = 'asc';
+    }
     this.emitPageChange();
   }
 
-  onPageChange(event: PageEvent) {
-    this.currentPageIndex = event.pageIndex;
-    this.currentPageSize = event.pageSize;
+  onPageSizeChange(size: string) {
+    this.currentPageSize = parseInt(size, 10);
+    this.currentPageIndex = 0; // Reset to first page
+    this.emitPageChange();
+  }
+
+  goToPage(page: number) {
+    if (page < 0 || page >= this.getTotalPages()) return;
+    this.currentPageIndex = page;
     this.emitPageChange();
   }
 
@@ -138,8 +137,8 @@ export class DataTableComponent<T> implements OnInit, OnChanges {
     this.pageChange.emit({
       page: this.currentPageIndex,
       size: this.currentPageSize,
-      sortColumn: this.currentSort?.active,
-      sortDirection: this.currentSort?.direction as 'asc' | 'desc'
+      sortColumn: this.currentSortColumn || undefined,
+      sortDirection: this.currentSortDirection as 'asc' | 'desc' || undefined
     });
   }
 
@@ -149,15 +148,35 @@ export class DataTableComponent<T> implements OnInit, OnChanges {
 
   isAllSelected(): boolean {
     const numSelected = this.selection.selected.length;
-    const numRows = this.dataSource.data.length;
-    return numSelected === numRows;
+    const numRows = this.data().length;
+    return numSelected === numRows && numRows > 0;
   }
 
   toggleAllRows() {
     if (this.isAllSelected()) {
       this.selection.clear();
     } else {
-      this.dataSource.data.forEach(row => this.selection.select(row));
+      this.data().forEach(row => this.selection.select(row));
     }
+  }
+
+  getTotalColumns(): number {
+    let count = this.columns().length;
+    if (this.selectable()) count++;
+    if (this.showActions()) count++;
+    return count;
+  }
+
+  getTotalPages(): number {
+    return Math.ceil(this.totalElements() / this.currentPageSize);
+  }
+
+  getPaginationLabel(): string {
+    const total = this.totalElements();
+    if (total === 0) return '0 of 0';
+
+    const start = this.currentPageIndex * this.currentPageSize + 1;
+    const end = Math.min((this.currentPageIndex + 1) * this.currentPageSize, total);
+    return `${start}-${end} of ${total}`;
   }
 }

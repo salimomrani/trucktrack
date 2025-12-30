@@ -1,131 +1,221 @@
 <div class="data-table-container">
   <!-- Search bar -->
   @if (searchable()) {
-    <div class="table-header">
-      <mat-form-field appearance="outline" class="search-field">
-        <mat-label>Search</mat-label>
-        <input matInput
-               [placeholder]="searchPlaceholder()"
-               [(ngModel)]="searchValue"
-               (input)="onSearch($event)"
-               aria-label="Search table">
-        <mat-icon matSuffix>search</mat-icon>
-      </mat-form-field>
+    <div class="mb-4">
+      <div class="relative max-w-xs">
+        <input
+          type="text"
+          class="block w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          [placeholder]="searchPlaceholder()"
+          [(ngModel)]="searchValue"
+          (input)="onSearch($event)"
+          aria-label="Search table">
+        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <span class="material-icons text-gray-400 text-lg">search</span>
+        </span>
+      </div>
     </div>
   }
 
-  <!-- Loading spinner -->
-  @if (isLoading()) {
-    <div class="loading-overlay">
-      <mat-spinner diameter="40"></mat-spinner>
-    </div>
-  }
+  <!-- Table wrapper -->
+  <div class="relative overflow-hidden rounded-lg border border-gray-200 bg-white">
+    <!-- Loading overlay -->
+    @if (isLoading()) {
+      <div class="absolute inset-0 bg-white/80 z-10 flex items-center justify-center">
+        <div class="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }
 
-  <!-- Table -->
-  <div class="table-wrapper" [class.loading]="isLoading()">
-    <table mat-table [dataSource]="dataSource" matSort (matSortChange)="onSort($event)">
-
-      <!-- Selection column -->
-      @if (selectable()) {
-        <ng-container matColumnDef="select">
-          <th mat-header-cell *matHeaderCellDef>
-            <mat-checkbox (change)="$event ? toggleAllRows() : null"
-                          [checked]="selection.hasValue() && isAllSelected()"
-                          [indeterminate]="selection.hasValue() && !isAllSelected()"
-                          aria-label="Select all rows">
-            </mat-checkbox>
-          </th>
-          <td mat-cell *matCellDef="let row">
-            <mat-checkbox (click)="$event.stopPropagation()"
-                          (change)="$event ? selection.toggle(row) : null"
-                          [checked]="selection.isSelected(row)"
-                          [aria-label]="'Select row'">
-            </mat-checkbox>
-          </td>
-        </ng-container>
-      }
-
-      <!-- Dynamic columns -->
-      @for (col of columns(); track col.key) {
-        <ng-container [matColumnDef]="col.key">
-          <th mat-header-cell *matHeaderCellDef
-              [mat-sort-header]="col.sortable ? col.key : ''"
-              [disabled]="!col.sortable"
-              [style.width]="col.width">
-            {{ col.header }}
-          </th>
-          <td mat-cell *matCellDef="let row" [style.width]="col.width">
-            @switch (col.type) {
-              @case ('date') {
-                {{ row[col.key] | date:'short' }}
-              }
-              @case ('badge') {
-                <span class="badge" [style.background-color]="getBadgeColor(col, row[col.key])">
-                  {{ row[col.key] }}
-                </span>
-              }
-              @case ('boolean') {
-                <mat-icon [class.active]="row[col.key]">
-                  {{ row[col.key] ? 'check_circle' : 'cancel' }}
-                </mat-icon>
-              }
-              @case ('actions') {
-                <ng-content select="[actions]"></ng-content>
-              }
-              @default {
-                {{ row[col.key] }}
-              }
+    <!-- Table -->
+    <div class="overflow-x-auto" [class.opacity-50]="isLoading()">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <!-- Selection column -->
+            @if (selectable()) {
+              <th scope="col" class="w-12 px-4 py-3">
+                <input
+                  type="checkbox"
+                  class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                  [checked]="selection.hasValue() && isAllSelected()"
+                  [indeterminate]="selection.hasValue() && !isAllSelected()"
+                  (change)="toggleAllRows()"
+                  aria-label="Select all rows">
+              </th>
             }
-          </td>
-        </ng-container>
-      }
 
-      <!-- Actions column -->
-      @if (showActions()) {
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef style="width: 120px">Actions</th>
-          <td mat-cell *matCellDef="let row">
-            <button mat-icon-button
-                    matTooltip="Edit"
-                    (click)="editRow.emit(row)"
-                    aria-label="Edit row">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button mat-icon-button
-                    matTooltip="Delete"
-                    (click)="deleteRow.emit(row)"
-                    aria-label="Delete row">
-              <mat-icon color="warn">delete</mat-icon>
-            </button>
-          </td>
-        </ng-container>
-      }
+            <!-- Dynamic columns -->
+            @for (col of columns(); track col.key) {
+              <th scope="col"
+                  class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  [style.width]="col.width"
+                  [class.cursor-pointer]="col.sortable"
+                  [class.select-none]="col.sortable"
+                  (click)="col.sortable ? toggleSort(col.key) : null">
+                <div class="flex items-center gap-1">
+                  <span>{{ col.header }}</span>
+                  @if (col.sortable) {
+                    <span class="material-icons text-sm text-gray-400">
+                      @if (currentSortColumn === col.key) {
+                        {{ currentSortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                      } @else {
+                        unfold_more
+                      }
+                    </span>
+                  }
+                </div>
+              </th>
+            }
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns();"
-          (click)="rowClicked.emit(row)"
-          [class.clickable]="rowClickable()">
-      </tr>
+            <!-- Actions column -->
+            @if (showActions()) {
+              <th scope="col" class="w-28 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
+            }
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          @for (row of data(); track $index) {
+            <tr
+              class="hover:bg-gray-50 transition-colors"
+              [class.cursor-pointer]="rowClickable()"
+              (click)="rowClicked.emit(row)">
+              <!-- Selection cell -->
+              @if (selectable()) {
+                <td class="w-12 px-4 py-3" (click)="$event.stopPropagation()">
+                  <input
+                    type="checkbox"
+                    class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                    [checked]="selection.isSelected(row)"
+                    (change)="selection.toggle(row)"
+                    aria-label="Select row">
+                </td>
+              }
 
-      <!-- No data row -->
-      <tr class="mat-row no-data" *matNoDataRow>
-        <td class="mat-cell" [attr.colspan]="displayedColumns().length">
-          <div class="no-data-message">
-            <mat-icon>inbox</mat-icon>
-            <span>{{ noDataMessage() }}</span>
-          </div>
-        </td>
-      </tr>
-    </table>
+              <!-- Dynamic cells -->
+              @for (col of columns(); track col.key) {
+                <td class="px-4 py-3 text-sm text-gray-900 whitespace-nowrap" [style.width]="col.width">
+                  @switch (col.type) {
+                    @case ('date') {
+                      {{ $any(row)[col.key] | date:'short' }}
+                    }
+                    @case ('badge') {
+                      <span
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white"
+                        [style.background-color]="getBadgeColor(col, $any(row)[col.key])">
+                        {{ $any(row)[col.key] }}
+                      </span>
+                    }
+                    @case ('boolean') {
+                      <span class="material-icons text-lg" [class.text-success-500]="$any(row)[col.key]" [class.text-gray-400]="!$any(row)[col.key]">
+                        {{ $any(row)[col.key] ? 'check_circle' : 'cancel' }}
+                      </span>
+                    }
+                    @case ('actions') {
+                      <ng-content select="[actions]"></ng-content>
+                    }
+                    @default {
+                      {{ $any(row)[col.key] }}
+                    }
+                  }
+                </td>
+              }
+
+              <!-- Actions cell -->
+              @if (showActions()) {
+                <td class="w-28 px-4 py-3" (click)="$event.stopPropagation()">
+                  <div class="flex items-center gap-1">
+                    <button
+                      type="button"
+                      class="p-1.5 text-gray-500 hover:text-primary-600 hover:bg-gray-100 rounded transition-colors"
+                      title="Edit"
+                      (click)="editRow.emit(row)"
+                      aria-label="Edit row">
+                      <span class="material-icons text-lg">edit</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="p-1.5 text-gray-500 hover:text-danger-600 hover:bg-gray-100 rounded transition-colors"
+                      title="Delete"
+                      (click)="deleteRow.emit(row)"
+                      aria-label="Delete row">
+                      <span class="material-icons text-lg">delete</span>
+                    </button>
+                  </div>
+                </td>
+              }
+            </tr>
+          } @empty {
+            <tr>
+              <td [attr.colspan]="getTotalColumns()" class="px-4 py-12 text-center">
+                <div class="flex flex-col items-center gap-2 text-gray-500">
+                  <span class="material-icons text-4xl text-gray-300">inbox</span>
+                  <span class="text-sm">{{ noDataMessage() }}</span>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </div>
 
-  <!-- Paginator -->
-  <mat-paginator [length]="totalElements()"
-                 [pageSize]="pageSize()"
-                 [pageSizeOptions]="pageSizeOptions()"
-                 [pageIndex]="pageIndex()"
-                 (page)="onPageChange($event)"
-                 showFirstLastButtons
-                 aria-label="Select page">
-  </mat-paginator>
+  <!-- Pagination -->
+  <div class="flex items-center justify-between mt-4 px-2">
+    <div class="flex items-center gap-2 text-sm text-gray-700">
+      <span>Rows per page:</span>
+      <select
+        class="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+        [value]="currentPageSize"
+        (change)="onPageSizeChange($any($event.target).value)">
+        @for (size of pageSizeOptions(); track size) {
+          <option [value]="size">{{ size }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="flex items-center gap-1 text-sm text-gray-700">
+      <span>{{ getPaginationLabel() }}</span>
+    </div>
+
+    <div class="flex items-center gap-1">
+      <button
+        type="button"
+        class="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        [disabled]="currentPageIndex === 0"
+        (click)="goToPage(0)"
+        title="First page"
+        aria-label="First page">
+        <span class="material-icons text-lg">first_page</span>
+      </button>
+      <button
+        type="button"
+        class="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        [disabled]="currentPageIndex === 0"
+        (click)="goToPage(currentPageIndex - 1)"
+        title="Previous page"
+        aria-label="Previous page">
+        <span class="material-icons text-lg">chevron_left</span>
+      </button>
+      <button
+        type="button"
+        class="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        [disabled]="currentPageIndex >= getTotalPages() - 1"
+        (click)="goToPage(currentPageIndex + 1)"
+        title="Next page"
+        aria-label="Next page">
+        <span class="material-icons text-lg">chevron_right</span>
+      </button>
+      <button
+        type="button"
+        class="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        [disabled]="currentPageIndex >= getTotalPages() - 1"
+        (click)="goToPage(getTotalPages() - 1)"
+        title="Last page"
+        aria-label="Last page">
+        <span class="material-icons text-lg">last_page</span>
+      </button>
+    </div>
+  </div>
 </div>
