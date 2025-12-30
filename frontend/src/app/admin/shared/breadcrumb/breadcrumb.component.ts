@@ -1,7 +1,5 @@
-import { Component, Input } from '@angular/core';
-
+import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { MatIconModule } from '@angular/material/icon';
 
 export interface BreadcrumbItem {
   label: string;
@@ -14,11 +12,13 @@ export interface BreadcrumbItem {
  * Feature: 002-admin-panel
  */
 @Component({
-    selector: 'app-breadcrumb',
-    imports: [RouterModule, MatIconModule],
-    templateUrl: './breadcrumb.component.html',
-    styleUrls: ['./breadcrumb.component.scss']
+  selector: 'app-breadcrumb',
+  standalone: true,
+  imports: [RouterModule],
+  templateUrl: './breadcrumb.component.html',
+  styleUrls: ['./breadcrumb.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BreadcrumbComponent {
-  @Input() items: BreadcrumbItem[] = [];
+  readonly items = input<BreadcrumbItem[]>([]);
 }

@@ -1,28 +1,28 @@
-<nav class="breadcrumb" aria-label="Breadcrumb">
-  <ol class="breadcrumb-list">
+<nav class="mb-4" aria-label="Breadcrumb">
+  <ol class="flex items-center gap-2 text-sm">
     <!-- Dashboard link (always first) -->
-    <li class="breadcrumb-item">
-      <a routerLink="/admin/dashboard" class="breadcrumb-link home">
-        <mat-icon>dashboard</mat-icon>
+    <li class="flex items-center">
+      <a routerLink="/admin/dashboard" class="flex items-center gap-1 text-gray-500 hover:text-primary-600 transition-colors">
+        <span class="material-icons text-lg">dashboard</span>
         <span>Dashboard</span>
       </a>
     </li>
 
     <!-- Additional items -->
-    @for (item of items; track item.label; let last = $last) {
-      <li class="breadcrumb-item">
-        <mat-icon class="separator">chevron_right</mat-icon>
+    @for (item of items(); track item.label; let last = $last) {
+      <li class="flex items-center gap-2">
+        <span class="material-icons text-gray-400 text-lg">chevron_right</span>
         @if (item.link && !last) {
-          <a [routerLink]="item.link" class="breadcrumb-link">
+          <a [routerLink]="item.link" class="flex items-center gap-1 text-gray-500 hover:text-primary-600 transition-colors">
             @if (item.icon) {
-              <mat-icon>{{ item.icon }}</mat-icon>
+              <span class="material-icons text-lg">{{ item.icon }}</span>
             }
             <span>{{ item.label }}</span>
           </a>
         } @else {
-          <span class="breadcrumb-current">
+          <span class="flex items-center gap-1 text-gray-800 font-medium">
             @if (item.icon) {
-              <mat-icon>{{ item.icon }}</mat-icon>
+              <span class="material-icons text-lg">{{ item.icon }}</span>
             }
             {{ item.label }}
           </span>

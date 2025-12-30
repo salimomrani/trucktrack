@@ -1,46 +1,60 @@
-<div class="search-bar">
-  <mat-form-field appearance="outline" class="search-field">
-    <mat-icon matPrefix>search</mat-icon>
+<div class="relative">
+  <div class="relative">
+    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 material-icons">search</span>
     <input
-      matInput
       type="text"
+      class="w-full pl-10 pr-10 py-2 bg-white/10 text-white placeholder-white/60 rounded-md border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/30 focus:bg-white/15 transition-all"
       placeholder="Search trucks or drivers..."
-      [(ngModel)]="searchQuery"
-      (ngModelChange)="onSearchChange($event)"
-      [matAutocomplete]="auto"
+      [value]="searchQuery()"
+      (input)="onSearchChange($any($event.target).value)"
+      (focus)="showDropdown.set(true)"
+      (blur)="onBlur()"
+      autocomplete="off"
     />
     @if (searchQuery().length > 0) {
-      <button mat-icon-button matSuffix (click)="clearSearch()" aria-label="Clear search">
-        <mat-icon>close</mat-icon>
+      <button
+        type="button"
+        class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-white/60 hover:text-white transition-colors"
+        (click)="clearSearch()"
+        aria-label="Clear search">
+        <span class="material-icons text-lg">close</span>
       </button>
     }
-  </mat-form-field>
+  </div>
 
-  <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectTruck($event.option.value)">
-    @if (isSearching()) {
-      <mat-option disabled>
-        <mat-icon>hourglass_empty</mat-icon>
-        Searching...
-      </mat-option>
-    } @else if (searchResults().length > 0) {
-      @for (truck of searchResults(); track truck.id) {
-        <mat-option [value]="truck.id">
-          <div class="truck-option">
-            <div class="truck-info">
-              <span class="truck-id">{{ truck.truckId }}</span>
-              <span class="driver-name">{{ truck.driverName }}</span>
+  <!-- Dropdown results -->
+  @if (showDropdown() && (searchQuery().length >= 2 || isSearching())) {
+    <div class="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-64 overflow-y-auto">
+      @if (isSearching()) {
+        <div class="flex items-center gap-2 px-4 py-3 text-gray-500">
+          <span class="material-icons animate-spin">hourglass_empty</span>
+          <span>Searching...</span>
+        </div>
+      } @else if (searchResults().length > 0) {
+        @for (truck of searchResults(); track truck.id) {
+          <button
+            type="button"
+            class="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors text-left border-b border-gray-100 last:border-0"
+            (mousedown)="selectTruck(truck.id)">
+            <div class="flex flex-col">
+              <span class="font-medium text-gray-800">{{ truck.truckId }}</span>
+              <span class="text-sm text-gray-500">{{ truck.driverName }}</span>
             </div>
-            <span class="truck-status" [class.active]="truck.status === 'ACTIVE'">
+            <span
+              class="px-2 py-0.5 text-xs font-medium rounded-full"
+              [class]="truck.status === 'ACTIVE'
+                ? 'bg-success-100 text-success-700'
+                : 'bg-gray-100 text-gray-600'">
               {{ truck.status }}
             </span>
-          </div>
-        </mat-option>
+          </button>
+        }
+      } @else {
+        <div class="flex items-center gap-2 px-4 py-3 text-gray-500">
+          <span class="material-icons">search_off</span>
+          <span>No trucks found</span>
+        </div>
       }
-    } @else if (searchQuery().length >= 2) {
-      <mat-option disabled>
-        <mat-icon>search_off</mat-icon>
-        No trucks found
-      </mat-option>
-    }
-  </mat-autocomplete>
+    </div>
+  }
 </div>
