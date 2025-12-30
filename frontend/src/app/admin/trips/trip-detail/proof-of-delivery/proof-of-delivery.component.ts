@@ -1,7 +1,6 @@
 import { Component, input, output, inject, signal, OnChanges, SimpleChanges } from '@angular/core';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ProofOfDeliveryService, ProofResponse } from '../../../trips/proof-of-delivery.service';
-import { SignatureViewerComponent } from './signature-viewer.component';
+import { ImageViewerService } from '../../../shared/image-viewer/image-viewer.service';
 
 /**
  * Proof of Delivery display component.
@@ -14,7 +13,7 @@ import { SignatureViewerComponent } from './signature-viewer.component';
 @Component({
   selector: 'app-proof-of-delivery',
   standalone: true,
-  imports: [MatDialogModule],
+  imports: [],
   templateUrl: './proof-of-delivery.component.html',
   styleUrls: ['./proof-of-delivery.component.scss']
 })
@@ -24,7 +23,7 @@ export class ProofOfDeliveryComponent implements OnChanges {
   readonly proofLoaded = output<ProofResponse>();
 
   private readonly proofService = inject(ProofOfDeliveryService);
-  private readonly dialog = inject(MatDialog);
+  private readonly imageViewer = inject(ImageViewerService);
 
   proof = signal<ProofResponse | null>(null);
   loading = signal(false);
@@ -61,14 +60,20 @@ export class ProofOfDeliveryComponent implements OnChanges {
     const proof = this.proof();
     if (!proof) return;
 
-    this.dialog.open(SignatureViewerComponent, {
-      data: {
-        signatureImage: proof.signatureImage,
-        signerName: proof.signerName,
-        capturedAt: proof.capturedAt
-      },
-      maxWidth: '90vw',
-      maxHeight: '90vh'
+    const metadata: { label: string; value: string; icon?: string }[] = [];
+
+    if (proof.signerName) {
+      metadata.push({ label: 'Signed by', value: proof.signerName, icon: 'person' });
+    }
+
+    if (proof.capturedAt) {
+      metadata.push({ label: 'Captured', value: this.formatDate(proof.capturedAt), icon: 'schedule' });
+    }
+
+    this.imageViewer.open({
+      imageUrl: proof.signatureImage,
+      title: 'Signature',
+      metadata
     });
   }
 
