@@ -91,8 +91,8 @@ export class LocationPickerComponent implements OnInit, OnDestroy, ControlValueA
   private marker: L.Marker | null = null;
 
   // Search subject for debouncing
-  private searchSubject = new Subject<string>();
-  private destroy$ = new Subject<void>();
+  private readonly search$ = new Subject<string>();
+  private readonly destroy$ = new Subject<void>();
 
   // ControlValueAccessor callbacks
   private onChange: (value: LocationValue | null) => void = () => {};
@@ -100,7 +100,7 @@ export class LocationPickerComponent implements OnInit, OnDestroy, ControlValueA
 
   ngOnInit() {
     // Setup search with debounce
-    this.searchSubject.pipe(
+    this.search$.pipe(
       takeUntil(this.destroy$),
       debounceTime(300),
       distinctUntilChanged(),
@@ -153,7 +153,7 @@ export class LocationPickerComponent implements OnInit, OnDestroy, ControlValueA
   onSearchChange(query: string) {
     this.searchQuery.set(query);
     if (query.length >= 3) {
-      this.searchSubject.next(query);
+      this.search$.next(query);
     } else {
       this.suggestions.set([]);
     }
