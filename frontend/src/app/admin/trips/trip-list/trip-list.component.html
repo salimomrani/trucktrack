@@ -88,29 +88,23 @@
         </select>
       </div>
 
-      <!-- Date Range Pickers (Keep Material for complex date functionality) -->
+      <!-- Date Range Pickers -->
       <div class="w-40">
         <label class="block text-sm font-medium text-gray-700 mb-1">From</label>
-        <mat-form-field appearance="outline" class="!w-full date-field-compact">
-          <input matInput [matDatepicker]="startPicker"
-            [(ngModel)]="startDate"
-            (dateChange)="onDateRangeChange()"
-            placeholder="Start date">
-          <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
-          <mat-datepicker #startPicker></mat-datepicker>
-        </mat-form-field>
+        <input
+          type="date"
+          class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          [ngModel]="startDate | date:'yyyy-MM-dd'"
+          (ngModelChange)="onStartDateChange($event)">
       </div>
 
       <div class="w-40">
         <label class="block text-sm font-medium text-gray-700 mb-1">To</label>
-        <mat-form-field appearance="outline" class="!w-full date-field-compact">
-          <input matInput [matDatepicker]="endPicker"
-            [(ngModel)]="endDate"
-            (dateChange)="onDateRangeChange()"
-            placeholder="End date">
-          <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
-          <mat-datepicker #endPicker></mat-datepicker>
-        </mat-form-field>
+        <input
+          type="date"
+          class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          [ngModel]="endDate | date:'yyyy-MM-dd'"
+          (ngModelChange)="onEndDateChange($event)">
       </div>
 
       @if (hasFilters()) {
