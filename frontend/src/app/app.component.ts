@@ -1,6 +1,6 @@
 import { Component, OnDestroy, inject, effect, signal, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HeaderComponent } from './core/components/header/header.component';
@@ -20,7 +20,7 @@ import { DEFAULT_NAV_CONFIG } from './core/models/navigation.model';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, SidenavComponent, MatSidenavModule],
+  imports: [CommonModule, RouterOutlet, HeaderComponent, SidenavComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -149,10 +149,4 @@ export class AppComponent implements OnDestroy {
     }
   }
 
-  /**
-   * Handle sidenav closed event from mat-sidenav
-   */
-  onSidenavClosed(): void {
-    this.sidenavOpen.set(false);
-  }
 }
