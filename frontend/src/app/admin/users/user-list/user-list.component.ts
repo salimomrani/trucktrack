@@ -1,11 +1,10 @@
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { DataTableComponent, ColumnDef, PageInfo } from '../../shared/data-table/data-table.component';
 import { UserService } from '../user.service';
 import { UserAdminResponse, UserRole, USER_ROLES, ROLE_COLORS } from '../user.model';
-import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogService } from '../../shared/confirm-dialog/confirm-dialog.service';
 import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.component';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 
@@ -20,7 +19,6 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
     selector: 'app-user-list',
     imports: [
     FormsModule,
-    MatDialogModule,
     DataTableComponent,
     BreadcrumbComponent
 ],
@@ -31,7 +29,7 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
 export class UserListComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly userService = inject(UserService);
-  private readonly dialog = inject(MatDialog);
+  private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly toast = inject(ToastService);
 
   // State
@@ -139,16 +137,12 @@ export class UserListComponent implements OnInit {
   }
 
   confirmDeactivate(user: UserAdminResponse) {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Deactivate User',
-        message: `Are you sure you want to deactivate ${user.fullName}? They will no longer be able to log in.`,
-        confirmText: 'Deactivate',
-        confirmColor: 'warn'
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(confirmed => {
+    this.confirmDialog.open({
+      title: 'Deactivate User',
+      message: `Are you sure you want to deactivate ${user.fullName}? They will no longer be able to log in.`,
+      confirmText: 'Deactivate',
+      confirmColor: 'warn'
+    }).subscribe(confirmed => {
       if (confirmed) {
         this.deactivateUser(user);
       }
@@ -156,16 +150,12 @@ export class UserListComponent implements OnInit {
   }
 
   confirmReactivate(user: UserAdminResponse) {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Reactivate User',
-        message: `Are you sure you want to reactivate ${user.fullName}?`,
-        confirmText: 'Reactivate',
-        confirmColor: 'primary'
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(confirmed => {
+    this.confirmDialog.open({
+      title: 'Reactivate User',
+      message: `Are you sure you want to reactivate ${user.fullName}?`,
+      confirmText: 'Reactivate',
+      confirmColor: 'primary'
+    }).subscribe(confirmed => {
       if (confirmed) {
         this.reactivateUser(user);
       }

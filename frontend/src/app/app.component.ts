@@ -5,6 +5,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HeaderComponent } from './core/components/header/header.component';
 import { SidenavComponent } from './core/components/sidenav/sidenav.component';
+import { ConfirmDialogOverlayComponent } from './admin/shared/confirm-dialog/confirm-dialog-overlay.component';
 import { NotificationService } from './services/notification.service';
 import { NavigationService } from './core/services/navigation.service';
 import { StoreFacade } from './store/store.facade';
@@ -20,7 +21,7 @@ import { DEFAULT_NAV_CONFIG } from './core/models/navigation.model';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, HeaderComponent, SidenavComponent],
+  imports: [CommonModule, RouterOutlet, HeaderComponent, SidenavComponent, ConfirmDialogOverlayComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
