@@ -2,50 +2,14 @@
 <a class="skip-link" href="#main-content">Aller au contenu principal</a>
 
 @if (isAuthenticated()) {
-  <div class="app-layout h-screen flex flex-col overflow-hidden">
-    <!-- Header compact -->
-    <app-header (toggleSidenavEvent)="toggleSidenav()" />
+  <div class="app-layout min-h-screen bg-gray-50">
+    <!-- Stacked header with navigation -->
+    <app-header />
 
-    <!-- Main container with sidenav -->
-    <div class="flex-1 flex overflow-hidden relative">
-      <!-- Backdrop for overlay mode -->
-      @if (sidenavMode() === 'over' && sidenavOpen()) {
-        <div
-          class="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
-          (click)="closeSidenav()">
-        </div>
-      }
-
-      <!-- Sidenav -->
-      <aside
-        class="flex-shrink-0 h-full bg-white border-r border-gray-200 transition-all duration-300 z-50"
-        [class.fixed]="sidenavMode() === 'over'"
-        [class.inset-y-0]="sidenavMode() === 'over'"
-        [class.left-0]="sidenavMode() === 'over'"
-        [class.translate-x-0]="sidenavOpen()"
-        [class.-translate-x-full]="!sidenavOpen() && sidenavMode() === 'over'"
-        [class.w-64]="!miniMode() || sidenavMode() === 'over'"
-        [class.w-16]="miniMode() && sidenavMode() === 'side'"
-        [class.pt-16]="sidenavMode() === 'over'">
-        <app-sidenav
-          [navItems]="filteredNavItems()"
-          [isOpen]="sidenavOpen()"
-          [miniMode]="miniMode() && sidenavMode() === 'side'"
-          (closed)="closeSidenav()"
-          (itemClicked)="onNavItemClicked()" />
-      </aside>
-
-      <!-- Main content -->
-      <div
-        class="flex-1 overflow-auto bg-gray-50 transition-all duration-300"
-        [class.ml-0]="sidenavMode() === 'over' || !sidenavOpen()"
-        [class.ml-64]="sidenavMode() === 'side' && sidenavOpen() && !miniMode()"
-        [class.ml-16]="sidenavMode() === 'side' && sidenavOpen() && miniMode()">
-        <main role="main" id="main-content" class="h-full">
-          <router-outlet />
-        </main>
-      </div>
-    </div>
+    <!-- Main content - full width -->
+    <main role="main" id="main-content">
+      <router-outlet />
+    </main>
   </div>
 } @else {
   <!-- Not authenticated: just show router outlet (login page) -->

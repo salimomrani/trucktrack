@@ -27,12 +27,9 @@ $breakpoint-mobile: 768px;
   }
 }
 
-// Main app layout
+// Main app layout - Stacked layout with full page scroll
 .app-layout {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
 }
 
 // Main container with sidenav - mat-sidenav-container handles layout automatically
