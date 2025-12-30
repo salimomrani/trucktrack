@@ -1,43 +1,26 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy, HostListener } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatMenuModule } from '@angular/material/menu';
-import { GroupService, GroupDetailResponse, PageResponse } from '../group.service';
+import { GroupService, GroupDetailResponse } from '../group.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.component';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 
 /**
  * Group list component.
  * Feature: 002-admin-panel (US5)
+ * Migrated to Tailwind CSS (Feature 020)
  */
 @Component({
     selector: 'app-group-list',
     imports: [
         CommonModule,
         FormsModule,
-        MatCardModule,
-        MatButtonModule,
-        MatIconModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatProgressSpinnerModule,
-        MatTableModule,
-        MatPaginatorModule,
-        MatSnackBarModule,
         MatDialogModule,
-        MatMenuModule,
-        BreadcrumbComponent
+        BreadcrumbComponent,
+        DatePipe
     ],
     templateUrl: './group-list.component.html',
     styleUrls: ['./group-list.component.scss'],
@@ -46,8 +29,19 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
 export class GroupListComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly groupService = inject(GroupService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly dialog = inject(MatDialog);
+
+  // Dropdown state
+  openDropdownId = signal<string | null>(null);
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.dropdown-container')) {
+      this.openDropdownId.set(null);
+    }
+  }
 
   loading = signal(false);
   error = signal<string | null>(null);
@@ -57,7 +51,8 @@ export class GroupListComponent implements OnInit {
   pageSize = 20;
   searchTerm = '';
 
-  displayedColumns = ['name', 'description', 'trucks', 'users', 'createdAt', 'actions'];
+  // For template access
+  readonly Math = Math;
 
   ngOnInit() {
     this.loadGroups();
@@ -86,10 +81,14 @@ export class GroupListComponent implements OnInit {
     this.loadGroups();
   }
 
-  onPageChange(event: PageEvent) {
-    this.currentPage.set(event.pageIndex);
-    this.pageSize = event.pageSize;
+  onPageChange(page: number) {
+    this.currentPage.set(page);
     this.loadGroups();
+  }
+
+  toggleDropdown(groupId: string, event: Event): void {
+    event.stopPropagation();
+    this.openDropdownId.update(current => current === groupId ? null : groupId);
   }
 
   createGroup() {
@@ -101,6 +100,7 @@ export class GroupListComponent implements OnInit {
   }
 
   deleteGroup(group: GroupDetailResponse) {
+    this.openDropdownId.set(null);
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         title: 'Delete Group',
@@ -114,15 +114,42 @@ export class GroupListComponent implements OnInit {
       if (confirmed) {
         this.groupService.deleteGroup(group.id).subscribe({
           next: () => {
-            this.snackBar.open('Group deleted successfully', 'Close', { duration: 3000 });
+            this.toast.success('Group deleted successfully');
             this.loadGroups();
           },
           error: (err) => {
             console.error('Failed to delete group:', err);
-            this.snackBar.open('Failed to delete group', 'Close', { duration: 3000 });
+            this.toast.error('Failed to delete group');
           }
         });
       }
     });
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.totalElements() / this.pageSize);
+  }
+
+  get pages(): number[] {
+    const total = this.totalPages;
+    const current = this.currentPage();
+    const pages: number[] = [];
+
+    let start = Math.max(0, current - 2);
+    let end = Math.min(total - 1, current + 2);
+
+    if (end - start < 4) {
+      if (start === 0) {
+        end = Math.min(total - 1, 4);
+      } else {
+        start = Math.max(0, total - 5);
+      }
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
   }
 }

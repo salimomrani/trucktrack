@@ -151,28 +151,5 @@
       (pageChange)="onPageChange($event)"
       (rowClicked)="onRowClick($event)">
     </app-data-table>
-
-    <!-- Actions column rendered separately -->
-    <ng-template #actionsTemplate let-trip>
-      <button
-        type="button"
-        [matMenuTriggerFor]="menu"
-        class="flex items-center justify-center w-8 h-8 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
-        (click)="$event.stopPropagation()">
-        <span class="material-icons">more_vert</span>
-      </button>
-      <mat-menu #menu="matMenu">
-        <button mat-menu-item (click)="viewTrip(trip)">
-          <span class="material-icons mr-3 text-gray-500">visibility</span>
-          <span>View Details</span>
-        </button>
-        @if (trip.status === 'PENDING' || trip.status === 'ASSIGNED') {
-          <button mat-menu-item (click)="confirmCancel(trip)">
-            <span class="material-icons mr-3 text-danger-500">cancel</span>
-            <span>Cancel Trip</span>
-          </button>
-        }
-      </mat-menu>
-    </ng-template>
   </div>
 </div>

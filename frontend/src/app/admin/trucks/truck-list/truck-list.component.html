@@ -75,34 +75,5 @@
       (pageChange)="onPageChange($event)"
       (rowClicked)="onRowClick($event)">
     </app-data-table>
-
-    <!-- Actions column rendered separately -->
-    <ng-template #actionsTemplate let-truck>
-      <button
-        type="button"
-        [matMenuTriggerFor]="menu"
-        class="flex items-center justify-center w-8 h-8 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
-        (click)="$event.stopPropagation()">
-        <span class="material-icons">more_vert</span>
-      </button>
-      <mat-menu #menu="matMenu">
-        <button mat-menu-item (click)="editTruck(truck)">
-          <span class="material-icons mr-3 text-gray-500">edit</span>
-          <span>Edit</span>
-        </button>
-        @if (truck.status !== 'OUT_OF_SERVICE') {
-          <button mat-menu-item (click)="confirmOutOfService(truck)">
-            <span class="material-icons mr-3 text-danger-500">block</span>
-            <span>Mark Out of Service</span>
-          </button>
-        }
-        @if (truck.status === 'OUT_OF_SERVICE') {
-          <button mat-menu-item (click)="confirmActivate(truck)">
-            <span class="material-icons mr-3 text-primary-600">check_circle</span>
-            <span>Activate</span>
-          </button>
-        }
-      </mat-menu>
-    </ng-template>
   </div>
 </div>
