@@ -1,0 +1,16 @@
+/**
+ * Input Component Styles
+ * Feature: 020-tailwind-migration
+ *
+ * Most styling is handled by Tailwind classes in the template.
+ */
+
+:host {
+  display: block;
+}
+
+// Icon alignment
+.material-icons {
+  vertical-align: middle;
+  line-height: 1;
+}

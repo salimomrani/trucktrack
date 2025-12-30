@@ -1,0 +1,190 @@
+/**
+ * Datepicker Component Styles
+ * Feature: 020-tailwind-migration
+ *
+ * Flatpickr theme customization with TruckTrack design tokens.
+ */
+
+@use '../../../../styles/theme' as theme;
+
+:host {
+  display: block;
+}
+
+// Icon alignment
+.material-icons {
+  vertical-align: middle;
+  line-height: 1;
+}
+
+// Flatpickr calendar customization
+:host ::ng-deep {
+  .flatpickr-calendar {
+    background: white;
+    border-radius: theme.$radius-lg;
+    box-shadow: theme.$shadow-lg;
+    border: 1px solid theme.$color-gray-200;
+    font-family: theme.$font-family-sans;
+    padding: theme.$space-2;
+    width: 280px;
+
+    &.arrowTop::before,
+    &.arrowTop::after {
+      display: none;
+    }
+  }
+
+  .flatpickr-months {
+    padding: 0 theme.$space-2 theme.$space-2;
+
+    .flatpickr-month {
+      background: transparent;
+      height: 36px;
+    }
+
+    .flatpickr-prev-month,
+    .flatpickr-next-month {
+      padding: theme.$space-1;
+      color: theme.$color-gray-600;
+      fill: theme.$color-gray-600;
+
+      &:hover {
+        color: theme.$color-primary-700;
+        fill: theme.$color-primary-700;
+      }
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+    .flatpickr-current-month {
+      font-size: theme.$font-size-base;
+      font-weight: theme.$font-weight-semibold;
+      color: theme.$color-gray-800;
+      padding-top: 4px;
+
+      .cur-month {
+        font-weight: theme.$font-weight-semibold;
+      }
+
+      .numInputWrapper {
+        width: 56px;
+
+        input.cur-year {
+          font-weight: theme.$font-weight-semibold;
+          color: theme.$color-gray-800;
+        }
+      }
+    }
+  }
+
+  .flatpickr-weekdays {
+    background: transparent;
+    padding: 0 theme.$space-2;
+  }
+
+  .flatpickr-weekday {
+    font-size: theme.$font-size-sm;
+    font-weight: theme.$font-weight-medium;
+    color: theme.$color-gray-500;
+    background: transparent;
+  }
+
+  .dayContainer {
+    padding: 0 theme.$space-2 theme.$space-2;
+    min-width: 252px;
+    max-width: 252px;
+  }
+
+  .flatpickr-day {
+    font-size: theme.$font-size-sm;
+    color: theme.$color-gray-700;
+    border-radius: theme.$radius-md;
+    max-width: 36px;
+    height: 36px;
+    line-height: 36px;
+    margin: 0;
+    border: none;
+    transition: background-color 150ms ease-out, color 150ms ease-out;
+
+    &:hover {
+      background: theme.$color-gray-100;
+      border: none;
+    }
+
+    &.today {
+      border: 1px solid theme.$color-primary-500;
+
+      &:hover {
+        background: theme.$color-primary-50;
+      }
+    }
+
+    &.selected,
+    &.startRange,
+    &.endRange {
+      background: theme.$color-primary-700;
+      color: white;
+      border: none;
+
+      &:hover {
+        background: theme.$color-primary-600;
+      }
+    }
+
+    &.inRange {
+      background: theme.$color-primary-50;
+      box-shadow: none;
+      border: none;
+    }
+
+    &.prevMonthDay,
+    &.nextMonthDay {
+      color: theme.$color-gray-300;
+    }
+
+    &.flatpickr-disabled {
+      color: theme.$color-gray-300;
+      cursor: not-allowed;
+
+      &:hover {
+        background: transparent;
+      }
+    }
+  }
+
+  // Time picker styles
+  .flatpickr-time {
+    border-top: 1px solid theme.$color-gray-200;
+    max-height: 40px;
+    margin-top: theme.$space-2;
+    padding-top: theme.$space-2;
+
+    input {
+      font-size: theme.$font-size-base;
+      font-weight: theme.$font-weight-medium;
+      color: theme.$color-gray-800;
+
+      &:focus,
+      &:hover {
+        background: theme.$color-gray-50;
+      }
+    }
+
+    .flatpickr-time-separator {
+      color: theme.$color-gray-600;
+    }
+
+    .flatpickr-am-pm {
+      font-size: theme.$font-size-sm;
+      font-weight: theme.$font-weight-medium;
+      color: theme.$color-gray-700;
+
+      &:hover {
+        background: theme.$color-gray-100;
+      }
+    }
+  }
+}

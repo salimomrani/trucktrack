@@ -1,93 +1,90 @@
 @if (isAuthenticated()) {
-  <mat-toolbar color="primary" class="app-header" role="banner">
-    <div class="header-container">
+  <header class="sticky top-0 z-50 h-16 bg-gradient-to-r from-primary-600 to-primary-700 shadow-lg" role="banner">
+    <div class="flex items-center w-full max-w-[1400px] mx-auto px-4 h-full gap-2">
       <!-- Hamburger menu button - toggles sidenav -->
       <button
-        mat-icon-button
-        class="hamburger-button"
+        type="button"
+        class="flex items-center justify-center w-10 h-10 mr-2 text-white/90 rounded-md transition-all duration-200 hover:bg-black/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
         (click)="toggleSidenav()"
         aria-label="Menu de navigation"
         aria-controls="sidenav">
-        <mat-icon>menu</mat-icon>
+        <span class="material-icons text-2xl">menu</span>
       </button>
 
       <!-- Logo -->
-      <a routerLink="/map" class="logo-section" aria-label="Truck Track - Accueil">
-        <mat-icon class="logo-icon">local_shipping</mat-icon>
-        <span class="app-title">Truck Track</span>
+      <a routerLink="/map" class="flex items-center gap-2 px-2 py-2 text-white no-underline rounded-md transition-all duration-200 hover:bg-black/10" aria-label="Truck Track - Accueil">
+        <span class="material-icons text-[28px]">local_shipping</span>
+        <span class="text-lg font-semibold tracking-tight hidden md:inline">Truck Track</span>
       </a>
 
       <!-- Spacer -->
-      <div class="spacer"></div>
+      <div class="flex-1"></div>
 
       <!-- Analytics button - Feature: 006-fleet-analytics -->
       <a
-        mat-icon-button
         routerLink="/analytics"
-        routerLinkActive="analytics-active"
-        class="analytics-button"
-        aria-label="Analytics"
-        matTooltip="Analytics">
-        <mat-icon>analytics</mat-icon>
+        routerLinkActive="bg-black/20"
+        class="group relative flex items-center justify-center w-10 h-10 text-white/85 rounded-md transition-all duration-200 hover:bg-black/15 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+        aria-label="Analytics">
+        <span class="material-icons text-2xl">analytics</span>
+        <span class="absolute top-full mt-2 px-2 py-1 text-xs font-medium text-white bg-gray-800 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">Analytics</span>
       </a>
 
       <!-- Admin button - visible for admin users only -->
       @if (hasAdminAccess()) {
         <a
-          mat-icon-button
           routerLink="/admin"
-          routerLinkActive="admin-active"
-          class="admin-button"
-          aria-label="Administration"
-          matTooltip="Administration">
-          <mat-icon>admin_panel_settings</mat-icon>
+          routerLinkActive="bg-black/20"
+          class="group relative flex items-center justify-center w-10 h-10 text-white/85 rounded-md transition-all duration-200 hover:bg-black/15 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          aria-label="Administration">
+          <span class="material-icons text-2xl">admin_panel_settings</span>
+          <span class="absolute top-full mt-2 px-2 py-1 text-xs font-medium text-white bg-gray-800 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">Administration</span>
         </a>
       }
 
-      <!-- Alerts indicator - standalone button -->
+      <!-- Alerts indicator - standalone button with badge -->
       <a
-        mat-icon-button
         routerLink="/alerts"
-        class="alerts-button"
-        aria-label="Alertes"
-        matTooltip="Alertes">
-        <mat-icon [matBadge]="unreadCount() > 0 ? formatBadge(unreadCount()) : null"
-                  matBadgeColor="warn"
-                  matBadgeSize="small"
-                  [matBadgeHidden]="unreadCount() === 0">
-          notifications
-        </mat-icon>
+        class="group relative flex items-center justify-center w-10 h-10 text-white/85 rounded-md transition-all duration-200 hover:bg-black/15 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+        aria-label="Alertes">
+        <span class="material-icons text-2xl">notifications</span>
+        <!-- Badge -->
+        @if (unreadCount() > 0) {
+          <span class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center text-[10px] font-semibold text-white bg-danger-500 rounded-full animate-pulse">
+            {{ formatBadge(unreadCount()) }}
+          </span>
+        }
+        <span class="absolute top-full mt-2 px-2 py-1 text-xs font-medium text-white bg-gray-800 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">Alertes</span>
       </a>
 
-      <!-- User menu -->
+      <!-- User menu - keeping MatMenu for dropdown functionality -->
       <button
-        mat-icon-button
+        type="button"
         [matMenuTriggerFor]="userMenu"
-        class="user-menu-button"
+        class="flex items-center justify-center w-10 h-10 text-white/85 rounded-md transition-all duration-200 hover:bg-black/15 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
         aria-label="Menu utilisateur">
-        <mat-icon>account_circle</mat-icon>
+        <span class="material-icons text-[28px]">account_circle</span>
       </button>
       <mat-menu #userMenu="matMenu" class="user-menu-panel">
         <!-- User info header -->
-        <div class="user-menu-header">
-          <mat-icon>person</mat-icon>
-          <div class="user-info">
-            <div class="user-name">{{ getUserDisplayName() }}</div>
-            <div class="user-role">{{ currentUser()?.role }}</div>
+        <div class="flex items-center gap-3 px-4 py-3 bg-gray-50 border-b border-gray-100">
+          <span class="material-icons text-gray-400">person</span>
+          <div>
+            <div class="font-medium text-gray-800">{{ getUserDisplayName() }}</div>
+            <div class="text-sm text-gray-500 uppercase tracking-wide">{{ currentUser()?.role }}</div>
           </div>
         </div>
-        <mat-divider />
 
         <!-- Profile & Logout only -->
         <a mat-menu-item routerLink="/profile">
-          <mat-icon>settings</mat-icon>
+          <span class="material-icons mr-3 text-gray-500">settings</span>
           <span>Profil & Paramètres</span>
         </a>
         <button mat-menu-item (click)="logout()" class="logout-item">
-          <mat-icon>logout</mat-icon>
+          <span class="material-icons mr-3 text-danger-500">logout</span>
           <span>Déconnexion</span>
         </button>
       </mat-menu>
     </div>
-  </mat-toolbar>
+  </header>
 }

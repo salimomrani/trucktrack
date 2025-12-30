@@ -1,38 +1,29 @@
 import { Component, inject, signal, effect, ChangeDetectionStrategy } from '@angular/core';
-
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { StoreFacade } from '../../../store/store.facade';
 import { LoginRequest } from '../../../core/models/auth.model';
+import { ButtonComponent, InputComponent } from '../../../shared/components';
 
 /**
  * Login Component - Handles user authentication
  * Provides email/password login form with validation
- * Migrated to use NgRx StoreFacade with Angular 17+ signals
+ * Migrated to Tailwind CSS components (Feature 020)
  */
 @Component({
-    selector: 'app-login',
-    imports: [
+  selector: 'app-login',
+  standalone: true,
+  imports: [
     ReactiveFormsModule,
-    MatCardModule,
-    MatInputModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule
-],
-    templateUrl: './login.component.html',
-    styleUrl: './login.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    MatSnackBarModule,
+    ButtonComponent,
+    InputComponent
+  ],
+  templateUrl: './login.component.html',
+  styleUrl: './login.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);
@@ -42,6 +33,10 @@ export class LoginComponent {
 
   loginForm: FormGroup;
   hidePassword = signal(true);
+
+  // Form field signals for two-way binding with Tailwind components
+  email = signal('');
+  password = signal('');
 
   // Use store signals for loading and authentication state
   isLoading = this.facade.authLoading;
@@ -72,6 +67,24 @@ export class LoginComponent {
   }
 
   /**
+   * Handle email value change from InputComponent
+   */
+  onEmailChange(value: string): void {
+    this.email.set(value);
+    this.loginForm.get('email')?.setValue(value);
+    this.loginForm.get('email')?.markAsTouched();
+  }
+
+  /**
+   * Handle password value change from InputComponent
+   */
+  onPasswordChange(value: string): void {
+    this.password.set(value);
+    this.loginForm.get('password')?.setValue(value);
+    this.loginForm.get('password')?.markAsTouched();
+  }
+
+  /**
    * Handle form submission
    * Dispatches login action to NgRx store
    */
@@ -86,31 +99,53 @@ export class LoginComponent {
       password: this.loginForm.value.password
     };
 
-    // Dispatch login action to store
-    // Effects will handle the async operation, success/error handling
     this.facade.login(credentials);
   }
 
   /**
    * Get form field error message
    */
-  getErrorMessage(fieldName: string): string {
-    const field = this.loginForm.get(fieldName);
+  getEmailError(): string | null {
+    const field = this.loginForm.get('email');
+    if (!field?.touched) return null;
 
     if (field?.hasError('required')) {
-      return `${this.capitalizeFirstLetter(fieldName)} is required`;
+      return 'Email is required';
     }
-
     if (field?.hasError('email')) {
       return 'Please enter a valid email address';
     }
+    return null;
+  }
 
-    if (field?.hasError('minlength')) {
-      const minLength = field.errors?.['minlength'].requiredLength;
-      return `${this.capitalizeFirstLetter(fieldName)} must be at least ${minLength} characters`;
+  /**
+   * Get password error message
+   */
+  getPasswordError(): string | null {
+    const field = this.loginForm.get('password');
+    if (!field?.touched) return null;
+
+    if (field?.hasError('required')) {
+      return 'Password is required';
     }
+    if (field?.hasError('minlength')) {
+      return 'Password must be at least 8 characters';
+    }
+    return null;
+  }
 
-    return '';
+  /**
+   * Get password input type based on visibility toggle
+   */
+  getPasswordType(): 'text' | 'password' {
+    return this.hidePassword() ? 'password' : 'text';
+  }
+
+  /**
+   * Toggle password visibility
+   */
+  togglePasswordVisibility(): void {
+    this.hidePassword.update(v => !v);
   }
 
   /**
@@ -135,7 +170,7 @@ export class LoginComponent {
       duration: 3000,
       horizontalPosition: 'end',
       verticalPosition: 'top',
-      panelClass: ['success-snackbar']
+      panelClass: ['snackbar-success']
     });
   }
 
@@ -147,15 +182,8 @@ export class LoginComponent {
       duration: 5000,
       horizontalPosition: 'end',
       verticalPosition: 'top',
-      panelClass: ['error-snackbar']
+      panelClass: ['snackbar-danger']
     });
-  }
-
-  /**
-   * Capitalize first letter of string
-   */
-  private capitalizeFirstLetter(str: string): string {
-    return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
   /**
@@ -163,6 +191,8 @@ export class LoginComponent {
    * Feature: 008-rbac-permissions
    */
   fillCredentials(email: string, password: string): void {
+    this.email.set(email);
+    this.password.set(password);
     this.loginForm.patchValue({ email, password });
   }
 }

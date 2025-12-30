@@ -1,0 +1,95 @@
+<!-- Pagination Container -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-3 bg-white border-t border-gray-200">
+  <!-- Items info and page size selector -->
+  <div class="flex items-center gap-4 text-sm text-gray-600">
+    @if (showPageSizeSelector()) {
+      <div class="flex items-center gap-2">
+        <span>Rows per page:</span>
+        <select
+          class="border border-gray-200 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          [value]="pageSize()"
+          (change)="onPageSizeChange($event)">
+          @for (option of pageSizeOptions(); track option) {
+            <option [value]="option" [selected]="option === pageSize()">{{ option }}</option>
+          }
+        </select>
+      </div>
+    }
+    <span>
+      {{ itemRange().start }}-{{ itemRange().end }} of {{ totalItems() }}
+    </span>
+  </div>
+
+  <!-- Page navigation -->
+  <nav class="flex items-center gap-1" aria-label="Pagination">
+    <!-- First page button -->
+    @if (showFirstLastButtons()) {
+      <button
+        type="button"
+        class="flex items-center justify-center w-9 h-9 rounded-md text-gray-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100"
+        [disabled]="!canPrevious()"
+        (click)="goToFirst()"
+        aria-label="First page">
+        <span class="material-icons text-lg">first_page</span>
+      </button>
+    }
+
+    <!-- Previous page button -->
+    <button
+      type="button"
+      class="flex items-center justify-center w-9 h-9 rounded-md text-gray-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100"
+      [disabled]="!canPrevious()"
+      (click)="goToPrevious()"
+      aria-label="Previous page">
+      <span class="material-icons text-lg">chevron_left</span>
+    </button>
+
+    <!-- Page numbers -->
+    <div class="hidden sm:flex items-center gap-1">
+      @for (page of pageNumbers(); track trackByPage($index, page)) {
+        @if (page === 'ellipsis') {
+          <span class="w-9 h-9 flex items-center justify-center text-gray-400">...</span>
+        } @else {
+          <button
+            type="button"
+            class="flex items-center justify-center w-9 h-9 rounded-md text-sm font-medium transition-colors"
+            [class.bg-primary-600]="page === currentPage()"
+            [class.text-white]="page === currentPage()"
+            [class.text-gray-700]="page !== currentPage()"
+            [class.hover:bg-gray-100]="page !== currentPage()"
+            (click)="goToPage(page)"
+            [attr.aria-current]="page === currentPage() ? 'page' : null">
+            {{ page }}
+          </button>
+        }
+      }
+    </div>
+
+    <!-- Mobile page indicator -->
+    <span class="sm:hidden text-sm text-gray-600 px-2">
+      Page {{ currentPage() }} of {{ totalPages() }}
+    </span>
+
+    <!-- Next page button -->
+    <button
+      type="button"
+      class="flex items-center justify-center w-9 h-9 rounded-md text-gray-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100"
+      [disabled]="!canNext()"
+      (click)="goToNext()"
+      aria-label="Next page">
+      <span class="material-icons text-lg">chevron_right</span>
+    </button>
+
+    <!-- Last page button -->
+    @if (showFirstLastButtons()) {
+      <button
+        type="button"
+        class="flex items-center justify-center w-9 h-9 rounded-md text-gray-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100"
+        [disabled]="!canNext()"
+        (click)="goToLast()"
+        aria-label="Last page">
+        <span class="material-icons text-lg">last_page</span>
+      </button>
+    }
+  </nav>
+</div>

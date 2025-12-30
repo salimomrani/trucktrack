@@ -1,0 +1,90 @@
+<!-- Table Container -->
+<div class="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+  <table class="min-w-full divide-y divide-gray-200">
+    <!-- Table Header -->
+    <thead class="bg-gray-50">
+      <tr>
+        @for (column of columns(); track column.key) {
+          <th
+            scope="col"
+            class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider"
+            [class]="getAlignmentClass(column.align)"
+            [style.width]="column.width"
+            [class.cursor-pointer]="column.sortable"
+            [class.select-none]="column.sortable"
+            (click)="onHeaderClick(column)">
+            <div class="flex items-center gap-1" [class.justify-center]="column.align === 'center'" [class.justify-end]="column.align === 'right'">
+              <span>{{ column.label }}</span>
+              @if (column.sortable) {
+                <span class="material-icons text-base text-gray-400" [class.text-primary-600]="sortColumn() === column.key">
+                  {{ getSortIcon(column) }}
+                </span>
+              }
+            </div>
+          </th>
+        }
+        @if (actionsTemplate) {
+          <th scope="col" class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider text-right w-24">
+            Actions
+          </th>
+        }
+      </tr>
+    </thead>
+
+    <!-- Table Body -->
+    <tbody class="bg-white divide-y divide-gray-100">
+      @if (loading()) {
+        <!-- Loading State -->
+        @for (i of [1, 2, 3, 4, 5]; track i) {
+          <tr>
+            @for (column of columns(); track column.key) {
+              <td class="px-4 py-4">
+                <div class="h-4 bg-gray-200 rounded animate-pulse" [style.width]="'60%'"></div>
+              </td>
+            }
+            @if (actionsTemplate) {
+              <td class="px-4 py-4">
+                <div class="h-4 bg-gray-200 rounded animate-pulse w-16 ml-auto"></div>
+              </td>
+            }
+          </tr>
+        }
+      } @else if (data().length === 0) {
+        <!-- Empty State -->
+        <tr>
+          <td [attr.colspan]="columns().length + (actionsTemplate ? 1 : 0)" class="px-4 py-12 text-center">
+            <div class="flex flex-col items-center text-gray-400">
+              <span class="material-icons text-5xl mb-3">{{ emptyIcon() }}</span>
+              <p class="text-gray-500">{{ emptyMessage() }}</p>
+            </div>
+          </td>
+        </tr>
+      } @else {
+        <!-- Data Rows -->
+        @for (row of data(); track trackByIndex($index); let even = $even) {
+          <tr
+            class="transition-colors"
+            [class.hover:bg-gray-50]="hoverable()"
+            [class.bg-gray-50]="striped() && !even"
+            [class.cursor-pointer]="clickable()"
+            (click)="onRowClick(row)">
+            @for (column of columns(); track column.key) {
+              <td class="px-4 py-4 text-sm text-gray-700" [class]="getAlignmentClass(column.align)">
+                @if (cellTemplate) {
+                  <ng-container *ngTemplateOutlet="cellTemplate; context: { $implicit: row, column: column, value: getCellValue(row, column) }"></ng-container>
+                } @else {
+                  {{ getCellValue(row, column) }}
+                }
+              </td>
+            }
+            @if (actionsTemplate) {
+              <td class="px-4 py-4 text-sm text-right">
+                <ng-container *ngTemplateOutlet="actionsTemplate; context: { $implicit: row }"></ng-container>
+              </td>
+            }
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+</div>

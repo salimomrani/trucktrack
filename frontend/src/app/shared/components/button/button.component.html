@@ -1,0 +1,38 @@
+<button
+  [type]="type()"
+  [disabled]="disabled() || loading()"
+  [class]="getButtonClasses()"
+  (click)="onClick($event)">
+
+  <!-- Loading spinner -->
+  @if (loading()) {
+    <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+      <circle
+        class="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        stroke-width="4">
+      </circle>
+      <path
+        class="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z">
+      </path>
+    </svg>
+  }
+
+  <!-- Icon (left position) -->
+  @if (icon() && iconPosition() === 'left' && !loading()) {
+    <span class="material-icons text-[1.25em]">{{ icon() }}</span>
+  }
+
+  <!-- Button content -->
+  <ng-content></ng-content>
+
+  <!-- Icon (right position) -->
+  @if (icon() && iconPosition() === 'right' && !loading()) {
+    <span class="material-icons text-[1.25em]">{{ icon() }}</span>
+  }
+</button>

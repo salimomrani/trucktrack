@@ -1,13 +1,7 @@
 import { Component, inject, ChangeDetectionStrategy, OnInit, OnDestroy, computed, signal, output } from '@angular/core';
 
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { StoreFacade } from '../../../store/store.facade';
 import { NotificationService } from '../../../services/notification.service';
 import { NavigationService } from '../../services/navigation.service';
@@ -16,24 +10,19 @@ import { UserRole } from '../../models/auth.model';
 
 /**
  * Header Component - Application navigation header
- * - Material toolbar with dynamic navigation based on user role
- * - User menu with logout
+ * - Tailwind-based header with dynamic navigation based on user role
+ * - User menu with logout (using MatMenu for dropdown)
  * - Notification badges for alerts
  * - Mobile hamburger menu support
  * - Integrated with NgRx store
+ * - Migrated to Tailwind CSS (Feature 020)
  */
 @Component({
     selector: 'app-header',
     imports: [
     RouterLink,
     RouterLinkActive,
-    MatToolbarModule,
-    MatButtonModule,
-    MatIconModule,
-    MatMenuModule,
-    MatDividerModule,
-    MatBadgeModule,
-    MatTooltipModule
+    MatMenuModule
 ],
     templateUrl: './header.component.html',
     styleUrl: './header.component.scss',

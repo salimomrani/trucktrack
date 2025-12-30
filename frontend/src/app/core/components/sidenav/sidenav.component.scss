@@ -1,178 +1,23 @@
-// Sidenav Component Styles - Modern UI Redesign
-// Feature 017: Professional Blue Theme with Flat Design
-// T020: Update sidenav styles
+/**
+ * Sidenav Component Styles - Tailwind Migration
+ * Feature 020: Angular Material to Tailwind CSS
+ *
+ * Most styling is now handled by Tailwind classes in the template.
+ * This file contains only component-specific styles that can't be expressed with Tailwind.
+ */
 
-@use '../../../../styles/theme' as theme;
-
-$sidenav-mini-width: 56px;
-
-// Sidenav panel
-.sidenav-panel {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
-  background-color: white;
-  border-right: 1px solid theme.$color-gray-100;
+:host {
+  display: block;
 }
 
-// Navigation container
-.sidenav-nav {
-  display: flex;
-  flex-direction: column;
-  padding: theme.$space-2 0;
-  gap: theme.$space-1;
+// Material icons alignment
+.material-icons {
+  vertical-align: middle;
+  line-height: 1;
 }
 
-// ============================
-// MINI MODE - Centered icons
-// ============================
-.nav-item-mini {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  margin: theme.$space-1 auto;
-  border-radius: theme.$radius-md;
-  text-decoration: none;
-  color: theme.$color-gray-600;
-  position: relative;
-  transition: all theme.$transition-base;
-
-  mat-icon {
-    font-size: 22px;
-    width: 22px;
-    height: 22px;
-  }
-
-  &:hover {
-    background-color: theme.$color-gray-50;
-    color: theme.$color-gray-800;
-  }
-
-  &.active-link {
-    background-color: theme.$color-primary-50;
-    color: theme.$color-primary-700;
-  }
-
-  &:focus-visible {
-    outline: 2px solid theme.$color-primary-500;
-    outline-offset: 2px;
-  }
-}
-
-// Mini mode badge
-.nav-badge-mini {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  border-radius: theme.$radius-full;
-  background-color: theme.$color-danger-500;
-  color: white;
-  font-size: 9px;
-  font-weight: theme.$font-weight-semibold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-// ============================
-// FULL MODE - Icon + Label
-// ============================
-.nav-item-full {
-  display: flex;
-  align-items: center;
-  gap: theme.$space-3;
-  padding: theme.$space-3 theme.$space-4;
-  margin: 0 theme.$space-2;
-  border-radius: theme.$radius-md;
-  text-decoration: none;
-  color: theme.$color-gray-600;
-  position: relative;
-  transition: all theme.$transition-base;
-
-  mat-icon {
-    font-size: 22px;
-    width: 22px;
-    height: 22px;
-    flex-shrink: 0;
-  }
-
-  span {
-    font-size: theme.$font-size-base;
-    font-weight: theme.$font-weight-normal;
-    color: inherit;
-  }
-
-  &:hover {
-    background-color: theme.$color-gray-50;
-    color: theme.$color-gray-800;
-  }
-
-  &.active-link {
-    background-color: theme.$color-primary-50;
-    color: theme.$color-primary-700;
-
-    mat-icon, span {
-      color: theme.$color-primary-700;
-    }
-
-    span {
-      font-weight: theme.$font-weight-medium;
-    }
-
-    // Active indicator bar
-    &::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: theme.$space-2;
-      bottom: theme.$space-2;
-      width: 3px;
-      border-radius: 0 2px 2px 0;
-      background-color: theme.$color-primary-700;
-    }
-  }
-
-  &:focus-visible {
-    outline: 2px solid theme.$color-primary-500;
-    outline-offset: 2px;
-  }
-}
-
-// Full mode badge
-.nav-badge {
-  margin-left: auto;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 theme.$space-2;
-  border-radius: theme.$radius-full;
-  background-color: theme.$color-danger-500;
-  color: white;
-  font-size: theme.$font-size-xs;
-  font-weight: theme.$font-weight-semibold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-// Section divider (if needed)
-.nav-divider {
-  height: 1px;
-  background-color: theme.$color-gray-100;
-  margin: theme.$space-2 theme.$space-4;
-}
-
-// Section label (if needed)
-.nav-section-label {
-  padding: theme.$space-3 theme.$space-4 theme.$space-2;
-  font-size: theme.$font-size-xs;
-  font-weight: theme.$font-weight-medium;
-  color: theme.$color-gray-400;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+// Focus visible styles for accessibility
+a:focus-visible {
+  outline: 2px solid var(--color-primary-500, #1976D2);
+  outline-offset: 2px;
 }

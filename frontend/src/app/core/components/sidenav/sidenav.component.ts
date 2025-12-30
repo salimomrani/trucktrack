@@ -4,13 +4,10 @@ import {
   output,
   inject,
   ChangeDetectionStrategy,
-  HostListener,
-  ViewEncapsulation
+  HostListener
 } from '@angular/core';
 
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { NavItem } from '../../models/navigation.model';
 
 /**
@@ -18,19 +15,17 @@ import { NavItem } from '../../models/navigation.model';
  * - Mini mode (icons) on desktop, full mode on mobile/tablet
  * - Operations navigation only (no admin, no user section)
  * - Auto-close on navigation (mobile/tablet)
+ * - Migrated to Tailwind CSS (Feature 020)
  */
 @Component({
     selector: 'app-sidenav',
     imports: [
     RouterLink,
-    RouterLinkActive,
-    MatIconModule,
-    MatTooltipModule
+    RouterLinkActive
 ],
     templateUrl: './sidenav.component.html',
     styleUrl: './sidenav.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    encapsulation: ViewEncapsulation.None
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SidenavComponent {
   private readonly router = inject(Router);

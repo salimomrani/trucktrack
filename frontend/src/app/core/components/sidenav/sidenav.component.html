@@ -1,35 +1,48 @@
 <!-- Sidenav Panel - Navigation opérationnelle (sans alertes, déjà dans header) -->
 <aside
-  class="sidenav-panel"
-  [class.mini]="miniMode()"
+  class="flex flex-col h-full w-full bg-white border-r border-gray-100"
+  [class.w-14]="miniMode()"
   role="navigation"
   aria-label="Menu de navigation">
 
   <!-- Navigation Items -->
-  <nav class="sidenav-nav">
+  <nav class="flex flex-col py-2 gap-1">
     @for (item of getOperationsItems(); track item.route) {
       @if (miniMode()) {
-        <!-- Mini mode: centered icon buttons -->
+        <!-- Mini mode: centered icon buttons with tooltip -->
         <a
           [routerLink]="item.route"
-          routerLinkActive="active-link"
+          routerLinkActive="active"
+          #rla="routerLinkActive"
           (click)="onNavItemClick(item)"
           [attr.aria-label]="item.label"
-          [matTooltip]="item.label"
-          matTooltipPosition="right"
-          class="nav-item-mini">
-          <mat-icon>{{ item.icon }}</mat-icon>
+          class="group relative flex items-center justify-center w-11 h-11 mx-auto rounded-md text-gray-600 transition-all duration-200 hover:bg-gray-50 hover:text-gray-800"
+          [class.bg-primary-50]="rla.isActive"
+          [class.text-primary-700]="rla.isActive">
+          <span class="material-icons text-[22px]">{{ item.icon }}</span>
+          <!-- Tooltip -->
+          <span class="absolute left-full ml-2 px-2 py-1 text-xs font-medium text-white bg-gray-800 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+            {{ item.label }}
+          </span>
         </a>
       } @else {
         <!-- Full mode: list items with labels -->
         <a
           [routerLink]="item.route"
-          routerLinkActive="active-link"
+          routerLinkActive="active"
+          #rla="routerLinkActive"
           (click)="onNavItemClick(item)"
           [attr.aria-label]="item.label"
-          class="nav-item-full">
-          <mat-icon>{{ item.icon }}</mat-icon>
-          <span>{{ item.label }}</span>
+          class="relative flex items-center gap-3 px-4 py-3 mx-2 rounded-md text-gray-600 transition-all duration-200 hover:bg-gray-50 hover:text-gray-800"
+          [class.bg-primary-50]="rla.isActive"
+          [class.text-primary-700]="rla.isActive"
+          [class.font-medium]="rla.isActive">
+          <span class="material-icons text-[22px] flex-shrink-0">{{ item.icon }}</span>
+          <span class="text-sm">{{ item.label }}</span>
+          <!-- Active indicator bar -->
+          @if (rla.isActive) {
+            <span class="absolute left-0 top-2 bottom-2 w-[3px] rounded-r bg-primary-700"></span>
+          }
         </a>
       }
     }
