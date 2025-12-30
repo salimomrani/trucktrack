@@ -2,9 +2,6 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { TripService } from '../trip.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
@@ -29,10 +26,7 @@ import { StoreFacade } from '../../../store/store.facade';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    MatFormFieldModule, // Keep for forms until full migration
-    MatInputModule,     // Keep for forms until full migration
-    MatSelectModule,    // Keep for forms until full migration
-    MatDialogModule,    // Keep for dialogs
+    MatDialogModule,    // Keep for confirm dialog
     BreadcrumbComponent,
     LocationPickerComponent
   ],

@@ -94,15 +94,28 @@
               [required]="true">
             </app-location-picker>
 
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Scheduled Date/Time</mat-label>
-              <input matInput type="datetime-local" formControlName="scheduledAt">
-            </mat-form-field>
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700" for="scheduledAt">
+                Scheduled Date/Time
+              </label>
+              <input
+                id="scheduledAt"
+                type="datetime-local"
+                formControlName="scheduledAt"
+                class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+            </div>
 
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Notes</mat-label>
-              <textarea matInput formControlName="notes" rows="3" placeholder="Optional notes"></textarea>
-            </mat-form-field>
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700" for="notes">
+                Notes
+              </label>
+              <textarea
+                id="notes"
+                formControlName="notes"
+                rows="3"
+                placeholder="Optional notes"
+                class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"></textarea>
+            </div>
 
             <div class="flex justify-end pt-4">
               <button
@@ -153,19 +166,25 @@
         @if (showAssignPanel()) {
           <!-- Assign Form -->
           <form [formGroup]="assignForm" (ngSubmit)="assignTrip()" class="space-y-4">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Select Driver</mat-label>
-              <mat-select formControlName="driverId">
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700" for="assignDriverId">
+                Select Driver
+              </label>
+              <select
+                id="assignDriverId"
+                formControlName="driverId"
+                class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white">
+                <option value="">-- Select a driver --</option>
                 @for (driver of assignableDrivers(); track driver.driverId) {
-                  <mat-option [value]="driver.driverId">
+                  <option [value]="driver.driverId">
                     {{ driver.driverName }} → {{ driver.truckName }} ({{ driver.truckStatus }})
-                  </mat-option>
+                  </option>
                 }
-              </mat-select>
+              </select>
               @if (assignableDrivers().length === 0) {
-                <mat-hint class="text-warning-600">No drivers with assigned trucks available</mat-hint>
+                <p class="mt-1 text-xs text-warning-600">No drivers with assigned trucks available</p>
               }
-            </mat-form-field>
+            </div>
 
             <div class="flex justify-end pt-4">
               <button
@@ -216,16 +235,22 @@
             Reassign Trip
           </h3>
           <form [formGroup]="reassignForm" (ngSubmit)="reassignTrip()" class="space-y-4">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Select New Driver</mat-label>
-              <mat-select formControlName="driverId">
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700" for="reassignDriverId">
+                Select New Driver
+              </label>
+              <select
+                id="reassignDriverId"
+                formControlName="driverId"
+                class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white">
+                <option value="">-- Select a driver --</option>
                 @for (driver of assignableDrivers(); track driver.driverId) {
-                  <mat-option [value]="driver.driverId">
+                  <option [value]="driver.driverId">
                     {{ driver.driverName }} → {{ driver.truckName }} ({{ driver.truckStatus }})
-                  </mat-option>
+                  </option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </select>
+            </div>
 
             <div class="flex justify-end gap-3 pt-4">
               <button
