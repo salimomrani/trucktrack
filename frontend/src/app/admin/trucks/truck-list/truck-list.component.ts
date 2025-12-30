@@ -1,5 +1,4 @@
-import { Component, OnInit, inject, signal, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -56,7 +55,6 @@ export class TruckListComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly facade = inject(StoreFacade);
-  private readonly destroyRef = inject(DestroyRef);
 
   // State
   trucks = signal<TruckAdminResponse[]>([]);
@@ -99,7 +97,7 @@ export class TruckListComponent implements OnInit {
       this.pageSize,
       this.searchTerm || undefined,
       this.selectedStatus || undefined
-    ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    ).subscribe({
       next: (response) => {
         this.trucks.set(response.content);
         this.totalElements.set(response.totalElements);
@@ -162,7 +160,7 @@ export class TruckListComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(confirmed => {
+    dialogRef.afterClosed().subscribe(confirmed => {
       if (confirmed) {
         this.markOutOfService(truck);
       }
@@ -179,7 +177,7 @@ export class TruckListComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(confirmed => {
+    dialogRef.afterClosed().subscribe(confirmed => {
       if (confirmed) {
         this.activateTruck(truck);
       }
@@ -187,7 +185,7 @@ export class TruckListComponent implements OnInit {
   }
 
   private markOutOfService(truck: TruckAdminResponse) {
-    this.truckService.markOutOfService(truck.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.truckService.markOutOfService(truck.id).subscribe({
       next: () => {
         this.snackBar.open(`Truck ${truck.truckId} marked as out of service`, 'Close', { duration: 3000 });
         // T023: Invalidate cache after CRUD operation
@@ -202,7 +200,7 @@ export class TruckListComponent implements OnInit {
   }
 
   private activateTruck(truck: TruckAdminResponse) {
-    this.truckService.activateTruck(truck.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.truckService.activateTruck(truck.id).subscribe({
       next: () => {
         this.snackBar.open(`Truck ${truck.truckId} activated`, 'Close', { duration: 3000 });
         // T023: Invalidate cache after CRUD operation

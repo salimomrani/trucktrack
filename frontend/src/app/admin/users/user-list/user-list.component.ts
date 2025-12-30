@@ -1,5 +1,4 @@
-import { Component, OnInit, inject, signal, computed, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -54,7 +53,6 @@ export class UserListComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly destroyRef = inject(DestroyRef);
 
   // State
   users = signal<UserAdminResponse[]>([]);
@@ -95,7 +93,7 @@ export class UserListComponent implements OnInit {
       this.searchTerm || undefined,
       this.selectedRole || undefined,
       this.selectedStatus ?? undefined
-    ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    ).subscribe({
       next: (response) => {
         this.users.set(response.content);
         this.totalElements.set(response.totalElements);
@@ -159,7 +157,7 @@ export class UserListComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(confirmed => {
+    dialogRef.afterClosed().subscribe(confirmed => {
       if (confirmed) {
         this.deactivateUser(user);
       }
@@ -176,7 +174,7 @@ export class UserListComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(confirmed => {
+    dialogRef.afterClosed().subscribe(confirmed => {
       if (confirmed) {
         this.reactivateUser(user);
       }
@@ -184,7 +182,7 @@ export class UserListComponent implements OnInit {
   }
 
   private deactivateUser(user: UserAdminResponse) {
-    this.userService.deactivateUser(user.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.userService.deactivateUser(user.id).subscribe({
       next: () => {
         this.snackBar.open(`${user.fullName} has been deactivated`, 'Close', { duration: 3000 });
         this.loadUsers();
@@ -197,7 +195,7 @@ export class UserListComponent implements OnInit {
   }
 
   private reactivateUser(user: UserAdminResponse) {
-    this.userService.reactivateUser(user.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.userService.reactivateUser(user.id).subscribe({
       next: () => {
         this.snackBar.open(`${user.fullName} has been reactivated`, 'Close', { duration: 3000 });
         this.loadUsers();
@@ -210,7 +208,7 @@ export class UserListComponent implements OnInit {
   }
 
   resendEmail(user: UserAdminResponse) {
-    this.userService.resendActivationEmail(user.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.userService.resendActivationEmail(user.id).subscribe({
       next: () => {
         this.snackBar.open('Activation email sent', 'Close', { duration: 3000 });
       },

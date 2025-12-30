@@ -7,34 +7,43 @@
 
 | Category | Before | After | Status |
 |----------|--------|-------|--------|
-| Memory Leaks Fixed | 6 components | 0 components | Improved |
+| Infinite Observable Cleanup | 2 components | 2 components fixed | Improved |
+| Map/Leaflet Cleanup | 1 component | 1 component fixed | Improved |
 | OnPush Components | 0 | 9 | Improved |
 | Tests | 136 passing | 136 passing | Maintained |
 | Build | Success | Success | Maintained |
+
+**Note**: HTTP calls and dialog subscriptions don't need cleanup (auto-complete).
 
 ## Memory Leak Fixes (US1)
 
 ### Components Fixed
 
-| Component | File | Subscriptions Fixed |
-|-----------|------|---------------------|
-| TripListComponent | trips/trip-list/trip-list.component.ts | 5 subscriptions |
-| UserListComponent | users/user-list/user-list.component.ts | 6 subscriptions |
-| TruckListComponent | trucks/truck-list/truck-list.component.ts | 5 subscriptions |
-| GroupListComponent | groups/group-list/group-list.component.ts | 3 subscriptions |
-| AuditLogComponent | shared/audit-log/audit-log.component.ts | 1 subscription |
-| LocationPickerComponent | shared/location-picker/location-picker.component.ts | Map cleanup + 1 subscription |
+| Component | File | Fix Applied |
+|-----------|------|-------------|
+| TripListComponent | trips/trip-list/trip-list.component.ts | `takeUntilDestroyed` on `interval()` only |
+| LocationPickerComponent | shared/location-picker/location-picker.component.ts | Map cleanup (`map.off()`, `map.remove()`) + Subject pattern |
 
 ### Pattern Applied
 
+**Key Insight**: HttpClient observables complete automatically after response - no cleanup needed.
+
 ```typescript
+// ✅ HTTP calls - NO cleanup needed (auto-complete)
+this.http.get('/api/data').subscribe({...});
+
+// ✅ Dialog - NO cleanup needed (auto-complete on close)
+dialogRef.afterClosed().subscribe(...);
+
+// ✅ Interval - NEEDS cleanup (infinite)
 import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 private readonly destroyRef = inject(DestroyRef);
 
-// All subscriptions now use:
-observable$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({...});
+interval(5000)
+  .pipe(takeUntilDestroyed(this.destroyRef))
+  .subscribe(() => this.refresh());
 ```
 
 ## OnPush Optimization (US2)

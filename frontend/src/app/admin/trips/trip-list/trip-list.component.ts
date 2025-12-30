@@ -118,7 +118,7 @@ export class TripListComponent implements OnInit, OnDestroy {
       undefined, // truckId
       this.startDate?.toISOString(),
       this.endDate?.toISOString()
-    ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    ).subscribe({
       next: (response) => {
         this.trips.set(response.content);
         this.totalElements.set(response.totalElements);
@@ -133,7 +133,7 @@ export class TripListComponent implements OnInit, OnDestroy {
   }
 
   loadStats() {
-    this.tripService.getTripStats().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.tripService.getTripStats().subscribe({
       next: (stats) => {
         this.stats.set(stats);
       },
@@ -237,7 +237,7 @@ export class TripListComponent implements OnInit, OnDestroy {
       }
     });
 
-    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(confirmed => {
+    dialogRef.afterClosed().subscribe(confirmed => {
       if (confirmed) {
         this.cancelTrip(trip);
       }
@@ -245,7 +245,7 @@ export class TripListComponent implements OnInit, OnDestroy {
   }
 
   private cancelTrip(trip: TripResponse) {
-    this.tripService.cancelTrip(trip.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.tripService.cancelTrip(trip.id).subscribe({
       next: () => {
         this.snackBar.open('Trip cancelled', 'Close', { duration: 3000 });
         this.loadTrips();

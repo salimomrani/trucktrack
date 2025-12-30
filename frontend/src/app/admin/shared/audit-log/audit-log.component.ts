@@ -1,5 +1,4 @@
-import { Component, input, OnInit, OnChanges, signal, inject, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, input, OnInit, OnChanges, signal, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
@@ -63,7 +62,6 @@ export class AuditLogComponent implements OnInit, OnChanges {
   readonly entityId = input.required<string>();
 
   private readonly http = inject(HttpClient);
-  private readonly destroyRef = inject(DestroyRef);
 
   loading = signal(true);
   logs = signal<AuditLogEntry[]>([]);
@@ -89,7 +87,7 @@ export class AuditLogComponent implements OnInit, OnChanges {
     this.loading.set(true);
     const url = `${environment.apiUrl}/admin/audit/${this.entityType()}/${this.entityId()}?page=${this.currentPage}&size=${this.pageSize}`;
 
-    this.http.get<AuditLogPage>(url).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.http.get<AuditLogPage>(url).subscribe({
       next: (response) => {
         const currentLogs = this.logs();
         this.logs.set([...currentLogs, ...response.content]);

@@ -209,65 +209,59 @@ constructor(private http: HttpClient) {}
 
 ---
 
-## 5. Memory Management (OBLIGATOIRE)
+## 5. Memory Management
 
-### Subscription Cleanup avec takeUntilDestroyed()
+### Quand utiliser takeUntilDestroyed() ?
 
-**OBLIGATOIRE**: Toutes les subscriptions doivent utiliser `takeUntilDestroyed()` pour éviter les memory leaks.
+**IMPORTANT**: Comprendre quels observables nécessitent un cleanup manuel.
+
+#### Observables qui complètent automatiquement (PAS DE CLEANUP NÉCESSAIRE)
+
+```typescript
+// ✅ HttpClient - complète après la réponse
+this.http.get('/api/data').subscribe({
+  next: (data) => this.data.set(data),
+  error: (err) => console.error(err)
+});
+
+// ✅ MatDialogRef.afterClosed() - complète après fermeture du dialog
+dialogRef.afterClosed().subscribe(result => { ... });
+
+// ✅ first(), take(1) - complètent après N émissions
+this.store.select(selectUser).pipe(first()).subscribe(...);
+```
+
+#### Observables infinis (CLEANUP OBLIGATOIRE)
 
 ```typescript
 import { Component, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { interval } from 'rxjs';
 
 @Component({...})
 export class MyComponent {
   private readonly destroyRef = inject(DestroyRef);
-  private readonly http = inject(HttpClient);
 
-  loadData() {
-    // ✅ OBLIGATOIRE - takeUntilDestroyed avec DestroyRef
-    this.http.get('/api/data')
+  startAutoRefresh() {
+    // ✅ OBLIGATOIRE - interval est infini
+    interval(5000)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (data) => this.data.set(data),
-        error: (err) => console.error(err)
-      });
+      .subscribe(() => this.refresh());
   }
 }
 ```
 
-**Patterns à éviter:**
+**Types d'observables nécessitant takeUntilDestroyed():**
+- `interval()` - émissions infinies
+- `timer()` avec repeat - émissions infinies
+- `Subject.asObservable()` - streams long-lived
+- WebSocket streams
+- EventSource / Server-Sent Events
 
-```typescript
-// ❌ INTERDIT - Subscription sans cleanup
-this.http.get('/api/data').subscribe(...);
-
-// ❌ INTERDIT - Subject manuel (plus nécessaire avec takeUntilDestroyed)
-private destroy$ = new Subject<void>();
-ngOnDestroy() {
-  this.destroy$.next();
-  this.destroy$.complete();
-}
-```
-
-### Dialog et MatDialogRef
-
-```typescript
-// ✅ OBLIGATOIRE - Cleanup des dialog subscriptions
-const dialogRef = this.dialog.open(ConfirmDialogComponent, {...});
-dialogRef.afterClosed()
-  .pipe(takeUntilDestroyed(this.destroyRef))
-  .subscribe(result => { ... });
-```
-
-### Intervals et Timers
-
-```typescript
-// ✅ OBLIGATOIRE - Cleanup des intervals
-interval(5000)
-  .pipe(takeUntilDestroyed(this.destroyRef))
-  .subscribe(() => this.refresh());
-```
+**Types d'observables qui n'en ont PAS besoin:**
+- `HttpClient.get/post/put/delete()` - complète après réponse
+- `MatDialogRef.afterClosed()` - complète après fermeture
+- Observables avec `first()`, `take(n)`, `takeUntil()`
 
 ### Map/Leaflet Cleanup
 
@@ -320,14 +314,12 @@ loading = signal(false);
 
 loadData() {
   this.loading.set(true);
-  this.http.get<Item[]>('/api/items')
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe({
-      next: (items) => {
-        this.data.set(items);   // Triggers change detection
-        this.loading.set(false); // Triggers change detection
-      }
-    });
+  this.http.get<Item[]>('/api/items').subscribe({
+    next: (items) => {
+      this.data.set(items);   // Triggers change detection
+      this.loading.set(false); // Triggers change detection
+    }
+  });
 }
 ```
 
