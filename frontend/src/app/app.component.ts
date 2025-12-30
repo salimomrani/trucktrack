@@ -1,6 +1,5 @@
 import { Component, OnDestroy, inject, effect, signal, computed } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -9,6 +8,7 @@ import { SidenavComponent } from './core/components/sidenav/sidenav.component';
 import { NotificationService } from './services/notification.service';
 import { NavigationService } from './core/services/navigation.service';
 import { StoreFacade } from './store/store.facade';
+import { ToastService } from './shared/components/toast/toast.service';
 import { Notification } from './models/notification.model';
 import { DEFAULT_NAV_CONFIG } from './core/models/navigation.model';
 
@@ -18,17 +18,18 @@ import { DEFAULT_NAV_CONFIG } from './core/models/navigation.model';
  * 003-nav-optimization: Mobile sidenav integration
  */
 @Component({
-    selector: 'app-root',
-    imports: [RouterOutlet, HeaderComponent, SidenavComponent, MatSnackBarModule, MatSidenavModule],
-    templateUrl: './app.component.html',
-    styleUrl: './app.component.scss'
+  selector: 'app-root',
+  standalone: true,
+  imports: [RouterOutlet, HeaderComponent, SidenavComponent, MatSidenavModule],
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnDestroy {
   title = 'frontend';
 
   private readonly notificationService = inject(NotificationService);
   private readonly navigationService = inject(NavigationService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly facade = inject(StoreFacade);
   private readonly breakpointObserver = inject(BreakpointObserver);
 
@@ -104,38 +105,22 @@ export class AppComponent implements OnDestroy {
   }
 
   /**
-   * T167: Show snackbar alert for new notification
+   * T167: Show toast alert for new notification
    */
   private showNotificationSnackbar(notification: Notification): void {
-    const snackBarRef = this.snackBar.open(
-      `${notification.title}: ${notification.message}`,
-      'View',
-      {
-        duration: 5000,
-        horizontalPosition: 'right',
-        verticalPosition: 'top',
-        panelClass: this.getSnackbarClass(notification.severity)
-      }
-    );
+    const message = `${notification.title}: ${notification.message}`;
 
-    // Navigate to alerts page when "View" is clicked
-    snackBarRef.onAction().subscribe(() => {
-      window.location.href = '/alerts';
-    });
-  }
-
-  /**
-   * Get snackbar CSS class based on notification severity
-   */
-  private getSnackbarClass(severity: string): string[] {
-    switch (severity) {
+    switch (notification.severity) {
       case 'CRITICAL':
-        return ['notification-snackbar', 'snackbar-critical'];
+        this.toast.error(message);
+        break;
       case 'WARNING':
-        return ['notification-snackbar', 'snackbar-warning'];
+        this.toast.warning(message);
+        break;
       case 'INFO':
       default:
-        return ['notification-snackbar', 'snackbar-info'];
+        this.toast.info(message);
+        break;
     }
   }
 

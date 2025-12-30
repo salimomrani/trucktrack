@@ -1,16 +1,11 @@
 import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
-
 import { FormsModule } from '@angular/forms';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { TruckStatus } from '../../../models/truck.model';
 import { StoreFacade } from '../../../store/store.facade';
 
 /**
  * FilterPanelComponent - Filter trucks by status
- * T104: Create FilterPanelComponent with Material checkbox group for status filters
+ * T104: Create FilterPanelComponent with Tailwind checkbox group for status filters
  * Features:
  * - Filter by ACTIVE, IDLE, OFFLINE status
  * - Clear all filters button
@@ -18,17 +13,14 @@ import { StoreFacade } from '../../../store/store.facade';
  * - Keyboard accessible (Space to toggle)
  */
 @Component({
-    selector: 'app-filter-panel',
-    imports: [
-    FormsModule,
-    MatCheckboxModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule
-],
-    templateUrl: './filter-panel.component.html',
-    styleUrl: './filter-panel.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-filter-panel',
+  standalone: true,
+  imports: [
+    FormsModule
+  ],
+  templateUrl: './filter-panel.component.html',
+  styleUrl: './filter-panel.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FilterPanelComponent {
   private readonly facade = inject(StoreFacade);
