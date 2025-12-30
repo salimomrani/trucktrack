@@ -74,26 +74,28 @@
           }
         ],
         "rxjs/suffix-subjects": [
-          "warn",
+          "error",
           {
             "suffix": "$"
           }
         ],
         "rxjs/finnish": [
-          "warn",
+          "error",
           {
             "functions": false,
             "methods": false,
             "names": {
-              "^(canActivate|canActivateChild|canDeactivate|canLoad|intercept|resolve|validate)$": false
+              "^(canActivate|canActivateChild|canDeactivate|canLoad|intercept|resolve|validate|store)$": false
             },
             "parameters": false,
-            "properties": true,
+            "properties": false,
             "strict": false,
             "types": {
               "^EventEmitter$": false,
               "^Subject$": true,
-              "^Observable$": true
+              "^BehaviorSubject$": true,
+              "^ReplaySubject$": true,
+              "^AsyncSubject$": true
             },
             "variables": true
           }
