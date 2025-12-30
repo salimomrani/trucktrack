@@ -12,13 +12,6 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap, filter } from 'rxjs';
 import * as L from 'leaflet';
 import { GeocodingService, GeocodingResult } from '../services/geocoding.service';
@@ -47,14 +40,7 @@ export interface LocationValue {
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatAutocompleteModule,
-    MatIconModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule
+    ReactiveFormsModule
   ],
   templateUrl: './location-picker.component.html',
   styleUrls: ['./location-picker.component.scss'],
@@ -84,6 +70,7 @@ export class LocationPickerComponent implements OnInit, OnDestroy, ControlValueA
   selectedLocation = signal<LocationValue | null>(null);
   isSearching = signal(false);
   showMap = signal(false);
+  showDropdown = signal(false);
   isDisabled = signal(false);
 
   // Leaflet map
@@ -154,16 +141,27 @@ export class LocationPickerComponent implements OnInit, OnDestroy, ControlValueA
     this.searchQuery.set(query);
     if (query.length >= 3) {
       this.search$.next(query);
+      this.showDropdown.set(true);
     } else {
       this.suggestions.set([]);
+      this.showDropdown.set(false);
     }
   }
 
   onInputBlur() {
     this.onTouched();
+    // Delay hiding dropdown to allow click on suggestion
+    setTimeout(() => this.showDropdown.set(false), 200);
+  }
+
+  onInputFocus() {
+    if (this.suggestions().length > 0 || this.searchQuery().length >= 3) {
+      this.showDropdown.set(true);
+    }
   }
 
   selectSuggestion(result: GeocodingResult) {
+    this.showDropdown.set(false);
     const location: LocationValue = {
       address: result.displayName,
       lat: result.lat,
