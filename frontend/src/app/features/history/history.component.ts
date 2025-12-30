@@ -1,20 +1,9 @@
 import { Component, OnInit, signal, inject, ChangeDetectionStrategy, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatInputModule } from '@angular/material/input';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
 import { StoreFacade } from '../../store/store.facade';
+import { ToastService } from '../../shared/components/toast/toast.service';
 
 interface TruckHistory {
   truckId: string;
@@ -32,30 +21,19 @@ interface TruckHistory {
  * Angular 17+ with signals, OnPush, Material UI
  */
 @Component({
-    selector: 'app-history',
-    imports: [
-        CommonModule,
-        MatCardModule,
-        MatTableModule,
-        MatButtonModule,
-        MatIconModule,
-        MatProgressSpinnerModule,
-        MatFormFieldModule,
-        MatSelectModule,
-        MatDatepickerModule,
-        MatInputModule,
-        MatNativeDateModule,
-        MatChipsModule,
-        MatSnackBarModule,
-        FormsModule
-    ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    templateUrl: './history.component.html',
-    styleUrls: ['./history.component.scss']
+  selector: 'app-history',
+  standalone: true,
+  imports: [
+    DatePipe,
+    FormsModule
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './history.component.html',
+  styleUrls: ['./history.component.scss']
 })
 export class HistoryComponent implements OnInit {
   private readonly facade = inject(StoreFacade);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
 
   // State signals
@@ -130,7 +108,7 @@ export class HistoryComponent implements OnInit {
     const end = this.endDate();
 
     if (!start || !end) {
-      this.snackBar.open('Please select a date range', 'OK', { duration: 3000 });
+      this.toast.warning('Please select a date range');
       return;
     }
 
@@ -187,7 +165,7 @@ export class HistoryComponent implements OnInit {
   exportHistory(): void {
     const data = this.filteredHistory();
     if (data.length === 0) {
-      this.snackBar.open('No data to export', 'OK', { duration: 3000 });
+      this.toast.warning('No data to export');
       return;
     }
 
@@ -214,7 +192,21 @@ export class HistoryComponent implements OnInit {
     a.click();
     window.URL.revokeObjectURL(url);
 
-    this.snackBar.open(`Exported ${data.length} records`, 'OK', { duration: 3000 });
+    this.toast.success(`Exported ${data.length} records`);
+  }
+
+  onStartDateChange(date: Date | null): void {
+    if (date) {
+      this.startDate.set(date);
+      this.onDateChange();
+    }
+  }
+
+  onEndDateChange(date: Date | null): void {
+    if (date) {
+      this.endDate.set(date);
+      this.onDateChange();
+    }
   }
 
   formatLocation(lat: number, lon: number): string {

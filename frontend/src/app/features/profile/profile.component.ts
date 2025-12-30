@@ -1,18 +1,10 @@
 import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDividerModule } from '@angular/material/divider';
 import { DatePipe } from '@angular/common';
-
 import { StoreFacade } from '../../store/store.facade';
 import { AuthService } from '../../core/services/auth.service';
 import { ChangePasswordRequest } from '../../core/models/auth.model';
+import { ToastService } from '../../shared/components/toast/toast.service';
 
 /**
  * Profile Component - Displays user profile information and allows password change
@@ -23,14 +15,6 @@ import { ChangePasswordRequest } from '../../core/models/auth.model';
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    MatCardModule,
-    MatInputModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
-    MatDividerModule,
     DatePipe
   ],
   templateUrl: './profile.component.html',
@@ -41,7 +25,7 @@ export class ProfileComponent {
   private readonly fb = inject(FormBuilder);
   private readonly facade = inject(StoreFacade);
   private readonly authService = inject(AuthService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   // User data from store (already loaded after login)
   readonly user = this.facade.currentUser;
@@ -170,23 +154,13 @@ export class ProfileComponent {
    * Show success message
    */
   private showSuccess(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      duration: 3000,
-      horizontalPosition: 'end',
-      verticalPosition: 'top',
-      panelClass: ['success-snackbar']
-    });
+    this.toast.success(message);
   }
 
   /**
    * Show error message
    */
   private showError(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      duration: 5000,
-      horizontalPosition: 'end',
-      verticalPosition: 'top',
-      panelClass: ['error-snackbar']
-    });
+    this.toast.error(message);
   }
 }

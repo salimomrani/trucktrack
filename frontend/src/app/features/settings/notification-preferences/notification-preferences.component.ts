@@ -1,17 +1,12 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDividerModule } from '@angular/material/divider';
 import { FormsModule } from '@angular/forms';
 import {
   NotificationService,
   NotificationPreference,
   UpdatePreferenceRequest
 } from '../../../services/notification.service';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 
 interface PreferenceGroup {
   title: string;
@@ -24,20 +19,15 @@ interface PreferenceGroup {
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
-    MatCardModule,
-    MatSlideToggleModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
-    MatIconModule,
-    MatDividerModule
+    FormsModule
   ],
   templateUrl: './notification-preferences.component.html',
-  styleUrls: ['./notification-preferences.component.scss']
+  styleUrls: ['./notification-preferences.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NotificationPreferencesComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   readonly loading = signal(true);
   readonly saving = signal(false);
@@ -94,9 +84,7 @@ export class NotificationPreferencesComponent implements OnInit {
       error: (err) => {
         console.error('Error loading preferences:', err);
         this.loading.set(false);
-        this.snackBar.open('Erreur lors du chargement des préférences', 'Fermer', {
-          duration: 3000
-        });
+        this.toast.error('Erreur lors du chargement des préférences');
       }
     });
   }
@@ -146,9 +134,7 @@ export class NotificationPreferencesComponent implements OnInit {
       error: (err) => {
         console.error('Error updating preferences:', err);
         this.saving.set(false);
-        this.snackBar.open('Erreur lors de la mise à jour', 'Fermer', {
-          duration: 3000
-        });
+        this.toast.error('Erreur lors de la mise à jour');
         // Reload to get correct state
         this.loadPreferences();
       }
