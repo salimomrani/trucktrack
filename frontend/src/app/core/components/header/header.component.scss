@@ -1,225 +1,31 @@
-// Header Component Styles - Modern UI Redesign
-// Feature 017: Professional Blue Theme with Flat Design
-// T019: Update header styles
+/**
+ * Header Component Styles - Tailwind Migration
+ * Feature 020: Angular Material to Tailwind CSS
+ *
+ * Most styling is now handled by Tailwind classes in the template.
+ * This file contains only component-specific styles for Mat Menu panel.
+ */
 
-@use '../../../../styles/theme' as theme;
-
-$breakpoint-mobile: 768px;
-
-.app-header {
-  position: sticky;
-  top: 0;
-  z-index: theme.$z-index-fixed;
-  height: 64px;
-  background: linear-gradient(135deg, theme.$color-primary-600 0%, theme.$color-primary-700 100%);
-  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+:host {
+  display: block;
 }
 
-.header-container {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 theme.$space-4;
-  gap: theme.$space-2;
-
-  @media (min-width: 1920px) {
-    max-width: 1600px;
-  }
+// Material icons alignment
+.material-icons {
+  vertical-align: middle;
+  line-height: 1;
 }
 
-// Hamburger button
-.hamburger-button {
-  display: flex;
-  margin-right: theme.$space-2;
-  color: white;
-  border-radius: theme.$radius-md;
-  transition: background-color theme.$transition-base;
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.1);
-  }
-
-  &:focus-visible {
-    outline: 2px solid white;
-    outline-offset: 2px;
-  }
-}
-
-.logo-section {
-  display: flex;
-  align-items: center;
-  gap: theme.$space-2;
-  cursor: pointer;
-  text-decoration: none;
-  color: white;
-  padding: theme.$space-2;
-  border-radius: theme.$radius-md;
-  transition: background-color theme.$transition-base;
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.1);
-  }
-
-  &:focus-visible {
-    outline: 2px solid white;
-    outline-offset: 2px;
-  }
-
-  .logo-icon {
-    font-size: 28px;
-    width: 28px;
-    height: 28px;
-    color: white;
-  }
-
-  .app-title {
-    font-size: theme.$font-size-lg;
-    font-weight: theme.$font-weight-semibold;
-    letter-spacing: -0.01em;
-    color: white;
-
-    @media (max-width: #{$breakpoint-mobile - 1px}) {
-      display: none;
-    }
-  }
-}
-
-// Spacer
-.spacer {
-  flex: 1;
-}
-
-// Header icon buttons base style
-.analytics-button,
-.admin-button,
-.alerts-button {
-  color: rgba(255, 255, 255, 0.85) !important;
-  text-decoration: none;
-  border-radius: theme.$radius-md;
-  transition: all theme.$transition-base;
-
-  // Override Material ripple and hover
-  &::ng-deep .mat-mdc-button-persistent-ripple,
-  &::ng-deep .mat-mdc-focus-indicator {
-    display: none;
-  }
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.15) !important;
-    color: white !important;
-  }
-
-  &:focus-visible {
-    outline: 2px solid white;
-    outline-offset: 2px;
-  }
-
-  mat-icon {
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
-    color: inherit !important;
-  }
-}
-
-// Active state for nav buttons
-.analytics-button.analytics-active,
-.admin-button.admin-active {
-  background-color: rgba(0, 0, 0, 0.2) !important;
-  color: white !important;
-}
-
-// Alerts button with badge
-.alerts-button {
-  ::ng-deep .mat-badge-content {
-    background-color: theme.$color-danger-500;
-    color: white;
-    font-size: 10px;
-    font-weight: theme.$font-weight-semibold;
-    // Subtle pulse animation
-    animation: pulse-badge 2s ease-in-out infinite;
-  }
-}
-
-@keyframes pulse-badge {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.9;
-  }
-}
-
-// User menu button
-.user-menu-button {
-  color: rgba(255, 255, 255, 0.85) !important;
-  border-radius: theme.$radius-md;
-  transition: all theme.$transition-base;
-
-  // Override Material ripple and hover
-  &::ng-deep .mat-mdc-button-persistent-ripple,
-  &::ng-deep .mat-mdc-focus-indicator {
-    display: none;
-  }
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.15) !important;
-    color: white !important;
-  }
-
-  &:focus-visible {
-    outline: 2px solid white;
-    outline-offset: 2px;
-  }
-
-  mat-icon {
-    font-size: 28px;
-    width: 28px;
-    height: 28px;
-    color: inherit !important;
-  }
-}
-
-// User menu panel styles
-.user-menu-header {
-  display: flex;
-  align-items: center;
-  gap: theme.$space-3;
-  padding: theme.$space-3 theme.$space-4;
-  background-color: theme.$color-gray-50;
-  border-bottom: 1px solid theme.$color-gray-100;
-
-  mat-icon {
-    color: theme.$color-gray-400;
-  }
-
-  .user-info {
-    .user-name {
-      font-weight: theme.$font-weight-medium;
-      font-size: theme.$font-size-base;
-      color: theme.$color-gray-800;
-    }
-
-    .user-role {
-      font-size: theme.$font-size-sm;
-      color: theme.$color-gray-500;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-  }
-}
-
-// Logout item
+// User menu panel styles (MatMenu still used)
 .logout-item {
-  mat-icon {
-    color: theme.$color-danger-500;
-  }
-
   &:hover {
-    background-color: theme.$color-danger-50;
+    background-color: #fef2f2 !important; // danger-50
+  }
+}
+
+// Override mat-menu-item to use our icon colors
+::ng-deep .mat-mdc-menu-item {
+  .material-icons {
+    font-size: 20px;
   }
 }

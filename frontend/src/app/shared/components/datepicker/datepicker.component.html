@@ -1,0 +1,40 @@
+<div class="relative">
+  <!-- Label -->
+  @if (label()) {
+    <label [for]="pickerId" [class]="getLabelClasses()">
+      {{ label() }}
+    </label>
+  }
+
+  <!-- Input wrapper -->
+  <div class="relative">
+    <!-- Date input -->
+    <input
+      #dateInput
+      [id]="pickerId"
+      type="text"
+      [placeholder]="placeholder()"
+      [disabled]="disabled()"
+      [class]="getInputClasses()"
+      [attr.aria-invalid]="error() ? 'true' : null"
+      [attr.aria-describedby]="error() ? pickerId + '-error' : null"
+      readonly />
+
+    <!-- Calendar icon -->
+    <button
+      type="button"
+      class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+      [disabled]="disabled()"
+      (click)="openPicker()"
+      aria-label="Open calendar">
+      <span class="material-icons text-xl">calendar_today</span>
+    </button>
+  </div>
+
+  <!-- Error message -->
+  @if (error()) {
+    <p [id]="pickerId + '-error'" class="mt-1.5 text-sm text-danger-500" role="alert">
+      {{ error() }}
+    </p>
+  }
+</div>

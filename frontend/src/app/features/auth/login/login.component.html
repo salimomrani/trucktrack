@@ -1,105 +1,106 @@
-<div class="login-container">
-  <mat-card class="login-card">
-    <mat-card-header>
-      <mat-card-title class="login-title">
-        <mat-icon class="login-icon">local_shipping</mat-icon>
-        Truck Track
-      </mat-card-title>
-      <mat-card-subtitle>GPS Live Tracking</mat-card-subtitle>
-    </mat-card-header>
-
-    <mat-card-content>
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-        <!-- Email Field -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Email</mat-label>
-          <input
-            matInput
-            type="email"
-            formControlName="email"
-            placeholder="Enter your email"
-            autocomplete="email"
-            [attr.aria-label]="'Email address'"
-            >
-          <mat-icon matPrefix>email</mat-icon>
-          @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
-            <mat-error>
-              {{ getErrorMessage('email') }}
-            </mat-error>
-          }
-        </mat-form-field>
-
-        <!-- Password Field -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Password</mat-label>
-          <input
-            matInput
-            [type]="hidePassword() ? 'password' : 'text'"
-            formControlName="password"
-            placeholder="Enter your password"
-            autocomplete="current-password"
-            [attr.aria-label]="'Password'"
-            >
-          <mat-icon matPrefix>lock</mat-icon>
-          <button
-            mat-icon-button
-            matSuffix
-            type="button"
-            (click)="hidePassword.set(!hidePassword())"
-            [attr.aria-label]="'Toggle password visibility'"
-            >
-            <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
-          </button>
-          @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
-            <mat-error>
-              {{ getErrorMessage('password') }}
-            </mat-error>
-          }
-        </mat-form-field>
-
-        <!-- Submit Button -->
-        <button
-          mat-raised-button
-          color="primary"
-          type="submit"
-          class="full-width login-button"
-          [disabled]="isLoading()"
-          >
-          @if (isLoading()) {
-            <mat-spinner diameter="20" class="spinner" />
-          }
-          @if (!isLoading()) {
-            <span>Sign In</span>
-          }
-        </button>
-      </form>
-
-      <!-- Test Users Reference (Local Development) -->
-      <div class="demo-info">
-        <p class="demo-title">Utilisateurs de test (cliquez pour remplir) :</p>
-        <div class="test-users-list">
-          <div class="test-user" (click)="fillCredentials('sysadmin@trucktrack.com', 'AdminPass123!')">
-            <span class="role-badge admin">ADMIN</span>
-            <span class="user-email">sysadmin&#64;...</span>
-          </div>
-          <div class="test-user" (click)="fillCredentials('fleetmanager@trucktrack.com', 'AdminPass123!')">
-            <span class="role-badge fleet">FLEET</span>
-            <span class="user-email">fleetmanager&#64;...</span>
-          </div>
-          <div class="test-user" (click)="fillCredentials('dispatcher@trucktrack.com', 'AdminPass123!')">
-            <span class="role-badge dispatcher">DISPATCH</span>
-            <span class="user-email">dispatcher&#64;...</span>
-          </div>
-          <div class="test-user" (click)="fillCredentials('driver@trucktrack.com', 'AdminPass123!')">
-            <span class="role-badge driver">DRIVER</span>
-            <span class="user-email">driver&#64;...</span>
-          </div>
-          <div class="test-user" (click)="fillCredentials('viewer@trucktrack.com', 'AdminPass123!')">
-            <span class="role-badge viewer">VIEWER</span>
-            <span class="user-email">viewer&#64;...</span>
-          </div>
-        </div>
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-600 to-primary-800 p-5">
+  <!-- Login Card -->
+  <div class="max-w-md w-full bg-white rounded-xl shadow-modal p-8">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <div class="flex items-center justify-center gap-3 mb-2">
+        <span class="material-icons text-primary-500 text-4xl">local_shipping</span>
+        <h1 class="text-3xl font-semibold text-gray-800">Truck Track</h1>
       </div>
-    </mat-card-content>
-  </mat-card>
+      <p class="text-gray-500">GPS Live Tracking</p>
+    </div>
+
+    <!-- Login Form -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-4">
+      <!-- Email Field -->
+      <app-input
+        type="email"
+        label="Email"
+        [value]="email()"
+        (valueChange)="onEmailChange($event)"
+        placeholder="Enter your email"
+        prefixIcon="email"
+        [error]="getEmailError()">
+      </app-input>
+
+      <!-- Password Field -->
+      <div class="relative">
+        <app-input
+          [type]="getPasswordType()"
+          label="Password"
+          [value]="password()"
+          (valueChange)="onPasswordChange($event)"
+          placeholder="Enter your password"
+          prefixIcon="lock"
+          [error]="getPasswordError()">
+        </app-input>
+        <!-- Password Toggle Button -->
+        <button
+          type="button"
+          class="absolute right-3 top-9 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none"
+          (click)="togglePasswordVisibility()"
+          [attr.aria-label]="hidePassword() ? 'Show password' : 'Hide password'">
+          <span class="material-icons text-xl">
+            {{ hidePassword() ? 'visibility_off' : 'visibility' }}
+          </span>
+        </button>
+      </div>
+
+      <!-- Submit Button -->
+      <app-button
+        variant="primary"
+        type="submit"
+        [fullWidth]="true"
+        [loading]="isLoading()"
+        [disabled]="isLoading()"
+        size="lg"
+        class="mt-6">
+        Sign In
+      </app-button>
+    </form>
+
+    <!-- Test Users Reference (Local Development) -->
+    <div class="mt-6 p-3 bg-gray-50 rounded-md border-l-4 border-primary-500">
+      <p class="font-medium text-gray-800 text-sm mb-3">
+        Utilisateurs de test (cliquez pour remplir) :
+      </p>
+      <div class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          class="flex items-center gap-1 px-2 py-1 bg-white rounded-full border border-gray-200 cursor-pointer transition-all hover:bg-primary-50 hover:border-primary-500 hover:-translate-y-px"
+          (click)="fillCredentials('sysadmin@trucktrack.com', 'AdminPass123!')">
+          <span class="inline-block px-1 py-0.5 rounded text-[10px] font-semibold uppercase bg-danger-500 text-white">ADMIN</span>
+          <span class="text-xs text-gray-500 font-mono">sysadmin@...</span>
+        </button>
+        <button
+          type="button"
+          class="flex items-center gap-1 px-2 py-1 bg-white rounded-full border border-gray-200 cursor-pointer transition-all hover:bg-primary-50 hover:border-primary-500 hover:-translate-y-px"
+          (click)="fillCredentials('fleetmanager@trucktrack.com', 'AdminPass123!')">
+          <span class="inline-block px-1 py-0.5 rounded text-[10px] font-semibold uppercase bg-primary-500 text-white">FLEET</span>
+          <span class="text-xs text-gray-500 font-mono">fleetmanager@...</span>
+        </button>
+        <button
+          type="button"
+          class="flex items-center gap-1 px-2 py-1 bg-white rounded-full border border-gray-200 cursor-pointer transition-all hover:bg-primary-50 hover:border-primary-500 hover:-translate-y-px"
+          (click)="fillCredentials('dispatcher@trucktrack.com', 'AdminPass123!')">
+          <span class="inline-block px-1 py-0.5 rounded text-[10px] font-semibold uppercase bg-warning-500 text-white">DISPATCH</span>
+          <span class="text-xs text-gray-500 font-mono">dispatcher@...</span>
+        </button>
+        <button
+          type="button"
+          class="flex items-center gap-1 px-2 py-1 bg-white rounded-full border border-gray-200 cursor-pointer transition-all hover:bg-primary-50 hover:border-primary-500 hover:-translate-y-px"
+          (click)="fillCredentials('driver@trucktrack.com', 'AdminPass123!')">
+          <span class="inline-block px-1 py-0.5 rounded text-[10px] font-semibold uppercase bg-success-500 text-white">DRIVER</span>
+          <span class="text-xs text-gray-500 font-mono">driver@...</span>
+        </button>
+        <button
+          type="button"
+          class="flex items-center gap-1 px-2 py-1 bg-white rounded-full border border-gray-200 cursor-pointer transition-all hover:bg-primary-50 hover:border-primary-500 hover:-translate-y-px"
+          (click)="fillCredentials('viewer@trucktrack.com', 'AdminPass123!')">
+          <span class="inline-block px-1 py-0.5 rounded text-[10px] font-semibold uppercase bg-gray-400 text-white">VIEWER</span>
+          <span class="text-xs text-gray-500 font-mono">viewer@...</span>
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

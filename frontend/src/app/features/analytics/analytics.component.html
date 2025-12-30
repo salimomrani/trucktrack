@@ -2,7 +2,7 @@
   <!-- Header with filters -->
   <div class="analytics-header">
     <div class="header-title">
-      <mat-icon>analytics</mat-icon>
+      <span class="material-icons text-primary-600">analytics</span>
       <h1>Analytics</h1>
     </div>
 
@@ -27,33 +27,35 @@
       <!-- Export buttons -->
       <div class="export-buttons">
         <button
-          mat-stroked-button
-          color="primary"
+          type="button"
+          class="group relative inline-flex items-center gap-2 px-4 py-2 border border-primary-600 text-primary-600 rounded-md transition-all duration-200 hover:bg-primary-50 disabled:opacity-50 disabled:cursor-not-allowed"
           [disabled]="!canExport() || isExporting()"
-          [matTooltip]="canExport() ? 'Exporter en PDF' : 'Aucune donnée à exporter'"
-          (click)="exportToPdf()"
-        >
+          (click)="exportToPdf()">
           @if (isExporting()) {
-            <mat-spinner diameter="18"></mat-spinner>
+            <span class="animate-spin h-4 w-4 border-2 border-primary-600 border-t-transparent rounded-full"></span>
           } @else {
-            <mat-icon>picture_as_pdf</mat-icon>
+            <span class="material-icons text-lg">picture_as_pdf</span>
           }
           PDF
+          <span class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap">
+            {{ canExport() ? 'Exporter en PDF' : 'Aucune donnée à exporter' }}
+          </span>
         </button>
 
         <button
-          mat-stroked-button
-          color="primary"
+          type="button"
+          class="group relative inline-flex items-center gap-2 px-4 py-2 border border-primary-600 text-primary-600 rounded-md transition-all duration-200 hover:bg-primary-50 disabled:opacity-50 disabled:cursor-not-allowed"
           [disabled]="!canExport() || isExporting()"
-          [matTooltip]="canExport() ? 'Exporter en Excel' : 'Aucune donnée à exporter'"
-          (click)="exportToExcel()"
-        >
+          (click)="exportToExcel()">
           @if (isExporting()) {
-            <mat-spinner diameter="18"></mat-spinner>
+            <span class="animate-spin h-4 w-4 border-2 border-primary-600 border-t-transparent rounded-full"></span>
           } @else {
-            <mat-icon>table_chart</mat-icon>
+            <span class="material-icons text-lg">table_chart</span>
           }
           Excel
+          <span class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap">
+            {{ canExport() ? 'Exporter en Excel' : 'Aucune donnée à exporter' }}
+          </span>
         </button>
       </div>
     </div>
@@ -61,27 +63,26 @@
 
   <!-- Error state -->
   @if (error()) {
-    <mat-card class="error-card">
-      <mat-card-content>
-        <mat-icon color="warn">error</mat-icon>
-        <p>{{ error() }}</p>
-        <button mat-raised-button color="primary" (click)="loadKPIs()">
-          <mat-icon>refresh</mat-icon>
-          Réessayer
-        </button>
-      </mat-card-content>
-    </mat-card>
+    <div class="bg-white rounded-lg shadow-card p-6 text-center">
+      <span class="material-icons text-4xl text-danger-500 mb-4">error</span>
+      <p class="text-gray-700 mb-4">{{ error() }}</p>
+      <button
+        type="button"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md transition-all duration-200 hover:bg-primary-700"
+        (click)="loadKPIs()">
+        <span class="material-icons text-lg">refresh</span>
+        Réessayer
+      </button>
+    </div>
   }
 
   <!-- Empty state -->
   @if (!isLoading() && !error() && kpis() === null) {
-    <mat-card class="empty-card">
-      <mat-card-content>
-        <mat-icon>insert_chart_outlined</mat-icon>
-        <h2>Aucune donnée disponible</h2>
-        <p>Il n'y a pas de données analytics pour la période sélectionnée.</p>
-      </mat-card-content>
-    </mat-card>
+    <div class="bg-white rounded-lg shadow-card p-8 text-center">
+      <span class="material-icons text-5xl text-gray-300 mb-4">insert_chart_outlined</span>
+      <h2 class="text-xl font-semibold text-gray-800 mb-2">Aucune donnée disponible</h2>
+      <p class="text-gray-500">Il n'y a pas de données analytics pour la période sélectionnée.</p>
+    </div>
   }
 
   <!-- KPI Grid -->
@@ -110,7 +111,7 @@
   <!-- Entity info -->
   @if (kpis(); as data) {
     <div class="entity-info">
-      <mat-icon>info</mat-icon>
+      <span class="material-icons text-gray-400">info</span>
       <span>
         {{ data.entity.name }} • {{ data.entity.truckCount }} camion(s) •
         {{ data.period.startDate }} au {{ data.period.endDate }} ({{ data.period.daysCount }} jours)
@@ -122,7 +123,7 @@
   @if (!error()) {
     <section class="charts-section">
       <h2 class="section-title">
-        <mat-icon>bar_chart</mat-icon>
+        <span class="material-icons">bar_chart</span>
         Visualisations
       </h2>
 

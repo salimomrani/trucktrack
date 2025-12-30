@@ -6,302 +6,305 @@
   ]"></app-breadcrumb>
 
   @if (loading()) {
-    <div class="loading-container">
-      <mat-spinner diameter="48"></mat-spinner>
+    <div class="flex items-center justify-center py-12">
+      <span class="animate-spin h-12 w-12 border-4 border-primary-600 border-t-transparent rounded-full"></span>
     </div>
   } @else {
     <!-- Header -->
-    <div class="page-header">
-      <div class="header-left">
-        <button mat-icon-button (click)="goBack()">
-          <mat-icon>arrow_back</mat-icon>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          class="flex items-center justify-center w-10 h-10 rounded-full text-gray-600 hover:bg-gray-100 transition-colors"
+          (click)="goBack()">
+          <span class="material-icons">arrow_back</span>
         </button>
-        <div class="header-info">
-          <h1>{{ tripId === 'new' ? 'Create New Trip' : 'Trip Details' }}</h1>
+        <div>
+          <h1 class="text-2xl font-semibold text-gray-800">{{ tripId === 'new' ? 'Create New Trip' : 'Trip Details' }}</h1>
           @if (trip()) {
-            <div class="trip-status">
-              <mat-chip [style.background-color]="getStatusColor(trip()!.status)">
-                <mat-icon>{{ getStatusIcon(trip()!.status) }}</mat-icon>
+            <div class="mt-1">
+              <span
+                class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium text-white"
+                [style.background-color]="getStatusColor(trip()!.status)">
+                <span class="material-icons text-base">{{ getStatusIcon(trip()!.status) }}</span>
                 {{ trip()!.statusDisplay }}
-              </mat-chip>
+              </span>
             </div>
           }
         </div>
       </div>
-      <div class="header-actions">
+      <div class="flex flex-wrap gap-2">
         @if (trip() && canEdit()) {
-          <button mat-stroked-button (click)="toggleEditMode()">
-            <mat-icon>{{ isEditMode() ? 'close' : 'edit' }}</mat-icon>
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+            (click)="toggleEditMode()">
+            <span class="material-icons text-lg">{{ isEditMode() ? 'close' : 'edit' }}</span>
             {{ isEditMode() ? 'Cancel Edit' : 'Edit' }}
           </button>
         }
         @if (trip() && canAssign()) {
-          <button mat-stroked-button color="primary" (click)="toggleAssignPanel()">
-            <mat-icon>assignment_ind</mat-icon>
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 px-4 py-2 border border-primary-600 text-primary-600 rounded-md hover:bg-primary-50 transition-colors"
+            (click)="toggleAssignPanel()">
+            <span class="material-icons text-lg">assignment_ind</span>
             {{ showAssignPanel() ? 'Cancel' : 'Assign' }}
           </button>
         }
         @if (trip() && canReassign()) {
-          <button mat-stroked-button color="accent" (click)="toggleReassignPanel()">
-            <mat-icon>swap_horiz</mat-icon>
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 px-4 py-2 border border-warning-600 text-warning-600 rounded-md hover:bg-warning-50 transition-colors"
+            (click)="toggleReassignPanel()">
+            <span class="material-icons text-lg">swap_horiz</span>
             {{ showReassignPanel() ? 'Cancel' : 'Reassign' }}
           </button>
         }
         @if (trip() && canCancel()) {
-          <button mat-stroked-button color="warn" (click)="confirmCancel()">
-            <mat-icon>cancel</mat-icon>
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 px-4 py-2 border border-danger-500 text-danger-500 rounded-md hover:bg-danger-50 transition-colors"
+            (click)="confirmCancel()">
+            <span class="material-icons text-lg">cancel</span>
             Cancel Trip
           </button>
         }
       </div>
     </div>
 
-    <div class="content-grid">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Main Info Card -->
-      <mat-card class="info-card">
-        <mat-card-header>
-          <mat-card-title>Trip Information</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          @if (isEditMode()) {
-            <!-- Edit Form -->
-            <form [formGroup]="editForm" (ngSubmit)="saveTrip()">
-              <app-location-picker
-                formControlName="origin"
-                label="Origin"
-                placeholder="Search origin address..."
-                [required]="true">
-              </app-location-picker>
+      <div class="bg-white rounded-lg shadow-card p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-100">Trip Information</h3>
+        @if (isEditMode()) {
+          <!-- Edit Form -->
+          <form [formGroup]="editForm" (ngSubmit)="saveTrip()" class="space-y-4">
+            <app-location-picker
+              formControlName="origin"
+              label="Origin"
+              placeholder="Search origin address..."
+              [required]="true">
+            </app-location-picker>
 
-              <app-location-picker
-                formControlName="destination"
-                label="Destination"
-                placeholder="Search destination address..."
-                [required]="true">
-              </app-location-picker>
+            <app-location-picker
+              formControlName="destination"
+              label="Destination"
+              placeholder="Search destination address..."
+              [required]="true">
+            </app-location-picker>
 
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Scheduled Date/Time</mat-label>
-                <input matInput type="datetime-local" formControlName="scheduledAt">
-              </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Scheduled Date/Time</mat-label>
+              <input matInput type="datetime-local" formControlName="scheduledAt">
+            </mat-form-field>
 
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Notes</mat-label>
-                <textarea matInput formControlName="notes" rows="3" placeholder="Optional notes"></textarea>
-              </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Notes</mat-label>
+              <textarea matInput formControlName="notes" rows="3" placeholder="Optional notes"></textarea>
+            </mat-form-field>
 
-              <div class="form-actions">
-                <button mat-raised-button color="primary" type="submit"
-                  [disabled]="editForm.invalid || saving()">
-                  @if (saving()) {
-                    <mat-spinner diameter="20"></mat-spinner>
-                  } @else {
-                    <ng-container>
-                      <mat-icon>save</mat-icon>
-                      {{ tripId === 'new' ? 'Create Trip' : 'Save Changes' }}
-                    </ng-container>
-                  }
-                </button>
-              </div>
-            </form>
-          } @else {
-            <!-- Display Mode -->
-            <div class="info-grid">
-              <div class="info-item">
-                <span class="label">Origin</span>
-                <span class="value">{{ trip()?.origin }}</span>
-              </div>
-              <div class="info-item">
-                <span class="label">Destination</span>
-                <span class="value">{{ trip()?.destination }}</span>
-              </div>
-              <div class="info-item">
-                <span class="label">Scheduled</span>
-                <span class="value">{{ formatDate(trip()?.scheduledAt || null) }}</span>
-              </div>
-              <div class="info-item">
-                <span class="label">Created</span>
-                <span class="value">{{ formatDate(trip()?.createdAt || null) }}</span>
-              </div>
-              @if (trip()?.notes) {
-                <div class="info-item full-width">
-                  <span class="label">Notes</span>
-                  <span class="value">{{ trip()?.notes }}</span>
-                </div>
-              }
+            <div class="flex justify-end pt-4">
+              <button
+                type="submit"
+                class="inline-flex items-center gap-2 px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                [disabled]="editForm.invalid || saving()">
+                @if (saving()) {
+                  <span class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+                } @else {
+                  <span class="material-icons text-lg">save</span>
+                  {{ tripId === 'new' ? 'Create Trip' : 'Save Changes' }}
+                }
+              </button>
             </div>
-          }
-        </mat-card-content>
-      </mat-card>
+          </form>
+        } @else {
+          <!-- Display Mode -->
+          <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-1">
+              <span class="text-sm text-gray-500">Origin</span>
+              <p class="font-medium text-gray-800">{{ trip()?.origin }}</p>
+            </div>
+            <div class="space-y-1">
+              <span class="text-sm text-gray-500">Destination</span>
+              <p class="font-medium text-gray-800">{{ trip()?.destination }}</p>
+            </div>
+            <div class="space-y-1">
+              <span class="text-sm text-gray-500">Scheduled</span>
+              <p class="font-medium text-gray-800">{{ formatDate(trip()?.scheduledAt || null) }}</p>
+            </div>
+            <div class="space-y-1">
+              <span class="text-sm text-gray-500">Created</span>
+              <p class="font-medium text-gray-800">{{ formatDate(trip()?.createdAt || null) }}</p>
+            </div>
+            @if (trip()?.notes) {
+              <div class="col-span-2 space-y-1">
+                <span class="text-sm text-gray-500">Notes</span>
+                <p class="font-medium text-gray-800">{{ trip()?.notes }}</p>
+              </div>
+            }
+          </div>
+        }
+      </div>
 
       <!-- Assignment Card -->
-      <mat-card class="assignment-card">
-        <mat-card-header>
-          <mat-card-title>Assignment</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          @if (showAssignPanel()) {
-            <!-- Assign Form -->
-            <form [formGroup]="assignForm" (ngSubmit)="assignTrip()">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Select Driver</mat-label>
-                <mat-select formControlName="driverId">
-                  @for (driver of assignableDrivers(); track driver.driverId) {
-                    <mat-option [value]="driver.driverId">
-                      {{ driver.driverName }} → {{ driver.truckName }} ({{ driver.truckStatus }})
-                    </mat-option>
-                  }
-                </mat-select>
-                @if (assignableDrivers().length === 0) {
-                  <mat-hint class="warn-hint">No drivers with assigned trucks available</mat-hint>
+      <div class="bg-white rounded-lg shadow-card p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-100">Assignment</h3>
+        @if (showAssignPanel()) {
+          <!-- Assign Form -->
+          <form [formGroup]="assignForm" (ngSubmit)="assignTrip()" class="space-y-4">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Select Driver</mat-label>
+              <mat-select formControlName="driverId">
+                @for (driver of assignableDrivers(); track driver.driverId) {
+                  <mat-option [value]="driver.driverId">
+                    {{ driver.driverName }} → {{ driver.truckName }} ({{ driver.truckStatus }})
+                  </mat-option>
                 }
-              </mat-form-field>
-
-              <div class="form-actions">
-                <button mat-raised-button color="primary" type="submit"
-                  [disabled]="assignForm.invalid || saving()">
-                  @if (saving()) {
-                    <mat-spinner diameter="20"></mat-spinner>
-                  } @else {
-                    <ng-container>
-                      <mat-icon>assignment_ind</mat-icon>
-                      Assign Trip
-                    </ng-container>
-                  }
-                </button>
-              </div>
-            </form>
-          } @else if (trip()?.assignedTruckId) {
-            <div class="info-grid">
-              <div class="info-item">
-                <span class="label">Truck</span>
-                <span class="value">{{ trip()?.assignedTruckName || 'N/A' }}</span>
-              </div>
-              <div class="info-item">
-                <span class="label">Driver</span>
-                <span class="value">{{ trip()?.assignedDriverName || 'N/A' }}</span>
-              </div>
-            </div>
-          } @else {
-            <div class="no-assignment">
-              <mat-icon>assignment_late</mat-icon>
-              <p>No assignment yet</p>
-              @if (canAssign()) {
-                <button mat-stroked-button color="primary" (click)="toggleAssignPanel()">
-                  Assign Now
-                </button>
+              </mat-select>
+              @if (assignableDrivers().length === 0) {
+                <mat-hint class="text-warning-600">No drivers with assigned trucks available</mat-hint>
               }
+            </mat-form-field>
+
+            <div class="flex justify-end pt-4">
+              <button
+                type="submit"
+                class="inline-flex items-center gap-2 px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                [disabled]="assignForm.invalid || saving()">
+                @if (saving()) {
+                  <span class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+                } @else {
+                  <span class="material-icons text-lg">assignment_ind</span>
+                  Assign Trip
+                }
+              </button>
             </div>
-          }
-        </mat-card-content>
-      </mat-card>
+          </form>
+        } @else if (trip()?.assignedTruckId) {
+          <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-1">
+              <span class="text-sm text-gray-500">Truck</span>
+              <p class="font-medium text-gray-800">{{ trip()?.assignedTruckName || 'N/A' }}</p>
+            </div>
+            <div class="space-y-1">
+              <span class="text-sm text-gray-500">Driver</span>
+              <p class="font-medium text-gray-800">{{ trip()?.assignedDriverName || 'N/A' }}</p>
+            </div>
+          </div>
+        } @else {
+          <div class="flex flex-col items-center py-8 text-gray-400">
+            <span class="material-icons text-5xl mb-3">assignment_late</span>
+            <p class="mb-4">No assignment yet</p>
+            @if (canAssign()) {
+              <button
+                type="button"
+                class="inline-flex items-center gap-2 px-4 py-2 border border-primary-600 text-primary-600 rounded-md hover:bg-primary-50 transition-colors"
+                (click)="toggleAssignPanel()">
+                Assign Now
+              </button>
+            }
+          </div>
+        }
+      </div>
 
       <!-- Reassign Card T067 -->
       @if (showReassignPanel()) {
-        <mat-card class="reassign-card">
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon>swap_horiz</mat-icon>
-              Reassign Trip
-            </mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <form [formGroup]="reassignForm" (ngSubmit)="reassignTrip()">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Select New Driver</mat-label>
-                <mat-select formControlName="driverId">
-                  @for (driver of assignableDrivers(); track driver.driverId) {
-                    <mat-option [value]="driver.driverId">
-                      {{ driver.driverName }} → {{ driver.truckName }} ({{ driver.truckStatus }})
-                    </mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+        <div class="bg-white rounded-lg shadow-card p-6">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-100 flex items-center gap-2">
+            <span class="material-icons text-warning-600">swap_horiz</span>
+            Reassign Trip
+          </h3>
+          <form [formGroup]="reassignForm" (ngSubmit)="reassignTrip()" class="space-y-4">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Select New Driver</mat-label>
+              <mat-select formControlName="driverId">
+                @for (driver of assignableDrivers(); track driver.driverId) {
+                  <mat-option [value]="driver.driverId">
+                    {{ driver.driverName }} → {{ driver.truckName }} ({{ driver.truckStatus }})
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
 
-              <div class="form-actions">
-                <button mat-stroked-button type="button" (click)="toggleReassignPanel()">
-                  Cancel
-                </button>
-                <button mat-raised-button color="accent" type="submit"
-                  [disabled]="reassignForm.invalid || saving()">
-                  @if (saving()) {
-                    <mat-spinner diameter="20"></mat-spinner>
-                  } @else {
-                    <ng-container>
-                      <mat-icon>swap_horiz</mat-icon>
-                      Reassign Trip
-                    </ng-container>
-                  }
-                </button>
-              </div>
-            </form>
-          </mat-card-content>
-        </mat-card>
+            <div class="flex justify-end gap-3 pt-4">
+              <button
+                type="button"
+                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                (click)="toggleReassignPanel()">
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="inline-flex items-center gap-2 px-6 py-2 bg-warning-500 text-white rounded-md hover:bg-warning-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                [disabled]="reassignForm.invalid || saving()">
+                @if (saving()) {
+                  <span class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+                } @else {
+                  <span class="material-icons text-lg">swap_horiz</span>
+                  Reassign Trip
+                }
+              </button>
+            </div>
+          </form>
+        </div>
       }
 
       <!-- Timeline Card -->
       @if (trip() && history().length > 0) {
-        <mat-card class="timeline-card">
-          <mat-card-header>
-            <mat-card-title>Status Timeline</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="timeline">
-              @for (event of history(); track event.id; let first = $first) {
-                <div class="timeline-item" [class.first]="first">
-                  <div class="timeline-dot" [style.background-color]="getStatusColor(event.newStatus)">
-                    <mat-icon>{{ getStatusIcon(event.newStatus) }}</mat-icon>
-                  </div>
-                  <div class="timeline-content">
-                    <div class="timeline-header">
-                      <span class="timeline-status">{{ event.newStatusDisplay }}</span>
-                      <span class="timeline-date">{{ formatDate(event.changedAt) }}</span>
-                    </div>
-                    @if (event.notes) {
-                      <p class="timeline-notes">{{ event.notes }}</p>
-                    }
-                    @if (event.changedByName) {
-                      <p class="timeline-actor">by {{ event.changedByName }}</p>
-                    }
-                  </div>
+        <div class="bg-white rounded-lg shadow-card p-6">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-100">Status Timeline</h3>
+          <div class="space-y-4">
+            @for (event of history(); track event.id; let first = $first) {
+              <div class="flex gap-4" [class.pt-0]="first">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white" [style.background-color]="getStatusColor(event.newStatus)">
+                  <span class="material-icons text-lg">{{ getStatusIcon(event.newStatus) }}</span>
                 </div>
-              }
-            </div>
-          </mat-card-content>
-        </mat-card>
+                <div class="flex-1 pt-1">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="font-medium text-gray-800">{{ event.newStatusDisplay }}</span>
+                    <span class="text-sm text-gray-500">{{ formatDate(event.changedAt) }}</span>
+                  </div>
+                  @if (event.notes) {
+                    <p class="text-sm text-gray-600">{{ event.notes }}</p>
+                  }
+                  @if (event.changedByName) {
+                    <p class="text-xs text-gray-400 mt-1">by {{ event.changedByName }}</p>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
       }
 
       <!-- Timestamps Card -->
       @if (trip()) {
-        <mat-card class="timestamps-card">
-          <mat-card-header>
-            <mat-card-title>Timestamps</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="info-grid">
-              <div class="info-item">
-                <span class="label">Created</span>
-                <span class="value">{{ formatDate(trip()?.createdAt || null) }}</span>
-              </div>
-              @if (trip()?.startedAt) {
-                <div class="info-item">
-                  <span class="label">Started</span>
-                  <span class="value">{{ formatDate(trip()?.startedAt || null) }}</span>
-                </div>
-              }
-              @if (trip()?.completedAt) {
-                <div class="info-item">
-                  <span class="label">Completed</span>
-                  <span class="value">{{ formatDate(trip()?.completedAt || null) }}</span>
-                </div>
-              }
-              <div class="info-item">
-                <span class="label">Last Updated</span>
-                <span class="value">{{ formatDate(trip()?.updatedAt || null) }}</span>
-              </div>
+        <div class="bg-white rounded-lg shadow-card p-6">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-100">Timestamps</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-1">
+              <span class="text-sm text-gray-500">Created</span>
+              <p class="font-medium text-gray-800">{{ formatDate(trip()?.createdAt || null) }}</p>
             </div>
-          </mat-card-content>
-        </mat-card>
+            @if (trip()?.startedAt) {
+              <div class="space-y-1">
+                <span class="text-sm text-gray-500">Started</span>
+                <p class="font-medium text-gray-800">{{ formatDate(trip()?.startedAt || null) }}</p>
+              </div>
+            }
+            @if (trip()?.completedAt) {
+              <div class="space-y-1">
+                <span class="text-sm text-gray-500">Completed</span>
+                <p class="font-medium text-gray-800">{{ formatDate(trip()?.completedAt || null) }}</p>
+              </div>
+            }
+            <div class="space-y-1">
+              <span class="text-sm text-gray-500">Last Updated</span>
+              <p class="font-medium text-gray-800">{{ formatDate(trip()?.updatedAt || null) }}</p>
+            </div>
+          </div>
+        </div>
       }
     </div>
   }

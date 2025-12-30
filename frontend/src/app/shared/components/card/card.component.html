@@ -1,0 +1,19 @@
+<!-- Card Container -->
+<div [class]="getCardClasses()">
+  <!-- Card Header (optional) -->
+  <div class="card-header">
+    <ng-content select="[card-header]"></ng-content>
+  </div>
+
+  <!-- Card Content (main body) -->
+  <div class="card-content">
+    <ng-content select="[card-content]"></ng-content>
+    <!-- Default content slot for simpler usage -->
+    <ng-content></ng-content>
+  </div>
+
+  <!-- Card Footer (optional) -->
+  <div class="card-footer">
+    <ng-content select="[card-footer]"></ng-content>
+  </div>
+</div>

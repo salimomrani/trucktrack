@@ -1,0 +1,17 @@
+/**
+ * Button Component Styles
+ * Feature: 020-tailwind-migration
+ *
+ * Most styling is handled by Tailwind classes in the template.
+ * This file is for component-specific styles that can't be expressed with Tailwind.
+ */
+
+:host {
+  display: inline-block;
+}
+
+// Ensure icon alignment
+.material-icons {
+  vertical-align: middle;
+  line-height: 1;
+}

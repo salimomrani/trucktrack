@@ -1,13 +1,164 @@
-/* TruckTrack Global Styles */
-/* Modern UI Redesign - Feature 017 */
-/* Professional Blue Palette with Flat Design */
-
-// Import custom theme variables
+// Import custom theme variables (MUST be at top before any rules)
 @use './styles/theme' as theme;
 @use './styles/navigation';
-
-// Angular Material Theme
 @use '@angular/material' as mat;
+
+/* TruckTrack Global Styles */
+/* Modern UI Redesign - Feature 017 */
+/* Tailwind CSS Migration - Feature 020 */
+/* Professional Blue Palette with Flat Design */
+
+// ============================================
+// TAILWIND CSS IMPORTS
+// ============================================
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// ============================================
+// TAILWIND COMPONENT LAYER STYLES
+// ============================================
+@layer components {
+  // Input base styles
+  .input-base {
+    @apply w-full px-3 py-2 border border-gray-200 rounded-md
+           text-gray-800 placeholder-gray-400
+           transition-colors duration-150
+           focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none
+           disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed;
+  }
+
+  .input-error {
+    @apply border-danger-500 focus:border-danger-500 focus:ring-danger-500/20;
+  }
+
+  // Button variants
+  .btn {
+    @apply inline-flex items-center justify-center gap-2
+           px-4 py-2 rounded-md font-medium
+           transition-colors duration-150
+           focus:outline-none focus:ring-2 focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary-700 text-white
+           hover:bg-primary-600
+           focus:ring-primary-500;
+  }
+
+  .btn-secondary {
+    @apply btn bg-white border border-gray-300 text-gray-700
+           hover:bg-gray-50
+           focus:ring-primary-500;
+  }
+
+  .btn-danger {
+    @apply btn bg-danger-500 text-white
+           hover:bg-danger-600
+           focus:ring-danger-500;
+  }
+
+  .btn-ghost {
+    @apply btn text-gray-600
+           hover:bg-gray-100
+           focus:ring-gray-500;
+  }
+
+  // Card styles
+  .card {
+    @apply bg-white rounded-lg;
+  }
+
+  .card-elevated {
+    @apply card shadow-card;
+  }
+
+  .card-hoverable {
+    @apply card transition-shadow hover:shadow-card-hover;
+  }
+
+  // Table styles
+  .table-base {
+    @apply w-full divide-y divide-gray-200;
+  }
+
+  .table-header {
+    @apply bg-gray-50;
+  }
+
+  .table-header-cell {
+    @apply px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+  }
+
+  .table-row {
+    @apply bg-white;
+  }
+
+  .table-row-striped:nth-child(even) {
+    @apply bg-gray-50;
+  }
+
+  .table-row-hoverable {
+    @apply hover:bg-gray-50 transition-colors;
+  }
+
+  .table-cell {
+    @apply px-4 py-3 whitespace-nowrap text-sm text-gray-800;
+  }
+}
+
+// Flatpickr custom theme
+@layer components {
+  .flatpickr-calendar {
+    @apply bg-white rounded-lg shadow-dropdown border border-gray-200;
+  }
+
+  .flatpickr-day {
+    @apply rounded-md transition-colors;
+
+    &.selected {
+      @apply bg-primary-500 text-white;
+    }
+
+    &:hover:not(.selected) {
+      @apply bg-gray-100;
+    }
+
+    &.today:not(.selected) {
+      @apply border border-primary-500;
+    }
+  }
+
+  .flatpickr-month {
+    @apply bg-transparent;
+  }
+
+  .flatpickr-current-month {
+    @apply text-gray-800 font-medium;
+  }
+
+  .flatpickr-weekday {
+    @apply text-gray-500 font-medium;
+  }
+}
+
+// Toast animations
+@layer utilities {
+  .toast-enter {
+    @apply animate-slide-up;
+  }
+
+  .toast-exit {
+    @apply animate-fade-out;
+  }
+}
+
+// ============================================
+// END TAILWIND LAYER STYLES
+// ============================================
+
+// Angular Material Theme (already imported at top with @use)
 
 // Include the core styles
 @include mat.elevation-classes();
@@ -448,40 +599,57 @@ body {
       border-color: theme.$color-gray-200 !important;
     }
 
-    .mdc-notched-outline__leading,
+    // Hide the leading segment completely
+    .mdc-notched-outline__leading {
+      display: none !important;
+    }
+
+    // Add left border and radius to the notch
+    .mdc-notched-outline__notch {
+      border-left: 1px solid theme.$color-gray-200 !important;
+      border-radius: theme.$radius-md 0 0 theme.$radius-md !important;
+      padding-left: 8px !important;
+    }
+
     .mdc-notched-outline__notch,
     .mdc-notched-outline__trailing {
       border-color: theme.$color-gray-200 !important;
-      transition: border-color theme.$transition-base !important;
+      transition: border-color theme.$transition-base, border-width theme.$transition-base !important;
     }
 
     // Hover state
     &:not(.mat-focused):not(.mat-form-field-invalid) {
       .mat-mdc-text-field-wrapper:hover {
-        .mdc-notched-outline__leading,
         .mdc-notched-outline__notch,
         .mdc-notched-outline__trailing {
           border-color: theme.$color-gray-300 !important;
+        }
+        .mdc-notched-outline__notch {
+          border-left-color: theme.$color-gray-300 !important;
         }
       }
     }
 
     // Focus state
     &.mat-focused {
-      .mdc-notched-outline__leading,
       .mdc-notched-outline__notch,
       .mdc-notched-outline__trailing {
         border-color: theme.$color-primary-500 !important;
         border-width: 2px !important;
       }
+      .mdc-notched-outline__notch {
+        border-left: 2px solid theme.$color-primary-500 !important;
+      }
     }
 
     // Error state
     &.mat-form-field-invalid {
-      .mdc-notched-outline__leading,
       .mdc-notched-outline__notch,
       .mdc-notched-outline__trailing {
         border-color: theme.$color-danger-500 !important;
+      }
+      .mdc-notched-outline__notch {
+        border-left-color: theme.$color-danger-500 !important;
       }
     }
   }

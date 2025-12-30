@@ -1,0 +1,58 @@
+<div [class]="getContainerClasses()">
+  <!-- Label -->
+  @if (label()) {
+    <label [for]="inputId" [class]="getLabelClasses()">
+      {{ label() }}
+      @if (required()) {
+        <span class="text-danger-500 ml-0.5">*</span>
+      }
+    </label>
+  }
+
+  <!-- Input wrapper -->
+  <div class="relative">
+    <!-- Prefix icon -->
+    @if (prefixIcon()) {
+      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+        <span class="material-icons text-xl">{{ prefixIcon() }}</span>
+      </span>
+    }
+
+    <!-- Input element -->
+    <input
+      #inputElement
+      [id]="inputId"
+      [type]="type()"
+      [value]="value()"
+      [placeholder]="placeholder()"
+      [disabled]="disabled()"
+      [readonly]="readonly()"
+      [required]="required()"
+      [class]="getInputClasses()"
+      [attr.aria-invalid]="error() ? 'true' : null"
+      [attr.aria-describedby]="error() ? inputId + '-error' : hint() ? inputId + '-hint' : null"
+      (input)="onInput($event)"
+      (blur)="onBlur($event)" />
+
+    <!-- Suffix icon -->
+    @if (suffixIcon()) {
+      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+        <span class="material-icons text-xl">{{ suffixIcon() }}</span>
+      </span>
+    }
+  </div>
+
+  <!-- Error message -->
+  @if (error()) {
+    <p [id]="inputId + '-error'" class="mt-1.5 text-sm text-danger-500" role="alert">
+      {{ error() }}
+    </p>
+  }
+
+  <!-- Hint text -->
+  @if (hint() && !error()) {
+    <p [id]="inputId + '-hint'" class="mt-1.5 text-sm text-gray-500">
+      {{ hint() }}
+    </p>
+  }
+</div>

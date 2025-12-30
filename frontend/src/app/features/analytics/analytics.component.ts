@@ -2,13 +2,6 @@ import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
 import { Subject, forkJoin, takeUntil } from 'rxjs';
@@ -38,6 +31,7 @@ import {
  * Main analytics dashboard component.
  * Feature: 006-fleet-analytics
  * T019-T022: Create analytics dashboard with KPI cards
+ * Migrated to Tailwind CSS (Feature 020)
  */
 @Component({
   selector: 'app-analytics',
@@ -45,14 +39,7 @@ import {
   imports: [
     CommonModule,
     FormsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatSelectModule,
-    MatFormFieldModule,
-    MatTooltipModule,
-    MatSnackBarModule,
+    MatSnackBarModule, // Keep for notifications until Toast migration
     KpiCardComponent,
     PeriodFilterComponent,
     EntityFilterComponent,

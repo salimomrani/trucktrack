@@ -2,18 +2,11 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatTabsModule } from '@angular/material/tabs';
 import { TripService } from '../trip.service';
 import { TripResponse, TripStatusHistoryResponse, TRIP_STATUS_COLORS, TRIP_STATUSES, CreateTripRequest, AssignTripRequest, UpdateTripRequest } from '../trip.model';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
@@ -27,6 +20,7 @@ import { StoreFacade } from '../../../store/store.facade';
  * Trip detail component with assignment and status timeline.
  * T049: Create TripDetailComponent
  * Feature: 010-trip-management (US4: Dashboard Monitoring)
+ * Migrated to Tailwind CSS (Feature 020)
  */
 @Component({
   selector: 'app-trip-detail',
@@ -35,18 +29,11 @@ import { StoreFacade } from '../../../store/store.facade';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatDialogModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatDividerModule,
-    MatChipsModule,
-    MatTabsModule,
+    MatFormFieldModule, // Keep for forms until full migration
+    MatInputModule,     // Keep for forms until full migration
+    MatSelectModule,    // Keep for forms until full migration
+    MatDialogModule,    // Keep for dialogs until Phase 8
+    MatSnackBarModule,  // Keep for notifications until Phase 9
     BreadcrumbComponent,
     LocationPickerComponent
   ],
