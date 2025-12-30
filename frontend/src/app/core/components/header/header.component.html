@@ -55,8 +55,8 @@
 
             <!-- User dropdown -->
             @if (userMenuOpen()) {
-              <div class="fixed inset-0 z-40" (click)="closeUserMenu()"></div>
-              <div class="absolute right-0 top-full mt-2 w-56 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 z-50">
+              <div class="fixed inset-0 z-[1050]" (click)="closeUserMenu()"></div>
+              <div class="absolute right-0 top-full mt-2 w-56 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 z-[1100]">
                 <!-- User info -->
                 <div class="px-4 py-3 border-b border-gray-100">
                   <p class="text-sm font-medium text-gray-900">{{ getUserDisplayName() }}</p>
