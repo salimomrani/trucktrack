@@ -1,9 +1,5 @@
-import { Component, Input, Output, EventEmitter, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { EntityType } from '../../../../core/models/analytics.model';
 import { AnalyticsService } from '../../services/analytics.service';
@@ -18,17 +14,12 @@ interface EntityOption {
  * Entity filter component for analytics dashboard.
  * Feature: 006-fleet-analytics
  * T025: Create entity-filter component
+ * Migrated to Tailwind CSS (Feature 020)
  */
 @Component({
   selector: 'app-entity-filter',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatProgressSpinnerModule
-  ],
+  imports: [FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './entity-filter.component.html',
   styleUrls: ['./entity-filter.component.scss']
@@ -36,11 +27,15 @@ interface EntityOption {
 export class EntityFilterComponent implements OnInit {
   private readonly analyticsService = inject(AnalyticsService);
 
-  @Input() selectedType: EntityType = 'FLEET';
-  @Input() selectedEntityId: string | null = null;
+  readonly selectedType = input<EntityType>('FLEET');
+  readonly selectedEntityId = input<string | null>(null);
 
-  @Output() typeChange = new EventEmitter<EntityType>();
-  @Output() entityChange = new EventEmitter<string | null>();
+  readonly typeChange = output<EntityType>();
+  readonly entityChange = output<string | null>();
+
+  // Local state for select values
+  localType: EntityType = 'FLEET';
+  localEntityId: string | null = null;
 
   readonly isLoading = signal(false);
   readonly trucks = signal<EntityOption[]>([]);
@@ -55,19 +50,25 @@ export class EntityFilterComponent implements OnInit {
   readonly currentEntities = signal<EntityOption[]>([]);
 
   ngOnInit(): void {
+    this.localType = this.selectedType();
+    this.localEntityId = this.selectedEntityId();
     this.loadEntities();
   }
 
-  onTypeChange(type: EntityType): void {
-    this.selectedType = type;
-    this.selectedEntityId = null;
+  onTypeChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const type = select.value as EntityType;
+    this.localType = type;
+    this.localEntityId = null;
     this.typeChange.emit(type);
     this.entityChange.emit(null);
     this.updateCurrentEntities();
   }
 
-  onEntityChange(entityId: string | null): void {
-    this.selectedEntityId = entityId;
+  onEntityChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const entityId = select.value || null;
+    this.localEntityId = entityId;
     this.entityChange.emit(entityId);
   }
 
@@ -105,9 +106,9 @@ export class EntityFilterComponent implements OnInit {
   }
 
   private updateCurrentEntities(): void {
-    if (this.selectedType === 'TRUCK') {
+    if (this.localType === 'TRUCK') {
       this.currentEntities.set(this.trucks());
-    } else if (this.selectedType === 'GROUP') {
+    } else if (this.localType === 'GROUP') {
       this.currentEntities.set(this.groups());
     } else {
       this.currentEntities.set([]);

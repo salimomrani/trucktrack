@@ -2,12 +2,12 @@ import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
 import { Subject, forkJoin, takeUntil } from 'rxjs';
 
 import { AnalyticsService } from './services/analytics.service';
 import { ExportService } from './services/export.service';
+import { ToastService } from '../../shared/components/toast/toast.service';
 import { KpiCardComponent } from './components/kpi-card/kpi-card.component';
 import { PeriodFilterComponent } from './components/period-filter/period-filter.component';
 import { EntityFilterComponent } from './components/entity-filter/entity-filter.component';
@@ -39,7 +39,6 @@ import {
   imports: [
     CommonModule,
     FormsModule,
-    MatSnackBarModule, // Keep for notifications until Toast migration
     KpiCardComponent,
     PeriodFilterComponent,
     EntityFilterComponent,
@@ -56,7 +55,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly breakpointObserver = inject(BreakpointObserver);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly destroy$ = new Subject<void>();
 
   // State signals
@@ -313,17 +312,17 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
 
   async exportToPdf(): Promise<void> {
     if (!this.canExport()) {
-      this.snackBar.open('Aucune donnée à exporter', 'Fermer', { duration: 3000 });
+      this.toast.warning('Aucune donnée à exporter');
       return;
     }
 
     this.isExporting.set(true);
     try {
       await this.exportService.exportToPdf('analytics-dashboard', this.kpis());
-      this.snackBar.open('PDF exporté avec succès', 'Fermer', { duration: 3000 });
+      this.toast.success('PDF exporté avec succès');
     } catch (error) {
       console.error('PDF export failed:', error);
-      this.snackBar.open('Erreur lors de l\'export PDF', 'Fermer', { duration: 3000 });
+      this.toast.error('Erreur lors de l\'export PDF');
     } finally {
       this.isExporting.set(false);
     }
@@ -331,7 +330,7 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
 
   exportToExcel(): void {
     if (!this.canExport()) {
-      this.snackBar.open('Aucune donnée à exporter', 'Fermer', { duration: 3000 });
+      this.toast.warning('Aucune donnée à exporter');
       return;
     }
 
@@ -343,10 +342,10 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
         this.alertBreakdown(),
         this.truckRanking()
       );
-      this.snackBar.open('Excel exporté avec succès', 'Fermer', { duration: 3000 });
+      this.toast.success('Excel exporté avec succès');
     } catch (error) {
       console.error('Excel export failed:', error);
-      this.snackBar.open('Erreur lors de l\'export Excel', 'Fermer', { duration: 3000 });
+      this.toast.error('Erreur lors de l\'export Excel');
     } finally {
       this.isExporting.set(false);
     }

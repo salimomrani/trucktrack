@@ -1,35 +1,45 @@
-<div class="entity-filter">
-  <mat-form-field appearance="outline" class="type-select">
-    <mat-label>Filtrer par</mat-label>
-    <mat-select [value]="selectedType" (selectionChange)="onTypeChange($event.value)">
+<div class="flex flex-wrap items-start gap-4">
+  <!-- Type Select -->
+  <div class="flex flex-col gap-1">
+    <label class="text-xs font-medium text-gray-600">Filtrer par</label>
+    <select
+      class="px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 min-w-[160px]"
+      [value]="localType"
+      (change)="onTypeChange($event)">
       @for (option of typeOptions; track option.value) {
-        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+        <option [value]="option.value">{{ option.label }}</option>
       }
-    </mat-select>
-  </mat-form-field>
+    </select>
+  </div>
 
-  @if (selectedType !== 'FLEET') {
-    <mat-form-field appearance="outline" class="entity-select">
-      <mat-label>{{ selectedType === 'GROUP' ? 'Groupe' : 'Camion' }}</mat-label>
+  @if (localType !== 'FLEET') {
+    <!-- Entity Select -->
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-medium text-gray-600">
+        {{ localType === 'GROUP' ? 'Groupe' : 'Camion' }}
+      </label>
       @if (isLoading()) {
-        <mat-select disabled>
-          <mat-option>Chargement...</mat-option>
-        </mat-select>
+        <select
+          class="px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-sm text-gray-500 min-w-[200px] cursor-not-allowed"
+          disabled>
+          <option>Chargement...</option>
+        </select>
       } @else {
-        <mat-select [value]="selectedEntityId" (selectionChange)="onEntityChange($event.value)">
+        <select
+          class="px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 min-w-[200px]"
+          [value]="localEntityId || ''"
+          (change)="onEntityChange($event)">
+          <option value="">Sélectionner...</option>
           @for (entity of currentEntities(); track entity.id) {
-            <mat-option [value]="entity.id">
-              {{ entity.name }}
-              @if (entity.licensePlate) {
-                <span class="license-plate"> ({{ entity.licensePlate }})</span>
-              }
-            </mat-option>
+            <option [value]="entity.id">
+              {{ entity.name }}{{ entity.licensePlate ? ' (' + entity.licensePlate + ')' : '' }}
+            </option>
           }
           @if (currentEntities().length === 0) {
-            <mat-option disabled>Aucun élément disponible</mat-option>
+            <option disabled>Aucun élément disponible</option>
           }
-        </mat-select>
+        </select>
       }
-    </mat-form-field>
+    </div>
   }
 </div>

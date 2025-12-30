@@ -1,30 +1,33 @@
-<mat-card class="kpi-card" [class.loading]="isLoading"
-          role="region"
-          [attr.aria-label]="isLoading ? 'Chargement des données' : label + ': ' + formattedValue + ' ' + unit"
-          [attr.aria-busy]="isLoading">
-  <mat-card-content>
-    @if (isLoading) {
-      <div class="skeleton-state" aria-hidden="true">
-        <div class="skeleton-header">
-          <div class="skeleton-icon"></div>
-          <div class="skeleton-label"></div>
-        </div>
-        <div class="skeleton-value"></div>
+<div
+  class="bg-white rounded-lg shadow-card p-4 transition-all duration-200 hover:shadow-lg"
+  [class.opacity-50]="isLoading()"
+  role="region"
+  [attr.aria-label]="isLoading() ? 'Chargement des données' : label() + ': ' + formattedValue() + ' ' + unit()"
+  [attr.aria-busy]="isLoading()">
+
+  @if (isLoading()) {
+    <div class="animate-pulse" aria-hidden="true">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 bg-gray-200 rounded-lg"></div>
+        <div class="h-4 bg-gray-200 rounded w-24"></div>
       </div>
-    } @else {
-      <div class="kpi-header">
-        <mat-icon [class]="iconClass" aria-hidden="true">{{ icon }}</mat-icon>
-        <span class="kpi-label">{{ label }}</span>
+      <div class="h-8 bg-gray-200 rounded w-32"></div>
+    </div>
+  } @else {
+    <div class="flex items-center gap-3 mb-3">
+      <div class="flex items-center justify-center w-10 h-10 rounded-lg" [class]="iconColorClass()">
+        <span class="material-icons text-xl" aria-hidden="true">{{ icon() }}</span>
       </div>
-      <div class="kpi-value">
-        <span class="value">{{ formattedValue }}</span>
-        @if (unit) {
-          <span class="unit">{{ unit }}</span>
-        }
-      </div>
-      @if (subtitle) {
-        <div class="kpi-subtitle">{{ subtitle }}</div>
+      <span class="text-sm font-medium text-gray-600">{{ label() }}</span>
+    </div>
+    <div class="flex items-baseline gap-1">
+      <span class="text-2xl font-bold text-gray-900">{{ formattedValue() }}</span>
+      @if (unit()) {
+        <span class="text-sm text-gray-500">{{ unit() }}</span>
       }
+    </div>
+    @if (subtitle()) {
+      <div class="mt-2 text-xs text-gray-500">{{ subtitle() }}</div>
     }
-  </mat-card-content>
-</mat-card>
+  }
+</div>
