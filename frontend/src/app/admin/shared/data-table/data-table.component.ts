@@ -1,7 +1,7 @@
 import { Component, input, output, OnInit, OnChanges, ChangeDetectionStrategy, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SelectionModel } from '@angular/cdk/collections';
+import { SelectionModel } from '../../../shared/utils/selection-model';
 
 /**
  * Column definition for DataTable

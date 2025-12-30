@@ -98,11 +98,9 @@
   justify-content: center;
   margin-right: theme.$space-4;
 
-  mat-icon {
+  .material-icons {
     color: white;
     font-size: 22px;
-    width: 22px;
-    height: 22px;
   }
 }
 
@@ -163,30 +161,7 @@
   overflow: hidden;
 }
 
-// T068: Handle cancelled trips display
-::ng-deep {
-  // Style rows containing cancelled status
-  .mat-mdc-row:has(.badge-CANCELLED) {
-    opacity: 0.6;
-    background-color: theme.$color-gray-50;
-
-    .mat-mdc-cell {
-      color: theme.$color-gray-400;
-    }
-
-    // Origin and destination columns - strikethrough
-    .mat-column-origin,
-    .mat-column-destination {
-      text-decoration: line-through;
-    }
-  }
-
-  // Cancelled status badge style
-  .badge-CANCELLED {
-    background-color: theme.$color-gray-100 !important;
-    color: theme.$color-gray-500 !important;
-  }
-}
+// T068: Handle cancelled trips display - Tailwind classes used in template
 
 // Status badges
 .badge {

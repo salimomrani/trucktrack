@@ -50,51 +50,6 @@ $sidenav-full-width: 240px;
   display: flex;
   align-items: center;
   gap: 24px;
-
-  // Override search-bar styles for light background
-  ::ng-deep app-search-bar {
-    .mat-mdc-form-field-flex {
-      background-color: #f5f5f5 !important;
-      border: 2px solid #e0e0e0 !important;
-    }
-
-    input {
-      color: #333 !important;
-
-      &::placeholder {
-        color: rgba(0, 0, 0, 0.5) !important;
-      }
-    }
-
-    .mat-icon {
-      color: #666 !important;
-    }
-
-    // Hover state
-    .mat-mdc-text-field-wrapper:hover .mat-mdc-form-field-flex {
-      background-color: #eeeeee !important;
-      border-color: #bdbdbd !important;
-    }
-
-    // Focus state
-    .mat-mdc-form-field.mat-focused .mat-mdc-form-field-flex {
-      background-color: white !important;
-      border-color: #2196f3 !important;
-      box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2), 0 2px 8px rgba(0, 0, 0, 0.15) !important;
-    }
-
-    .mat-mdc-form-field.mat-focused input {
-      color: #333 !important;
-
-      &::placeholder {
-        color: rgba(0, 0, 0, 0.4) !important;
-      }
-    }
-
-    .mat-mdc-form-field.mat-focused .mat-icon {
-      color: #2196f3 !important;
-    }
-  }
 }
 
 .status-indicators {
@@ -145,7 +100,7 @@ $sidenav-full-width: 240px;
   color: #c62828;
   border-bottom: 1px solid #ef5350;
 
-  mat-icon {
+  .material-icons {
     color: #c62828;
   }
 }
@@ -180,7 +135,7 @@ $sidenav-full-width: 240px;
     font-weight: 500;
     color: #2196F3;
 
-    mat-icon {
+    .material-icons {
       color: #2196F3;
     }
   }
