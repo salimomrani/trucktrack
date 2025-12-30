@@ -1,5 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
-
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -46,7 +45,8 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
     BreadcrumbComponent
 ],
     templateUrl: './user-list.component.html',
-    styleUrls: ['./user-list.component.scss']
+    styleUrls: ['./user-list.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UserListComponent implements OnInit {
   private readonly router = inject(Router);

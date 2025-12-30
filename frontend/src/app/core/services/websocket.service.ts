@@ -26,8 +26,8 @@ export class WebSocketService {
   public connectionStatus = this.connectionStatusSignal.asReadonly();
 
   // T092: Error handling
-  private errorSubject = new Subject<string>();
-  public error$ = this.errorSubject.asObservable();
+  private readonly errorSource$ = new Subject<string>();
+  public readonly error$ = this.errorSource$.asObservable();
 
   // Backward compatibility: Observable streams from signals
   public positionUpdates$: Observable<GPSPositionEvent | null> = toObservable(this.positionUpdates);
@@ -70,7 +70,7 @@ export class WebSocketService {
     this.client.onStompError = (frame) => {
       console.error('STOMP error', frame);
       const errorMsg = frame.headers?.['message'] || 'WebSocket connection error';
-      this.errorSubject.next(errorMsg);
+      this.errorSource$.next(errorMsg);
       this.connectionStatusSignal.set(false);
     };
 

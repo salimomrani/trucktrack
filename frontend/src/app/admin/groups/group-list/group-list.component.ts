@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -40,7 +40,8 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
         BreadcrumbComponent
     ],
     templateUrl: './group-list.component.html',
-    styleUrls: ['./group-list.component.scss']
+    styleUrls: ['./group-list.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GroupListComponent implements OnInit {
   private readonly router = inject(Router);

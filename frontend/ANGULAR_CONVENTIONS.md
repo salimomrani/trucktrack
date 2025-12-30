@@ -1,7 +1,7 @@
 # Angular Development Conventions
 
-**Version**: Angular 17+
-**Last Updated**: 2025-12-22
+**Version**: Angular 21+
+**Last Updated**: 2025-12-30
 
 Ce document définit les conventions obligatoires pour tout développement frontend Angular dans ce projet.
 
@@ -209,7 +209,123 @@ constructor(private http: HttpClient) {}
 
 ---
 
-## 5. Bonnes Pratiques
+## 5. Memory Management
+
+### Quand utiliser takeUntilDestroyed() ?
+
+**IMPORTANT**: Comprendre quels observables nécessitent un cleanup manuel.
+
+#### Observables qui complètent automatiquement (PAS DE CLEANUP NÉCESSAIRE)
+
+```typescript
+// ✅ HttpClient - complète après la réponse
+this.http.get('/api/data').subscribe({
+  next: (data) => this.data.set(data),
+  error: (err) => console.error(err)
+});
+
+// ✅ MatDialogRef.afterClosed() - complète après fermeture du dialog
+dialogRef.afterClosed().subscribe(result => { ... });
+
+// ✅ first(), take(1) - complètent après N émissions
+this.store.select(selectUser).pipe(first()).subscribe(...);
+```
+
+#### Observables infinis (CLEANUP OBLIGATOIRE)
+
+```typescript
+import { Component, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { interval } from 'rxjs';
+
+@Component({...})
+export class MyComponent {
+  private readonly destroyRef = inject(DestroyRef);
+
+  startAutoRefresh() {
+    // ✅ OBLIGATOIRE - interval est infini
+    interval(5000)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.refresh());
+  }
+}
+```
+
+**Types d'observables nécessitant takeUntilDestroyed():**
+- `interval()` - émissions infinies
+- `timer()` avec repeat - émissions infinies
+- `Subject.asObservable()` - streams long-lived
+- WebSocket streams
+- EventSource / Server-Sent Events
+
+**Types d'observables qui n'en ont PAS besoin:**
+- `HttpClient.get/post/put/delete()` - complète après réponse
+- `MatDialogRef.afterClosed()` - complète après fermeture
+- Observables avec `first()`, `take(n)`, `takeUntil()`
+
+### Map/Leaflet Cleanup
+
+Pour les composants utilisant Leaflet, nettoyer explicitement dans ngOnDestroy:
+
+```typescript
+ngOnDestroy() {
+  if (this.marker) {
+    this.marker.off();
+    this.marker.remove();
+  }
+  if (this.map) {
+    this.map.off();
+    this.map.remove();
+  }
+}
+```
+
+---
+
+## 6. Change Detection (OBLIGATOIRE)
+
+### OnPush Strategy
+
+**OBLIGATOIRE**: Tous les composants doivent utiliser `ChangeDetectionStrategy.OnPush` pour optimiser les performances.
+
+```typescript
+import { Component, ChangeDetectionStrategy } from '@angular/core';
+
+@Component({
+  selector: 'app-my-component',
+  templateUrl: './my-component.component.html',
+  styleUrls: ['./my-component.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush  // OBLIGATOIRE
+})
+export class MyComponent { }
+```
+
+### Compatibilité avec OnPush
+
+OnPush fonctionne parfaitement avec:
+- **Signals** (`signal()`, `computed()`, `input()`) - change detection automatique
+- **Async pipe** (`| async`) dans les templates
+- **Immutable data** - nouvelle référence pour déclencher le change detection
+
+```typescript
+// ✅ Avec OnPush et Signals - aucune action nécessaire
+data = signal<Item[]>([]);
+loading = signal(false);
+
+loadData() {
+  this.loading.set(true);
+  this.http.get<Item[]>('/api/items').subscribe({
+    next: (items) => {
+      this.data.set(items);   // Triggers change detection
+      this.loading.set(false); // Triggers change detection
+    }
+  });
+}
+```
+
+---
+
+## 7. Bonnes Pratiques
 
 ### Nommage
 
@@ -226,7 +342,19 @@ readonly formattedDate = computed(() => ...);
 readonly clicked = output<void>();
 readonly valueChanged = output<string>();
 readonly itemSelected = output<Item>();
+
+// ✅ OBLIGATOIRE: Observables et Subjects avec suffixe $
+private readonly destroy$ = new Subject<void>();
+private readonly search$ = new BehaviorSubject<string>('');
+readonly users$ = this.store.select(selectUsers);
+readonly loading$ = this.http.get('/api/data');
+
+// ❌ INTERDIT: Observable sans suffixe $
+private readonly destroy = new Subject<void>();  // Manque $
+readonly users = this.store.select(selectUsers);  // Manque $
 ```
+
+**Règle ESLint active**: `rxjs/finnish` et `rxjs/suffix-subjects` vérifient cette convention.
 
 ### Performance
 
@@ -255,7 +383,7 @@ imports: [MatButtonModule, RouterLink]
 
 ---
 
-## 6. Tests
+## 8. Tests
 
 ### Configuration des Inputs Signal
 
@@ -279,7 +407,7 @@ expect(component.isLoading()).toBe(false);
 
 ---
 
-## 7. Migration depuis Legacy
+## 9. Migration depuis Legacy
 
 Si du code legacy est rencontré, le migrer selon ces patterns:
 

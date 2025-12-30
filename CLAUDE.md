@@ -25,6 +25,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-23
 - N/A (visual styling only, no data model changes) (017-modern-ui-redesign)
 - TypeScript 5.9.3 with Angular 21.0.6 + Angular Material 21.0.5, NgRx 21.x, RxJS 7.8.2, SCSS (017-modern-ui-redesign)
 - N/A (frontend styling only) (017-modern-ui-redesign)
+- TypeScript 5.9.3 with Angular 21.0.6 + Angular 21, NgRx 21.x, RxJS 7.8.2, Angular Material 21.0.5, Leaflet 1.9.4 (019-angular-frontend-cleanup)
+- N/A (frontend refactoring, backend inchangé) (019-angular-frontend-cleanup)
 
 ### Backend
 - Java 17 + Spring Boot 3.2.1, Spring Security, Spring Data JPA
@@ -55,9 +57,9 @@ npm test && npm run lint
 - **Frontend**: TypeScript 5.9 with Angular 21 conventions (signals, block control flow)
 
 ## Recent Changes
+- 019-angular-frontend-cleanup: Added TypeScript 5.9.3 with Angular 21.0.6 + Angular 21, NgRx 21.x, RxJS 7.8.2, Angular Material 21.0.5, Leaflet 1.9.4
 - 017-modern-ui-redesign: Added TypeScript 5.9.3 with Angular 21.0.6 + Angular Material 21.0.5, NgRx 21.x, RxJS 7.8.2, SCSS
 - 017-modern-ui-redesign: Added TypeScript 5.9 with Angular 21.0.6 + Angular Material 21.0.5, NgRx 21.x, RxJS 7.8.2, Leaflet 1.9.4, ngx-charts 23.1.0
-- 016-016-email-notifications: Added Java 17 (Spring Boot 3.2.x) + Spring Boot Starter, Spring Kafka, SendGrid SDK, Firebase Admin SDK, Thymeleaf, Resilience4j
   - Block control flow (`@if`/`@for`) now default
   - Signals for reactive state
   - Esbuild for faster builds

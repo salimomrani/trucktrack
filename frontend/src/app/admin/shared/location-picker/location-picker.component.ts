@@ -91,8 +91,8 @@ export class LocationPickerComponent implements OnInit, OnDestroy, ControlValueA
   private marker: L.Marker | null = null;
 
   // Search subject for debouncing
-  private searchSubject = new Subject<string>();
-  private destroy$ = new Subject<void>();
+  private readonly search$ = new Subject<string>();
+  private readonly destroy$ = new Subject<void>();
 
   // ControlValueAccessor callbacks
   private onChange: (value: LocationValue | null) => void = () => {};
@@ -100,7 +100,7 @@ export class LocationPickerComponent implements OnInit, OnDestroy, ControlValueA
 
   ngOnInit() {
     // Setup search with debounce
-    this.searchSubject.pipe(
+    this.search$.pipe(
       takeUntil(this.destroy$),
       debounceTime(300),
       distinctUntilChanged(),
@@ -153,7 +153,7 @@ export class LocationPickerComponent implements OnInit, OnDestroy, ControlValueA
   onSearchChange(query: string) {
     this.searchQuery.set(query);
     if (query.length >= 3) {
-      this.searchSubject.next(query);
+      this.search$.next(query);
     } else {
       this.suggestions.set([]);
     }
@@ -246,10 +246,15 @@ export class LocationPickerComponent implements OnInit, OnDestroy, ControlValueA
   }
 
   private destroyMap() {
+    if (this.marker) {
+      this.marker.off();
+      this.marker.remove();
+      this.marker = null;
+    }
     if (this.map) {
+      this.map.off();
       this.map.remove();
       this.map = null;
-      this.marker = null;
     }
   }
 
@@ -257,7 +262,7 @@ export class LocationPickerComponent implements OnInit, OnDestroy, ControlValueA
     this.updateMapMarker(lat, lng);
 
     // Reverse geocode to get address
-    this.geocodingService.reverseGeocode(lat, lng).subscribe(result => {
+    this.geocodingService.reverseGeocode(lat, lng).pipe(takeUntil(this.destroy$)).subscribe(result => {
       const address = result?.displayName || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
       const location: LocationValue = { address, lat, lng };
 

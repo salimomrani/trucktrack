@@ -28,8 +28,8 @@ export class NotificationService {
   private wsSubscription: StompSubscription | null = null;
 
   // Real-time notification signals
-  private newNotificationSubject = new Subject<Notification>();
-  public newNotification$ = this.newNotificationSubject.asObservable();
+  private readonly newNotificationSource$ = new Subject<Notification>();
+  public readonly newNotification$ = this.newNotificationSource$.asObservable();
 
   // Connection status
   public wsConnected = signal(false);
@@ -188,7 +188,7 @@ export class NotificationService {
     this.wsSubscription = this.wsClient.subscribe('/topic/notifications', (message: IMessage) => {
       const notification: Notification = JSON.parse(message.body);
       console.log('Received real-time notification:', notification);
-      this.newNotificationSubject.next(notification);
+      this.newNotificationSource$.next(notification);
       this.unreadCount.update(count => count + 1);
     });
 

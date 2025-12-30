@@ -1,5 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -47,7 +46,8 @@ import { StoreFacade } from '../../../store/store.facade';
     BreadcrumbComponent
 ],
     templateUrl: './truck-list.component.html',
-    styleUrls: ['./truck-list.component.scss']
+    styleUrls: ['./truck-list.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TruckListComponent implements OnInit {
   private readonly router = inject(Router);

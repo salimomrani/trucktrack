@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -52,13 +53,15 @@ import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.componen
     BreadcrumbComponent
   ],
   templateUrl: './trip-list.component.html',
-  styleUrls: ['./trip-list.component.scss']
+  styleUrls: ['./trip-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TripListComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly tripService = inject(TripService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly destroyRef = inject(DestroyRef);
 
   // State
   trips = signal<TripResponse[]>([]);
@@ -207,12 +210,14 @@ export class TripListComponent implements OnInit, OnDestroy {
     if (this.autoRefreshSubscription) {
       return;
     }
-    this.autoRefreshSubscription = interval(this.AUTO_REFRESH_INTERVAL).subscribe(() => {
-      if (this.autoRefreshEnabled) {
-        this.loadTrips();
-        this.loadStats();
-      }
-    });
+    this.autoRefreshSubscription = interval(this.AUTO_REFRESH_INTERVAL)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (this.autoRefreshEnabled) {
+          this.loadTrips();
+          this.loadStats();
+        }
+      });
   }
 
   private stopAutoRefresh() {
