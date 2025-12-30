@@ -1,9 +1,5 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-
 import { Page } from '../../../core/models/permission.model';
 
 /**
@@ -18,7 +14,7 @@ import { Page } from '../../../core/models/permission.model';
 @Component({
   selector: 'app-access-denied',
   standalone: true,
-  imports: [RouterModule, MatCardModule, MatButtonModule, MatIconModule],
+  imports: [RouterModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './access-denied.component.html',
   styleUrl: './access-denied.component.scss'

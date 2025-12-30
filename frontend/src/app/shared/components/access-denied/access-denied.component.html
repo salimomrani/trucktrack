@@ -1,39 +1,43 @@
-<div class="access-denied-container">
-  <mat-card class="access-denied-card">
-    <mat-card-content>
-      <mat-icon class="access-denied-icon">lock</mat-icon>
-      <h1>Accès refusé</h1>
+<div class="min-h-screen flex items-center justify-center bg-gray-50 p-6">
+  <div class="bg-white rounded-lg shadow-card p-8 text-center max-w-md">
+    <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-danger-100">
+      <span class="material-icons text-3xl text-danger-500">lock</span>
+    </div>
+    <h1 class="text-2xl font-semibold text-gray-800 mb-4">Accès refusé</h1>
 
-      @if (deniedPage()) {
-        <p class="denied-message">
-          Vous n'avez pas la permission d'accéder à la page <strong>{{ getPageLabel() }}</strong>.
-        </p>
-      } @else {
-        <p class="denied-message">
-          Vous n'avez pas la permission d'accéder à cette ressource.
-        </p>
-      }
-
-      @if (userRole()) {
-        <p class="role-info">
-          Votre rôle actuel : <span class="role-badge">{{ getRoleLabel() }}</span>
-        </p>
-      }
-
-      <p class="help-text">
-        Si vous pensez qu'il s'agit d'une erreur, veuillez contacter votre administrateur.
+    @if (deniedPage()) {
+      <p class="text-gray-600 mb-4">
+        Vous n'avez pas la permission d'accéder à la page <strong class="text-gray-800">{{ getPageLabel() }}</strong>.
       </p>
+    } @else {
+      <p class="text-gray-600 mb-4">
+        Vous n'avez pas la permission d'accéder à cette ressource.
+      </p>
+    }
 
-      <div class="actions">
-        <button mat-raised-button color="primary" routerLink="/map">
-          <mat-icon>map</mat-icon>
-          Retour à la carte
-        </button>
-        <button mat-stroked-button routerLink="/profile">
-          <mat-icon>person</mat-icon>
-          Mon profil
-        </button>
-      </div>
-    </mat-card-content>
-  </mat-card>
+    @if (userRole()) {
+      <p class="text-gray-500 mb-4">
+        Votre rôle actuel : <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-700">{{ getRoleLabel() }}</span>
+      </p>
+    }
+
+    <p class="text-sm text-gray-500 mb-6">
+      Si vous pensez qu'il s'agit d'une erreur, veuillez contacter votre administrateur.
+    </p>
+
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+      <a
+        routerLink="/map"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors">
+        <span class="material-icons text-lg">map</span>
+        Retour à la carte
+      </a>
+      <a
+        routerLink="/profile"
+        class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+        <span class="material-icons text-lg">person</span>
+        Mon profil
+      </a>
+    </div>
+  </div>
 </div>
