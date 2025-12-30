@@ -1,11 +1,6 @@
-// App Layout Styles - Navigation Optimization
-// Pattern: Header compact + Mini-sidenav hybride
+// App Layout Styles - Stacked header layout
 
-$sidenav-mini-width: 56px;
-$sidenav-full-width: 240px;
-$sidenav-mobile-width: 280px;
 $header-height: 64px;
-$breakpoint-mobile: 768px;
 
 // Skip link for accessibility
 .skip-link {
@@ -30,35 +25,6 @@ $breakpoint-mobile: 768px;
 // Main app layout - Stacked layout with full page scroll
 .app-layout {
   min-height: 100vh;
-}
-
-// Main container with sidenav - mat-sidenav-container handles layout automatically
-.main-container {
-  flex: 1;
-}
-
-// Mat-sidenav styling - fixed width based on mode
-mat-sidenav {
-  width: $sidenav-full-width;
-  border-right: 1px solid rgba(0, 0, 0, 0.12);
-  background: #fafafa;
-
-  // Mini mode on desktop - icons only
-  &.mini-sidenav {
-    width: $sidenav-mini-width;
-  }
-
-  // Mobile/tablet overlay - full width
-  @media (max-width: #{$breakpoint-mobile - 1px}) {
-    width: $sidenav-mobile-width;
-    max-width: 85vw;
-  }
-}
-
-// Main content area - mat-sidenav-container handles margin automatically
-mat-sidenav-content {
-  overflow-y: auto;
-  background: #fff;
 }
 
 // Main content wrapper

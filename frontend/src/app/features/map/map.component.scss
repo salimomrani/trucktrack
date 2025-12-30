@@ -3,9 +3,6 @@
 
 // Header height for fixed positioning calculations
 $map-header-height: 72px;
-// Sidenav widths - must match app.component.scss
-$sidenav-mini-width: 56px;
-$sidenav-full-width: 240px;
 
 .map-page {
   display: flex;
@@ -26,7 +23,7 @@ $sidenav-full-width: 240px;
   z-index: 1001;
   position: fixed;
   top: 64px; // Below the main app header
-  left: $sidenav-mini-width; // Account for mini sidenav width
+  left: 0;
   right: 0;
   height: $map-header-height;
   box-sizing: border-box;
