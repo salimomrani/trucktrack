@@ -1,22 +1,25 @@
-<mat-card class="chart-card"
-          role="figure"
-          [attr.aria-label]="'Classement des camions par distance: ' + getChartSummary()"
-          [attr.aria-busy]="isLoading">
-  <mat-card-header>
-    <mat-card-title>Top 10 Camions par distance</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    @if (isLoading) {
-      <div class="loading-state" aria-hidden="true">
-        <mat-spinner diameter="40"></mat-spinner>
+<div
+  class="bg-white rounded-lg shadow-card overflow-hidden"
+  role="figure"
+  [attr.aria-label]="'Classement des camions par distance: ' + getChartSummary()"
+  [attr.aria-busy]="isLoading()">
+
+  <div class="px-4 py-3 border-b border-gray-100">
+    <h3 class="text-base font-semibold text-gray-800">Top 10 Camions par distance</h3>
+  </div>
+
+  <div class="p-4">
+    @if (isLoading()) {
+      <div class="flex items-center justify-center h-[350px]" aria-hidden="true">
+        <div class="animate-spin rounded-full h-10 w-10 border-4 border-primary-500 border-t-transparent"></div>
       </div>
     } @else if (chartData().length === 0) {
-      <div class="empty-state">
+      <div class="flex items-center justify-center h-[350px] text-gray-500">
         <p>Aucune donnée disponible</p>
       </div>
     } @else {
       <ngx-charts-bar-horizontal
-        [view]="[chartWidth, 350]"
+        [view]="[chartWidth(), 350]"
         [scheme]="colorScheme"
         [results]="chartData()"
         [xAxis]="true"
@@ -24,11 +27,11 @@
         [legend]="false"
         [showXAxisLabel]="true"
         [showYAxisLabel]="false"
-        [xAxisLabel]="unit"
+        [xAxisLabel]="unit()"
         [gradient]="true"
         [roundDomains]="true"
         [roundEdges]="true">
       </ngx-charts-bar-horizontal>
     }
-  </mat-card-content>
-</mat-card>
+  </div>
+</div>

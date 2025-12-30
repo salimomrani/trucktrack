@@ -1,13 +1,5 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatInputModule } from '@angular/material/input';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 
 import { PeriodType } from '../../../../core/models/analytics.model';
 
@@ -15,35 +7,30 @@ import { PeriodType } from '../../../../core/models/analytics.model';
  * Period filter component for analytics dashboard.
  * Feature: 006-fleet-analytics
  * T024: Create period-filter component
+ * Migrated to Tailwind CSS (Feature 020)
  */
 @Component({
   selector: 'app-period-filter',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatInputModule,
-    MatNativeDateModule,
-    MatButtonModule,
-    MatIconModule
-  ],
+  imports: [FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './period-filter.component.html',
   styleUrls: ['./period-filter.component.scss']
 })
 export class PeriodFilterComponent {
-  @Input() selectedPeriod: PeriodType = 'WEEK';
-  @Input() startDate: Date | null = null;
-  @Input() endDate: Date | null = null;
+  readonly selectedPeriod = input<PeriodType>('WEEK');
+  readonly startDate = input<string | null>(null);
+  readonly endDate = input<string | null>(null);
 
-  @Output() periodChange = new EventEmitter<PeriodType>();
-  @Output() dateRangeChange = new EventEmitter<{ startDate: string; endDate: string }>();
+  readonly periodChange = output<PeriodType>();
+  readonly dateRangeChange = output<{ startDate: string; endDate: string }>();
 
-  readonly maxDate = new Date();
-  dateError: string | null = null;
+  readonly maxDate = new Date().toISOString().split('T')[0];
+  readonly dateError = signal<string | null>(null);
+
+  // Local state for date inputs
+  localStartDate = '';
+  localEndDate = '';
 
   readonly periodOptions: { value: PeriodType; label: string }[] = [
     { value: 'TODAY', label: "Aujourd'hui" },
@@ -52,55 +39,69 @@ export class PeriodFilterComponent {
     { value: 'CUSTOM', label: 'Personnalisé' }
   ];
 
-  onPeriodChange(period: PeriodType): void {
-    this.selectedPeriod = period;
+  onPeriodChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const period = select.value as PeriodType;
     this.periodChange.emit(period);
 
-    if (period === 'CUSTOM' && this.startDate && this.endDate) {
+    if (period === 'CUSTOM' && this.localStartDate && this.localEndDate) {
       this.emitDateRange();
     }
   }
 
-  onDateChange(): void {
+  onStartDateChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.localStartDate = input.value;
+    this.validateAndEmit();
+  }
+
+  onEndDateChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.localEndDate = input.value;
+    this.validateAndEmit();
+  }
+
+  private validateAndEmit(): void {
     this.validateDates();
-    if (!this.dateError && this.startDate && this.endDate) {
+    if (!this.dateError() && this.localStartDate && this.localEndDate) {
       this.emitDateRange();
     }
   }
 
   private validateDates(): void {
-    this.dateError = null;
+    this.dateError.set(null);
 
-    if (!this.startDate || !this.endDate) {
+    if (!this.localStartDate || !this.localEndDate) {
       return;
     }
 
-    if (this.endDate < this.startDate) {
-      this.dateError = 'La date de fin doit être après la date de début';
+    const start = new Date(this.localStartDate);
+    const end = new Date(this.localEndDate);
+
+    if (end < start) {
+      this.dateError.set('La date de fin doit être après la date de début');
       return;
     }
 
-    const days = Math.floor((this.endDate.getTime() - this.startDate.getTime()) / (1000 * 60 * 60 * 24));
+    const days = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
     if (days > 365) {
-      this.dateError = 'La période ne peut pas dépasser 365 jours';
+      this.dateError.set('La période ne peut pas dépasser 365 jours');
       return;
     }
   }
 
   private emitDateRange(): void {
-    if (this.startDate && this.endDate) {
+    if (this.localStartDate && this.localEndDate) {
       this.dateRangeChange.emit({
-        startDate: this.formatDate(this.startDate),
-        endDate: this.formatDate(this.endDate)
+        startDate: this.localStartDate,
+        endDate: this.localEndDate
       });
     }
   }
 
-  private formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
-  }
-
-  formatDateDisplay(date: Date): string {
+  formatDateDisplay(dateStr: string): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
     return date.toLocaleDateString('fr-FR', {
       day: '2-digit',
       month: 'short',
@@ -109,9 +110,11 @@ export class PeriodFilterComponent {
   }
 
   getDayCount(): number {
-    if (!this.startDate || !this.endDate) {
+    if (!this.localStartDate || !this.localEndDate) {
       return 0;
     }
-    return Math.floor((this.endDate.getTime() - this.startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    const start = new Date(this.localStartDate);
+    const end = new Date(this.localEndDate);
+    return Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
   }
 }

@@ -1,44 +1,56 @@
-<div class="period-filter">
-  <mat-form-field appearance="outline" class="period-select">
-    <mat-label>Période</mat-label>
-    <mat-select [value]="selectedPeriod" (selectionChange)="onPeriodChange($event.value)">
+<div class="flex flex-wrap items-start gap-4">
+  <!-- Period Select -->
+  <div class="flex flex-col gap-1">
+    <label class="text-xs font-medium text-gray-600">Période</label>
+    <select
+      class="px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 min-w-[160px]"
+      [value]="selectedPeriod()"
+      (change)="onPeriodChange($event)">
       @for (option of periodOptions; track option.value) {
-        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+        <option [value]="option.value">{{ option.label }}</option>
       }
-    </mat-select>
-  </mat-form-field>
+    </select>
+  </div>
 
-  @if (selectedPeriod === 'CUSTOM') {
-    <div class="date-range">
-      <mat-form-field appearance="outline">
-        <mat-label>Date début</mat-label>
-        <input matInput [matDatepicker]="startPicker" [(ngModel)]="startDate"
-               [max]="endDate || maxDate" (dateChange)="onDateChange()">
-        <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
-        <mat-datepicker #startPicker></mat-datepicker>
-      </mat-form-field>
+  @if (selectedPeriod() === 'CUSTOM') {
+    <!-- Date Range -->
+    <div class="flex flex-wrap items-start gap-3">
+      <!-- Start Date -->
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-gray-600">Date début</label>
+        <input
+          type="date"
+          class="px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          [value]="localStartDate"
+          [max]="localEndDate || maxDate"
+          (change)="onStartDateChange($event)">
+      </div>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Date fin</mat-label>
-        <input matInput [matDatepicker]="endPicker" [(ngModel)]="endDate"
-               [min]="startDate" [max]="maxDate" (dateChange)="onDateChange()">
-        <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
-        <mat-datepicker #endPicker></mat-datepicker>
-      </mat-form-field>
-
-      @if (dateError) {
-        <div class="date-error">
-          <mat-icon>error</mat-icon>
-          {{ dateError }}
-        </div>
-      }
-
-      @if (startDate && endDate && !dateError) {
-        <div class="date-summary">
-          <mat-icon>date_range</mat-icon>
-          <span>{{ formatDateDisplay(startDate) }} - {{ formatDateDisplay(endDate) }} ({{ getDayCount() }} jours)</span>
-        </div>
-      }
+      <!-- End Date -->
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-gray-600">Date fin</label>
+        <input
+          type="date"
+          class="px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          [value]="localEndDate"
+          [min]="localStartDate"
+          [max]="maxDate"
+          (change)="onEndDateChange($event)">
+      </div>
     </div>
+
+    @if (dateError()) {
+      <div class="flex items-center gap-2 text-danger-600 text-sm">
+        <span class="material-icons text-lg">error</span>
+        {{ dateError() }}
+      </div>
+    }
+
+    @if (localStartDate && localEndDate && !dateError()) {
+      <div class="flex items-center gap-2 text-gray-600 text-sm bg-gray-50 px-3 py-2 rounded-md">
+        <span class="material-icons text-lg">date_range</span>
+        <span>{{ formatDateDisplay(localStartDate) }} - {{ formatDateDisplay(localEndDate) }} ({{ getDayCount() }} jours)</span>
+      </div>
+    }
   }
 </div>

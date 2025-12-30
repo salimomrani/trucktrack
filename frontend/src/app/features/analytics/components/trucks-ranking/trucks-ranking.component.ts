@@ -1,7 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Component, input, ChangeDetectionStrategy, computed } from '@angular/core';
 import { NgxChartsModule, Color, ScaleType } from '@swimlane/ngx-charts';
 
 import { TruckRankEntry } from '../../../../core/models/analytics.model';
@@ -10,20 +7,21 @@ import { TruckRankEntry } from '../../../../core/models/analytics.model';
  * Truck ranking bar chart component.
  * Feature: 006-fleet-analytics
  * T033: Create trucks-ranking component (bar chart)
+ * Migrated to Tailwind CSS (Feature 020)
  */
 @Component({
   selector: 'app-trucks-ranking',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatProgressSpinnerModule, NgxChartsModule],
+  imports: [NgxChartsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './trucks-ranking.component.html',
   styleUrls: ['./trucks-ranking.component.scss']
 })
 export class TrucksRankingComponent {
-  @Input() data: TruckRankEntry[] = [];
-  @Input() isLoading = false;
-  @Input() chartWidth = 500;
-  @Input() unit = 'km';
+  readonly data = input<TruckRankEntry[]>([]);
+  readonly isLoading = input(false);
+  readonly chartWidth = input(500);
+  readonly unit = input('km');
 
   readonly colorScheme: Color = {
     name: 'ranking',
@@ -33,19 +31,21 @@ export class TrucksRankingComponent {
   };
 
   readonly chartData = computed(() => {
-    if (!this.data || this.data.length === 0) return [];
+    const items = this.data();
+    if (!items || items.length === 0) return [];
 
-    return this.data.map(d => ({
+    return items.map(d => ({
       name: `${d.truckName} (${d.licensePlate})`,
       value: d.value
     }));
   });
 
   getChartSummary(): string {
-    if (!this.data || this.data.length === 0) {
+    const items = this.data();
+    if (!items || items.length === 0) {
       return 'Aucune donnée';
     }
-    const topTruck = this.data[0];
-    return `${this.data.length} camions, 1er: ${topTruck.truckName} avec ${topTruck.value.toLocaleString('fr-FR')} ${this.unit}`;
+    const topTruck = items[0];
+    return `${items.length} camions, 1er: ${topTruck.truckName} avec ${topTruck.value.toLocaleString('fr-FR')} ${this.unit()}`;
   }
 }

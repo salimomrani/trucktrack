@@ -1,7 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Component, input, ChangeDetectionStrategy, computed } from '@angular/core';
 import { NgxChartsModule, Color, ScaleType } from '@swimlane/ngx-charts';
 
 import { DailyDataPoint } from '../../../../core/models/analytics.model';
@@ -10,19 +7,20 @@ import { DailyDataPoint } from '../../../../core/models/analytics.model';
  * Distance line chart component.
  * Feature: 006-fleet-analytics
  * T031: Create distance-chart component (line chart)
+ * Migrated to Tailwind CSS (Feature 020)
  */
 @Component({
   selector: 'app-distance-chart',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatProgressSpinnerModule, NgxChartsModule],
+  imports: [NgxChartsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './distance-chart.component.html',
   styleUrls: ['./distance-chart.component.scss']
 })
 export class DistanceChartComponent {
-  @Input() data: DailyDataPoint[] = [];
-  @Input() isLoading = false;
-  @Input() chartWidth = 500;
+  readonly data = input<DailyDataPoint[]>([]);
+  readonly isLoading = input(false);
+  readonly chartWidth = input(500);
 
   readonly colorScheme: Color = {
     name: 'distance',
@@ -32,11 +30,12 @@ export class DistanceChartComponent {
   };
 
   readonly chartData = computed(() => {
-    if (!this.data || this.data.length === 0) return [];
+    const items = this.data();
+    if (!items || items.length === 0) return [];
 
     return [{
       name: 'Distance',
-      series: this.data.map(d => ({
+      series: items.map(d => ({
         name: this.formatDate(d.date),
         value: d.distanceKm
       }))
@@ -49,10 +48,11 @@ export class DistanceChartComponent {
   }
 
   getChartSummary(): string {
-    if (!this.data || this.data.length === 0) {
+    const items = this.data();
+    if (!items || items.length === 0) {
       return 'Aucune donnée';
     }
-    const totalDistance = this.data.reduce((sum, d) => sum + d.distanceKm, 0);
-    return `${this.data.length} jours, ${totalDistance.toLocaleString('fr-FR')} km au total`;
+    const totalDistance = items.reduce((sum, d) => sum + d.distanceKm, 0);
+    return `${items.length} jours, ${totalDistance.toLocaleString('fr-FR')} km au total`;
   }
 }
