@@ -1,57 +1,64 @@
 <!-- Map Container -->
-<div class="map-page">
-  <!-- Header with status indicators -->
-  <div class="map-header">
-    <h1>Live Truck Tracking</h1>
-    <div class="controls-section">
+<div class="flex flex-col h-[calc(100vh-64px)] overflow-hidden relative">
+  <!-- Header with status indicators - Fixed below app header -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-0 px-4 md:px-6 py-3 md:py-4 bg-white border-b border-gray-200 shadow-sm z-[1001] fixed top-16 left-0 right-0">
+    <h1 class="text-xl md:text-2xl font-medium text-gray-800">Live Truck Tracking</h1>
+    <div class="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-6 w-full md:w-auto">
       <!-- Search Bar -->
       <app-search-bar />
 
       <!-- Status Indicators -->
-      <div class="status-indicators">
-      <!-- Loading indicator (T091) -->
-      @if (isLoading()) {
-        <div class="status-item">
-          <div class="animate-spin rounded-full h-5 w-5 border-2 border-primary-500 border-t-transparent"></div>
-          <span>Loading trucks...</span>
-        </div>
-      }
-
-      <!-- WebSocket connection status (T090) -->
-      <div class="status-item connection-status" [class.connected]="isConnected()">
-        <span class="status-dot"></span>
-        <span>{{ isConnected() ? 'Live Updates Active' : 'Connecting...' }}</span>
-      </div>
-
-      <!-- Truck count - T108: Show filtered count when filters active -->
-      <div class="status-item">
-        @if (hasActiveFilters()) {
-          <span class="truck-count filtered">{{ filteredTrucks().length }} of {{ trucks().length }} trucks</span>
-        } @else {
-          <span class="truck-count">{{ trucks().length }} trucks</span>
+      <div class="flex flex-wrap items-center gap-3 md:gap-6">
+        <!-- Loading indicator (T091) -->
+        @if (isLoading()) {
+          <div class="flex items-center gap-2 text-sm text-gray-500">
+            <div class="animate-spin rounded-full h-5 w-5 border-2 border-primary-500 border-t-transparent"></div>
+            <span>Loading trucks...</span>
+          </div>
         }
-      </div>
+
+        <!-- WebSocket connection status (T090) -->
+        <div class="flex items-center gap-2 text-sm text-gray-500">
+          <span
+            class="w-2.5 h-2.5 rounded-full"
+            [class.bg-warning-500]="!isConnected()"
+            [class.bg-success-500]="isConnected()"
+            [class.animate-pulse]="!isConnected()"></span>
+          <span>{{ isConnected() ? 'Live Updates Active' : 'Connecting...' }}</span>
+        </div>
+
+        <!-- Truck count - T108: Show filtered count when filters active -->
+        <div class="flex items-center gap-2 text-sm">
+          @if (hasActiveFilters()) {
+            <span class="font-semibold text-primary-600">{{ filteredTrucks().length }} of {{ trucks().length }} trucks</span>
+          } @else {
+            <span class="font-semibold text-gray-700">{{ trucks().length }} trucks</span>
+          }
+        </div>
       </div>
     </div>
   </div>
 
+  <!-- Spacer for fixed header -->
+  <div class="h-[72px] md:h-[72px] flex-shrink-0"></div>
+
   <!-- Error message (T092) -->
   @if (errorMessage()) {
-    <div class="error-banner">
+    <div class="flex items-center gap-3 px-6 py-4 bg-danger-50 text-danger-700 border-b border-danger-200">
       <span class="material-icons">error</span>
       <span>{{ errorMessage() }}</span>
     </div>
   }
 
   <!-- T104: Filter Panel - positioned on map -->
-  <div class="filter-panel-container">
+  <div class="absolute top-40 left-2.5 z-[1002]">
     <app-filter-panel />
   </div>
 
   <!-- T126: History controls panel -->
   @if (historyMode()) {
-    <div class="history-panel">
-      <div class="history-header">
+    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-[1000] bg-white px-5 py-3 rounded-lg shadow-lg flex items-center gap-4">
+      <div class="flex items-center gap-2 font-medium text-primary-600">
         <span class="material-icons">route</span>
         <span>Truck History (24h)</span>
       </div>
@@ -67,14 +74,14 @@
 
   <!-- History loading indicator -->
   @if (historyLoading()) {
-    <div class="history-loading">
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[1001] bg-white/95 px-8 py-5 rounded-lg shadow-lg flex items-center gap-3">
       <div class="animate-spin rounded-full h-8 w-8 border-4 border-primary-500 border-t-transparent"></div>
-      <span>Loading history...</span>
+      <span class="text-gray-600">Loading history...</span>
     </div>
   }
 
   <!-- Map container -->
-  <div id="map" class="map-container"></div>
+  <div id="map" class="flex-1 w-full relative"></div>
 
   <!-- T154: Geofence Panel -->
   @if (map) {

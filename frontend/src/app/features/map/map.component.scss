@@ -1,172 +1,20 @@
-// Map Component Styles
-// T088: Implement pulsing animation CSS for active/moving truck markers
+// Map Component Styles - Leaflet customization only
+// Feature 020: Tailwind CSS Migration
+// Layout styles moved to Tailwind classes in template
 
-// Header height for fixed positioning calculations
-$map-header-height: 72px;
+// =============================================
+// LEAFLET MARKER & POPUP CUSTOMIZATION
+// These target Leaflet-generated DOM elements
+// =============================================
 
-.map-page {
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 64px); // Subtract app header height
-  overflow: hidden;
-  position: relative; // For absolute positioned filter panel
-}
-
-.map-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 24px;
-  background-color: #fff;
-  border-bottom: 1px solid #e0e0e0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 1001;
-  position: fixed;
-  top: 64px; // Below the main app header
-  left: 0;
-  right: 0;
-  height: $map-header-height;
-  box-sizing: border-box;
-
-  h1 {
-    margin: 0;
-    font-size: 24px;
-    font-weight: 500;
-  }
-}
-
-// Spacer to push content below fixed header
-.map-page::before {
-  content: '';
-  display: block;
-  height: $map-header-height;
-  flex-shrink: 0;
-}
-
-.controls-section {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.status-indicators {
-  display: flex;
-  gap: 24px;
-  align-items: center;
-}
-
-.status-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: #666;
-}
-
-.connection-status {
-  .status-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: #ff9800;
-    animation: pulse 2s ease-in-out infinite;
-  }
-
-  &.connected .status-dot {
-    background-color: #4caf50;
-    animation: none;
-  }
-}
-
-.truck-count {
-  font-weight: 600;
-  color: #333;
-
-  // T108: Style for filtered truck count
-  &.filtered {
-    color: #1976d2;
-  }
-}
-
-.error-banner {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px 24px;
-  background-color: #ffebee;
-  color: #c62828;
-  border-bottom: 1px solid #ef5350;
-
-  .material-icons {
-    color: #c62828;
-  }
-}
-
-// T104: Filter panel positioned on map - left side below zoom controls
-.filter-panel-container {
-  position: absolute;
-  top: 160px; // Below zoom buttons (+/- are ~70px tall)
-  left: 10px;
-  z-index: 1002; // Above Leaflet controls (z-index: 1000) and map header (z-index: 1001)
-}
-
-// T126: History panel
-.history-panel {
-  position: absolute;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  background: white;
-  padding: 12px 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  display: flex;
-  align-items: center;
-  gap: 16px;
-
-  .history-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 500;
-    color: #2196F3;
-
-    .material-icons {
-      color: #2196F3;
-    }
-  }
-}
-
-.history-loading {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1001;
-  background: rgba(255, 255, 255, 0.95);
-  padding: 20px 30px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.map-container {
-  flex: 1;
-  width: 100%;
-  position: relative;
-}
-
-// Custom truck markers
-// T082: Custom truck marker icons
 :host ::ng-deep {
+  // Custom truck marker container
   .custom-truck-marker {
     background: transparent;
     border: none;
   }
 
+  // Truck marker circle
   .truck-marker {
     width: 32px;
     height: 32px;
@@ -187,23 +35,22 @@ $map-header-height: 72px;
     }
   }
 
-  // T088: Pulsing animation for active trucks
+  // Active truck pulsing animation
   .truck-marker-active {
     animation: pulse-marker 2s ease-in-out infinite;
   }
 
-  // T089: Gray out offline markers
+  // Offline/stale marker states
   .truck-marker-offline {
     opacity: 0.5;
   }
 
-  // T089: Visual indicator for stale data (>5 minutes old)
   .truck-marker-stale {
     opacity: 0.5;
     filter: grayscale(50%);
   }
 
-  // Truck popup styles
+  // Truck popup styling
   .truck-popup {
     min-width: 250px;
     max-width: 320px;
@@ -214,7 +61,7 @@ $map-header-height: 72px;
       align-items: center;
       gap: 14px;
       padding-bottom: 14px;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid #e5e7eb;
       margin-bottom: 14px;
     }
 
@@ -232,17 +79,9 @@ $map-header-height: 72px;
         color: white;
       }
 
-      &.status-active {
-        background: #4caf50;
-      }
-
-      &.status-idle {
-        background: #ff9800;
-      }
-
-      &.status-offline {
-        background: #9e9e9e;
-      }
+      &.status-active { background: #22c55e; }
+      &.status-idle { background: #f59e0b; }
+      &.status-offline { background: #9ca3af; }
     }
 
     .truck-info {
@@ -253,7 +92,7 @@ $map-header-height: 72px;
         margin: 0 0 6px 0;
         font-size: 18px;
         font-weight: 600;
-        color: #333;
+        color: #1f2937;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -269,18 +108,18 @@ $map-header-height: 72px;
       text-transform: uppercase;
 
       &.status-active {
-        background: #e8f5e9;
-        color: #2e7d32;
+        background: #dcfce7;
+        color: #166534;
       }
 
       &.status-idle {
-        background: #fff3e0;
-        color: #e65100;
+        background: #fef3c7;
+        color: #c2410c;
       }
 
       &.status-offline {
-        background: #f5f5f5;
-        color: #757575;
+        background: #f3f4f6;
+        color: #6b7280;
       }
     }
 
@@ -293,11 +132,11 @@ $map-header-height: 72px;
         gap: 10px;
         padding: 8px 0;
         font-size: 14px;
-        color: #555;
+        color: #4b5563;
 
         .material-icons {
           font-size: 20px;
-          color: #888;
+          color: #9ca3af;
           flex-shrink: 0;
         }
 
@@ -312,7 +151,7 @@ $map-header-height: 72px;
 
     .popup-actions {
       padding-top: 12px;
-      border-top: 1px solid #eee;
+      border-top: 1px solid #e5e7eb;
     }
 
     .view-history-btn {
@@ -322,7 +161,7 @@ $map-header-height: 72px;
       gap: 8px;
       width: 100%;
       padding: 12px 16px;
-      background: #2196F3;
+      background: #2563eb;
       color: white;
       border: none;
       border-radius: 8px;
@@ -330,25 +169,20 @@ $map-header-height: 72px;
       font-size: 14px;
       font-weight: 500;
       transition: all 0.2s ease;
-      box-sizing: border-box;
 
       .material-icons {
         font-size: 20px;
       }
 
       &:hover {
-        background: #1976D2;
+        background: #1d4ed8;
         transform: translateY(-1px);
-        box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
-      }
-
-      &:active {
-        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
       }
     }
   }
 
-  // Leaflet popup customization
+  // Leaflet popup container customization
   .leaflet-popup-content-wrapper {
     border-radius: 12px;
     padding: 0;
@@ -367,7 +201,6 @@ $map-header-height: 72px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   }
 
-  // Close button positioning - inside the popup
   .leaflet-popup-close-button {
     top: 8px !important;
     right: 8px !important;
@@ -376,76 +209,35 @@ $map-header-height: 72px;
     font-size: 20px !important;
     line-height: 28px !important;
     text-align: center;
-    color: #666 !important;
-    background: #f5f5f5 !important;
+    color: #6b7280 !important;
+    background: #f3f4f6 !important;
     border-radius: 50% !important;
     padding: 0 !important;
     transition: all 0.2s ease;
     z-index: 10;
 
     &:hover {
-      background: #e0e0e0 !important;
-      color: #333 !important;
+      background: #e5e7eb !important;
+      color: #1f2937 !important;
     }
   }
 
-  // Force Leaflet to not constrain popup height
   .leaflet-popup {
     max-height: none !important;
   }
 }
 
-// Animations
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
+// =============================================
+// ANIMATIONS
+// =============================================
 
 @keyframes pulse-marker {
   0%, 100% {
-    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3),
-                0 0 0 0 rgba(76, 175, 80, 0.7);
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3),
+                0 0 0 0 rgba(34, 197, 94, 0.7);
   }
   50% {
-    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3),
-                0 0 0 10px rgba(76, 175, 80, 0);
-  }
-}
-
-// Responsive adjustments
-@media (max-width: 768px) {
-  .map-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-    height: auto;
-    min-height: $map-header-height;
-    padding: 12px 16px;
-    left: 0; // No sidenav offset on mobile (overlay mode)
-
-    h1 {
-      font-size: 20px;
-    }
-  }
-
-  // Adjust spacer for potentially taller mobile header
-  .map-page::before {
-    height: 100px;
-  }
-
-  .controls-section {
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-    gap: 12px;
-  }
-
-  .status-indicators {
-    flex-wrap: wrap;
-    gap: 12px;
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3),
+                0 0 0 10px rgba(34, 197, 94, 0);
   }
 }
