@@ -1,12 +1,9 @@
 import { Component, OnInit, OnDestroy, inject, signal, DestroyRef, ChangeDetectionStrategy, HostListener } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { interval, Subscription } from 'rxjs';
 import { DataTableComponent, ColumnDef, PageInfo } from '../../shared/data-table/data-table.component';
 import { TripService } from '../trip.service';
@@ -24,12 +21,9 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
   selector: 'app-trip-list',
   standalone: true,
   imports: [
+    CommonModule,
     FormsModule,
     MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     DataTableComponent,
     BreadcrumbComponent
   ],
@@ -178,6 +172,16 @@ export class TripListComponent implements OnInit, OnDestroy {
   onDateRangeChange() {
     this.pageIndex = 0;
     this.loadTrips();
+  }
+
+  onStartDateChange(dateStr: string) {
+    this.startDate = dateStr ? new Date(dateStr) : null;
+    this.onDateRangeChange();
+  }
+
+  onEndDateChange(dateStr: string) {
+    this.endDate = dateStr ? new Date(dateStr) : null;
+    this.onDateRangeChange();
   }
 
   createTrip() {
