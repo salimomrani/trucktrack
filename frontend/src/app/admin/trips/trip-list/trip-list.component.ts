@@ -1,8 +1,7 @@
-import { Component, OnInit, OnDestroy, inject, signal, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, DestroyRef, ChangeDetectionStrategy, HostListener } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -26,7 +25,6 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
   standalone: true,
   imports: [
     FormsModule,
-    MatMenuModule,
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
@@ -45,6 +43,22 @@ export class TripListComponent implements OnInit, OnDestroy {
   private readonly dialog = inject(MatDialog);
   private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
+
+  // Dropdown state
+  openDropdownId = signal<string | null>(null);
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.dropdown-container')) {
+      this.openDropdownId.set(null);
+    }
+  }
+
+  toggleDropdown(tripId: string, event: Event): void {
+    event.stopPropagation();
+    this.openDropdownId.update(current => current === tripId ? null : tripId);
+  }
 
   // State
   trips = signal<TripResponse[]>([]);

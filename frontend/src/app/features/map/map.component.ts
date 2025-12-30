@@ -1,10 +1,6 @@
 import { Component, OnInit, signal, inject, effect, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 
 import { ActivatedRoute } from '@angular/router';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatButtonModule } from '@angular/material/button';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { interval } from 'rxjs';
 import * as L from 'leaflet';
@@ -18,6 +14,7 @@ import { environment } from '../../../environments/environment';
 import { SearchBarComponent } from '../../core/components/search-bar/search-bar.component';
 import { FilterPanelComponent } from './filter-panel/filter-panel.component';
 import { GeofencePanelComponent } from './geofence-panel/geofence-panel.component';
+import { ToastService } from '../../shared/components/toast/toast.service';
 
 /**
  * MapComponent - Main map view for displaying live truck locations
@@ -27,7 +24,7 @@ import { GeofencePanelComponent } from './geofence-panel/geofence-panel.componen
  */
 @Component({
     selector: 'app-map',
-    imports: [MatProgressSpinnerModule, MatIconModule, MatSnackBarModule, MatButtonModule, SearchBarComponent, FilterPanelComponent, GeofencePanelComponent],
+    imports: [SearchBarComponent, FilterPanelComponent, GeofencePanelComponent],
     templateUrl: './map.component.html',
     styleUrls: ['./map.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -37,7 +34,7 @@ export class MapComponent implements OnInit {
   private readonly facade = inject(StoreFacade);
   private readonly webSocketService = inject(WebSocketService);
   private readonly truckService = inject(TruckService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly route = inject(ActivatedRoute);
 
   // Map and marker state
@@ -209,7 +206,7 @@ export class MapComponent implements OnInit {
           this.facade.selectTruck(truckId);
         }
 
-        this.snackBar.open('Centered on history position', 'OK', { duration: 3000 });
+        this.toast.info('Centered on history position');
       }
     });
   }
@@ -229,16 +226,11 @@ export class MapComponent implements OnInit {
   }
 
   /**
-   * Show error message using Material Snackbar
+   * Show error message using ToastService
    * T092: Implement error handling
    */
   private showError(message: string): void {
-    this.snackBar.open(message, 'Dismiss', {
-      duration: 5000,
-      horizontalPosition: 'center',
-      verticalPosition: 'top',
-      panelClass: ['error-snackbar']
-    });
+    this.toast.error(message);
   }
 
   /**
@@ -620,15 +612,15 @@ export class MapComponent implements OnInit {
           if (positions.length > 0) {
             this.renderHistoryPolyline(positions);
             this.historyMode.set(true);
-            this.snackBar.open(`Showing ${positions.length} positions for last 24h`, 'OK', { duration: 3000 });
+            this.toast.success(`Showing ${positions.length} positions for last 24h`);
           } else {
-            this.snackBar.open('No history data available for this truck', 'OK', { duration: 3000 });
+            this.toast.info('No history data available for this truck');
           }
         },
         error: (err: Error) => {
           this.historyLoading.set(false);
           console.error('Error fetching history:', err);
-          this.snackBar.open('Failed to load truck history', 'Dismiss', { duration: 5000 });
+          this.toast.error('Failed to load truck history');
         }
       });
   }

@@ -12,7 +12,7 @@
       <!-- Loading indicator (T091) -->
       @if (isLoading()) {
         <div class="status-item">
-          <mat-spinner diameter="20" />
+          <div class="animate-spin rounded-full h-5 w-5 border-2 border-primary-500 border-t-transparent"></div>
           <span>Loading trucks...</span>
         </div>
       }
@@ -38,7 +38,7 @@
   <!-- Error message (T092) -->
   @if (errorMessage()) {
     <div class="error-banner">
-      <mat-icon>error</mat-icon>
+      <span class="material-icons">error</span>
       <span>{{ errorMessage() }}</span>
     </div>
   }
@@ -52,11 +52,14 @@
   @if (historyMode()) {
     <div class="history-panel">
       <div class="history-header">
-        <mat-icon>route</mat-icon>
+        <span class="material-icons">route</span>
         <span>Truck History (24h)</span>
       </div>
-      <button mat-raised-button color="warn" (click)="clearHistory()">
-        <mat-icon>close</mat-icon>
+      <button
+        type="button"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-danger-600 text-white rounded-md hover:bg-danger-700 transition-colors"
+        (click)="clearHistory()">
+        <span class="material-icons text-lg">close</span>
         Clear History
       </button>
     </div>
@@ -65,7 +68,7 @@
   <!-- History loading indicator -->
   @if (historyLoading()) {
     <div class="history-loading">
-      <mat-spinner diameter="30"></mat-spinner>
+      <div class="animate-spin rounded-full h-8 w-8 border-4 border-primary-500 border-t-transparent"></div>
       <span>Loading history...</span>
     </div>
   }
