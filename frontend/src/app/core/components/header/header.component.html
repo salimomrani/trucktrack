@@ -1,110 +1,151 @@
 @if (isAuthenticated()) {
-  <header class="sticky top-0 z-50 h-16 bg-gradient-to-r from-primary-600 to-primary-700 shadow-lg" role="banner">
-    <div class="flex items-center w-full max-w-[1400px] mx-auto px-4 h-full gap-2">
-      <!-- Hamburger menu button - toggles sidenav -->
-      <button
-        type="button"
-        class="flex items-center justify-center w-10 h-10 mr-2 text-white/90 rounded-md transition-all duration-200 hover:bg-black/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-        (click)="toggleSidenav()"
-        aria-label="Menu de navigation"
-        aria-controls="sidenav">
-        <span class="material-icons text-2xl">menu</span>
-      </button>
+  <header class="bg-primary-700" role="banner">
+    <nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="flex h-16 items-center justify-between">
+        <!-- Left: Logo -->
+        <div class="flex items-center">
+          <a routerLink="/map" class="flex shrink-0 items-center gap-2 text-white no-underline" aria-label="Truck Track - Accueil">
+            <span class="material-icons text-3xl">local_shipping</span>
+            <span class="text-xl font-bold tracking-tight hidden sm:block">Truck Track</span>
+          </a>
+        </div>
 
-      <!-- Logo -->
-      <a routerLink="/map" class="flex items-center gap-2 px-2 py-2 text-white no-underline rounded-md transition-all duration-200 hover:bg-black/10" aria-label="Truck Track - Accueil">
-        <span class="material-icons text-[28px]">local_shipping</span>
-        <span class="text-lg font-semibold tracking-tight hidden md:inline">Truck Track</span>
-      </a>
-
-      <!-- Spacer -->
-      <div class="flex-1"></div>
-
-      <!-- Analytics button - Feature: 006-fleet-analytics -->
-      <a
-        routerLink="/analytics"
-        routerLinkActive="bg-black/20"
-        class="group relative flex items-center justify-center w-10 h-10 text-white/85 rounded-md transition-all duration-200 hover:bg-black/15 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-        aria-label="Analytics">
-        <span class="material-icons text-2xl">analytics</span>
-        <span class="absolute top-full mt-2 px-2 py-1 text-xs font-medium text-white bg-gray-800 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">Analytics</span>
-      </a>
-
-      <!-- Admin button - visible for admin users only -->
-      @if (hasAdminAccess()) {
-        <a
-          routerLink="/admin"
-          routerLinkActive="bg-black/20"
-          class="group relative flex items-center justify-center w-10 h-10 text-white/85 rounded-md transition-all duration-200 hover:bg-black/15 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-          aria-label="Administration">
-          <span class="material-icons text-2xl">admin_panel_settings</span>
-          <span class="absolute top-full mt-2 px-2 py-1 text-xs font-medium text-white bg-gray-800 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">Administration</span>
-        </a>
-      }
-
-      <!-- Alerts indicator - standalone button with badge -->
-      <a
-        routerLink="/alerts"
-        class="group relative flex items-center justify-center w-10 h-10 text-white/85 rounded-md transition-all duration-200 hover:bg-black/15 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-        aria-label="Alertes">
-        <span class="material-icons text-2xl">notifications</span>
-        <!-- Badge -->
-        @if (unreadCount() > 0) {
-          <span class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center text-[10px] font-semibold text-white bg-danger-500 rounded-full animate-pulse">
-            {{ formatBadge(unreadCount()) }}
-          </span>
-        }
-        <span class="absolute top-full mt-2 px-2 py-1 text-xs font-medium text-white bg-gray-800 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">Alertes</span>
-      </a>
-
-      <!-- User menu - Custom Tailwind dropdown -->
-      <div class="relative">
-        <button
-          type="button"
-          class="flex items-center justify-center w-10 h-10 text-white/85 rounded-md transition-all duration-200 hover:bg-black/15 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-          (click)="toggleUserMenu()"
-          aria-label="Menu utilisateur"
-          aria-expanded="userMenuOpen()"
-          aria-haspopup="true">
-          <span class="material-icons text-[28px]">account_circle</span>
-        </button>
-
-        <!-- Dropdown menu -->
-        @if (userMenuOpen()) {
-          <!-- Backdrop to close menu on click outside -->
-          <div
-            class="fixed inset-0 z-40"
-            (click)="closeUserMenu()">
-          </div>
-
-          <div class="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50 overflow-hidden">
-            <!-- User info header -->
-            <div class="flex items-center gap-3 px-4 py-3 bg-gray-50 border-b border-gray-100">
-              <span class="material-icons text-gray-400">person</span>
-              <div>
-                <div class="font-medium text-gray-800">{{ getUserDisplayName() }}</div>
-                <div class="text-sm text-gray-500 uppercase tracking-wide">{{ currentUser()?.role }}</div>
-              </div>
-            </div>
-
-            <!-- Menu items -->
+        <!-- Center: Desktop Navigation -->
+        <div class="hidden md:ml-10 md:flex md:items-center md:space-x-4">
+          @for (item of filteredNavItems(); track item.route) {
             <a
-              routerLink="/profile"
-              class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
-              (click)="closeUserMenu()">
-              <span class="material-icons text-gray-500">settings</span>
-              <span>Profil & Paramètres</span>
+              [routerLink]="item.route"
+              routerLinkActive="active-nav-link"
+              [routerLinkActiveOptions]="{exact: item.route === '/map'}"
+              class="nav-link relative rounded-md px-3 py-2 text-sm font-medium text-white/80 hover:bg-primary-600 hover:text-white transition-colors"
+              [class.active-nav-link]="false">
+              {{ item.label }}
             </a>
+          }
+        </div>
+
+        <!-- Right: Actions -->
+        <div class="flex items-center gap-4">
+          <!-- Notification Bell -->
+          <a
+            routerLink="/alerts"
+            class="relative rounded-full p-1.5 text-white/80 hover:text-white hover:bg-primary-600 transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-700"
+            aria-label="Notifications">
+            <span class="material-icons text-2xl">notifications_none</span>
+            @if (unreadCount() > 0) {
+              <span class="absolute -top-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-danger-500 text-xs font-bold text-white ring-2 ring-primary-700">
+                {{ formatBadge(unreadCount()) }}
+              </span>
+            }
+          </a>
+
+          <!-- User menu dropdown -->
+          <div class="relative">
             <button
               type="button"
-              class="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors border-t border-gray-100"
-              (click)="logout()">
-              <span class="material-icons text-danger-500">logout</span>
-              <span>Déconnexion</span>
+              class="flex items-center rounded-full bg-primary-600 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-700"
+              (click)="toggleUserMenu()"
+              aria-label="Menu utilisateur"
+              [attr.aria-expanded]="userMenuOpen()">
+              <span class="sr-only">Ouvrir le menu utilisateur</span>
+              <div class="flex h-9 w-9 items-center justify-center rounded-full bg-primary-500 text-white font-medium">
+                {{ getInitials() }}
+              </div>
             </button>
+
+            <!-- User dropdown -->
+            @if (userMenuOpen()) {
+              <div class="fixed inset-0 z-40" (click)="closeUserMenu()"></div>
+              <div class="absolute right-0 top-full mt-2 w-56 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 z-50">
+                <!-- User info -->
+                <div class="px-4 py-3 border-b border-gray-100">
+                  <p class="text-sm font-medium text-gray-900">{{ getUserDisplayName() }}</p>
+                  <p class="text-xs text-gray-500 truncate">{{ currentUser()?.email }}</p>
+                </div>
+                <!-- Menu items -->
+                <a
+                  routerLink="/profile"
+                  class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                  (click)="closeUserMenu()">
+                  <span class="material-icons text-gray-400 text-lg">person</span>
+                  Mon profil
+                </a>
+                <a
+                  routerLink="/analytics"
+                  class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                  (click)="closeUserMenu()">
+                  <span class="material-icons text-gray-400 text-lg">analytics</span>
+                  Analytics
+                </a>
+                <div class="border-t border-gray-100 mt-1">
+                  <button
+                    type="button"
+                    class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                    (click)="logout()">
+                    <span class="material-icons text-gray-400 text-lg">logout</span>
+                    Déconnexion
+                  </button>
+                </div>
+              </div>
+            }
           </div>
-        }
+
+          <!-- Mobile menu button -->
+          <button
+            type="button"
+            class="md:hidden inline-flex items-center justify-center rounded-md p-2 text-white/80 hover:bg-primary-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+            (click)="toggleMobileMenu()"
+            aria-label="Menu mobile"
+            [attr.aria-expanded]="mobileMenuOpen()">
+            <span class="sr-only">Ouvrir le menu principal</span>
+            @if (!mobileMenuOpen()) {
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+            } @else {
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            }
+          </button>
+        </div>
       </div>
-    </div>
+    </nav>
+
+    <!-- Mobile menu -->
+    @if (mobileMenuOpen()) {
+      <div class="md:hidden border-t border-primary-600">
+        <div class="space-y-1 px-2 py-3">
+          @for (item of filteredNavItems(); track item.route) {
+            <a
+              [routerLink]="item.route"
+              routerLinkActive="bg-primary-800 text-white"
+              [routerLinkActiveOptions]="{exact: item.route === '/map'}"
+              class="flex items-center gap-3 rounded-md px-3 py-2 text-base font-medium text-white/80 hover:bg-primary-600 hover:text-white transition-colors"
+              (click)="closeMobileMenu()">
+              <span class="material-icons text-xl">{{ item.icon }}</span>
+              {{ item.label }}
+              @if (item.route === '/alerts' && unreadCount() > 0) {
+                <span class="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-danger-500 px-1.5 text-xs font-bold text-white">
+                  {{ formatBadge(unreadCount()) }}
+                </span>
+              }
+            </a>
+          }
+        </div>
+        <!-- Mobile user info -->
+        <div class="border-t border-primary-600 px-4 py-3">
+          <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary-500 text-white font-medium">
+              {{ getInitials() }}
+            </div>
+            <div>
+              <p class="text-sm font-medium text-white">{{ getUserDisplayName() }}</p>
+              <p class="text-xs text-white/70">{{ currentUser()?.email }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
   </header>
 }

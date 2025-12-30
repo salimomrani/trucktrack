@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy, OnInit, OnDestroy, computed, signal, output } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, OnInit, OnDestroy, computed, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { StoreFacade } from '../../../store/store.facade';
 import { NotificationService } from '../../../services/notification.service';
@@ -39,11 +39,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // T165: Notification badge - unread count from NotificationService
   unreadCount = this.notificationService.unreadCount;
 
-  // Mobile sidenav state
-  sidenavOpen = signal(false);
-
   // User menu dropdown state
   userMenuOpen = signal(false);
+
+  // Mobile menu state
+  mobileMenuOpen = signal(false);
 
   // Current user role computed from currentUser
   currentUserRole = computed(() => {
@@ -67,9 +67,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   hasAdminAccess = computed(() => {
     return this.navigationService.hasAdminAccess(this.currentUserRole());
   });
-
-  // Output event for mobile sidenav toggle
-  readonly toggleSidenavEvent = output<void>();
 
   ngOnInit(): void {
     if (this.isAuthenticated()) {
@@ -123,6 +120,28 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Get user initials for avatar
+   */
+  getInitials(): string {
+    const user = this.currentUser();
+    if (!user) {
+      return '?';
+    }
+
+    const firstName = user.firstName?.trim() || '';
+    const lastName = user.lastName?.trim() || '';
+
+    if (firstName && lastName) {
+      return (firstName[0] + lastName[0]).toUpperCase();
+    } else if (firstName) {
+      return firstName.substring(0, 2).toUpperCase();
+    } else if (user.email) {
+      return user.email.substring(0, 2).toUpperCase();
+    }
+    return '?';
+  }
+
+  /**
    * Format badge count (show 99+ if > 99)
    */
   formatBadge(count: number): string {
@@ -130,17 +149,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Toggle mobile sidenav - emit event to parent
+   * Toggle mobile menu
    */
-  toggleSidenav(): void {
-    this.toggleSidenavEvent.emit();
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen.update(open => !open);
   }
 
   /**
-   * Close mobile sidenav
+   * Close mobile menu
    */
-  closeSidenav(): void {
-    this.sidenavOpen.set(false);
+  closeMobileMenu(): void {
+    this.mobileMenuOpen.set(false);
   }
 
   /**
