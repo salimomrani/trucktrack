@@ -10,10 +10,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { UserService } from '../user.service';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 import { UserAdminResponse, CreateUserRequest, UpdateUserRequest, USER_ROLES, UserRole } from '../user.model';
 import { GroupService, GroupDetailResponse } from '../../groups/group.service';
 import { AuditLogComponent } from '../../shared/audit-log/audit-log.component';
@@ -39,7 +39,6 @@ import { forkJoin } from 'rxjs';
         MatSelectModule,
         MatCheckboxModule,
         MatChipsModule,
-        MatSnackBarModule,
         MatProgressSpinnerModule,
         MatDividerModule,
         AuditLogComponent,
@@ -55,7 +54,7 @@ export class UserFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly userService = inject(UserService);
   private readonly groupService = inject(GroupService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   // State
   userId = signal<string | null>(null);
@@ -136,7 +135,7 @@ export class UserFormComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load user:', err);
-        this.snackBar.open('Failed to load user', 'Close', { duration: 3000 });
+        this.toast.error('Failed to load user');
         this.loading.set(false);
         this.router.navigate(['/admin/users']);
       }
@@ -172,12 +171,12 @@ export class UserFormComponent implements OnInit {
         if (this.selectedGroupIds().length > 0) {
           this.saveUserGroups(user.id);
         }
-        this.snackBar.open(`User ${user.fullName} created successfully`, 'Close', { duration: 3000 });
+        this.toast.success(`User ${user.fullName} created successfully`);
         this.router.navigate(['/admin/users']);
       },
       error: (err) => {
         console.error('Failed to create user:', err);
-        this.snackBar.open(err.error?.message || 'Failed to create user', 'Close', { duration: 3000 });
+        this.toast.error(err.error?.message || 'Failed to create user');
         this.saving.set(false);
       }
     });
@@ -206,12 +205,12 @@ export class UserFormComponent implements OnInit {
       next: (user) => {
         // Always save groups on update
         this.saveUserGroups(user.id);
-        this.snackBar.open(`User ${user.fullName} updated successfully`, 'Close', { duration: 3000 });
+        this.toast.success(`User ${user.fullName} updated successfully`);
         this.router.navigate(['/admin/users']);
       },
       error: (err) => {
         console.error('Failed to update user:', err);
-        this.snackBar.open(err.error?.message || 'Failed to update user', 'Close', { duration: 3000 });
+        this.toast.error(err.error?.message || 'Failed to update user');
         this.saving.set(false);
       }
     });
@@ -232,7 +231,7 @@ export class UserFormComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to update user groups:', err);
-        this.snackBar.open('User saved but failed to update groups', 'Close', { duration: 3000 });
+        this.toast.warning('User saved but failed to update groups');
       }
     });
   }

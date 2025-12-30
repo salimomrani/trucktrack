@@ -6,8 +6,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TripService } from '../trip.service';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 import { TripResponse, TripStatusHistoryResponse, TRIP_STATUS_COLORS, TRIP_STATUSES, CreateTripRequest, AssignTripRequest, UpdateTripRequest } from '../trip.model';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.component';
@@ -32,8 +32,7 @@ import { StoreFacade } from '../../../store/store.facade';
     MatFormFieldModule, // Keep for forms until full migration
     MatInputModule,     // Keep for forms until full migration
     MatSelectModule,    // Keep for forms until full migration
-    MatDialogModule,    // Keep for dialogs until Phase 8
-    MatSnackBarModule,  // Keep for notifications until Phase 9
+    MatDialogModule,    // Keep for dialogs
     BreadcrumbComponent,
     LocationPickerComponent
   ],
@@ -47,7 +46,7 @@ export class TripDetailComponent implements OnInit {
   private readonly truckService = inject(TruckAdminService);
   private readonly fb = inject(FormBuilder);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly facade = inject(StoreFacade);
 
   // State
@@ -117,7 +116,7 @@ export class TripDetailComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load trip:', err);
-        this.snackBar.open('Failed to load trip', 'Close', { duration: 3000 });
+        this.toast.error('Failed to load trip');
         this.router.navigate(['/admin/trips']);
       }
     });
@@ -250,12 +249,12 @@ export class TripDetailComponent implements OnInit {
           this.trip.set(trip);
           this.isEditMode.set(false);
           this.saving.set(false);
-          this.snackBar.open('Trip updated', 'Close', { duration: 3000 });
+          this.toast.success('Trip updated');
           this.loadHistory();
         },
         error: (err) => {
           console.error('Failed to update trip:', err);
-          this.snackBar.open(err.error?.message || 'Failed to update trip', 'Close', { duration: 3000 });
+          this.toast.error(err.error?.message || 'Failed to update trip');
           this.saving.set(false);
         }
       });
@@ -273,12 +272,12 @@ export class TripDetailComponent implements OnInit {
       };
       this.tripService.createTrip(createRequest).subscribe({
         next: (trip) => {
-          this.snackBar.open('Trip created', 'Close', { duration: 3000 });
+          this.toast.success('Trip created');
           this.router.navigate(['/admin/trips', trip.id]);
         },
         error: (err) => {
           console.error('Failed to create trip:', err);
-          this.snackBar.open(err.error?.message || 'Failed to create trip', 'Close', { duration: 3000 });
+          this.toast.error(err.error?.message || 'Failed to create trip');
           this.saving.set(false);
         }
       });
@@ -292,7 +291,7 @@ export class TripDetailComponent implements OnInit {
     const selectedDriver = this.assignableDrivers().find(d => d.driverId === selectedDriverId);
 
     if (!selectedDriver) {
-      this.snackBar.open('Driver not found', 'Close', { duration: 3000 });
+      this.toast.error('Driver not found');
       return;
     }
 
@@ -308,12 +307,12 @@ export class TripDetailComponent implements OnInit {
         this.showAssignPanel.set(false);
         this.assignForm.reset();
         this.saving.set(false);
-        this.snackBar.open('Trip assigned successfully', 'Close', { duration: 3000 });
+        this.toast.success('Trip assigned successfully');
         this.loadHistory();
       },
       error: (err) => {
         console.error('Failed to assign trip:', err);
-        this.snackBar.open(err.error?.message || 'Failed to assign trip', 'Close', { duration: 3000 });
+        this.toast.error(err.error?.message || 'Failed to assign trip');
         this.saving.set(false);
       }
     });
@@ -330,7 +329,7 @@ export class TripDetailComponent implements OnInit {
     const selectedDriver = this.assignableDrivers().find(d => d.driverId === selectedDriverId);
 
     if (!selectedDriver) {
-      this.snackBar.open('Driver not found', 'Close', { duration: 3000 });
+      this.toast.error('Driver not found');
       return;
     }
 
@@ -346,12 +345,12 @@ export class TripDetailComponent implements OnInit {
         this.showReassignPanel.set(false);
         this.reassignForm.reset();
         this.saving.set(false);
-        this.snackBar.open('Trip reassigned successfully', 'Close', { duration: 3000 });
+        this.toast.success('Trip reassigned successfully');
         this.loadHistory();
       },
       error: (err) => {
         console.error('Failed to reassign trip:', err);
-        this.snackBar.open(err.error?.message || 'Failed to reassign trip', 'Close', { duration: 3000 });
+        this.toast.error(err.error?.message || 'Failed to reassign trip');
         this.saving.set(false);
       }
     });
@@ -383,12 +382,12 @@ export class TripDetailComponent implements OnInit {
     this.tripService.cancelTrip(this.tripId).subscribe({
       next: (trip) => {
         this.trip.set(trip);
-        this.snackBar.open('Trip cancelled', 'Close', { duration: 3000 });
+        this.toast.success('Trip cancelled');
         this.loadHistory();
       },
       error: (err) => {
         console.error('Failed to cancel trip:', err);
-        this.snackBar.open(err.error?.message || 'Failed to cancel trip', 'Close', { duration: 3000 });
+        this.toast.error(err.error?.message || 'Failed to cancel trip');
       }
     });
   }

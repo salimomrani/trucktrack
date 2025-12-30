@@ -9,10 +9,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { TruckAdminService } from '../truck-admin.service';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 import { TruckAdminResponse, CreateTruckRequest, UpdateTruckRequest, VEHICLE_TYPES, TRUCK_STATUSES, DriverOption } from '../truck.model';
 import { AuditLogComponent } from '../../shared/audit-log/audit-log.component';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/breadcrumb/breadcrumb.component';
@@ -34,7 +34,6 @@ import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/breadcrumb/bre
         MatInputModule,
         MatSelectModule,
         MatChipsModule,
-        MatSnackBarModule,
         MatProgressSpinnerModule,
         MatDividerModule,
         AuditLogComponent,
@@ -49,7 +48,7 @@ export class TruckFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly truckService = inject(TruckAdminService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   // State
   truckId = signal<string | null>(null);
@@ -122,7 +121,7 @@ export class TruckFormComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load truck:', err);
-        this.snackBar.open('Failed to load truck', 'Close', { duration: 3000 });
+        this.toast.error('Failed to load truck');
         this.loading.set(false);
         this.router.navigate(['/admin/trucks']);
       }
@@ -155,12 +154,12 @@ export class TruckFormComponent implements OnInit {
 
     this.truckService.createTruck(request).subscribe({
       next: (truck) => {
-        this.snackBar.open(`Truck ${truck.truckId} created successfully`, 'Close', { duration: 3000 });
+        this.toast.success(`Truck ${truck.truckId} created successfully`);
         this.router.navigate(['/admin/trucks']);
       },
       error: (err) => {
         console.error('Failed to create truck:', err);
-        this.snackBar.open(err.error?.message || 'Failed to create truck', 'Close', { duration: 3000 });
+        this.toast.error(err.error?.message || 'Failed to create truck');
         this.saving.set(false);
       }
     });
@@ -187,12 +186,12 @@ export class TruckFormComponent implements OnInit {
 
     this.truckService.updateTruck(this.truckId()!, request).subscribe({
       next: (truck) => {
-        this.snackBar.open(`Truck ${truck.truckId} updated successfully`, 'Close', { duration: 3000 });
+        this.toast.success(`Truck ${truck.truckId} updated successfully`);
         this.router.navigate(['/admin/trucks']);
       },
       error: (err) => {
         console.error('Failed to update truck:', err);
-        this.snackBar.open(err.error?.message || 'Failed to update truck', 'Close', { duration: 3000 });
+        this.toast.error(err.error?.message || 'Failed to update truck');
         this.saving.set(false);
       }
     });
