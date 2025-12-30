@@ -1,12 +1,13 @@
-<div class="not-found-container">
-  <mat-card class="not-found-card">
-    <mat-card-content>
-      <mat-icon class="not-found-icon">explore_off</mat-icon>
-      <h1>404 - Page Not Found</h1>
-      <p>The page you're looking for doesn't exist or has been moved.</p>
-      <button mat-raised-button color="primary" routerLink="/map">
-        Go to Map
-      </button>
-    </mat-card-content>
-  </mat-card>
+<div class="min-h-screen flex items-center justify-center bg-gray-50 p-6">
+  <div class="bg-white rounded-lg shadow-card p-8 text-center max-w-md">
+    <span class="material-icons text-6xl text-gray-400 mb-4">explore_off</span>
+    <h1 class="text-2xl font-semibold text-gray-800 mb-2">404 - Page Not Found</h1>
+    <p class="text-gray-500 mb-6">The page you're looking for doesn't exist or has been moved.</p>
+    <a
+      routerLink="/map"
+      class="inline-flex items-center gap-2 px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors">
+      <span class="material-icons text-lg">map</span>
+      Go to Map
+    </a>
+  </div>
 </div>

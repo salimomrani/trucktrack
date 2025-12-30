@@ -1,141 +1,170 @@
-<div class="history-container">
-  <mat-card class="filters-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>history</mat-icon>
-        Truck Movement History
-      </mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
+<div class="p-6 space-y-6">
+  <!-- Filters Card -->
+  <div class="bg-white rounded-lg shadow-card">
+    <div class="p-4 border-b border-gray-100 flex items-center gap-3">
+      <span class="material-icons text-primary-600">history</span>
+      <h2 class="text-lg font-semibold text-gray-800">Truck Movement History</h2>
+    </div>
+    <div class="p-4 space-y-4">
       <!-- Time Range Presets -->
-      <div class="time-range-presets">
-        <span class="preset-label">Quick Select:</span>
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-sm text-gray-500">Quick Select:</span>
         @for (range of timeRanges; track range.hours) {
-          <button mat-stroked-button
-                  [class.selected]="selectedTimeRange() === range.hours"
-                  (click)="onTimeRangeChange(range.hours)">
+          <button
+            type="button"
+            class="px-3 py-1.5 text-sm rounded-md border transition-colors"
+            [class]="selectedTimeRange() === range.hours
+              ? 'bg-primary-600 text-white border-primary-600'
+              : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'"
+            (click)="onTimeRangeChange(range.hours)">
             {{ range.label }}
           </button>
         }
       </div>
 
-      <div class="filters">
-        <mat-form-field appearance="outline">
-          <mat-label>Select Truck</mat-label>
-          <mat-select [value]="selectedTruckId()" (selectionChange)="onTruckSelect($event.value)">
-            <mat-option [value]="null">All Trucks</mat-option>
+      <!-- Filters Row -->
+      <div class="flex flex-wrap items-end gap-4">
+        <!-- Truck Select -->
+        <div class="min-w-[180px]">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Select Truck</label>
+          <select
+            class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            [value]="selectedTruckId() || ''"
+            (change)="onTruckSelect($any($event.target).value)">
+            <option value="">All Trucks</option>
             @for (truck of trucks(); track truck.id) {
-              <mat-option [value]="truck.id">{{ truck.id }}</mat-option>
+              <option [value]="truck.id">{{ truck.id }}</option>
             }
-          </mat-select>
-        </mat-form-field>
+          </select>
+        </div>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Start Date</mat-label>
-          <input matInput [matDatepicker]="startPicker" [value]="startDate()" (dateChange)="startDate.set($event.value); onDateChange()">
-          <mat-datepicker-toggle matIconSuffix [for]="startPicker" />
-          <mat-datepicker #startPicker />
-        </mat-form-field>
+        <!-- Start Date -->
+        <div class="min-w-[180px]">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+          <input
+            type="date"
+            class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            [valueAsDate]="startDate()"
+            (change)="onStartDateChange($any($event.target).valueAsDate)">
+        </div>
 
-        <mat-form-field appearance="outline">
-          <mat-label>End Date</mat-label>
-          <input matInput [matDatepicker]="endPicker" [value]="endDate()" (dateChange)="endDate.set($event.value); onDateChange()">
-          <mat-datepicker-toggle matIconSuffix [for]="endPicker" />
-          <mat-datepicker #endPicker />
-        </mat-form-field>
+        <!-- End Date -->
+        <div class="min-w-[180px]">
+          <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+          <input
+            type="date"
+            class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            [valueAsDate]="endDate()"
+            (change)="onEndDateChange($any($event.target).valueAsDate)">
+        </div>
 
-        <button mat-raised-button color="primary" (click)="loadHistory()">
-          <mat-icon>search</mat-icon>
+        <!-- Action Buttons -->
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
+          (click)="loadHistory()">
+          <span class="material-icons text-lg">search</span>
           Load History
         </button>
 
-        <button mat-raised-button (click)="clearFilters()">
-          <mat-icon>clear</mat-icon>
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+          (click)="clearFilters()">
+          <span class="material-icons text-lg">clear</span>
           Clear
         </button>
 
-        <button mat-raised-button color="accent" (click)="exportHistory()" [disabled]="!hasData()">
-          <mat-icon>download</mat-icon>
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          [disabled]="!hasData()"
+          (click)="exportHistory()">
+          <span class="material-icons text-lg">download</span>
           Export
         </button>
       </div>
 
+      <!-- Error Message -->
       @if (historyError()) {
-        <div class="error-message">
-          <mat-icon>error</mat-icon>
-          {{ historyError() }}
+        <div class="flex items-center gap-2 p-3 bg-danger-50 text-danger-700 rounded-md">
+          <span class="material-icons">error</span>
+          <span>{{ historyError() }}</span>
         </div>
       }
 
-      <div class="results-info">
-        <mat-chip>{{ filteredHistory().length }} records found</mat-chip>
+      <!-- Results Info -->
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">
+          {{ filteredHistory().length }} records found
+        </span>
         @if (selectedTruck()) {
-          <mat-chip color="primary">Truck: {{ selectedTruck()?.id }}</mat-chip>
+          <span class="inline-flex items-center px-3 py-1 bg-primary-100 text-primary-700 text-sm rounded-full">
+            Truck: {{ selectedTruck()?.id }}
+          </span>
         }
       </div>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </div>
 
-  <mat-card class="table-card">
+  <!-- Table Card -->
+  <div class="bg-white rounded-lg shadow-card">
     @if (isLoading()) {
-      <div class="loading-spinner">
-        <mat-spinner />
-        <p>Loading history...</p>
+      <div class="flex flex-col items-center justify-center py-12">
+        <div class="w-10 h-10 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-gray-500">Loading history...</p>
       </div>
     } @else if (filteredHistory().length === 0) {
-      <div class="no-data">
-        <mat-icon>inbox</mat-icon>
-        <p>No history data available</p>
-        <small>Try adjusting your filters or select a different date range</small>
+      <div class="flex flex-col items-center justify-center py-12 text-gray-400">
+        <span class="material-icons text-5xl mb-4">inbox</span>
+        <p class="text-lg font-medium text-gray-600">No history data available</p>
+        <p class="text-sm">Try adjusting your filters or select a different date range</p>
       </div>
     } @else {
-      <table mat-table [dataSource]="filteredHistory()" class="history-table">
-        <ng-container matColumnDef="timestamp">
-          <th mat-header-cell *matHeaderCellDef>Timestamp</th>
-          <td mat-cell *matCellDef="let element">{{ element.timestamp | date:'medium' }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="truckId">
-          <th mat-header-cell *matHeaderCellDef>Truck ID</th>
-          <td mat-cell *matCellDef="let element">{{ element.truckId }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="location">
-          <th mat-header-cell *matHeaderCellDef>Location</th>
-          <td mat-cell *matCellDef="let element">{{ formatLocation(element.latitude, element.longitude) }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="speed">
-          <th mat-header-cell *matHeaderCellDef>Speed</th>
-          <td mat-cell *matCellDef="let element">{{ formatSpeed(element.speed) }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="heading">
-          <th mat-header-cell *matHeaderCellDef>Heading</th>
-          <td mat-cell *matCellDef="let element">{{ formatHeading(element.heading) }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef>Status</th>
-          <td mat-cell *matCellDef="let element">
-            <mat-chip [class.moving]="element.status === 'moving'" [class.stopped]="element.status === 'stopped'">
-              {{ element.status }}
-            </mat-chip>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Actions</th>
-          <td mat-cell *matCellDef="let element">
-            <button mat-icon-button (click)="viewOnMap(element)" matTooltip="View on map">
-              <mat-icon>map</mat-icon>
-            </button>
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      </table>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gray-50 border-b border-gray-200">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Timestamp</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Truck ID</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Location</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Speed</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Heading</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            @for (element of filteredHistory(); track element.timestamp) {
+              <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 text-sm text-gray-700">{{ element.timestamp | date:'medium' }}</td>
+                <td class="px-4 py-3 text-sm text-gray-700 font-medium">{{ element.truckId }}</td>
+                <td class="px-4 py-3 text-sm text-gray-700">{{ formatLocation(element.latitude, element.longitude) }}</td>
+                <td class="px-4 py-3 text-sm text-gray-700">{{ formatSpeed(element.speed) }}</td>
+                <td class="px-4 py-3 text-sm text-gray-700">{{ formatHeading(element.heading) }}</td>
+                <td class="px-4 py-3">
+                  <span
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                    [class]="element.status === 'moving'
+                      ? 'bg-success-100 text-success-700'
+                      : 'bg-gray-100 text-gray-700'">
+                    {{ element.status }}
+                  </span>
+                </td>
+                <td class="px-4 py-3">
+                  <button
+                    type="button"
+                    class="p-1 text-gray-400 hover:text-primary-600 transition-colors"
+                    title="View on map"
+                    (click)="viewOnMap(element)">
+                    <span class="material-icons">map</span>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     }
-  </mat-card>
+  </div>
 </div>

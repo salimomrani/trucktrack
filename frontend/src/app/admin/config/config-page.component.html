@@ -1,98 +1,125 @@
-<div class="config-container">
+<div class="p-6 space-y-6">
   <!-- Breadcrumb -->
   <app-breadcrumb [items]="[{ label: 'Configuration', icon: 'settings' }]"></app-breadcrumb>
 
   <!-- Header -->
-  <div class="page-header">
-    <h1>System Configuration</h1>
-    <p class="subtitle">Manage application settings</p>
+  <div class="mb-6">
+    <h1 class="text-2xl font-semibold text-gray-800">System Configuration</h1>
+    <p class="text-gray-500">Manage application settings</p>
   </div>
 
   @if (loading()) {
-    <div class="loading-container">
-      <mat-spinner diameter="48"></mat-spinner>
+    <div class="flex flex-col items-center justify-center py-12">
+      <div class="w-12 h-12 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+      <p class="text-gray-500">Loading configuration...</p>
     </div>
   } @else if (error()) {
-    <mat-card class="error-card">
-      <mat-card-content>
-        <mat-icon>error</mat-icon>
-        <p>{{ error() }}</p>
-        <button mat-button color="primary" (click)="loadConfig()">Retry</button>
-      </mat-card-content>
-    </mat-card>
+    <div class="bg-white rounded-lg shadow-card p-6">
+      <div class="flex flex-col items-center text-center">
+        <span class="material-icons text-4xl text-danger-500 mb-4">error</span>
+        <p class="text-gray-700 mb-4">{{ error() }}</p>
+        <button
+          type="button"
+          class="px-4 py-2 text-primary-600 hover:bg-primary-50 rounded-md transition-colors"
+          (click)="loadConfig()">
+          Retry
+        </button>
+      </div>
+    </div>
   } @else {
     <!-- Configuration Categories -->
     @for (category of categories(); track category) {
-      <mat-card class="config-section">
-        <mat-card-header>
-          <mat-icon mat-card-avatar [class]="'config-icon ' + category.toLowerCase()">
-            {{ getCategoryIcon(category) }}
-          </mat-icon>
-          <mat-card-title>{{ category }}</mat-card-title>
-          <mat-card-subtitle>{{ getCategoryDescription(category) }}</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <mat-accordion>
-            @for (config of getConfigsByCategory(category); track config.key) {
-              <mat-expansion-panel>
-                <mat-expansion-panel-header>
-                  <mat-panel-title>{{ config.key }}</mat-panel-title>
-                  <mat-panel-description>{{ config.value }}</mat-panel-description>
-                </mat-expansion-panel-header>
-
-                <div class="config-detail">
-                  <p class="config-description">{{ config.description }}</p>
-
-                  <mat-form-field appearance="outline" class="config-input">
-                    <mat-label>Value</mat-label>
-                    @if (config.valueType === 'BOOLEAN') {
-                      <mat-select [(ngModel)]="editValues[config.key]">
-                        <mat-option value="true">True</mat-option>
-                        <mat-option value="false">False</mat-option>
-                      </mat-select>
-                    } @else {
-                      <input matInput [(ngModel)]="editValues[config.key]"
-                             [type]="config.valueType === 'INTEGER' ? 'number' : 'text'">
-                    }
-                  </mat-form-field>
-
-                  <mat-form-field appearance="outline" class="config-input">
-                    <mat-label>Reason for change (optional)</mat-label>
-                    <input matInput [(ngModel)]="editReasons[config.key]">
-                  </mat-form-field>
-
-                  <div class="config-actions">
-                    <button mat-button (click)="resetValue(config)">Reset</button>
-                    <button mat-raised-button color="primary"
-                            [disabled]="editValues[config.key] === config.value"
-                            (click)="saveConfig(config)">
-                      Save
-                    </button>
-                  </div>
-
-                  <div class="config-meta">
-                    <span>Type: {{ config.valueType }}</span>
-                    <span>Version: {{ config.version }}</span>
-                    @if (config.updatedBy) {
-                      <span>Last updated by {{ config.updatedBy }}</span>
-                    }
-                  </div>
+      <div class="bg-white rounded-lg shadow-card">
+        <div class="p-4 border-b border-gray-100 flex items-center gap-4">
+          <div class="flex items-center justify-center w-10 h-10 rounded-full bg-primary-50">
+            <span class="material-icons text-primary-600">{{ getCategoryIcon(category) }}</span>
+          </div>
+          <div>
+            <h2 class="text-lg font-semibold text-gray-800">{{ category }}</h2>
+            <p class="text-sm text-gray-500">{{ getCategoryDescription(category) }}</p>
+          </div>
+        </div>
+        <div class="p-4 space-y-2">
+          @for (config of getConfigsByCategory(category); track config.key; let idx = $index) {
+            <details class="group border border-gray-200 rounded-lg">
+              <summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 rounded-lg">
+                <div class="flex-1">
+                  <span class="font-medium text-gray-800">{{ config.key }}</span>
+                  <span class="ml-4 text-sm text-gray-500">{{ config.value }}</span>
                 </div>
-              </mat-expansion-panel>
-            }
-          </mat-accordion>
-        </mat-card-content>
-      </mat-card>
+                <span class="material-icons text-gray-400 transition-transform group-open:rotate-180">expand_more</span>
+              </summary>
+              <div class="p-4 pt-0 space-y-4">
+                <p class="text-sm text-gray-600">{{ config.description }}</p>
+
+                <!-- Value Input -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Value</label>
+                  @if (config.valueType === 'BOOLEAN') {
+                    <select
+                      class="w-full max-w-md px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      [(ngModel)]="editValues[config.key]">
+                      <option value="true">True</option>
+                      <option value="false">False</option>
+                    </select>
+                  } @else {
+                    <input
+                      [type]="config.valueType === 'INTEGER' ? 'number' : 'text'"
+                      class="w-full max-w-md px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      [(ngModel)]="editValues[config.key]">
+                  }
+                </div>
+
+                <!-- Reason Input -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Reason for change (optional)</label>
+                  <input
+                    type="text"
+                    class="w-full max-w-md px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    [(ngModel)]="editReasons[config.key]"
+                    placeholder="Enter reason...">
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center gap-3">
+                  <button
+                    type="button"
+                    class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                    (click)="resetValue(config)">
+                    Reset
+                  </button>
+                  <button
+                    type="button"
+                    class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    [disabled]="editValues[config.key] === config.value"
+                    (click)="saveConfig(config)">
+                    Save
+                  </button>
+                </div>
+
+                <!-- Meta Information -->
+                <div class="flex flex-wrap items-center gap-4 text-xs text-gray-500 pt-2 border-t border-gray-100">
+                  <span>Type: {{ config.valueType }}</span>
+                  <span>Version: {{ config.version }}</span>
+                  @if (config.updatedBy) {
+                    <span>Last updated by {{ config.updatedBy }}</span>
+                  }
+                </div>
+              </div>
+            </details>
+          }
+        </div>
+      </div>
     }
 
     @if (configs().length === 0) {
-      <mat-card class="empty-card">
-        <mat-card-content>
-          <mat-icon>settings</mat-icon>
-          <p>No configuration settings found.</p>
-          <p class="hint">Configuration will be populated when the system initializes.</p>
-        </mat-card-content>
-      </mat-card>
+      <div class="bg-white rounded-lg shadow-card p-8">
+        <div class="flex flex-col items-center text-center text-gray-400">
+          <span class="material-icons text-5xl mb-4">settings</span>
+          <p class="text-lg font-medium text-gray-600">No configuration settings found.</p>
+          <p class="text-sm">Configuration will be populated when the system initializes.</p>
+        </div>
+      </div>
     }
   }
 </div>

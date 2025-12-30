@@ -1,57 +1,67 @@
-<div class="preferences-container">
-  <h2>Préférences de notifications</h2>
-  <p class="subtitle">Choisissez comment vous souhaitez être notifié pour chaque type d'événement.</p>
+<div class="p-6 max-w-3xl mx-auto">
+  <h2 class="text-2xl font-semibold text-gray-800 mb-2">Préférences de notifications</h2>
+  <p class="text-gray-500 mb-6">Choisissez comment vous souhaitez être notifié pour chaque type d'événement.</p>
 
   @if (loading()) {
-    <div class="loading-container">
-      <mat-spinner diameter="40"></mat-spinner>
-      <p>Chargement des préférences...</p>
+    <div class="flex flex-col items-center justify-center py-12">
+      <div class="w-10 h-10 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+      <p class="text-gray-500">Chargement des préférences...</p>
     </div>
   } @else {
-    @for (group of preferenceGroups; track group.title) {
-      <mat-card class="preference-group">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>{{ group.icon }}</mat-icon>
-          <mat-card-title>{{ group.title }}</mat-card-title>
-        </mat-card-header>
-
-        <mat-card-content>
-          @for (eventType of group.eventTypes; track eventType) {
-            <div class="preference-row">
-              <div class="preference-label">
-                {{ getEventLabel(eventType) }}
-              </div>
-              <div class="preference-toggles">
-                <div class="toggle-item">
-                  <span class="toggle-label">Email</span>
-                  <mat-slide-toggle
-                    [checked]="isEmailEnabled(eventType)"
-                    [disabled]="saving()"
-                    (change)="onToggleEmail(eventType, $event.checked)">
-                  </mat-slide-toggle>
-                </div>
-                <div class="toggle-item">
-                  <span class="toggle-label">Push</span>
-                  <mat-slide-toggle
-                    [checked]="isPushEnabled(eventType)"
-                    [disabled]="saving()"
-                    (change)="onTogglePush(eventType, $event.checked)">
-                  </mat-slide-toggle>
-                </div>
-              </div>
+    <div class="space-y-6">
+      @for (group of preferenceGroups; track group.title) {
+        <div class="bg-white rounded-lg shadow-card">
+          <div class="p-4 border-b border-gray-100 flex items-center gap-3">
+            <div class="flex items-center justify-center w-10 h-10 rounded-full bg-primary-50">
+              <span class="material-icons text-primary-600">{{ group.icon }}</span>
             </div>
-            @if (!$last) {
-              <mat-divider></mat-divider>
+            <h3 class="text-lg font-semibold text-gray-800">{{ group.title }}</h3>
+          </div>
+
+          <div class="p-4">
+            @for (eventType of group.eventTypes; track eventType; let last = $last) {
+              <div class="flex items-center justify-between py-3">
+                <span class="text-gray-700">{{ getEventLabel(eventType) }}</span>
+                <div class="flex items-center gap-6">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm text-gray-500">Email</span>
+                    <label class="inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        class="sr-only peer"
+                        [checked]="isEmailEnabled(eventType)"
+                        [disabled]="saving()"
+                        (change)="onToggleEmail(eventType, $any($event.target).checked)">
+                      <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-600 relative peer-disabled:opacity-50"></div>
+                    </label>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm text-gray-500">Push</span>
+                    <label class="inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        class="sr-only peer"
+                        [checked]="isPushEnabled(eventType)"
+                        [disabled]="saving()"
+                        (change)="onTogglePush(eventType, $any($event.target).checked)">
+                      <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-600 relative peer-disabled:opacity-50"></div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              @if (!last) {
+                <hr class="border-gray-100">
+              }
             }
-          }
-        </mat-card-content>
-      </mat-card>
-    }
+          </div>
+        </div>
+      }
+    </div>
   }
 
   @if (saving()) {
-    <div class="saving-overlay">
-      <mat-spinner diameter="24"></mat-spinner>
+    <div class="fixed bottom-4 right-4 flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-lg shadow-lg">
+      <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
       <span>Enregistrement...</span>
     </div>
   }

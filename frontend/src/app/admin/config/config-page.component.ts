@@ -1,49 +1,27 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatSelectModule } from '@angular/material/select';
 import { ConfigService, ConfigResponse, UpdateConfigRequest } from './config.service';
 import { BreadcrumbComponent } from '../shared/breadcrumb/breadcrumb.component';
+import { ToastService } from '../../shared/components/toast/toast.service';
 
 /**
  * System configuration page.
  * Feature: 002-admin-panel (US4)
  */
 @Component({
-    selector: 'app-config-page',
-    imports: [
+  selector: 'app-config-page',
+  standalone: true,
+  imports: [
     FormsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSlideToggleModule,
-    MatDividerModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
-    MatDialogModule,
-    MatExpansionModule,
-    MatSelectModule,
     BreadcrumbComponent
-],
-    templateUrl: './config-page.component.html',
-    styleUrls: ['./config-page.component.scss']
+  ],
+  templateUrl: './config-page.component.html',
+  styleUrls: ['./config-page.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ConfigPageComponent implements OnInit {
   private readonly configService = inject(ConfigService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   loading = signal(false);
   error = signal<string | null>(null);
@@ -133,20 +111,16 @@ export class ConfigPageComponent implements OnInit {
         }
         this.editReasons[config.key] = '';
 
-        this.snackBar.open('Configuration saved successfully', 'Close', {
-          duration: 3000
-        });
+        this.toast.success('Configuration saved successfully');
       },
       error: (err) => {
         console.error('Failed to save config:', err);
         if (err.status === 409) {
-          this.snackBar.open('Configuration was modified by another user. Please refresh.', 'Refresh', {
-            duration: 5000
-          }).onAction().subscribe(() => this.loadConfig());
+          this.toast.error('Configuration was modified by another user. Please refresh.');
+          // Auto-reload after conflict
+          setTimeout(() => this.loadConfig(), 2000);
         } else {
-          this.snackBar.open('Failed to save configuration', 'Close', {
-            duration: 3000
-          });
+          this.toast.error('Failed to save configuration');
         }
       }
     });

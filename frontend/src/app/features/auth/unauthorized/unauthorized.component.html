@@ -1,13 +1,14 @@
-<div class="unauthorized-container">
-  <mat-card class="unauthorized-card">
-    <mat-card-content>
-      <mat-icon class="unauthorized-icon">block</mat-icon>
-      <h1>Access Denied</h1>
-      <p>You don't have permission to access this resource.</p>
-      <p class="help-text">Please contact your administrator if you believe this is an error.</p>
-      <button mat-raised-button color="primary" routerLink="/map">
-        Go to Map
-      </button>
-    </mat-card-content>
-  </mat-card>
+<div class="min-h-screen flex items-center justify-center bg-gray-50 p-6">
+  <div class="bg-white rounded-lg shadow-card p-8 text-center max-w-md">
+    <span class="material-icons text-6xl text-danger-400 mb-4">block</span>
+    <h1 class="text-2xl font-semibold text-gray-800 mb-2">Access Denied</h1>
+    <p class="text-gray-500 mb-2">You don't have permission to access this resource.</p>
+    <p class="text-sm text-gray-400 mb-6">Please contact your administrator if you believe this is an error.</p>
+    <a
+      routerLink="/map"
+      class="inline-flex items-center gap-2 px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors">
+      <span class="material-icons text-lg">map</span>
+      Go to Map
+    </a>
+  </div>
 </div>
