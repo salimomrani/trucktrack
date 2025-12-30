@@ -9,12 +9,16 @@
       "files": [
         "*.ts"
       ],
+      "plugins": ["rxjs"],
       "extends": [
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:@angular-eslint/recommended",
         "plugin:@angular-eslint/template/process-inline-templates"
       ],
+      "parserOptions": {
+        "project": ["./tsconfig.json"]
+      },
       "rules": {
         "@angular-eslint/directive-selector": [
           "error",
@@ -51,6 +55,12 @@
             "format": ["camelCase", "UPPER_CASE", "PascalCase"]
           },
           {
+            "selector": "variable",
+            "types": ["boolean"],
+            "format": ["camelCase", "PascalCase"],
+            "prefix": ["is", "has", "should", "can", "will", "did"]
+          },
+          {
             "selector": "function",
             "format": ["camelCase"]
           },
@@ -61,6 +71,31 @@
           {
             "selector": "interface",
             "format": ["PascalCase"]
+          }
+        ],
+        "rxjs/suffix-subjects": [
+          "warn",
+          {
+            "suffix": "$"
+          }
+        ],
+        "rxjs/finnish": [
+          "warn",
+          {
+            "functions": false,
+            "methods": false,
+            "names": {
+              "^(canActivate|canActivateChild|canDeactivate|canLoad|intercept|resolve|validate)$": false
+            },
+            "parameters": false,
+            "properties": true,
+            "strict": false,
+            "types": {
+              "^EventEmitter$": false,
+              "^Subject$": true,
+              "^Observable$": true
+            },
+            "variables": true
           }
         ],
         "no-console": [

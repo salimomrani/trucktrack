@@ -342,7 +342,19 @@ readonly formattedDate = computed(() => ...);
 readonly clicked = output<void>();
 readonly valueChanged = output<string>();
 readonly itemSelected = output<Item>();
+
+// ✅ OBLIGATOIRE: Observables et Subjects avec suffixe $
+private readonly destroy$ = new Subject<void>();
+private readonly search$ = new BehaviorSubject<string>('');
+readonly users$ = this.store.select(selectUsers);
+readonly loading$ = this.http.get('/api/data');
+
+// ❌ INTERDIT: Observable sans suffixe $
+private readonly destroy = new Subject<void>();  // Manque $
+readonly users = this.store.select(selectUsers);  // Manque $
 ```
+
+**Règle ESLint active**: `rxjs/finnish` et `rxjs/suffix-subjects` vérifient cette convention.
 
 ### Performance
 
