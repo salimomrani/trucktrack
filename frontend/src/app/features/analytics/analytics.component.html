@@ -1,13 +1,13 @@
-<div class="analytics-container" id="analytics-dashboard">
+<div class="p-4 md:p-6 max-w-[1400px] mx-auto min-h-[calc(100vh-64px)] bg-gray-50" id="analytics-dashboard">
   <!-- Header with filters -->
-  <div class="analytics-header">
-    <div class="header-title">
-      <span class="material-icons text-primary-600">analytics</span>
-      <h1>Analytics</h1>
+  <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-4 mb-6 lg:mb-8">
+    <div class="flex items-center gap-3">
+      <span class="material-icons text-primary-700 text-3xl">analytics</span>
+      <h1 class="text-2xl md:text-3xl font-semibold text-gray-800 tracking-tight">Analytics</h1>
     </div>
 
-    <div class="header-actions">
-      <div class="filters">
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 sm:gap-6">
+      <div class="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
         <!-- Period filter -->
         <app-period-filter
           [selectedPeriod]="selectedPeriod()"
@@ -25,7 +25,7 @@
       </div>
 
       <!-- Export buttons -->
-      <div class="export-buttons">
+      <div class="flex gap-2 justify-center sm:justify-start">
         <button
           type="button"
           class="group relative inline-flex items-center gap-2 px-4 py-2 border border-primary-600 text-primary-600 rounded-md transition-all duration-200 hover:bg-primary-50 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -85,9 +85,9 @@
     </div>
   }
 
-  <!-- KPI Grid -->
+  <!-- KPI Grid - Responsive: 1 col mobile, 2 cols sm, 3 cols lg, 4 cols xl -->
   @if (!error()) {
-    <div class="kpi-grid">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6 lg:mb-8">
       @for (kpi of kpiCards(); track kpi.label) {
         <app-kpi-card
           [label]="kpi.label"
@@ -110,9 +110,9 @@
 
   <!-- Entity info -->
   @if (kpis(); as data) {
-    <div class="entity-info">
-      <span class="material-icons text-gray-400">info</span>
-      <span>
+    <div class="flex flex-col sm:flex-row items-center gap-2 p-4 bg-primary-50 border border-primary-100 rounded-lg text-primary-700 text-sm mb-6 lg:mb-8">
+      <span class="material-icons text-lg">info</span>
+      <span class="text-center sm:text-left">
         {{ data.entity.name }} • {{ data.entity.truckCount }} camion(s) •
         {{ data.period.startDate }} au {{ data.period.endDate }} ({{ data.period.daysCount }} jours)
       </span>
@@ -121,13 +121,13 @@
 
   <!-- Charts Section -->
   @if (!error()) {
-    <section class="charts-section">
-      <h2 class="section-title">
-        <span class="material-icons">bar_chart</span>
+    <section class="mt-6 lg:mt-8">
+      <h2 class="flex items-center gap-2 mb-4 lg:mb-6 text-lg lg:text-xl font-semibold text-gray-800">
+        <span class="material-icons text-primary-700">bar_chart</span>
         Visualisations
       </h2>
 
-      <div class="charts-grid">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
         <!-- Distance Line Chart -->
         <app-distance-chart
           [data]="dailyMetrics()"
@@ -142,13 +142,15 @@
           [chartWidth]="chartWidth()"
         />
 
-        <!-- Trucks Ranking Bar Chart -->
-        <app-trucks-ranking
-          [data]="truckRanking()"
-          [isLoading]="isChartsLoading()"
-          [chartWidth]="chartWidth()"
-          [unit]="'km'"
-        />
+        <!-- Trucks Ranking Bar Chart - Full width -->
+        <div class="lg:col-span-2">
+          <app-trucks-ranking
+            [data]="truckRanking()"
+            [isLoading]="isChartsLoading()"
+            [chartWidth]="chartWidth()"
+            [unit]="'km'"
+          />
+        </div>
       </div>
     </section>
   }

@@ -3,7 +3,7 @@
     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 material-icons">search</span>
     <input
       type="text"
-      class="w-full pl-10 pr-10 py-2 bg-white/10 text-white placeholder-white/60 rounded-md border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/30 focus:bg-white/15 transition-all"
+      class="w-64 pl-10 pr-10 py-2 bg-gray-50 text-gray-800 placeholder-gray-400 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:bg-white transition-all"
       placeholder="Search trucks or drivers..."
       [value]="searchQuery()"
       (input)="onSearchChange($any($event.target).value)"
@@ -14,7 +14,7 @@
     @if (searchQuery().length > 0) {
       <button
         type="button"
-        class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-white/60 hover:text-white transition-colors"
+        class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 transition-colors"
         (click)="clearSearch()"
         aria-label="Clear search">
         <span class="material-icons text-lg">close</span>
