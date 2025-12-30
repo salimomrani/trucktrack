@@ -1,17 +1,12 @@
-import { Component, Input, Output, EventEmitter, inject, signal, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatChipsModule } from '@angular/material/chips';
+import { Component, input, output, inject, signal, OnChanges, SimpleChanges } from '@angular/core';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ProofOfDeliveryService, ProofResponse } from '../../../trips/proof-of-delivery.service';
 import { SignatureViewerComponent } from './signature-viewer.component';
 
 /**
  * Proof of Delivery display component.
  * Feature: 015-proof-of-delivery (T042, T043, T044, T046, T048)
+ * Migrated to Tailwind CSS (Feature 020)
  *
  * Displays signature, photos, and POD metadata.
  * Allows PDF download.
@@ -19,22 +14,14 @@ import { SignatureViewerComponent } from './signature-viewer.component';
 @Component({
   selector: 'app-proof-of-delivery',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatDialogModule,
-    MatChipsModule
-  ],
+  imports: [MatDialogModule],
   templateUrl: './proof-of-delivery.component.html',
   styleUrls: ['./proof-of-delivery.component.scss']
 })
 export class ProofOfDeliveryComponent implements OnChanges {
-  @Input() tripId!: string;
-  @Input() hasProof = false;
-  @Output() proofLoaded = new EventEmitter<ProofResponse>();
+  readonly tripId = input.required<string>();
+  readonly hasProof = input(false);
+  readonly proofLoaded = output<ProofResponse>();
 
   private readonly proofService = inject(ProofOfDeliveryService);
   private readonly dialog = inject(MatDialog);
@@ -46,7 +33,7 @@ export class ProofOfDeliveryComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['tripId'] || changes['hasProof']) {
-      if (this.tripId && this.hasProof) {
+      if (this.tripId() && this.hasProof()) {
         this.loadProof();
       }
     }
@@ -56,7 +43,7 @@ export class ProofOfDeliveryComponent implements OnChanges {
     this.loading.set(true);
     this.error.set(null);
 
-    this.proofService.getProofByTripId(this.tripId).subscribe({
+    this.proofService.getProofByTripId(this.tripId()).subscribe({
       next: (proof) => {
         this.proof.set(proof);
         this.proofLoaded.emit(proof);
@@ -96,7 +83,7 @@ export class ProofOfDeliveryComponent implements OnChanges {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `pod-${this.tripId}.pdf`;
+        a.download = `pod-${this.tripId()}.pdf`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

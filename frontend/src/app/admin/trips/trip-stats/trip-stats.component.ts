@@ -1,9 +1,4 @@
 import { Component, OnInit, inject, signal, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { TripService } from '../trip.service';
 import { TripAnalytics } from '../trip.model';
 
@@ -11,17 +6,12 @@ import { TripAnalytics } from '../trip.model';
  * Trip statistics component with KPI cards.
  * T058: Create TripStatsComponent with KPI cards
  * Feature: 010-trip-management (US5: Trip History and Analytics)
+ * Migrated to Tailwind CSS (Feature 020)
  */
 @Component({
   selector: 'app-trip-stats',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatCardModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule
-  ],
+  imports: [],
   templateUrl: './trip-stats.component.html',
   styleUrls: ['./trip-stats.component.scss']
 })

@@ -1,107 +1,107 @@
 @if (loading()) {
-  <div class="loading-container" [class.compact]="compact()">
-    <mat-spinner diameter="32"></mat-spinner>
+  <div class="flex items-center justify-center py-8" [class.py-4]="compact()">
+    <div class="animate-spin rounded-full h-8 w-8 border-4 border-primary-500 border-t-transparent"></div>
   </div>
 } @else if (error()) {
-  <div class="error-container" [class.compact]="compact()">
-    <mat-icon>error_outline</mat-icon>
+  <div class="flex items-center justify-center gap-2 py-8 text-danger-600" [class.py-4]="compact()">
+    <span class="material-icons">error_outline</span>
     <span>{{ error() }}</span>
   </div>
 } @else if (analytics()) {
-  <div class="stats-container" [class.compact]="compact()">
+  <div class="space-y-4" [class.space-y-2]="compact()">
     <!-- Primary KPIs -->
-    <div class="kpi-row primary">
-      <mat-card class="kpi-card total">
-        <div class="kpi-icon">
-          <mat-icon>route</mat-icon>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4" [class.gap-2]="compact()">
+      <!-- Total Trips -->
+      <div class="bg-white rounded-lg shadow-card p-4 flex items-center gap-3">
+        <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-primary-100 text-primary-600">
+          <span class="material-icons">route</span>
         </div>
-        <div class="kpi-content">
-          <span class="kpi-value">{{ analytics()!.totalTrips }}</span>
-          <span class="kpi-label">Total Trips</span>
+        <div>
+          <span class="block text-2xl font-bold text-gray-900">{{ analytics()!.totalTrips }}</span>
+          <span class="text-sm text-gray-500">Total Trips</span>
         </div>
-      </mat-card>
+      </div>
 
-      <mat-card class="kpi-card completed">
-        <div class="kpi-icon">
-          <mat-icon>check_circle</mat-icon>
+      <!-- Completion Rate -->
+      <div class="bg-white rounded-lg shadow-card p-4 flex items-center gap-3">
+        <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-success-100 text-success-600">
+          <span class="material-icons">check_circle</span>
         </div>
-        <div class="kpi-content">
-          <span class="kpi-value">{{ formatPercent(analytics()!.completionRate) }}</span>
-          <span class="kpi-label">Completion Rate</span>
+        <div>
+          <span class="block text-2xl font-bold text-gray-900">{{ formatPercent(analytics()!.completionRate) }}</span>
+          <span class="text-sm text-gray-500">Completion Rate</span>
         </div>
-      </mat-card>
+      </div>
 
-      <mat-card class="kpi-card duration">
-        <div class="kpi-icon">
-          <mat-icon>schedule</mat-icon>
+      <!-- Avg Duration -->
+      <div class="bg-white rounded-lg shadow-card p-4 flex items-center gap-3">
+        <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-info-100 text-info-600">
+          <span class="material-icons">schedule</span>
         </div>
-        <div class="kpi-content">
-          <span class="kpi-value">{{ formatDuration(analytics()!.averageDurationMinutes) }}</span>
-          <span class="kpi-label">Avg Duration</span>
+        <div>
+          <span class="block text-2xl font-bold text-gray-900">{{ formatDuration(analytics()!.averageDurationMinutes) }}</span>
+          <span class="text-sm text-gray-500">Avg Duration</span>
         </div>
-      </mat-card>
+      </div>
 
-      <mat-card class="kpi-card active">
-        <div class="kpi-icon">
-          <mat-icon>local_shipping</mat-icon>
+      <!-- In Progress -->
+      <div class="bg-white rounded-lg shadow-card p-4 flex items-center gap-3">
+        <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-warning-100 text-warning-600">
+          <span class="material-icons">local_shipping</span>
         </div>
-        <div class="kpi-content">
-          <span class="kpi-value">{{ analytics()!.inProgressTrips }}</span>
-          <span class="kpi-label">In Progress</span>
+        <div>
+          <span class="block text-2xl font-bold text-gray-900">{{ analytics()!.inProgressTrips }}</span>
+          <span class="text-sm text-gray-500">In Progress</span>
         </div>
-      </mat-card>
+      </div>
     </div>
 
     @if (!compact()) {
       <!-- Secondary KPIs -->
-      <div class="kpi-row secondary">
-        <mat-card class="kpi-card">
-          <div class="kpi-content">
-            <span class="kpi-value">{{ analytics()!.tripsToday }}</span>
-            <span class="kpi-label">Today</span>
-          </div>
-        </mat-card>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <!-- Today -->
+        <div class="bg-white rounded-lg shadow-card p-3 text-center">
+          <span class="block text-xl font-bold text-gray-900">{{ analytics()!.tripsToday }}</span>
+          <span class="text-xs text-gray-500">Today</span>
+        </div>
 
-        <mat-card class="kpi-card">
-          <div class="kpi-content">
-            <span class="kpi-value">{{ analytics()!.tripsThisWeek }}</span>
-            <span class="kpi-label">This Week</span>
-            @if (analytics()!.tripsTrendPercent !== null) {
-              <span class="kpi-trend" [class]="getTrendClass(analytics()!.tripsTrendPercent)">
-                <mat-icon>{{ getTrendIcon(analytics()!.tripsTrendPercent) }}</mat-icon>
-                {{ formatTrend(analytics()!.tripsTrendPercent) }}
-              </span>
-            }
-          </div>
-        </mat-card>
+        <!-- This Week -->
+        <div class="bg-white rounded-lg shadow-card p-3 text-center">
+          <span class="block text-xl font-bold text-gray-900">{{ analytics()!.tripsThisWeek }}</span>
+          <span class="text-xs text-gray-500">This Week</span>
+          @if (analytics()!.tripsTrendPercent !== null) {
+            <div class="flex items-center justify-center gap-1 mt-1 text-xs"
+              [class.text-success-600]="analytics()!.tripsTrendPercent! >= 0"
+              [class.text-danger-600]="analytics()!.tripsTrendPercent! < 0">
+              <span class="material-icons text-sm">{{ getTrendIcon(analytics()!.tripsTrendPercent) }}</span>
+              {{ formatTrend(analytics()!.tripsTrendPercent) }}
+            </div>
+          }
+        </div>
 
-        <mat-card class="kpi-card">
-          <div class="kpi-content">
-            <span class="kpi-value">{{ analytics()!.tripsThisMonth }}</span>
-            <span class="kpi-label">This Month</span>
-          </div>
-        </mat-card>
+        <!-- This Month -->
+        <div class="bg-white rounded-lg shadow-card p-3 text-center">
+          <span class="block text-xl font-bold text-gray-900">{{ analytics()!.tripsThisMonth }}</span>
+          <span class="text-xs text-gray-500">This Month</span>
+        </div>
 
-        <mat-card class="kpi-card pending">
-          <div class="kpi-content">
-            <span class="kpi-value">{{ analytics()!.pendingTrips }}</span>
-            <span class="kpi-label">Pending</span>
-          </div>
-        </mat-card>
+        <!-- Pending -->
+        <div class="bg-white rounded-lg shadow-card p-3 text-center border-l-4 border-gray-400">
+          <span class="block text-xl font-bold text-gray-900">{{ analytics()!.pendingTrips }}</span>
+          <span class="text-xs text-gray-500">Pending</span>
+        </div>
 
-        <mat-card class="kpi-card assigned">
-          <div class="kpi-content">
-            <span class="kpi-value">{{ analytics()!.assignedTrips }}</span>
-            <span class="kpi-label">Assigned</span>
-          </div>
-        </mat-card>
+        <!-- Assigned -->
+        <div class="bg-white rounded-lg shadow-card p-3 text-center border-l-4 border-info-500">
+          <span class="block text-xl font-bold text-gray-900">{{ analytics()!.assignedTrips }}</span>
+          <span class="text-xs text-gray-500">Assigned</span>
+        </div>
 
-        <mat-card class="kpi-card cancelled">
-          <div class="kpi-content">
-            <span class="kpi-value">{{ formatPercent(analytics()!.cancellationRate) }}</span>
-            <span class="kpi-label">Cancellation Rate</span>
-          </div>
-        </mat-card>
+        <!-- Cancellation Rate -->
+        <div class="bg-white rounded-lg shadow-card p-3 text-center border-l-4 border-danger-500">
+          <span class="block text-xl font-bold text-gray-900">{{ formatPercent(analytics()!.cancellationRate) }}</span>
+          <span class="text-xs text-gray-500">Cancellation Rate</span>
+        </div>
       </div>
     }
   </div>

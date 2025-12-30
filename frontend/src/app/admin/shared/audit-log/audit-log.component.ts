@@ -1,12 +1,5 @@
 import { Component, input, OnInit, OnChanges, signal, inject, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { CommonModule, DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 
@@ -40,19 +33,11 @@ interface AuditLogPage {
  * Reusable component for displaying audit logs
  * T022: Create reusable AuditLogComponent
  * Feature: 002-admin-panel
+ * Migrated to Tailwind CSS (Feature 020)
  */
 @Component({
     selector: 'app-audit-log',
-    imports: [
-        CommonModule,
-        MatTableModule,
-        MatIconModule,
-        MatButtonModule,
-        MatProgressSpinnerModule,
-        MatChipsModule,
-        MatExpansionModule,
-        MatTooltipModule
-    ],
+    imports: [CommonModule, DatePipe],
     templateUrl: './audit-log.component.html',
     styleUrls: ['./audit-log.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -66,6 +51,7 @@ export class AuditLogComponent implements OnInit, OnChanges {
   loading = signal(true);
   logs = signal<AuditLogEntry[]>([]);
   hasMore = signal(false);
+  expandedLogId = signal<string | null>(null);
   private currentPage = 0;
   private pageSize = 10;
 
@@ -104,6 +90,14 @@ export class AuditLogComponent implements OnInit, OnChanges {
   loadMore() {
     this.currentPage++;
     this.loadLogs();
+  }
+
+  toggleExpand(logId: string): void {
+    this.expandedLogId.update(current => current === logId ? null : logId);
+  }
+
+  isExpanded(logId: string): boolean {
+    return this.expandedLogId() === logId;
   }
 
   getActionIcon(action: string): string {
