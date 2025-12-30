@@ -1,11 +1,10 @@
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { DataTableComponent, ColumnDef, PageInfo } from '../../shared/data-table/data-table.component';
 import { TruckAdminService } from '../truck-admin.service';
 import { TruckAdminResponse, TruckStatus, TRUCK_STATUSES, TRUCK_STATUS_COLORS } from '../truck.model';
-import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogService } from '../../shared/confirm-dialog/confirm-dialog.service';
 import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.component';
 import { StoreFacade } from '../../../store/store.facade';
 import { ToastService } from '../../../shared/components/toast/toast.service';
@@ -21,7 +20,6 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
     selector: 'app-truck-list',
     imports: [
     FormsModule,
-    MatDialogModule,
     DataTableComponent,
     BreadcrumbComponent
 ],
@@ -32,7 +30,7 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
 export class TruckListComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly truckService = inject(TruckAdminService);
-  private readonly dialog = inject(MatDialog);
+  private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly toast = inject(ToastService);
   private readonly facade = inject(StoreFacade);
 
@@ -131,16 +129,12 @@ export class TruckListComponent implements OnInit {
   }
 
   confirmOutOfService(truck: TruckAdminResponse) {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Mark Out of Service',
-        message: `Are you sure you want to mark truck ${truck.truckId} as out of service? It will no longer be tracked.`,
-        confirmText: 'Confirm',
-        confirmColor: 'warn'
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(confirmed => {
+    this.confirmDialog.open({
+      title: 'Mark Out of Service',
+      message: `Are you sure you want to mark truck ${truck.truckId} as out of service? It will no longer be tracked.`,
+      confirmText: 'Confirm',
+      confirmColor: 'warn'
+    }).subscribe(confirmed => {
       if (confirmed) {
         this.markOutOfService(truck);
       }
@@ -148,16 +142,12 @@ export class TruckListComponent implements OnInit {
   }
 
   confirmActivate(truck: TruckAdminResponse) {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Activate Truck',
-        message: `Are you sure you want to activate truck ${truck.truckId}?`,
-        confirmText: 'Activate',
-        confirmColor: 'primary'
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(confirmed => {
+    this.confirmDialog.open({
+      title: 'Activate Truck',
+      message: `Are you sure you want to activate truck ${truck.truckId}?`,
+      confirmText: 'Activate',
+      confirmColor: 'primary'
+    }).subscribe(confirmed => {
       if (confirmed) {
         this.activateTruck(truck);
       }

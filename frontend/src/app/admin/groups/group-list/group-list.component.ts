@@ -2,9 +2,8 @@ import { Component, OnInit, inject, signal, ChangeDetectionStrategy, HostListene
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { GroupService, GroupDetailResponse } from '../group.service';
-import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogService } from '../../shared/confirm-dialog/confirm-dialog.service';
 import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.component';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 
@@ -18,7 +17,6 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
     imports: [
         CommonModule,
         FormsModule,
-        MatDialogModule,
         BreadcrumbComponent,
         DatePipe
     ],
@@ -30,7 +28,7 @@ export class GroupListComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly groupService = inject(GroupService);
   private readonly toast = inject(ToastService);
-  private readonly dialog = inject(MatDialog);
+  private readonly confirmDialog = inject(ConfirmDialogService);
 
   // Dropdown state
   openDropdownId = signal<string | null>(null);
@@ -101,16 +99,12 @@ export class GroupListComponent implements OnInit {
 
   deleteGroup(group: GroupDetailResponse) {
     this.openDropdownId.set(null);
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Delete Group',
-        message: `Are you sure you want to delete the group "${group.name}"? This will remove all truck and user assignments.`,
-        confirmText: 'Delete',
-        confirmColor: 'warn'
-      }
-    });
-
-    dialogRef.afterClosed().subscribe((confirmed) => {
+    this.confirmDialog.open({
+      title: 'Delete Group',
+      message: `Are you sure you want to delete the group "${group.name}"? This will remove all truck and user assignments.`,
+      confirmText: 'Delete',
+      confirmColor: 'warn'
+    }).subscribe((confirmed) => {
       if (confirmed) {
         this.groupService.deleteGroup(group.id).subscribe({
           next: () => {

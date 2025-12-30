@@ -2,11 +2,10 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { TripService } from '../trip.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { TripResponse, TripStatusHistoryResponse, TRIP_STATUS_COLORS, TRIP_STATUSES, CreateTripRequest, AssignTripRequest, UpdateTripRequest } from '../trip.model';
-import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogService } from '../../shared/confirm-dialog/confirm-dialog.service';
 import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.component';
 import { TruckAdminService } from '../../trucks/truck-admin.service';
 import { TruckAdminResponse } from '../../trucks/truck.model';
@@ -26,7 +25,6 @@ import { StoreFacade } from '../../../store/store.facade';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    MatDialogModule,    // Keep for confirm dialog
     BreadcrumbComponent,
     LocationPickerComponent
   ],
@@ -39,7 +37,7 @@ export class TripDetailComponent implements OnInit {
   private readonly tripService = inject(TripService);
   private readonly truckService = inject(TruckAdminService);
   private readonly fb = inject(FormBuilder);
-  private readonly dialog = inject(MatDialog);
+  private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly toast = inject(ToastService);
   private readonly facade = inject(StoreFacade);
 
@@ -354,16 +352,12 @@ export class TripDetailComponent implements OnInit {
     const trip = this.trip();
     if (!trip) return;
 
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Cancel Trip',
-        message: `Are you sure you want to cancel this trip from "${trip.origin}" to "${trip.destination}"?`,
-        confirmText: 'Cancel Trip',
-        confirmColor: 'warn'
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(confirmed => {
+    this.confirmDialog.open({
+      title: 'Cancel Trip',
+      message: `Are you sure you want to cancel this trip from "${trip.origin}" to "${trip.destination}"?`,
+      confirmText: 'Cancel Trip',
+      confirmColor: 'warn'
+    }).subscribe(confirmed => {
       if (confirmed) {
         this.cancelTrip();
       }
