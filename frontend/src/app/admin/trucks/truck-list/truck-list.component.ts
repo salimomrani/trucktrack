@@ -1,7 +1,6 @@
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { DataTableComponent, ColumnDef, PageInfo } from '../../shared/data-table/data-table.component';
 import { TruckAdminService } from '../truck-admin.service';
@@ -16,12 +15,12 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
  * T070-T071: Create TruckListComponent with DataTable
  * T074: Add out-of-service/activate buttons with confirmation
  * Feature: 002-admin-panel
+ * Migrated to Tailwind CSS (Feature 020)
  */
 @Component({
     selector: 'app-truck-list',
     imports: [
     FormsModule,
-    MatMenuModule,
     MatDialogModule,
     DataTableComponent,
     BreadcrumbComponent

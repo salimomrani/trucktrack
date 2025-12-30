@@ -1,7 +1,6 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { DataTableComponent, ColumnDef, PageInfo } from '../../shared/data-table/data-table.component';
 import { UserService } from '../user.service';
@@ -15,12 +14,12 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
  * T043-T044: Create UserListComponent with DataTable
  * T047: Add deactivate/reactivate buttons with confirmation dialog
  * Feature: 002-admin-panel
+ * Migrated to Tailwind CSS (Feature 020)
  */
 @Component({
     selector: 'app-user-list',
     imports: [
     FormsModule,
-    MatMenuModule,
     MatDialogModule,
     DataTableComponent,
     BreadcrumbComponent
@@ -40,10 +39,21 @@ export class UserListComponent implements OnInit {
   totalElements = signal(0);
   loading = signal(false);
 
+  // Dropdown state
+  openDropdownId = signal<string | null>(null);
+
   // Filters
   searchTerm = '';
   selectedRole: UserRole | null = null;
   selectedStatus: boolean | null = null;
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.dropdown-container')) {
+      this.openDropdownId.set(null);
+    }
+  }
 
   // Pagination
   pageIndex = 0;
@@ -198,5 +208,14 @@ export class UserListComponent implements OnInit {
         this.toast.error('Failed to send activation email');
       }
     });
+  }
+
+  toggleDropdown(userId: string, event: Event): void {
+    event.stopPropagation();
+    this.openDropdownId.update(current => current === userId ? null : userId);
+  }
+
+  closeDropdown(): void {
+    this.openDropdownId.set(null);
   }
 }
