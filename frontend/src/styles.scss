@@ -178,6 +178,238 @@ body {
   line-height: theme.$line-height-normal;
   color: theme.$color-text-primary;
   background-color: theme.$color-background-gray;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+// ============================================
+// DARK MODE STYLES
+// ============================================
+.dark {
+  body,
+  & {
+    background-color: #111827; // gray-900
+    color: #F9FAFB; // gray-50
+  }
+
+  // Card backgrounds
+  .card,
+  .card-elevated,
+  .card-hoverable,
+  .bg-white {
+    background-color: #1F2937 !important; // gray-800
+  }
+
+  // Form inputs
+  .input-base {
+    @apply bg-gray-800 border-gray-600 text-gray-100 placeholder-gray-400;
+
+    &:focus {
+      @apply border-primary-400 ring-primary-400/20;
+    }
+  }
+
+  // Buttons
+  .btn-secondary {
+    @apply bg-gray-700 border-gray-600 text-gray-100 hover:bg-gray-600;
+  }
+
+  .btn-ghost {
+    @apply text-gray-300 hover:bg-gray-700;
+  }
+
+  // Tables
+  .table-base {
+    @apply divide-gray-700;
+  }
+
+  .table-header {
+    @apply bg-gray-800;
+  }
+
+  .table-header-cell {
+    @apply text-gray-400;
+  }
+
+  .table-row {
+    @apply bg-gray-800;
+  }
+
+  .table-row-striped:nth-child(even) {
+    @apply bg-gray-700;
+  }
+
+  .table-row-hoverable:hover {
+    @apply bg-gray-700;
+  }
+
+  .table-cell {
+    @apply text-gray-200;
+  }
+
+  // Dropdown menus
+  .dropdown-menu,
+  [class*="origin-top-right"] {
+    @apply bg-gray-800 ring-gray-700;
+  }
+
+  // Borders
+  .border-gray-100,
+  .border-gray-200 {
+    border-color: #374151 !important; // gray-700
+  }
+
+  .divide-gray-100 > * + *,
+  .divide-gray-200 > * + * {
+    border-color: #374151 !important;
+  }
+
+  // Text colors
+  .text-gray-900 {
+    color: #F9FAFB !important; // gray-50
+  }
+
+  .text-gray-800 {
+    color: #F3F4F6 !important; // gray-100
+  }
+
+  .text-gray-700 {
+    color: #E5E7EB !important; // gray-200
+  }
+
+  .text-gray-600 {
+    color: #D1D5DB !important; // gray-300
+  }
+
+  .text-gray-500 {
+    color: #9CA3AF !important; // gray-400
+  }
+
+  // Background colors
+  .bg-gray-50 {
+    background-color: #1F2937 !important; // gray-800
+  }
+
+  .bg-gray-100 {
+    background-color: #374151 !important; // gray-700
+  }
+
+  .hover\:bg-gray-50:hover {
+    background-color: #374151 !important;
+  }
+
+  .hover\:bg-gray-100:hover {
+    background-color: #4B5563 !important;
+  }
+
+  // Flatpickr dark theme
+  .flatpickr-calendar {
+    @apply bg-gray-800 border-gray-700;
+  }
+
+  .flatpickr-day {
+    @apply text-gray-200;
+
+    &:hover:not(.selected) {
+      @apply bg-gray-700;
+    }
+  }
+
+  .flatpickr-current-month {
+    @apply text-gray-100;
+  }
+
+  .flatpickr-weekday {
+    @apply text-gray-400;
+  }
+
+  // Scrollbar dark mode
+  &::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-track {
+    background: #1F2937;
+  }
+
+  &::-webkit-scrollbar-thumb,
+  ::-webkit-scrollbar-thumb {
+    background: #4B5563;
+
+    &:hover {
+      background: #6B7280;
+    }
+  }
+
+  // Skeleton loading dark mode
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      #374151 25%,
+      #4B5563 50%,
+      #374151 75%
+    );
+  }
+
+  // Badge variants dark mode
+  .badge-success {
+    background-color: rgba(16, 185, 129, 0.2);
+    color: #34D399;
+  }
+
+  .badge-warning {
+    background-color: rgba(245, 158, 11, 0.2);
+    color: #FBBF24;
+  }
+
+  .badge-danger {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #F87171;
+  }
+
+  .badge-info {
+    background-color: rgba(59, 130, 246, 0.2);
+    color: #60A5FA;
+  }
+
+  .badge-neutral {
+    background-color: rgba(107, 114, 128, 0.2);
+    color: #9CA3AF;
+  }
+
+  .badge-primary {
+    background-color: rgba(33, 150, 243, 0.2);
+    color: #60A5FA;
+  }
+
+  // Empty state dark mode
+  .empty-state-icon {
+    color: #4B5563;
+  }
+
+  .empty-state-title {
+    color: #E5E7EB;
+  }
+
+  .empty-state-description {
+    color: #9CA3AF;
+  }
+
+  // Spinner dark mode
+  .spinner {
+    border-color: #374151;
+    border-top-color: #60A5FA;
+  }
+
+  // Clickable/Interactive dark mode
+  .clickable:hover {
+    background-color: #374151;
+  }
+
+  .clickable:active {
+    background-color: #4B5563;
+  }
+
+  // Divider dark mode
+  .divider {
+    background-color: #374151;
+  }
 }
 
 // ============================================

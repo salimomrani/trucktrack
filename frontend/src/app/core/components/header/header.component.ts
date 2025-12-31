@@ -3,6 +3,7 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { StoreFacade } from '../../../store/store.facade';
 import { NotificationService } from '../../../services/notification.service';
 import { NavigationService } from '../../services/navigation.service';
+import { ThemeService } from '../../services/theme.service';
 import { NavItem } from '../../models/navigation.model';
 import { UserRole } from '../../models/auth.model';
 
@@ -31,6 +32,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly notificationService = inject(NotificationService);
   private readonly navigationService = inject(NavigationService);
+  private readonly themeService = inject(ThemeService);
 
   // Store signals
   currentUser = this.facade.currentUser;
@@ -44,6 +46,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   // Mobile menu state
   mobileMenuOpen = signal(false);
+
+  // Theme state (dark mode)
+  isDark = this.themeService.isDark;
 
   // Current user role computed from currentUser
   currentUserRole = computed(() => {
@@ -174,6 +179,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
    */
   closeUserMenu(): void {
     this.userMenuOpen.set(false);
+  }
+
+  /**
+   * Toggle dark/light theme
+   */
+  toggleTheme(): void {
+    this.themeService.toggle();
   }
 
   /**
