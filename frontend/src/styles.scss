@@ -187,15 +187,25 @@ body {
 .dark {
   body,
   & {
-    background-color: #111827; // gray-900
-    color: #F9FAFB; // gray-50
+    background-color: #111827 !important; // gray-900
+    color: #F9FAFB !important; // gray-50
+  }
+
+  // App layout background
+  .app-layout,
+  .min-h-screen {
+    background-color: #111827 !important; // gray-900
   }
 
   // Card backgrounds
   .card,
   .card-elevated,
   .card-hoverable,
-  .bg-white {
+  .bg-white,
+  .shadow-card,
+  .shadow-modal,
+  .rounded-lg.shadow-card,
+  .rounded-xl.shadow-modal {
     background-color: #1F2937 !important; // gray-800
   }
 
@@ -459,6 +469,62 @@ body {
   // Divider dark mode
   .divider {
     background-color: #374151;
+  }
+
+  // Sidenav
+  .border-r {
+    border-color: #374151 !important;
+  }
+
+  // Switch/Toggle
+  .peer-checked\:bg-primary-600:checked ~ div,
+  .bg-gray-200 {
+    background-color: #4B5563 !important;
+  }
+
+  // Horizontal rules
+  hr {
+    border-color: #374151 !important;
+  }
+
+  // Modal backdrop
+  .fixed.inset-0.bg-black\/50,
+  .bg-black\/50 {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+  }
+
+  // Shadow overrides for dark mode
+  .shadow-lg,
+  .shadow-card,
+  .shadow-modal,
+  .shadow-dropdown {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  // Headings and titles
+  h1, h2, h3, h4, h5, h6 {
+    color: #F3F4F6 !important; // gray-100
+  }
+
+  // Paragraphs in dark mode
+  p {
+    color: #D1D5DB; // gray-300
+  }
+
+  // Links
+  a:not([class*="text-"]):not([class*="bg-"]) {
+    color: #60A5FA; // primary-400
+  }
+
+  // Icon colors in navigation
+  .material-icons {
+    color: inherit;
+  }
+
+  // Tooltip
+  [role="tooltip"] {
+    background-color: #374151 !important;
+    color: #F3F4F6 !important;
   }
 }
 
