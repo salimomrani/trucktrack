@@ -6,12 +6,13 @@ import { NavigationService } from '../../services/navigation.service';
 import { ThemeService } from '../../services/theme.service';
 import { NavItem } from '../../models/navigation.model';
 import { UserRole } from '../../models/auth.model';
+import { NotificationsDropdownComponent } from '../../../shared/components/notifications-dropdown/notifications-dropdown.component';
 
 /**
  * Header Component - Application navigation header
  * - Tailwind-based header with dynamic navigation based on user role
  * - User menu with logout (using MatMenu for dropdown)
- * - Notification badges for alerts
+ * - Notification badges for alerts with dropdown
  * - Mobile hamburger menu support
  * - Integrated with NgRx store
  * - Migrated to Tailwind CSS (Feature 020)
@@ -21,7 +22,8 @@ import { UserRole } from '../../models/auth.model';
   standalone: true,
   imports: [
     RouterLink,
-    RouterLinkActive
+    RouterLinkActive,
+    NotificationsDropdownComponent
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
@@ -43,6 +45,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   // User menu dropdown state
   userMenuOpen = signal(false);
+
+  // Notifications dropdown state
+  notificationsDropdownOpen = signal(false);
 
   // Mobile menu state
   mobileMenuOpen = signal(false);
@@ -171,6 +176,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
    * Toggle user menu dropdown
    */
   toggleUserMenu(): void {
+    this.notificationsDropdownOpen.set(false);
     this.userMenuOpen.update(open => !open);
   }
 
@@ -179,6 +185,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
    */
   closeUserMenu(): void {
     this.userMenuOpen.set(false);
+  }
+
+  /**
+   * Toggle notifications dropdown
+   */
+  toggleNotificationsDropdown(): void {
+    this.userMenuOpen.set(false);
+    this.notificationsDropdownOpen.update(open => !open);
+  }
+
+  /**
+   * Close notifications dropdown
+   */
+  closeNotificationsDropdown(): void {
+    this.notificationsDropdownOpen.set(false);
   }
 
   /**

@@ -39,18 +39,29 @@
             }
           </button>
 
-          <!-- Notification Bell -->
-          <a
-            routerLink="/alerts"
-            class="relative rounded-full p-1.5 text-white/80 hover:text-white hover:bg-primary-600 transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-700"
-            aria-label="Notifications">
-            <span class="material-icons text-2xl">notifications_none</span>
-            @if (unreadCount() > 0) {
-              <span class="absolute -top-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-danger-500 text-xs font-bold text-white ring-2 ring-primary-700">
-                {{ formatBadge(unreadCount()) }}
-              </span>
+          <!-- Notification Bell with Dropdown -->
+          <div class="relative">
+            <button
+              type="button"
+              class="relative rounded-full p-1.5 text-white/80 hover:text-white hover:bg-primary-600 transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-700"
+              (click)="toggleNotificationsDropdown()"
+              aria-label="Notifications"
+              [attr.aria-expanded]="notificationsDropdownOpen()">
+              <span class="material-icons text-2xl">notifications_none</span>
+              @if (unreadCount() > 0) {
+                <span class="absolute -top-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-danger-500 text-xs font-bold text-white ring-2 ring-primary-700">
+                  {{ formatBadge(unreadCount()) }}
+                </span>
+              }
+            </button>
+
+            <!-- Notifications Dropdown -->
+            @if (notificationsDropdownOpen()) {
+              <app-notifications-dropdown
+                (closed)="closeNotificationsDropdown()"
+              />
             }
-          </a>
+          </div>
 
           <!-- User menu dropdown -->
           <div class="relative">

@@ -1,0 +1,69 @@
+/**
+ * Notifications Dropdown Styles
+ * Feature 020: Angular Material to Tailwind CSS Migration
+ */
+
+:host {
+  display: block;
+  position: relative;
+}
+
+// Custom scrollbar for notifications list
+.max-h-96 {
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.gray.300') transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: theme('colors.gray.300');
+    border-radius: 3px;
+
+    &:hover {
+      background-color: theme('colors.gray.400');
+    }
+  }
+}
+
+// Dark mode scrollbar
+:host-context(.dark) .max-h-96 {
+  scrollbar-color: theme('colors.gray.600') transparent;
+
+  &::-webkit-scrollbar-thumb {
+    background-color: theme('colors.gray.600');
+
+    &:hover {
+      background-color: theme('colors.gray.500');
+    }
+  }
+}
+
+// Line clamp utility (2 lines)
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Dropdown animation
+@keyframes dropdown-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+:host > div {
+  animation: dropdown-enter 0.15s ease-out;
+}
