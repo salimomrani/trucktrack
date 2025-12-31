@@ -187,85 +187,25 @@ body {
 .dark {
   body,
   & {
-    background-color: #111827 !important; // gray-900
-    color: #F9FAFB !important; // gray-50
-  }
-
-  // App layout background
-  .app-layout,
-  .min-h-screen {
-    background-color: #111827 !important; // gray-900
+    background-color: #111827; // gray-900
+    color: #F9FAFB; // gray-50
   }
 
   // Card backgrounds
   .card,
   .card-elevated,
   .card-hoverable,
-  .bg-white,
-  .shadow-card,
-  .shadow-modal,
-  .rounded-lg.shadow-card,
-  .rounded-xl.shadow-modal {
+  .bg-white {
     background-color: #1F2937 !important; // gray-800
   }
 
-  // Form inputs - class-based
+  // Form inputs
   .input-base {
     @apply bg-gray-800 border-gray-600 text-gray-100 placeholder-gray-400;
 
     &:focus {
       @apply border-primary-400 ring-primary-400/20;
     }
-  }
-
-  // Form inputs - native elements
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="number"],
-  input[type="tel"],
-  input[type="url"],
-  input[type="search"],
-  input[type="date"],
-  input[type="datetime-local"],
-  input[type="time"],
-  input:not([type]),
-  select,
-  textarea {
-    background-color: #1F2937 !important; // gray-800
-    border-color: #4B5563 !important; // gray-600
-    color: #F3F4F6 !important; // gray-100
-
-    &::placeholder {
-      color: #9CA3AF !important; // gray-400
-    }
-
-    &:focus {
-      border-color: #60A5FA !important; // primary-400
-      box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2) !important;
-    }
-
-    &:disabled {
-      background-color: #374151 !important; // gray-700
-      color: #6B7280 !important; // gray-500
-    }
-  }
-
-  // Checkbox and radio
-  input[type="checkbox"],
-  input[type="radio"] {
-    background-color: #1F2937 !important;
-    border-color: #4B5563 !important;
-
-    &:checked {
-      background-color: #2196F3 !important;
-      border-color: #2196F3 !important;
-    }
-  }
-
-  // Labels
-  label {
-    color: #E5E7EB; // gray-200
   }
 
   // Buttons
@@ -469,98 +409,6 @@ body {
   // Divider dark mode
   .divider {
     background-color: #374151;
-  }
-
-  // Sidenav
-  .border-r {
-    border-color: #374151 !important;
-  }
-
-  // Switch/Toggle
-  .peer-checked\:bg-primary-600:checked ~ div,
-  .bg-gray-200 {
-    background-color: #4B5563 !important;
-  }
-
-  // Horizontal rules
-  hr {
-    border-color: #374151 !important;
-  }
-
-  // Modal backdrop
-  .fixed.inset-0.bg-black\/50,
-  .bg-black\/50 {
-    background-color: rgba(0, 0, 0, 0.7) !important;
-  }
-
-  // Shadow overrides for dark mode
-  .shadow-lg,
-  .shadow-card,
-  .shadow-modal,
-  .shadow-dropdown {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3) !important;
-  }
-
-  // Headings and titles
-  h1, h2, h3, h4, h5, h6 {
-    color: #F3F4F6 !important; // gray-100
-  }
-
-  // Paragraphs in dark mode
-  p {
-    color: #D1D5DB; // gray-300
-  }
-
-  // Links
-  a:not([class*="text-"]):not([class*="bg-"]) {
-    color: #60A5FA; // primary-400
-  }
-
-  // Icon colors in navigation
-  .material-icons {
-    color: inherit;
-  }
-
-  // Tooltip
-  [role="tooltip"] {
-    background-color: #374151 !important;
-    color: #F3F4F6 !important;
-  }
-
-  // ngx-charts dark mode
-  .ngx-charts {
-    text {
-      fill: #E5E7EB !important; // gray-200
-    }
-
-    .gridline-path {
-      stroke: #374151 !important; // gray-700
-    }
-
-    .refline-path {
-      stroke: #4B5563 !important; // gray-600
-    }
-
-    .axis-label {
-      fill: #9CA3AF !important; // gray-400
-    }
-
-    .tick {
-      text {
-        fill: #D1D5DB !important; // gray-300
-      }
-    }
-
-    .legend-label-text {
-      fill: #E5E7EB !important; // gray-200
-    }
-  }
-
-  // ngx-charts tooltip
-  .ngx-charts-tooltip-content {
-    background-color: #1F2937 !important;
-    color: #F3F4F6 !important;
-    border: 1px solid #374151 !important;
   }
 }
 
