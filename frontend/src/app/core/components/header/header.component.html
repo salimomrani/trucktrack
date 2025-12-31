@@ -26,6 +26,19 @@
 
         <!-- Right: Actions -->
         <div class="flex items-center gap-4">
+          <!-- Theme Toggle -->
+          <button
+            type="button"
+            class="rounded-full p-1.5 text-white/80 hover:text-white hover:bg-primary-600 transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-700"
+            (click)="toggleTheme()"
+            [attr.aria-label]="isDark() ? 'Activer le mode clair' : 'Activer le mode sombre'">
+            @if (isDark()) {
+              <span class="material-icons text-2xl">light_mode</span>
+            } @else {
+              <span class="material-icons text-2xl">dark_mode</span>
+            }
+          </button>
+
           <!-- Notification Bell -->
           <a
             routerLink="/alerts"
@@ -56,33 +69,46 @@
             <!-- User dropdown -->
             @if (userMenuOpen()) {
               <div class="fixed inset-0 z-[1050]" (click)="closeUserMenu()"></div>
-              <div class="absolute right-0 top-full mt-2 w-56 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 z-[1100]">
+              <div class="absolute right-0 top-full mt-2 w-56 origin-top-right rounded-md bg-white dark:bg-gray-800 py-1 shadow-lg ring-1 ring-black/5 dark:ring-gray-700 z-[1100]">
                 <!-- User info -->
-                <div class="px-4 py-3 border-b border-gray-100">
-                  <p class="text-sm font-medium text-gray-900">{{ getUserDisplayName() }}</p>
-                  <p class="text-xs text-gray-500 truncate">{{ currentUser()?.email }}</p>
+                <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                  <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ getUserDisplayName() }}</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ currentUser()?.email }}</p>
                 </div>
+                <!-- Theme toggle in menu -->
+                <button
+                  type="button"
+                  class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  (click)="toggleTheme(); closeUserMenu()">
+                  @if (isDark()) {
+                    <span class="material-icons text-gray-400 dark:text-gray-500 text-lg">light_mode</span>
+                    Mode clair
+                  } @else {
+                    <span class="material-icons text-gray-400 text-lg">dark_mode</span>
+                    Mode sombre
+                  }
+                </button>
                 <!-- Menu items -->
                 <a
                   routerLink="/profile"
-                  class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                  class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                   (click)="closeUserMenu()">
-                  <span class="material-icons text-gray-400 text-lg">person</span>
+                  <span class="material-icons text-gray-400 dark:text-gray-500 text-lg">person</span>
                   Mon profil
                 </a>
                 <a
                   routerLink="/analytics"
-                  class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                  class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                   (click)="closeUserMenu()">
-                  <span class="material-icons text-gray-400 text-lg">analytics</span>
+                  <span class="material-icons text-gray-400 dark:text-gray-500 text-lg">analytics</span>
                   Analytics
                 </a>
-                <div class="border-t border-gray-100 mt-1">
+                <div class="border-t border-gray-100 dark:border-gray-700 mt-1">
                   <button
                     type="button"
-                    class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                    class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     (click)="logout()">
-                    <span class="material-icons text-gray-400 text-lg">logout</span>
+                    <span class="material-icons text-gray-400 dark:text-gray-500 text-lg">logout</span>
                     Déconnexion
                   </button>
                 </div>
