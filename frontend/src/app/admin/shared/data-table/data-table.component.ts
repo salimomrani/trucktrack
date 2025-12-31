@@ -2,6 +2,7 @@ import { Component, input, output, OnInit, OnChanges, ChangeDetectionStrategy, c
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SelectionModel } from '../../../shared/utils/selection-model';
+import { EmptyStateComponent, EmptyStatePreset } from '../../../shared/components/empty-state/empty-state.component';
 
 /**
  * Column definition for DataTable
@@ -36,7 +37,8 @@ export interface PageInfo {
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule
+    FormsModule,
+    EmptyStateComponent
   ],
   templateUrl: './data-table.component.html',
   styleUrls: ['./data-table.component.scss'],
@@ -55,7 +57,8 @@ export class DataTableComponent<T> implements OnInit, OnChanges {
   readonly selectable = input<boolean>(false);
   readonly showActions = input<boolean>(true);
   readonly rowClickable = input<boolean>(false);
-  readonly noDataMessage = input<string>('No data available');
+  readonly emptyPreset = input<EmptyStatePreset>('generic');
+  readonly noDataMessage = input<string | null>(null);
   readonly isLoading = input<boolean>(false);
 
   // Signal outputs

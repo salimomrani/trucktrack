@@ -8,6 +8,7 @@ import { GeofenceService } from '../../../services/geofence.service';
 import { Geofence, GeofenceZoneType } from '../../../models/geofence.model';
 import { selectUserRole } from '../../../store/auth/auth.selectors';
 import { ToastService } from '../../../shared/components/toast/toast.service';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 
 /**
  * Geofence Panel Component
@@ -17,7 +18,7 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
  */
 @Component({
     selector: 'app-geofence-panel',
-    imports: [FormsModule],
+    imports: [FormsModule, EmptyStateComponent],
     templateUrl: './geofence-panel.component.html',
     styleUrls: ['./geofence-panel.component.scss']
 })

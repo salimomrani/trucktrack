@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
+import { EmptyStateComponent, EmptyStatePreset } from '../empty-state/empty-state.component';
 
 export interface TableColumn {
   key: string;
@@ -45,7 +46,7 @@ export interface SortEvent {
 @Component({
   selector: 'app-table',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, EmptyStateComponent],
   templateUrl: './table.component.html',
   styleUrl: './table.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -75,11 +76,14 @@ export class TableComponent<T = any> {
   /** Enable row click */
   readonly clickable = input<boolean>(false);
 
-  /** Empty state message */
-  readonly emptyMessage = input<string>('No data available');
+  /** Empty state preset type */
+  readonly emptyPreset = input<EmptyStatePreset>('generic');
 
-  /** Empty state icon */
-  readonly emptyIcon = input<string>('inbox');
+  /** Empty state message (overrides preset) */
+  readonly emptyMessage = input<string | null>(null);
+
+  /** Empty state icon (overrides preset) */
+  readonly emptyIcon = input<string | null>(null);
 
   /** Sort event */
   readonly sort = output<SortEvent>();

@@ -2,6 +2,7 @@ import { Component, input, ChangeDetectionStrategy, computed } from '@angular/co
 import { NgxChartsModule, Color, ScaleType } from '@swimlane/ngx-charts';
 
 import { TruckRankEntry } from '../../../../core/models/analytics.model';
+import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 
 /**
  * Truck ranking bar chart component.
@@ -12,7 +13,7 @@ import { TruckRankEntry } from '../../../../core/models/analytics.model';
 @Component({
   selector: 'app-trucks-ranking',
   standalone: true,
-  imports: [NgxChartsModule],
+  imports: [NgxChartsModule, EmptyStateComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './trucks-ranking.component.html',
   styleUrls: ['./trucks-ranking.component.scss']

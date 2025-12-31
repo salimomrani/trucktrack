@@ -13,6 +13,7 @@ import { EntityFilterComponent } from './components/entity-filter/entity-filter.
 import { DistanceChartComponent } from './components/distance-chart/distance-chart.component';
 import { AlertsChartComponent } from './components/alerts-chart/alerts-chart.component';
 import { TrucksRankingComponent } from './components/trucks-ranking/trucks-ranking.component';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import {
   FleetKPI,
   DailyMetrics,
@@ -43,7 +44,8 @@ import {
     EntityFilterComponent,
     DistanceChartComponent,
     AlertsChartComponent,
-    TrucksRankingComponent
+    TrucksRankingComponent,
+    EmptyStateComponent
   ],
   templateUrl: './analytics.component.html',
   styleUrls: ['./analytics.component.scss']

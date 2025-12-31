@@ -78,10 +78,11 @@
 
   <!-- Empty state -->
   @if (!isLoading() && !error() && kpis() === null) {
-    <div class="bg-white rounded-lg shadow-card p-8 text-center">
-      <span class="material-icons text-5xl text-gray-300 mb-4">insert_chart_outlined</span>
-      <h2 class="text-xl font-semibold text-gray-800 mb-2">Aucune donnée disponible</h2>
-      <p class="text-gray-500">Il n'y a pas de données analytics pour la période sélectionnée.</p>
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card">
+      <app-empty-state
+        preset="analytics"
+        size="lg"
+      />
     </div>
   }
 

@@ -148,11 +148,12 @@
             </tr>
           } @empty {
             <tr>
-              <td [attr.colspan]="getTotalColumns()" class="px-4 py-12 text-center">
-                <div class="flex flex-col items-center gap-2 text-gray-500">
-                  <span class="material-icons text-4xl text-gray-300">inbox</span>
-                  <span class="text-sm">{{ noDataMessage() }}</span>
-                </div>
+              <td [attr.colspan]="getTotalColumns()" class="px-4 py-4">
+                <app-empty-state
+                  [preset]="emptyPreset()"
+                  [title]="noDataMessage()"
+                  size="sm"
+                />
               </td>
             </tr>
           }

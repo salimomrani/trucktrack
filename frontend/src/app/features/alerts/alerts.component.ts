@@ -10,6 +10,7 @@ import { Notification, NotificationSeverity, NotificationType, NotificationStats
 import { AlertRule, AlertRuleType, CreateAlertRuleRequest } from '../../models/alert-rule.model';
 import { Geofence } from '../../models/geofence.model';
 import { ToastService } from '../../shared/components/toast/toast.service';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 
 interface AlertStats {
   total: number;
@@ -27,8 +28,9 @@ interface AlertStats {
 @Component({
     selector: 'app-alerts',
     imports: [
-    ReactiveFormsModule
-],
+      ReactiveFormsModule,
+      EmptyStateComponent
+    ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './alerts.component.html',
     styleUrls: ['./alerts.component.scss']
