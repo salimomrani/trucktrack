@@ -34,21 +34,12 @@
     <!-- Table Body -->
     <tbody class="bg-white divide-y divide-gray-100">
       @if (loading()) {
-        <!-- Loading State -->
-        @for (i of [1, 2, 3, 4, 5]; track i) {
-          <tr>
-            @for (column of columns(); track column.key) {
-              <td class="px-4 py-4">
-                <div class="h-4 bg-gray-200 rounded animate-pulse" [style.width]="'60%'"></div>
-              </td>
-            }
-            @if (actionsTemplate) {
-              <td class="px-4 py-4">
-                <div class="h-4 bg-gray-200 rounded animate-pulse w-16 ml-auto"></div>
-              </td>
-            }
-          </tr>
-        }
+        <!-- Loading State with Skeleton -->
+        <app-skeleton
+          variant="table-row"
+          [count]="5"
+          [columns]="columns().length + (actionsTemplate ? 1 : 0)"
+        />
       } @else if (data().length === 0) {
         <!-- Empty State -->
         <tr>

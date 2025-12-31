@@ -1,0 +1,221 @@
+<!-- Skeleton Loader Component -->
+@switch (variant()) {
+  <!-- Text Lines -->
+  @case ('text') {
+    <div class="space-y-2">
+      @for (i of getArray(lines()); track i) {
+        <div
+          class="bg-gray-200 dark:bg-gray-700"
+          [class.animate-pulse]="animate()"
+          [class.rounded]="rounded()"
+          [class]="getTextHeightClass()"
+          [style.width]="width() || getRandomWidth(i)">
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Title -->
+  @case ('title') {
+    <div
+      class="bg-gray-200 dark:bg-gray-700"
+      [class.animate-pulse]="animate()"
+      [class.rounded]="rounded()"
+      [class]="getTitleHeightClass()"
+      [style.width]="width() || '60%'">
+    </div>
+  }
+
+  <!-- Avatar (Circle) -->
+  @case ('avatar') {
+    @for (i of getArray(count()); track i) {
+      <div
+        class="bg-gray-200 dark:bg-gray-700 rounded-full shrink-0"
+        [class.animate-pulse]="animate()"
+        [class]="getAvatarSizeClass()">
+      </div>
+    }
+  }
+
+  <!-- Thumbnail (Square) -->
+  @case ('thumbnail') {
+    @for (i of getArray(count()); track i) {
+      <div
+        class="bg-gray-200 dark:bg-gray-700 aspect-square"
+        [class.animate-pulse]="animate()"
+        [class.rounded-lg]="rounded()"
+        [class]="size() === 'sm' ? 'w-16' : size() === 'lg' ? 'w-32' : 'w-24'">
+      </div>
+    }
+  }
+
+  <!-- Button -->
+  @case ('button') {
+    <div
+      class="bg-gray-200 dark:bg-gray-700 rounded-md"
+      [class.animate-pulse]="animate()"
+      [class]="size() === 'sm' ? 'h-8 w-20' : size() === 'lg' ? 'h-12 w-32' : 'h-10 w-24'">
+    </div>
+  }
+
+  <!-- Input Field -->
+  @case ('input') {
+    <div class="space-y-1.5">
+      <!-- Label -->
+      <div
+        class="h-3 w-20 bg-gray-200 dark:bg-gray-700 rounded"
+        [class.animate-pulse]="animate()">
+      </div>
+      <!-- Input -->
+      <div
+        class="h-10 w-full bg-gray-200 dark:bg-gray-700 rounded-md"
+        [class.animate-pulse]="animate()">
+      </div>
+    </div>
+  }
+
+  <!-- Card -->
+  @case ('card') {
+    @for (i of getArray(count()); track i) {
+      <div
+        class="bg-white dark:bg-gray-800 rounded-lg shadow-card p-4 space-y-3"
+        [class.animate-pulse]="animate()">
+        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+        <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+        <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+      </div>
+    }
+  }
+
+  <!-- Table Row -->
+  @case ('table-row') {
+    @for (row of getArray(count()); track row) {
+      <tr class="border-b border-gray-100 dark:border-gray-700">
+        @for (col of getArray(columns()); track col) {
+          <td class="px-4 py-4">
+            <div
+              class="h-4 bg-gray-200 dark:bg-gray-700 rounded"
+              [class.animate-pulse]="animate()"
+              [style.width]="getRandomWidth(col)">
+            </div>
+          </td>
+        }
+      </tr>
+    }
+  }
+
+  <!-- List Item -->
+  @case ('list-item') {
+    @for (i of getArray(count()); track i) {
+      <div
+        class="flex items-center gap-3 p-3"
+        [class.animate-pulse]="animate()">
+        <!-- Avatar -->
+        <div class="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full shrink-0"></div>
+        <!-- Text -->
+        <div class="flex-1 space-y-2">
+          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+          <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+        </div>
+      </div>
+    }
+  }
+
+  <!-- KPI Card -->
+  @case ('kpi-card') {
+    @for (i of getArray(count()); track i) {
+      <div
+        class="bg-white dark:bg-gray-800 rounded-lg shadow-card p-4"
+        [class.animate-pulse]="animate()">
+        <div class="flex items-center gap-3 mb-3">
+          <!-- Icon placeholder -->
+          <div class="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+          <!-- Label placeholder -->
+          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+        </div>
+        <!-- Value placeholder -->
+        <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+      </div>
+    }
+  }
+
+  <!-- Chart -->
+  @case ('chart') {
+    <div
+      class="bg-white dark:bg-gray-800 rounded-lg shadow-card p-4"
+      [class.animate-pulse]="animate()">
+      <!-- Chart title -->
+      <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-40 mb-4"></div>
+      <!-- Chart area -->
+      <div class="flex items-end gap-2 h-48">
+        @for (i of getArray(8); track i) {
+          <div
+            class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-t"
+            [style.height.%]="30 + (i * 8) % 60">
+          </div>
+        }
+      </div>
+      <!-- Legend -->
+      <div class="flex justify-center gap-4 mt-4">
+        @for (i of getArray(3); track i) {
+          <div class="flex items-center gap-2">
+            <div class="w-3 h-3 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+            <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Profile Card -->
+  @case ('profile') {
+    <div
+      class="bg-white dark:bg-gray-800 rounded-lg shadow-card"
+      [class.animate-pulse]="animate()">
+      <!-- Header -->
+      <div class="p-6 border-b border-gray-100 dark:border-gray-700">
+        <div class="flex items-center gap-4">
+          <!-- Avatar -->
+          <div class="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+          <!-- Name & Role -->
+          <div class="space-y-2">
+            <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Details -->
+      <div class="p-6 space-y-4">
+        @for (i of getArray(3); track i) {
+          <div class="flex items-center gap-4">
+            <div class="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div class="flex-1 space-y-1">
+              <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+              <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-40"></div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Custom (fallback) -->
+  @case ('custom') {
+    <div
+      class="bg-gray-200 dark:bg-gray-700"
+      [class.animate-pulse]="animate()"
+      [class.rounded]="rounded()"
+      [style.width]="width() || '100%'"
+      [style.height]="height() || '1rem'">
+    </div>
+  }
+
+  <!-- Default: Text -->
+  @default {
+    <div
+      class="h-4 bg-gray-200 dark:bg-gray-700 rounded"
+      [class.animate-pulse]="animate()"
+      [style.width]="width() || '100%'">
+    </div>
+  }
+}
