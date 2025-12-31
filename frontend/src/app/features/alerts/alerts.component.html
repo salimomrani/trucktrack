@@ -198,69 +198,73 @@
 
   <!-- Stats Cards -->
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-    <div class="bg-white rounded-lg shadow-card p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card p-4">
       <div class="flex items-center gap-3">
-        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100">
-          <span class="material-icons text-gray-600">notifications</span>
+        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700">
+          <span class="material-icons text-gray-600 dark:text-gray-300">notifications</span>
         </div>
         <div>
-          <div class="text-2xl font-bold text-gray-800">{{ stats().total }}</div>
-          <div class="text-xs text-gray-500">Total Alerts</div>
+          <div class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ stats().total }}</div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">Total Alerts</div>
         </div>
       </div>
     </div>
 
-    <div class="bg-white rounded-lg shadow-card p-4 relative">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card p-4 relative">
       @if (stats().unread > 0) {
         <span class="absolute -top-2 -right-2 flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-warning-500 rounded-full">{{ stats().unread }}</span>
       }
       <div class="flex items-center gap-3">
-        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-warning-50">
-          <span class="material-icons text-warning-600">mark_email_unread</span>
+        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-warning-50 dark:bg-warning-900/30">
+          <span class="material-icons text-warning-600 dark:text-warning-400">mark_email_unread</span>
         </div>
         <div>
-          <div class="text-2xl font-bold text-gray-800">{{ stats().unread }}</div>
-          <div class="text-xs text-gray-500">Unread</div>
+          <div class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ stats().unread }}</div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">Unread</div>
         </div>
       </div>
     </div>
 
-    <div class="bg-white rounded-lg shadow-card p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card p-4">
       <div class="flex items-center gap-3">
-        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-danger-50">
-          <span class="material-icons text-danger-600">error</span>
+        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-danger-50 dark:bg-danger-900/30">
+          <span class="material-icons text-danger-600 dark:text-danger-400">error</span>
         </div>
         <div>
-          <div class="text-2xl font-bold text-gray-800">{{ stats().critical }}</div>
-          <div class="text-xs text-gray-500">Critical</div>
+          <div class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ stats().critical }}</div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">Critical</div>
         </div>
       </div>
     </div>
 
-    <div class="bg-white rounded-lg shadow-card p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card p-4">
       <div class="flex items-center gap-3">
-        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-warning-50">
-          <span class="material-icons text-warning-600">warning</span>
+        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-warning-50 dark:bg-warning-900/30">
+          <span class="material-icons text-warning-600 dark:text-warning-400">warning</span>
         </div>
         <div>
-          <div class="text-2xl font-bold text-gray-800">{{ stats().warning }}</div>
-          <div class="text-xs text-gray-500">Warning</div>
+          <div class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ stats().warning }}</div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">Warning</div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Filters and Actions -->
-  <div class="bg-white rounded-lg shadow-card p-4 mb-6">
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card p-4 mb-6">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-2">
         <button
           type="button"
           class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
           [class.bg-primary-100]="selectedSeverity() === null"
+          [class.dark:bg-primary-900]="selectedSeverity() === null"
           [class.text-primary-700]="selectedSeverity() === null"
+          [class.dark:text-primary-300]="selectedSeverity() === null"
           [class.text-gray-600]="selectedSeverity() !== null"
+          [class.dark:text-gray-300]="selectedSeverity() !== null"
           [class.hover:bg-gray-100]="selectedSeverity() !== null"
+          [class.dark:hover:bg-gray-700]="selectedSeverity() !== null"
           (click)="filterBySeverity(null)">
           All
         </button>
@@ -268,9 +272,13 @@
           type="button"
           class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
           [class.bg-danger-100]="selectedSeverity() === 'CRITICAL'"
+          [class.dark:bg-danger-900]="selectedSeverity() === 'CRITICAL'"
           [class.text-danger-700]="selectedSeverity() === 'CRITICAL'"
+          [class.dark:text-danger-300]="selectedSeverity() === 'CRITICAL'"
           [class.text-gray-600]="selectedSeverity() !== 'CRITICAL'"
+          [class.dark:text-gray-300]="selectedSeverity() !== 'CRITICAL'"
           [class.hover:bg-gray-100]="selectedSeverity() !== 'CRITICAL'"
+          [class.dark:hover:bg-gray-700]="selectedSeverity() !== 'CRITICAL'"
           (click)="filterBySeverity('CRITICAL')">
           <span class="material-icons text-base">error</span>
           Critical
@@ -279,9 +287,13 @@
           type="button"
           class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
           [class.bg-warning-100]="selectedSeverity() === 'WARNING'"
+          [class.dark:bg-warning-900]="selectedSeverity() === 'WARNING'"
           [class.text-warning-700]="selectedSeverity() === 'WARNING'"
+          [class.dark:text-warning-300]="selectedSeverity() === 'WARNING'"
           [class.text-gray-600]="selectedSeverity() !== 'WARNING'"
+          [class.dark:text-gray-300]="selectedSeverity() !== 'WARNING'"
           [class.hover:bg-gray-100]="selectedSeverity() !== 'WARNING'"
+          [class.dark:hover:bg-gray-700]="selectedSeverity() !== 'WARNING'"
           (click)="filterBySeverity('WARNING')">
           <span class="material-icons text-base">warning</span>
           Warning
@@ -290,9 +302,13 @@
           type="button"
           class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
           [class.bg-primary-100]="selectedSeverity() === 'INFO'"
+          [class.dark:bg-primary-900]="selectedSeverity() === 'INFO'"
           [class.text-primary-700]="selectedSeverity() === 'INFO'"
+          [class.dark:text-primary-300]="selectedSeverity() === 'INFO'"
           [class.text-gray-600]="selectedSeverity() !== 'INFO'"
+          [class.dark:text-gray-300]="selectedSeverity() !== 'INFO'"
           [class.hover:bg-gray-100]="selectedSeverity() !== 'INFO'"
+          [class.dark:hover:bg-gray-700]="selectedSeverity() !== 'INFO'"
           (click)="filterBySeverity('INFO')">
           <span class="material-icons text-base">info</span>
           Info
