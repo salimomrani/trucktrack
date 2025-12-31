@@ -37,10 +37,10 @@
 
     <!-- Panel Content -->
     <div class="flex-1 overflow-y-auto">
-      <!-- Loading Spinner -->
+      <!-- Loading Skeleton -->
       @if (isLoading()) {
-        <div class="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
-          <div class="w-8 h-8 border-3 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+        <div class="absolute inset-0 bg-white/80 dark:bg-gray-800/80 z-10 p-4">
+          <app-skeleton variant="list-item" [count]="4" />
         </div>
       }
 

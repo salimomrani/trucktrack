@@ -22,3 +22,4 @@ export { ConfirmDialogComponent, ConfirmDialogData } from './dialog/confirm-dial
 export { ToastService, ToastConfig, ToastType, Toast } from './toast/toast.service';
 export { ToastContainerComponent } from './toast/toast-container.component';
 export { EmptyStateComponent, EmptyStatePreset } from './empty-state/empty-state.component';
+export { SkeletonComponent, SkeletonVariant } from './skeleton/skeleton.component';

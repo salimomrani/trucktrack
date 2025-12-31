@@ -9,6 +9,7 @@ import {
 
 import { CommonModule } from '@angular/common';
 import { EmptyStateComponent, EmptyStatePreset } from '../empty-state/empty-state.component';
+import { SkeletonComponent } from '../skeleton/skeleton.component';
 
 export interface TableColumn {
   key: string;
@@ -46,7 +47,7 @@ export interface SortEvent {
 @Component({
   selector: 'app-table',
   standalone: true,
-  imports: [CommonModule, EmptyStateComponent],
+  imports: [CommonModule, EmptyStateComponent, SkeletonComponent],
   templateUrl: './table.component.html',
   styleUrl: './table.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

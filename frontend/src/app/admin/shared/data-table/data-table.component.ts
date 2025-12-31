@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SelectionModel } from '../../../shared/utils/selection-model';
 import { EmptyStateComponent, EmptyStatePreset } from '../../../shared/components/empty-state/empty-state.component';
+import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 
 /**
  * Column definition for DataTable
@@ -38,7 +39,8 @@ export interface PageInfo {
   imports: [
     CommonModule,
     FormsModule,
-    EmptyStateComponent
+    EmptyStateComponent,
+    SkeletonComponent
   ],
   templateUrl: './data-table.component.html',
   styleUrls: ['./data-table.component.scss'],

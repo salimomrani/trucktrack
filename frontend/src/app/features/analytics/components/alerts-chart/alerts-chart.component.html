@@ -10,8 +10,8 @@
 
   <div class="p-4">
     @if (isLoading()) {
-      <div class="flex items-center justify-center h-[300px]" aria-hidden="true">
-        <div class="animate-spin rounded-full h-10 w-10 border-4 border-primary-500 border-t-transparent"></div>
+      <div class="h-[300px]" aria-hidden="true">
+        <app-skeleton variant="chart" />
       </div>
     } @else if (chartData().length === 0) {
       <app-empty-state
