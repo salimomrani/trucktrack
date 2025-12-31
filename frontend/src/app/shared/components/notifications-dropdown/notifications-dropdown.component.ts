@@ -63,8 +63,16 @@ export class NotificationsDropdownComponent implements OnInit, OnDestroy {
   /** Track if marking all as read */
   readonly markingAllAsRead = signal(false);
 
+  /** Flag to skip the initial click that opened the dropdown */
+  private initialized = false;
+
   ngOnInit(): void {
     this.loadNotifications();
+
+    // Delay enabling click-outside detection to prevent immediate close
+    setTimeout(() => {
+      this.initialized = true;
+    }, 100);
 
     // Subscribe to new real-time notifications
     this.notificationService.newNotification$
@@ -85,6 +93,9 @@ export class NotificationsDropdownComponent implements OnInit, OnDestroy {
    */
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
+    // Skip if not yet initialized (prevents immediate close on opening click)
+    if (!this.initialized) return;
+
     if (!this.elementRef.nativeElement.contains(event.target)) {
       this.closed.emit();
     }
