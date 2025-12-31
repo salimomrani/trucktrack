@@ -1,8 +1,8 @@
 <div class="p-6 space-y-6">
   <!-- Page Header -->
   <div class="mb-6">
-    <h1 class="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-    <p class="text-gray-500 mt-1">Fleet overview and quick actions</p>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
+    <p class="text-gray-500 dark:text-gray-400 mt-1">Fleet overview and quick actions</p>
   </div>
 
   @if (loading()) {
@@ -10,13 +10,13 @@
       <div class="animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent"></div>
     </div>
   } @else if (error()) {
-    <div class="bg-white rounded-lg shadow-card p-6">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card p-6">
       <div class="flex flex-col items-center gap-4 text-danger-600">
         <span class="material-icons text-4xl">error</span>
-        <p class="text-gray-700">{{ error() }}</p>
+        <p class="text-gray-700 dark:text-gray-300">{{ error() }}</p>
         <button
           type="button"
-          class="px-4 py-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+          class="px-4 py-2 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
           (click)="loadStats()">
           Retry
         </button>
@@ -27,69 +27,69 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <!-- Users Card -->
       <a routerLink="/admin/users"
-         class="bg-white rounded-lg shadow-card p-4 flex items-center gap-4 hover:shadow-lg transition-shadow cursor-pointer group">
-        <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-primary-100 text-primary-600">
+         class="bg-white dark:bg-gray-800 rounded-lg shadow-card p-4 flex items-center gap-4 hover:shadow-lg transition-shadow cursor-pointer group">
+        <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400">
           <span class="material-icons text-2xl">people</span>
         </div>
         <div class="flex-1">
-          <span class="block text-2xl font-bold text-gray-900">{{ stats()?.totalUsers ?? 0 }}</span>
-          <span class="text-sm text-gray-600">Total Users</span>
-          <span class="block text-xs text-gray-400">{{ stats()?.activeUsers ?? 0 }} active</span>
+          <span class="block text-2xl font-bold text-gray-900 dark:text-white">{{ stats()?.totalUsers ?? 0 }}</span>
+          <span class="text-sm text-gray-600 dark:text-gray-400">Total Users</span>
+          <span class="block text-xs text-gray-400 dark:text-gray-500">{{ stats()?.activeUsers ?? 0 }} active</span>
         </div>
         <span class="material-icons text-gray-400 group-hover:text-primary-500 transition-colors">chevron_right</span>
       </a>
 
       <!-- Trucks Card -->
       <a routerLink="/admin/trucks"
-         class="bg-white rounded-lg shadow-card p-4 flex items-center gap-4 hover:shadow-lg transition-shadow cursor-pointer group">
-        <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-success-100 text-success-600">
+         class="bg-white dark:bg-gray-800 rounded-lg shadow-card p-4 flex items-center gap-4 hover:shadow-lg transition-shadow cursor-pointer group">
+        <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-success-100 dark:bg-success-900/30 text-success-600 dark:text-success-400">
           <span class="material-icons text-2xl">local_shipping</span>
         </div>
         <div class="flex-1">
-          <span class="block text-2xl font-bold text-gray-900">{{ stats()?.trucks?.total ?? 0 }}</span>
-          <span class="text-sm text-gray-600">Total Trucks</span>
-          <span class="block text-xs text-gray-400">{{ stats()?.trucks?.active ?? 0 }} active</span>
+          <span class="block text-2xl font-bold text-gray-900 dark:text-white">{{ stats()?.trucks?.total ?? 0 }}</span>
+          <span class="text-sm text-gray-600 dark:text-gray-400">Total Trucks</span>
+          <span class="block text-xs text-gray-400 dark:text-gray-500">{{ stats()?.trucks?.active ?? 0 }} active</span>
         </div>
         <span class="material-icons text-gray-400 group-hover:text-success-500 transition-colors">chevron_right</span>
       </a>
 
       <!-- Groups Card -->
       <a routerLink="/admin/groups"
-         class="bg-white rounded-lg shadow-card p-4 flex items-center gap-4 hover:shadow-lg transition-shadow cursor-pointer group">
-        <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-info-100 text-info-600">
+         class="bg-white dark:bg-gray-800 rounded-lg shadow-card p-4 flex items-center gap-4 hover:shadow-lg transition-shadow cursor-pointer group">
+        <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-info-100 dark:bg-info-900/30 text-info-600 dark:text-info-400">
           <span class="material-icons text-2xl">workspaces</span>
         </div>
         <div class="flex-1">
-          <span class="block text-2xl font-bold text-gray-900">{{ stats()?.totalGroups ?? 0 }}</span>
-          <span class="text-sm text-gray-600">Groups</span>
-          <span class="block text-xs text-gray-400">Fleet organization</span>
+          <span class="block text-2xl font-bold text-gray-900 dark:text-white">{{ stats()?.totalGroups ?? 0 }}</span>
+          <span class="text-sm text-gray-600 dark:text-gray-400">Groups</span>
+          <span class="block text-xs text-gray-400 dark:text-gray-500">Fleet organization</span>
         </div>
         <span class="material-icons text-gray-400 group-hover:text-info-500 transition-colors">chevron_right</span>
       </a>
 
       <!-- Configuration Card -->
       <a routerLink="/admin/config"
-         class="bg-white rounded-lg shadow-card p-4 flex items-center gap-4 hover:shadow-lg transition-shadow cursor-pointer group">
-        <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-warning-100 text-warning-600">
+         class="bg-white dark:bg-gray-800 rounded-lg shadow-card p-4 flex items-center gap-4 hover:shadow-lg transition-shadow cursor-pointer group">
+        <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-warning-100 dark:bg-warning-900/30 text-warning-600 dark:text-warning-400">
           <span class="material-icons text-2xl">settings</span>
         </div>
         <div class="flex-1">
-          <span class="block text-2xl font-bold text-gray-900">{{ stats()?.alerts?.total ?? 0 }}</span>
-          <span class="text-sm text-gray-600">Configuration</span>
-          <span class="block text-xs text-gray-400">System settings</span>
+          <span class="block text-2xl font-bold text-gray-900 dark:text-white">{{ stats()?.alerts?.total ?? 0 }}</span>
+          <span class="text-sm text-gray-600 dark:text-gray-400">Configuration</span>
+          <span class="block text-xs text-gray-400 dark:text-gray-500">System settings</span>
         </div>
         <span class="material-icons text-gray-400 group-hover:text-warning-500 transition-colors">chevron_right</span>
       </a>
     </div>
 
     <!-- Trip Analytics Widget -->
-    <a routerLink="/admin/trips" class="block bg-white rounded-lg shadow-card hover:shadow-lg transition-shadow cursor-pointer">
-      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-        <div class="flex items-center gap-2 text-gray-800 font-medium">
+    <a routerLink="/admin/trips" class="block bg-white dark:bg-gray-800 rounded-lg shadow-card hover:shadow-lg transition-shadow cursor-pointer">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+        <div class="flex items-center gap-2 text-gray-800 dark:text-gray-200 font-medium">
           <span class="material-icons text-primary-500">route</span>
           <span>Trip Analytics</span>
         </div>
-        <div class="flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700">
+        <div class="flex items-center gap-1 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700">
           <span>View All</span>
           <span class="material-icons text-lg">chevron_right</span>
         </div>
@@ -100,56 +100,56 @@
     </a>
 
     <!-- Truck Status Breakdown -->
-    <div class="bg-white rounded-lg shadow-card">
-      <div class="px-6 py-4 border-b border-gray-100">
-        <h3 class="font-medium text-gray-800">Truck Status Breakdown</h3>
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card">
+      <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+        <h3 class="font-medium text-gray-800 dark:text-gray-200">Truck Status Breakdown</h3>
       </div>
       <div class="p-6">
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div class="text-center p-4 rounded-lg bg-success-50 border-l-4 border-success-500">
-            <span class="block text-2xl font-bold text-success-700">{{ stats()?.trucks?.active ?? 0 }}</span>
-            <span class="text-sm text-success-600">Active</span>
+          <div class="text-center p-4 rounded-lg bg-success-50 dark:bg-success-900/20 border-l-4 border-success-500">
+            <span class="block text-2xl font-bold text-success-700 dark:text-success-400">{{ stats()?.trucks?.active ?? 0 }}</span>
+            <span class="text-sm text-success-600 dark:text-success-500">Active</span>
           </div>
-          <div class="text-center p-4 rounded-lg bg-warning-50 border-l-4 border-warning-500">
-            <span class="block text-2xl font-bold text-warning-700">{{ stats()?.trucks?.idle ?? 0 }}</span>
-            <span class="text-sm text-warning-600">Idle</span>
+          <div class="text-center p-4 rounded-lg bg-warning-50 dark:bg-warning-900/20 border-l-4 border-warning-500">
+            <span class="block text-2xl font-bold text-warning-700 dark:text-warning-400">{{ stats()?.trucks?.idle ?? 0 }}</span>
+            <span class="text-sm text-warning-600 dark:text-warning-500">Idle</span>
           </div>
-          <div class="text-center p-4 rounded-lg bg-gray-50 border-l-4 border-gray-400">
-            <span class="block text-2xl font-bold text-gray-700">{{ stats()?.trucks?.offline ?? 0 }}</span>
-            <span class="text-sm text-gray-600">Offline</span>
+          <div class="text-center p-4 rounded-lg bg-gray-50 dark:bg-gray-700 border-l-4 border-gray-400">
+            <span class="block text-2xl font-bold text-gray-700 dark:text-gray-300">{{ stats()?.trucks?.offline ?? 0 }}</span>
+            <span class="text-sm text-gray-600 dark:text-gray-400">Offline</span>
           </div>
-          <div class="text-center p-4 rounded-lg bg-danger-50 border-l-4 border-danger-500">
-            <span class="block text-2xl font-bold text-danger-700">{{ stats()?.trucks?.outOfService ?? 0 }}</span>
-            <span class="text-sm text-danger-600">Out of Service</span>
+          <div class="text-center p-4 rounded-lg bg-danger-50 dark:bg-danger-900/20 border-l-4 border-danger-500">
+            <span class="block text-2xl font-bold text-danger-700 dark:text-danger-400">{{ stats()?.trucks?.outOfService ?? 0 }}</span>
+            <span class="text-sm text-danger-600 dark:text-danger-500">Out of Service</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Quick Actions -->
-    <div class="bg-white rounded-lg shadow-card">
-      <div class="px-6 py-4 border-b border-gray-100">
-        <h3 class="font-medium text-gray-800">Quick Actions</h3>
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card">
+      <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+        <h3 class="font-medium text-gray-800 dark:text-gray-200">Quick Actions</h3>
       </div>
       <div class="p-6">
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <a routerLink="/admin/users/new"
-             class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 hover:border-primary-300 transition-colors">
+             class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-primary-300 dark:hover:border-primary-500 transition-colors">
             <span class="material-icons text-xl">person_add</span>
             <span>Add User</span>
           </a>
           <a routerLink="/admin/trucks/new"
-             class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 hover:border-primary-300 transition-colors">
+             class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-primary-300 dark:hover:border-primary-500 transition-colors">
             <span class="material-icons text-xl">add</span>
             <span>Add Truck</span>
           </a>
           <a routerLink="/admin/groups/new"
-             class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 hover:border-primary-300 transition-colors">
+             class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-primary-300 dark:hover:border-primary-500 transition-colors">
             <span class="material-icons text-xl">group_add</span>
             <span>Create Group</span>
           </a>
           <a routerLink="/admin/config"
-             class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 hover:border-primary-300 transition-colors">
+             class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-primary-300 dark:hover:border-primary-500 transition-colors">
             <span class="material-icons text-xl">settings</span>
             <span>Configuration</span>
           </a>
@@ -159,19 +159,19 @@
 
     <!-- Mileage Stats -->
     @if (stats()?.mileage) {
-      <div class="bg-white rounded-lg shadow-card">
-        <div class="px-6 py-4 border-b border-gray-100">
-          <h3 class="font-medium text-gray-800">Fleet Mileage</h3>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card">
+        <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+          <h3 class="font-medium text-gray-800 dark:text-gray-200">Fleet Mileage</h3>
         </div>
         <div class="p-6">
           <div class="grid grid-cols-2 gap-6">
             <div class="text-center">
-              <span class="block text-3xl font-bold text-gray-900">{{ stats()?.mileage?.totalKilometers | number:'1.0-0' }}</span>
-              <span class="text-sm text-gray-500">Total km</span>
+              <span class="block text-3xl font-bold text-gray-900 dark:text-white">{{ stats()?.mileage?.totalKilometers | number:'1.0-0' }}</span>
+              <span class="text-sm text-gray-500 dark:text-gray-400">Total km</span>
             </div>
             <div class="text-center">
-              <span class="block text-3xl font-bold text-gray-900">{{ stats()?.mileage?.averagePerTruck | number:'1.0-0' }}</span>
-              <span class="text-sm text-gray-500">Avg per truck</span>
+              <span class="block text-3xl font-bold text-gray-900 dark:text-white">{{ stats()?.mileage?.averagePerTruck | number:'1.0-0' }}</span>
+              <span class="text-sm text-gray-500 dark:text-gray-400">Avg per truck</span>
             </div>
           </div>
         </div>
@@ -181,7 +181,7 @@
 
   <!-- Cache Loading Indicator -->
   @if (isCacheLoading()) {
-    <div class="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg px-4 py-2 flex items-center gap-2 text-sm text-gray-600">
+    <div class="fixed bottom-4 right-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg px-4 py-2 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
       <div class="animate-spin rounded-full h-4 w-4 border-2 border-primary-500 border-t-transparent"></div>
       <span>Updating...</span>
     </div>
