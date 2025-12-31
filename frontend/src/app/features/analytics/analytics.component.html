@@ -110,7 +110,7 @@
 
   <!-- Entity info -->
   @if (kpis(); as data) {
-    <div class="flex flex-col sm:flex-row items-center gap-2 p-4 bg-primary-50 border border-primary-100 rounded-lg text-primary-700 text-sm mb-6 lg:mb-8">
+    <div class="flex flex-col sm:flex-row items-center gap-2 p-4 bg-primary-50 dark:bg-primary-900/30 border border-primary-100 dark:border-primary-800 rounded-lg text-primary-700 dark:text-primary-300 text-sm mb-6 lg:mb-8">
       <span class="material-icons text-lg">info</span>
       <span class="text-center sm:text-left">
         {{ data.entity.name }} • {{ data.entity.truckCount }} camion(s) •
