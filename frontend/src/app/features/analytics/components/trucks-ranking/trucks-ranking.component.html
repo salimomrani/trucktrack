@@ -1,11 +1,11 @@
 <div
-  class="bg-white rounded-lg shadow-card overflow-hidden"
+  class="bg-white dark:bg-gray-800 rounded-lg shadow-card overflow-hidden"
   role="figure"
   [attr.aria-label]="'Classement des camions par distance: ' + getChartSummary()"
   [attr.aria-busy]="isLoading()">
 
-  <div class="px-4 py-3 border-b border-gray-100">
-    <h3 class="text-base font-semibold text-gray-800">Top 10 Camions par distance</h3>
+  <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+    <h3 class="text-base font-semibold text-gray-800 dark:text-gray-100">Top 10 Camions par distance</h3>
   </div>
 
   <div class="p-4">
@@ -14,7 +14,7 @@
         <div class="animate-spin rounded-full h-10 w-10 border-4 border-primary-500 border-t-transparent"></div>
       </div>
     } @else if (chartData().length === 0) {
-      <div class="flex items-center justify-center h-[350px] text-gray-500">
+      <div class="flex items-center justify-center h-[350px] text-gray-500 dark:text-gray-400">
         <p>Aucune donnée disponible</p>
       </div>
     } @else {
