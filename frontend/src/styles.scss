@@ -526,6 +526,42 @@ body {
     background-color: #374151 !important;
     color: #F3F4F6 !important;
   }
+
+  // ngx-charts dark mode
+  .ngx-charts {
+    text {
+      fill: #E5E7EB !important; // gray-200
+    }
+
+    .gridline-path {
+      stroke: #374151 !important; // gray-700
+    }
+
+    .refline-path {
+      stroke: #4B5563 !important; // gray-600
+    }
+
+    .axis-label {
+      fill: #9CA3AF !important; // gray-400
+    }
+
+    .tick {
+      text {
+        fill: #D1D5DB !important; // gray-300
+      }
+    }
+
+    .legend-label-text {
+      fill: #E5E7EB !important; // gray-200
+    }
+  }
+
+  // ngx-charts tooltip
+  .ngx-charts-tooltip-content {
+    background-color: #1F2937 !important;
+    color: #F3F4F6 !important;
+    border: 1px solid #374151 !important;
+  }
 }
 
 // ============================================
