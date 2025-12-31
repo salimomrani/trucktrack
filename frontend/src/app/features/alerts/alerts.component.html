@@ -145,10 +145,15 @@
       <!-- Existing Alert Rules List -->
       <div class="space-y-3" role="list" aria-label="Configured alert rules">
         @if (alertRules().length === 0) {
-          <div class="text-center py-8 text-gray-400" role="status" aria-live="polite">
-            <span class="material-icons text-4xl mb-2">rule_folder</span>
-            <p>No alert rules configured yet. Create your first rule to get started!</p>
-          </div>
+          <app-empty-state
+            preset="alerts"
+            title="Aucune règle d'alerte"
+            message="Créez votre première règle pour commencer à recevoir des notifications."
+            actionText="Créer une règle"
+            actionIcon="add"
+            size="sm"
+            (action)="toggleRuleForm()"
+          />
         } @else {
           @for (rule of alertRules(); track rule.id) {
             <div
@@ -352,10 +357,11 @@
         <p class="text-gray-500">Loading notifications...</p>
       </div>
     } @else if (filteredNotifications().length === 0) {
-      <div class="bg-white rounded-lg shadow-card p-8 text-center" role="status" aria-live="polite">
-        <span class="material-icons text-4xl text-success-500 mb-3">check_circle_outline</span>
-        <h3 class="text-lg font-medium text-gray-800 mb-1">No notifications found</h3>
-        <p class="text-gray-500">Great! There are no notifications matching your filters.</p>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card" role="status" aria-live="polite">
+        <app-empty-state
+          preset="notifications"
+          size="md"
+        />
       </div>
     } @else {
       @for (notification of filteredNotifications(); track notification.id; let i = $index) {

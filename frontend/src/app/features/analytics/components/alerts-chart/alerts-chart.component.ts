@@ -2,6 +2,7 @@ import { Component, input, ChangeDetectionStrategy, computed } from '@angular/co
 import { NgxChartsModule, Color, ScaleType } from '@swimlane/ngx-charts';
 
 import { AlertTypeCount } from '../../../../core/models/analytics.model';
+import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 
 /**
  * Alert breakdown pie chart component.
@@ -12,7 +13,7 @@ import { AlertTypeCount } from '../../../../core/models/analytics.model';
 @Component({
   selector: 'app-alerts-chart',
   standalone: true,
-  imports: [NgxChartsModule],
+  imports: [NgxChartsModule, EmptyStateComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './alerts-chart.component.html',
   styleUrls: ['./alerts-chart.component.scss']

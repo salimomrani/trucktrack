@@ -14,9 +14,10 @@
         <div class="animate-spin rounded-full h-10 w-10 border-4 border-primary-500 border-t-transparent"></div>
       </div>
     } @else if (chartData().length === 0) {
-      <div class="flex items-center justify-center h-[300px] text-gray-500 dark:text-gray-400">
-        <p>Aucune alerte pour cette période</p>
-      </div>
+      <app-empty-state
+        preset="alerts"
+        size="sm"
+      />
     } @else {
       <ngx-charts-pie-chart
         [view]="[chartWidth(), 300]"

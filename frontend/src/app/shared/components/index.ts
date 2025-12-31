@@ -21,3 +21,4 @@ export { DialogRef, DIALOG_DATA } from './dialog/dialog-ref';
 export { ConfirmDialogComponent, ConfirmDialogData } from './dialog/confirm-dialog.component';
 export { ToastService, ToastConfig, ToastType, Toast } from './toast/toast.service';
 export { ToastContainerComponent } from './toast/toast-container.component';
+export { EmptyStateComponent, EmptyStatePreset } from './empty-state/empty-state.component';

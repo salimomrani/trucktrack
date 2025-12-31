@@ -2,6 +2,7 @@ import { Component, input, ChangeDetectionStrategy, computed } from '@angular/co
 import { NgxChartsModule, Color, ScaleType } from '@swimlane/ngx-charts';
 
 import { DailyDataPoint } from '../../../../core/models/analytics.model';
+import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 
 /**
  * Distance line chart component.
@@ -12,7 +13,7 @@ import { DailyDataPoint } from '../../../../core/models/analytics.model';
 @Component({
   selector: 'app-distance-chart',
   standalone: true,
-  imports: [NgxChartsModule],
+  imports: [NgxChartsModule, EmptyStateComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './distance-chart.component.html',
   styleUrls: ['./distance-chart.component.scss']

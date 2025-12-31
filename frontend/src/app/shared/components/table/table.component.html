@@ -52,11 +52,13 @@
       } @else if (data().length === 0) {
         <!-- Empty State -->
         <tr>
-          <td [attr.colspan]="columns().length + (actionsTemplate ? 1 : 0)" class="px-4 py-12 text-center">
-            <div class="flex flex-col items-center text-gray-400">
-              <span class="material-icons text-5xl mb-3">{{ emptyIcon() }}</span>
-              <p class="text-gray-500">{{ emptyMessage() }}</p>
-            </div>
+          <td [attr.colspan]="columns().length + (actionsTemplate ? 1 : 0)" class="px-4 py-4">
+            <app-empty-state
+              [preset]="emptyPreset()"
+              [title]="emptyMessage()"
+              [icon]="emptyIcon()"
+              size="sm"
+            />
           </td>
         </tr>
       } @else {

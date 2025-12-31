@@ -169,10 +169,12 @@
         @if (isListPanelExpanded()) {
           <div class="px-4 pb-4">
             @if (geofences().length === 0) {
-              <div class="text-center py-6">
-                <span class="material-icons text-4xl text-gray-300">map</span>
-                <p class="text-sm text-gray-500 mt-2">Aucune zone créée</p>
-              </div>
+              <app-empty-state
+                preset="map"
+                title="Aucune zone"
+                message="Dessinez une zone sur la carte pour commencer."
+                size="sm"
+              />
             } @else {
               <div class="space-y-1">
                 @for (geofence of geofences(); track geofence.id) {
