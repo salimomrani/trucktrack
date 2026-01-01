@@ -5,12 +5,12 @@ import { authReducer } from './auth/auth.reducer';
 import { trucksReducer } from './trucks/trucks.reducer';
 import { gpsReducer } from './gps/gps.reducer';
 import { historyReducer } from './history/history.reducer';
-import { cacheReducer } from './cache/cache.reducer';
+import { cacheReducer } from './cache';
 import { AuthState } from './auth/auth.state';
 import { TrucksState } from './trucks/trucks.state';
 import { GpsState } from './gps/gps.state';
 import { HistoryState } from './history/history.state';
-import { EntityCacheState } from './cache/cache.models';
+import { EntityCacheState } from './cache';
 
 /**
  * Root application state

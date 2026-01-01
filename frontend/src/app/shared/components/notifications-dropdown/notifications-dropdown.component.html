@@ -1,0 +1,141 @@
+<!-- Notifications Dropdown Panel -->
+<div class="absolute right-0 top-full mt-2 w-96 max-w-[calc(100vw-2rem)] bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 overflow-hidden"
+     (click)="$event.stopPropagation()">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+    <div class="flex items-center gap-2">
+      <span class="material-icons text-primary-500">notifications</span>
+      <h3 class="font-semibold text-gray-900 dark:text-white">Notifications</h3>
+      @if (unreadCount() > 0) {
+        <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-danger-100 dark:bg-danger-900/30 text-danger-700 dark:text-danger-400">
+          {{ unreadCount() }} new
+        </span>
+      }
+    </div>
+    @if (unreadCount() > 0) {
+      <button
+        type="button"
+        class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+        [disabled]="markingAllAsRead()"
+        (click)="markAllAsRead()">
+        @if (markingAllAsRead()) {
+          <span class="flex items-center gap-1">
+            <span class="animate-spin h-3 w-3 border-2 border-primary-500 border-t-transparent rounded-full"></span>
+            Marking...
+          </span>
+        } @else {
+          Mark all read
+        }
+      </button>
+    }
+  </div>
+
+  <!-- Content -->
+  <div class="max-h-96 overflow-y-auto">
+    @if (loading()) {
+      <!-- Loading State -->
+      <div class="divide-y divide-gray-100 dark:divide-gray-700">
+        @for (i of [1, 2, 3, 4]; track i) {
+          <div class="p-4">
+            <div class="flex gap-3">
+              <app-skeleton variant="avatar" size="sm" />
+              <div class="flex-1 space-y-2">
+                <app-skeleton variant="text" size="sm" [width]="'60%'" />
+                <app-skeleton variant="text" size="sm" [width]="'100%'" />
+                <app-skeleton variant="text" size="sm" [width]="'30%'" />
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (error()) {
+      <!-- Error State -->
+      <div class="p-6 text-center">
+        <span class="material-icons text-4xl text-danger-400">error_outline</span>
+        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">{{ error() }}</p>
+        <button
+          type="button"
+          class="mt-3 text-sm text-primary-600 dark:text-primary-400 hover:underline"
+          (click)="loadNotifications()">
+          Retry
+        </button>
+      </div>
+    } @else if (notifications().length === 0) {
+      <!-- Empty State -->
+      <div class="py-8">
+        <app-empty-state
+          preset="notifications"
+          size="sm"
+        />
+      </div>
+    } @else {
+      <!-- Notifications List -->
+      <div class="divide-y divide-gray-100 dark:divide-gray-700">
+        @for (notification of notifications(); track trackByNotification($index, notification)) {
+          <div
+            class="p-4 transition-colors cursor-pointer"
+            [class.bg-primary-50]="!notification.isRead"
+            [class.dark:bg-primary-900/10]="!notification.isRead"
+            [class.hover:bg-gray-50]="notification.isRead"
+            [class.dark:hover:bg-gray-700/50]="notification.isRead"
+            [class.hover:bg-primary-100]="!notification.isRead"
+            [class.dark:hover:bg-primary-900/20]="!notification.isRead"
+            [routerLink]="['/alerts']"
+            [queryParams]="{ id: notification.id }"
+            (click)="closed.emit()">
+            <div class="flex gap-3">
+              <!-- Icon -->
+              <div class="flex-shrink-0">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center"
+                     [class]="getSeverityClasses(notification.severity)">
+                  <span class="material-icons text-xl">{{ getNotificationIcon(notification.notificationType) }}</span>
+                </div>
+              </div>
+
+              <!-- Content -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between gap-2">
+                  <p class="text-sm font-medium text-gray-900 dark:text-white truncate"
+                     [class.font-semibold]="!notification.isRead">
+                    {{ notification.title }}
+                  </p>
+                  @if (!notification.isRead) {
+                    <button
+                      type="button"
+                      class="flex-shrink-0 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-50"
+                      title="Mark as read"
+                      [disabled]="markingAsRead() === notification.id"
+                      (click)="markAsRead(notification, $event)">
+                      @if (markingAsRead() === notification.id) {
+                        <span class="animate-spin h-4 w-4 border-2 border-gray-400 border-t-transparent rounded-full block"></span>
+                      } @else {
+                        <span class="material-icons text-base">check_circle</span>
+                      }
+                    </button>
+                  }
+                </div>
+                <p class="mt-0.5 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                  {{ notification.message }}
+                </p>
+                <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                  {{ formatTime(notification.triggeredAt) }}
+                </p>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Footer -->
+  <div class="border-t border-gray-100 dark:border-gray-700 p-3 bg-gray-50 dark:bg-gray-900/50">
+    <a
+      routerLink="/alerts"
+      class="block w-full text-center text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 py-2 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
+      (click)="closed.emit()">
+      View all notifications
+    </a>
+  </div>
+</div>
