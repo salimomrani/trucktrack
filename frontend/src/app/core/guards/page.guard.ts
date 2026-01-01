@@ -27,7 +27,6 @@ export function pageGuard(page: Page): CanActivateFn {
       take(1),
       map(user => {
         if (!user) {
-          console.log('No user found, redirecting to login');
           return router.createUrlTree(['/login']);
         }
 
@@ -37,7 +36,6 @@ export function pageGuard(page: Page): CanActivateFn {
         }
 
         // User doesn't have access to this page
-        console.log(`User role ${user.role} cannot access page ${page}`);
         return router.createUrlTree(['/access-denied'], {
           queryParams: { page, role: user.role }
         });
@@ -61,7 +59,6 @@ export function multiPageGuard(pages: Page[]): CanActivateFn {
       take(1),
       map(user => {
         if (!user) {
-          console.log('No user found, redirecting to login');
           return router.createUrlTree(['/login']);
         }
 
@@ -72,7 +69,6 @@ export function multiPageGuard(pages: Page[]): CanActivateFn {
           return true;
         }
 
-        console.log(`User role ${user.role} cannot access any of pages: ${pages.join(', ')}`);
         return router.createUrlTree(['/access-denied'], {
           queryParams: { page: pages[0], role: user.role }
         });

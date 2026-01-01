@@ -115,7 +115,6 @@ export class HistoryComponent implements OnInit {
     const startTime = start.toISOString();
     const endTime = end.toISOString();
 
-    console.log(`Loading history from ${startTime} to ${endTime}${truckId ? ` for truck ${truckId}` : ' for all trucks'}`);
     this.facade.loadHistory(startTime, endTime, truckId);
   }
 

@@ -77,7 +77,6 @@ export class MapComponent implements OnInit {
       .pipe(takeUntilDestroyed())
       .subscribe(connected => {
         this.isConnected.set(connected);
-        console.log('WebSocket connection status:', connected);
       });
 
     // Subscribe to position updates with automatic cleanup
@@ -102,7 +101,6 @@ export class MapComponent implements OnInit {
       .subscribe(() => {
         if (this._map && this.trucks().length > 0) {
           this.renderTruckMarkers();
-          console.log('Periodic stale data check completed');
         }
       });
 
@@ -265,12 +263,10 @@ export class MapComponent implements OnInit {
     // T103: Click on map background to deselect truck
     this._map.on('click', () => {
       if (this.facade.selectedTruck()) {
-        console.log('Map clicked - deselecting truck');
         this.facade.deselectTruck();
       }
     });
 
-    console.log('Map initialized');
   }
 
   /**
@@ -280,7 +276,6 @@ export class MapComponent implements OnInit {
   private loadTrucks(): void {
     // Dispatch action to load trucks - effects will handle the async operation
     this.facade.loadTrucks();
-    console.log('Dispatched loadTrucks action');
   }
 
   /**
@@ -325,7 +320,6 @@ export class MapComponent implements OnInit {
       }
     }
 
-    console.log(`Rendered ${this.markers.size} of ${this.trucks().length} truck markers (filtered)`);
 
     // Reset flag after render
     this.isRenderingMarkers = false;
@@ -354,7 +348,6 @@ export class MapComponent implements OnInit {
       }
       const currentlySelected = this.facade.selectedTruck();
       if (currentlySelected && currentlySelected.id === truck.id) {
-        console.log(`Popup closed for truck ${truck.truckId} - deselecting`);
         this.facade.deselectTruck();
       }
     });
@@ -494,7 +487,6 @@ export class MapComponent implements OnInit {
         // Use at least zoom level 13 to ensure truck is visible
         const targetZoom = currentZoom < 13 ? 15 : currentZoom;
         this._map.setView(newLatLng, targetZoom, { animate: true, duration: 0.5 });
-        console.log(`Recentered map on selected truck ${truckId} at zoom ${targetZoom}`);
       }
 
       // Update heading if available
@@ -503,10 +495,8 @@ export class MapComponent implements OnInit {
       //   existingMarker.setRotationAngle(position.heading);
       // }
 
-      console.log(`Updated position for truck ${truckId}`);
     } else {
       // New truck appeared - reload trucks list
-      console.log(`New truck detected: ${truckId}`);
       this.loadTrucks();
     }
   }
@@ -534,7 +524,6 @@ export class MapComponent implements OnInit {
       const marker = this.markers.get(truck.id);
       if (marker) {
         marker.openPopup();
-        console.log(`Focused on truck ${truck.truckId} - popup opened`);
       } else {
         console.warn(`Marker not found for truck ${truck.id} - available markers:`, Array.from(this.markers.keys()));
       }
@@ -557,7 +546,6 @@ export class MapComponent implements OnInit {
     );
 
     if (trucksWithPositions.length === 0) {
-      console.log('No trucks with positions available for auto-focus');
       return;
     }
 
@@ -577,7 +565,6 @@ export class MapComponent implements OnInit {
       animate: true
     });
 
-    console.log(`Auto-focused map on ${trucksToFocus.length} ${activeTrucks.length > 0 ? 'active' : 'total'} trucks`);
   }
 
   /**
@@ -596,7 +583,6 @@ export class MapComponent implements OnInit {
    * T126, T128: Fetch history and render polyline
    */
   viewTruckHistory(truckId: string): void {
-    console.log(`Viewing history for truck: ${truckId}`);
     this.historyLoading.set(true);
     this.historyTruckId.set(truckId);
 
@@ -679,7 +665,6 @@ export class MapComponent implements OnInit {
     // Fit map to polyline bounds
     this._map.fitBounds(this.historyPolyline.getBounds(), { padding: [50, 50] });
 
-    console.log(`Rendered history polyline with ${positions.length} points`);
   }
 
   /**
@@ -690,7 +675,6 @@ export class MapComponent implements OnInit {
     this.clearHistoryFromMap();
     this.historyMode.set(false);
     this.historyTruckId.set(null);
-    console.log('History cleared');
   }
 
   /**

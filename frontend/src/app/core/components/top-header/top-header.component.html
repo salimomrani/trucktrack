@@ -1,0 +1,77 @@
+<header class="top-header">
+  <!-- Left: Mobile menu toggle -->
+  <div class="header-left">
+    <button
+      type="button"
+      class="menu-toggle"
+      (click)="onToggleSidebar()"
+      aria-label="Menu">
+      <span class="material-icons">menu</span>
+    </button>
+  </div>
+
+  <!-- Right: Actions -->
+  <div class="header-right">
+    <!-- Theme toggle -->
+    <button
+      type="button"
+      class="action-btn"
+      (click)="toggleTheme()"
+      [attr.aria-label]="isDark() ? 'Mode clair' : 'Mode sombre'">
+      @if (isDark()) {
+        <span class="material-icons">light_mode</span>
+      } @else {
+        <span class="material-icons">dark_mode</span>
+      }
+    </button>
+
+    <!-- Notifications -->
+    <div class="relative">
+      <button
+        type="button"
+        class="action-btn"
+        (click)="toggleNotifications()"
+        aria-label="Notifications"
+        [attr.aria-expanded]="notificationsOpen()">
+        <span class="material-icons">notifications_none</span>
+        @if (unreadCount() > 0) {
+          <span class="notification-badge">{{ formatBadge(unreadCount()) }}</span>
+        }
+      </button>
+
+      @if (notificationsOpen()) {
+        <app-notifications-dropdown (closed)="closeNotifications()" />
+      }
+    </div>
+
+    <!-- User avatar -->
+    <div class="relative">
+      <button
+        type="button"
+        class="user-avatar-btn"
+        (click)="toggleUserMenu()"
+        aria-label="Menu utilisateur"
+        [attr.aria-expanded]="userMenuOpen()">
+        <span class="user-avatar">{{ getInitials() }}</span>
+      </button>
+
+      @if (userMenuOpen()) {
+        <div class="user-menu">
+          <div class="user-menu-header">
+            <p class="user-name">{{ getUserDisplayName() }}</p>
+            <p class="user-email">{{ currentUser()?.email }}</p>
+          </div>
+          <div class="user-menu-divider"></div>
+          <a routerLink="/profile" class="user-menu-item" (click)="closeUserMenu()">
+            <span class="material-icons">person</span>
+            <span>Profil</span>
+          </a>
+          <button type="button" class="user-menu-item user-menu-item-danger" (click)="logout()">
+            <span class="material-icons">logout</span>
+            <span>Déconnexion</span>
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</header>

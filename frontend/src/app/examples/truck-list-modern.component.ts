@@ -68,7 +68,6 @@ export class TruckListModernComponent {
     // ✅ Effect pour logger les changements de filtre
     effect(() => {
       const status = this.selectedStatus();
-      console.log('Filter changed to:', status);
     });
   }
 
@@ -110,7 +109,6 @@ export class TruckListModernComponent {
    * Voir les détails d'un truck
    */
   viewTruckDetails(truck: Truck): void {
-    console.log('View truck details:', truck);
     // Navigation vers la page de détails
   }
 }

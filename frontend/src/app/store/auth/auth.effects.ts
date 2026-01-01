@@ -99,12 +99,10 @@ export class AuthEffects {
 
         // Check if token is expired
         if (this.tokenStorage.isTokenExpired(token)) {
-          console.log('Access token expired, attempting refresh...');
 
           // Try to refresh using refresh token
           const refreshToken = this.tokenStorage.getRefreshToken();
           if (!refreshToken) {
-            console.log('No refresh token available');
             return of(AuthActions.loadUserFailure({ error: 'Token expired and no refresh token' }));
           }
 
@@ -114,7 +112,6 @@ export class AuthEffects {
               // Store new tokens
               this.tokenStorage.setAccessToken(response.accessToken);
               this.tokenStorage.setRefreshToken(response.refreshToken);
-              console.log('Token refreshed successfully');
 
               // Now fetch user with new token
               return this.authService.getCurrentUserFromBackend().pipe(

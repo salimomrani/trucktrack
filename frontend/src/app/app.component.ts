@@ -2,7 +2,7 @@ import { Component, OnDestroy, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { HeaderComponent } from './core/components/header/header.component';
+import { LayoutShellComponent } from './core/components/layout-shell/layout-shell.component';
 import { ConfirmDialogOverlayComponent } from './admin/shared/confirm-dialog/confirm-dialog-overlay.component';
 import { ImageViewerOverlayComponent } from './admin/shared/image-viewer/image-viewer-overlay.component';
 import { NotificationService } from './services/notification.service';
@@ -13,12 +13,12 @@ import { Notification } from './models/notification.model';
 /**
  * Root application component
  * T166-T167: Real-time notification handling with snackbar alerts
- * Feature 020: Stacked layout with horizontal navigation
+ * Feature 021: Sidebar layout with dark navigation
  */
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, HeaderComponent, ConfirmDialogOverlayComponent, ImageViewerOverlayComponent],
+  imports: [CommonModule, RouterOutlet, LayoutShellComponent, ConfirmDialogOverlayComponent, ImageViewerOverlayComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

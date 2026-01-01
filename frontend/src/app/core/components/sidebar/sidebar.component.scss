@@ -1,0 +1,124 @@
+/**
+ * Sidebar Component Styles
+ * Feature: 021-sidebar-layout
+ */
+
+.sidebar {
+  @apply w-64 bg-gray-900 text-white flex flex-col h-full;
+}
+
+// Logo section
+.sidebar-logo {
+  @apply p-6 border-b border-gray-800;
+}
+
+.logo-link {
+  @apply flex items-center gap-3 text-white no-underline;
+}
+
+.logo-icon {
+  @apply text-3xl text-primary-400;
+}
+
+.logo-text {
+  @apply text-2xl font-bold tracking-tight;
+}
+
+// Navigation
+.sidebar-nav {
+  @apply flex-1 p-4 space-y-6 overflow-y-auto;
+
+  // Custom scrollbar
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.gray.700') transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: theme('colors.gray.700');
+    border-radius: 3px;
+
+    &:hover {
+      background-color: theme('colors.gray.600');
+    }
+  }
+}
+
+.nav-category {
+  @apply space-y-2;
+}
+
+.category-title {
+  @apply px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider;
+}
+
+.nav-items {
+  @apply space-y-1;
+}
+
+.nav-item {
+  @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 no-underline transition-colors;
+
+  &:hover {
+    @apply bg-gray-800 text-white;
+  }
+
+  &.active {
+    @apply bg-primary-600 text-white;
+  }
+}
+
+.nav-icon {
+  @apply text-xl;
+}
+
+.nav-label {
+  @apply flex-1;
+}
+
+.nav-badge {
+  @apply ml-auto px-2 py-0.5 text-xs font-bold rounded-full bg-danger-500 text-white;
+}
+
+// User section
+.sidebar-user {
+  @apply p-4 border-t border-gray-800;
+}
+
+.user-info {
+  @apply flex items-center gap-3 mb-3;
+}
+
+.user-avatar {
+  @apply w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center font-medium text-sm;
+}
+
+.user-details {
+  @apply flex-1 min-w-0;
+}
+
+.user-name {
+  @apply text-sm font-medium text-white truncate;
+}
+
+.user-email {
+  @apply text-xs text-gray-400 truncate;
+}
+
+.logout-btn {
+  @apply w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 transition-colors;
+
+  &:hover {
+    @apply bg-gray-800 text-white;
+  }
+
+  .material-icons {
+    @apply text-xl;
+  }
+}

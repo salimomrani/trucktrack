@@ -2,15 +2,10 @@
 <a class="skip-link" href="#main-content">Aller au contenu principal</a>
 
 @if (isAuthenticated()) {
-  <div class="app-layout min-h-screen bg-gray-50 dark:bg-gray-900">
-    <!-- Stacked header with navigation -->
-    <app-header />
-
-    <!-- Main content - full width -->
-    <main role="main" id="main-content">
-      <router-outlet />
-    </main>
-  </div>
+  <!-- Sidebar layout with navigation -->
+  <app-layout-shell>
+    <router-outlet />
+  </app-layout-shell>
 } @else {
   <!-- Not authenticated: just show router outlet (login page) -->
   <router-outlet />
