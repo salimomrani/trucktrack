@@ -20,3 +20,16 @@ export interface GPSPosition {
 export interface GPSPositionEvent extends GPSPosition {
   // WebSocket event format (same as GPSPosition)
 }
+
+/**
+ * Paginated GPS Position response from backend
+ */
+export interface GPSPositionPage {
+  content: GPSPosition[];
+  totalElements: number;
+  totalPages: number;
+  number: number; // current page (0-indexed)
+  size: number;
+  first: boolean;
+  last: boolean;
+}

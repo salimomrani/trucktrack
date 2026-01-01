@@ -288,6 +288,47 @@ public class TruckController {
     }
 
     /**
+     * Get trucks' historical GPS positions with PAGINATION
+     * GET /location/v1/trucks/history/paged?startTime=...&endTime=...&truckId=...&page=0&size=50
+     *
+     * Returns paginated results for infinite scroll support
+     */
+    @GetMapping("/trucks/history/paged")
+    public ResponseEntity<Page<GPSPosition>> getTrucksHistoryPaged(
+            @AuthenticationPrincipal GatewayUserPrincipal principal,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant startTime,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endTime,
+            @RequestParam(required = false) UUID truckId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size) {
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        if (truckId != null) {
+            log.info("User [{}] ({}) getting paged history for truck {} from {} to {} (page {}, size {})",
+                    getUsername(principal), getUserId(principal), truckId, startTime, endTime, page, size);
+
+            // Verify truck exists
+            if (!truckRepository.existsById(truckId)) {
+                log.warn("Truck not found: {}", truckId);
+                return ResponseEntity.notFound().build();
+            }
+
+            Page<GPSPosition> positions = gpsPositionRepository.findByTruckIdAndTimestampBetweenPaged(
+                    truckId, startTime, endTime, pageRequest);
+            return ResponseEntity.ok(positions);
+        } else {
+            log.info("User [{}] ({}) getting paged history for all trucks from {} to {} (page {}, size {})",
+                    getUsername(principal), getUserId(principal), startTime, endTime, page, size);
+
+            // Need to add a paginated method for all trucks - use native query with pagination
+            Page<GPSPosition> positions = gpsPositionRepository.findAllByTimestampBetweenPaged(
+                    startTime, endTime, pageRequest);
+            return ResponseEntity.ok(positions);
+        }
+    }
+
+    /**
      * Update truck status (for drivers)
      * PATCH /location/v1/trucks/{truckId}/status
      *

@@ -48,10 +48,13 @@ public interface GPSPositionRepository extends JpaRepository<GPSPosition, UUID> 
      * Find GPS positions for a truck within a time range with pagination
      * Useful when historical data is large
      */
-    Page<GPSPosition> findByTruckIdAndTimestampBetween(
-        UUID truckId,
-        Instant startTime,
-        Instant endTime,
+    @Query("SELECT g FROM GPSPosition g WHERE g.truckId = :truckId " +
+           "AND g.timestamp BETWEEN :startTime AND :endTime " +
+           "ORDER BY g.timestamp DESC")
+    Page<GPSPosition> findByTruckIdAndTimestampBetweenPaged(
+        @Param("truckId") UUID truckId,
+        @Param("startTime") Instant startTime,
+        @Param("endTime") Instant endTime,
         Pageable pageable
     );
 
@@ -170,6 +173,18 @@ public interface GPSPositionRepository extends JpaRepository<GPSPosition, UUID> 
     List<GPSPosition> findAllByTimestampBetween(
         @Param("startTime") Instant startTime,
         @Param("endTime") Instant endTime
+    );
+
+    /**
+     * Find all GPS positions within a time range with pagination
+     * Used for infinite scroll in history view
+     */
+    @Query("SELECT g FROM GPSPosition g WHERE g.timestamp BETWEEN :startTime AND :endTime " +
+           "ORDER BY g.timestamp DESC")
+    Page<GPSPosition> findAllByTimestampBetweenPaged(
+        @Param("startTime") Instant startTime,
+        @Param("endTime") Instant endTime,
+        Pageable pageable
     );
 
     /**

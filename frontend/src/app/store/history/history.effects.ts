@@ -1,19 +1,22 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { Store } from '@ngrx/store';
 import { of } from 'rxjs';
-import { map, catchError, switchMap } from 'rxjs/operators';
+import { map, catchError, switchMap, withLatestFrom, filter } from 'rxjs/operators';
 import * as HistoryActions from './history.actions';
-import { TruckHistoryEntry } from './history.state';
+import { TruckHistoryEntry, HistoryState } from './history.state';
 import { TruckService } from '../../services/truck.service';
 import { GPSPosition } from '../../models/gps-position.model';
+import { selectHistoryState } from './history.selectors';
 
 @Injectable()
 export class HistoryEffects {
   private actions$ = inject(Actions);
+  private store = inject(Store);
   private truckService = inject(TruckService);
 
   /**
-   * Load history with optional truckId (single API endpoint)
+   * Load history with optional truckId (single API endpoint - legacy)
    * GET /location/v1/trucks/history?startTime=...&endTime=...&truckId=... (optional)
    */
   loadHistory$ = createEffect(() =>
@@ -36,6 +39,59 @@ export class HistoryEffects {
           )
         )
       )
+    )
+  );
+
+  // ============================================
+  // Paginated History Effects (for infinite scroll)
+  // ============================================
+
+  /**
+   * Load first page of history (paginated)
+   */
+  loadHistoryPaged$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(HistoryActions.loadHistoryPaged),
+      switchMap(({ startTime, endTime, truckId, size }) =>
+        this.truckService.getTrucksHistoryPaged(startTime, endTime, 0, size || 50, truckId).pipe(
+          map(page => HistoryActions.loadHistoryPagedSuccess({ page, startTime, endTime, truckId })),
+          catchError((error) =>
+            of(HistoryActions.loadHistoryPagedFailure({
+              error: error.message || 'Failed to load history'
+            }))
+          )
+        )
+      )
+    )
+  );
+
+  /**
+   * Load more history (infinite scroll)
+   * Note: We only check hasMorePages here since loadingMore is set by reducer
+   * before this effect runs (race condition)
+   */
+  loadMoreHistory$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(HistoryActions.loadMoreHistory),
+      withLatestFrom(this.store.select(selectHistoryState)),
+      filter(([_, state]) => state.hasMorePages),
+      switchMap(([_, state]) => {
+        const nextPage = state.currentPage + 1;
+        return this.truckService.getTrucksHistoryPaged(
+          state.currentStartTime!,
+          state.currentEndTime!,
+          nextPage,
+          50,
+          state.currentTruckId
+        ).pipe(
+          map(page => HistoryActions.loadMoreHistorySuccess({ page })),
+          catchError((error) =>
+            of(HistoryActions.loadMoreHistoryFailure({
+              error: error.message || 'Failed to load more history'
+            }))
+          )
+        );
+      })
     )
   );
 

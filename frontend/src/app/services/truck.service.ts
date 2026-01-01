@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Truck, TruckListResponse, TruckStatus } from '../models/truck.model';
-import { GPSPosition } from '../models/gps-position.model';
+import { GPSPosition, GPSPositionPage } from '../models/gps-position.model';
 
 /**
  * Service for truck-related HTTP operations
@@ -107,6 +107,32 @@ export class TruckService {
 
     return this.http.get<GPSPosition[]>(
       `${this.baseUrl}/trucks/history`,
+      { params }
+    );
+  }
+
+  /**
+   * Get truck history with PAGINATION (for infinite scroll)
+   */
+  getTrucksHistoryPaged(
+    startTime: string,
+    endTime: string,
+    page: number = 0,
+    size: number = 50,
+    truckId?: string | null
+  ): Observable<GPSPositionPage> {
+    let params = new HttpParams()
+      .set('startTime', startTime)
+      .set('endTime', endTime)
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    if (truckId) {
+      params = params.set('truckId', truckId);
+    }
+
+    return this.http.get<GPSPositionPage>(
+      `${this.baseUrl}/trucks/history/paged`,
       { params }
     );
   }
