@@ -315,14 +315,10 @@ public class AdminUserService {
     }
 
     private Page<User> searchUsers(String search, UserRole role, Boolean isActive, Pageable pageable) {
-        // Simple search implementation - can be enhanced with Specification
-        return userRepository.findAll(pageable);
-        // TODO: Implement proper search with JPQL or Specification
+        return userRepository.searchUsersWithFilters(search, role, isActive, pageable);
     }
 
     private Page<User> filterUsers(UserRole role, Boolean isActive, Pageable pageable) {
-        // Simple filter implementation - can be enhanced with Specification
-        return userRepository.findAll(pageable);
-        // TODO: Implement proper filtering with JPQL or Specification
+        return userRepository.findByFilters(role, isActive, pageable);
     }
 }
