@@ -124,7 +124,6 @@ export class NotificationService {
    */
   connectWebSocket(): void {
     if (this.wsClient?.connected) {
-      console.log('Notification WebSocket already connected');
       return;
     }
 
@@ -138,20 +137,17 @@ export class NotificationService {
       heartbeatOutgoing: 4000,
       debug: (str) => {
         if (environment.logging?.enableConsoleLogging) {
-          console.log('Notification WS: ' + str);
         }
       }
     });
 
     this.wsClient.onConnect = () => {
-      console.log('Notification WebSocket connected');
       this.wsConnected.set(true);
       this.subscribeToNotifications();
       this.loadUnreadCount();
     };
 
     this.wsClient.onDisconnect = () => {
-      console.log('Notification WebSocket disconnected');
       this.wsConnected.set(false);
     };
 
@@ -187,12 +183,10 @@ export class NotificationService {
 
     this.wsSubscription = this.wsClient.subscribe('/topic/notifications', (message: IMessage) => {
       const notification: Notification = JSON.parse(message.body);
-      console.log('Received real-time notification:', notification);
       this.newNotificationSource$.next(notification);
       this.unreadCount.update(count => count + 1);
     });
 
-    console.log('Subscribed to /topic/notifications');
   }
 
   /**

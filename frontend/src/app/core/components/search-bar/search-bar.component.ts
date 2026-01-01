@@ -85,7 +85,6 @@ export class SearchBarComponent {
    * Handle truck selection from autocomplete
    */
   selectTruck(truckId: string): void {
-    console.log('Selected truck:', truckId);
     // Dispatch selection to store - MapComponent will react to this
     this.facade.selectTruck(truckId);
     // Clear search after selection
