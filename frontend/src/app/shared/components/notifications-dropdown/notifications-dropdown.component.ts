@@ -132,7 +132,23 @@ export class NotificationsDropdownComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Mark a single notification as read
+   * Handle notification click - mark as read and close
+   */
+  onNotificationClick(notification: Notification): void {
+    if (!notification.isRead) {
+      this.notificationService.markAsRead(notification.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.notificationService.decrementUnreadCount();
+          }
+        });
+    }
+    this.closed.emit();
+  }
+
+  /**
+   * Mark a single notification as read (button click)
    */
   markAsRead(notification: Notification, event: Event): void {
     event.stopPropagation();

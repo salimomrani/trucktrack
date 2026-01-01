@@ -83,7 +83,7 @@
             [class.dark:hover:bg-primary-900/20]="!notification.isRead"
             [routerLink]="['/alerts']"
             [queryParams]="{ id: notification.id }"
-            (click)="closed.emit()">
+            (click)="onNotificationClick(notification)">
             <div class="flex gap-3">
               <!-- Icon -->
               <div class="flex-shrink-0">
