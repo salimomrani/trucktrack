@@ -10,6 +10,8 @@ import { authReducer } from './store/auth/auth.reducer';
 import { trucksReducer } from './store/trucks/trucks.reducer';
 import { gpsReducer } from './store/gps/gps.reducer';
 import { historyReducer } from './store/history/history.reducer';
+import { cacheReducer } from './store/cache';
+import { notificationsReducer } from './store/notifications/notifications.reducer';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
@@ -23,7 +25,9 @@ describe('AppComponent', () => {
           auth: authReducer,
           trucks: trucksReducer,
           gps: gpsReducer,
-          history: historyReducer
+          history: historyReducer,
+          cache: cacheReducer,
+          notifications: notificationsReducer
         }),
         provideEffects([])
       ]
