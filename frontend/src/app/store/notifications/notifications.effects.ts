@@ -161,6 +161,38 @@ export class NotificationsEffects implements OnDestroy {
   );
 
   // ============================================
+  // Paged Notifications Effects (for Alerts page)
+  // ============================================
+
+  readonly loadNotificationsPaged$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(NotificationsActions.loadNotificationsPaged),
+      exhaustMap(({ page, size }) =>
+        this.notificationService.getRecentNotificationsPaged(page, size).pipe(
+          map(notificationPage => NotificationsActions.loadNotificationsPagedSuccess({ page: notificationPage })),
+          catchError(error => of(NotificationsActions.loadNotificationsPagedFailure({
+            error: error?.message || 'Failed to load notifications'
+          })))
+        )
+      )
+    )
+  );
+
+  readonly loadMoreNotifications$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(NotificationsActions.loadMoreNotifications),
+      mergeMap(({ page, size }) =>
+        this.notificationService.getRecentNotificationsPaged(page, size).pipe(
+          map(notificationPage => NotificationsActions.loadMoreNotificationsSuccess({ page: notificationPage })),
+          catchError(error => of(NotificationsActions.loadMoreNotificationsFailure({
+            error: error?.message || 'Failed to load more notifications'
+          })))
+        )
+      )
+    )
+  );
+
+  // ============================================
   // WebSocket Connection Management
   // ============================================
 

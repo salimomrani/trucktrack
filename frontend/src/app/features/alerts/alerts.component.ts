@@ -47,10 +47,10 @@ export class AlertsComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
   private readonly fb = inject(FormBuilder);
 
-  // State signals
+  // State signals from NgRx store
   trucks = this.facade.trucks;
-  isLoading = signal(false);
-  notifications = signal<Notification[]>([]);
+  isLoading = this.facade.notificationsLoading;
+  notifications = this.facade.notifications;
   alertRules = signal<AlertRule[]>([]);
   geofences = signal<Geofence[]>([]);
   selectedSeverity = signal<NotificationSeverity | null>(null);
@@ -59,12 +59,12 @@ export class AlertsComponent implements OnInit, AfterViewInit, OnDestroy {
   isCreatingRule = signal(false);
   showRuleForm = signal(false);
 
-  // Pagination state for infinite scroll
-  currentPage = signal(0);
-  pageSize = 30;
-  hasMorePages = signal(true);
-  isLoadingMore = signal(false);
-  totalNotifications = signal(0);
+  // Pagination state from NgRx store
+  readonly currentPage = this.facade.currentPage;
+  readonly pageSize = 30;
+  readonly hasMorePages = this.facade.hasMorePages;
+  readonly isLoadingMore = this.facade.loadingMore;
+  readonly totalNotifications = this.facade.totalElements;
 
   // Alert rule types for dropdown
   readonly ruleTypes: { value: AlertRuleType; label: string; icon: string }[] = [
@@ -160,62 +160,23 @@ export class AlertsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Load initial notifications (first page)
+   * Load initial notifications (first page) via NgRx store
    */
   loadNotifications(): void {
-    this.isLoading.set(true);
-    this.currentPage.set(0);
-    this.hasMorePages.set(true);
-
-    this.notificationService.getRecentNotificationsPaged(0, this.pageSize)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (page) => {
-          this.notifications.set(page.content);
-          this.totalNotifications.set(page.totalElements);
-          this.hasMorePages.set(!page.last);
-          this.currentPage.set(0);
-          this.isLoading.set(false);
-
-          // Re-setup observer after content loads
-          this.setupInfiniteScroll();
-        },
-        error: (error) => {
-          console.error('Failed to load notifications:', error);
-          this.isLoading.set(false);
-          this.showError('Failed to load notifications');
-          this.generateMockNotifications();
-        }
-      });
+    this.facade.loadNotificationsPaged(0, this.pageSize);
+    // Re-setup observer after a short delay for content to load
+    setTimeout(() => this.setupInfiniteScroll(), 200);
   }
 
   /**
-   * Load more notifications (infinite scroll)
+   * Load more notifications (infinite scroll) via NgRx store
    */
   loadMoreNotifications(): void {
     if (!this.hasMorePages() || this.isLoadingMore()) {
       return;
     }
-
-    this.isLoadingMore.set(true);
     const nextPage = this.currentPage() + 1;
-
-    this.notificationService.getRecentNotificationsPaged(nextPage, this.pageSize)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (page) => {
-          // Append new notifications to existing list
-          this.notifications.update(current => [...current, ...page.content]);
-          this.currentPage.set(nextPage);
-          this.hasMorePages.set(!page.last);
-          this.isLoadingMore.set(false);
-        },
-        error: (error) => {
-          console.error('Failed to load more notifications:', error);
-          this.isLoadingMore.set(false);
-          this.showError('Failed to load more notifications');
-        }
-      });
+    this.facade.loadMoreNotifications(nextPage, this.pageSize);
   }
 
   loadAlertRules(): void {
@@ -378,59 +339,14 @@ export class AlertsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   markAsRead(notification: Notification): void {
     if (notification.isRead) return; // Already read
-
-    this.notificationService.markAsRead(notification.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (updated) => {
-          const notifications = this.notifications();
-          const index = notifications.findIndex(n => n.id === notification.id);
-          if (index !== -1) {
-            notifications[index] = updated;
-            this.notifications.set([...notifications]);
-          }
-          // Update unread count in store
-          this.facade.decrementUnreadCount();
-        },
-        error: (error) => {
-          console.error('Failed to mark as read:', error);
-          // Fallback: update locally
-          const notifications = this.notifications();
-          const index = notifications.findIndex(n => n.id === notification.id);
-          if (index !== -1) {
-            notifications[index] = { ...notifications[index], isRead: true, readAt: new Date().toISOString() };
-            this.notifications.set([...notifications]);
-          }
-        }
-      });
+    // Use NgRx store - effect handles API call and state update
+    this.facade.markNotificationAsRead(notification.id);
   }
 
   markAllAsRead(): void {
-    this.notificationService.markAllAsRead()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          const notifications = this.notifications().map(n => ({
-            ...n,
-            isRead: true,
-            readAt: new Date().toISOString()
-          }));
-          this.notifications.set(notifications);
-          // Reset unread count in store
-          this.facade.resetUnreadCount();
-          this.showSuccess(`Marked ${response.markedCount} notifications as read`);
-        },
-        error: (error) => {
-          console.error('Failed to mark all as read:', error);
-          // Fallback: update locally
-          const notifications = this.notifications().map(n => ({
-            ...n,
-            isRead: true,
-            readAt: new Date().toISOString()
-          }));
-          this.notifications.set(notifications);
-        }
-      });
+    // Use NgRx store - effect handles API call and state update
+    this.facade.markAllNotificationsAsRead();
+    this.showSuccess('Marking all notifications as read');
   }
 
   viewOnMap(notification: Notification): void {
@@ -548,73 +464,5 @@ export class AlertsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private showSuccess(message: string): void {
     this.toast.success(message);
-  }
-
-  private generateMockNotifications(): void {
-    const now = new Date();
-    const mockNotifications: Notification[] = [
-      {
-        id: '1',
-        userId: 'user-1',
-        alertRuleId: 'rule-1',
-        truckId: 'TRUCK-001',
-        notificationType: 'SPEED_LIMIT',
-        title: 'Speed Limit Exceeded',
-        message: 'Truck TRUCK-001 exceeded speed limit (95 km/h in 80 km/h zone)',
-        severity: 'CRITICAL',
-        isRead: false,
-        latitude: 37.7749,
-        longitude: -122.4194,
-        triggeredAt: new Date(now.getTime() - 10 * 60 * 1000).toISOString(),
-        sentAt: new Date(now.getTime() - 10 * 60 * 1000).toISOString()
-      },
-      {
-        id: '2',
-        userId: 'user-1',
-        alertRuleId: 'rule-2',
-        truckId: 'TRUCK-002',
-        notificationType: 'GEOFENCE_EXIT',
-        title: 'Geofence Violation',
-        message: 'Truck TRUCK-002 left authorized zone',
-        severity: 'WARNING',
-        isRead: false,
-        latitude: 37.7849,
-        longitude: -122.4094,
-        triggeredAt: new Date(now.getTime() - 30 * 60 * 1000).toISOString(),
-        sentAt: new Date(now.getTime() - 30 * 60 * 1000).toISOString()
-      },
-      {
-        id: '3',
-        userId: 'user-1',
-        alertRuleId: 'rule-3',
-        truckId: 'TRUCK-003',
-        notificationType: 'IDLE',
-        title: 'Extended Idle Time',
-        message: 'Truck TRUCK-003 has been idle for 2 hours',
-        severity: 'INFO',
-        isRead: true,
-        triggeredAt: new Date(now.getTime() - 120 * 60 * 1000).toISOString(),
-        sentAt: new Date(now.getTime() - 120 * 60 * 1000).toISOString(),
-        readAt: new Date(now.getTime() - 60 * 60 * 1000).toISOString()
-      },
-      {
-        id: '4',
-        userId: 'user-1',
-        alertRuleId: 'rule-4',
-        truckId: 'TRUCK-004',
-        notificationType: 'OFFLINE',
-        title: 'Truck Offline',
-        message: 'Truck TRUCK-004 has been offline for 15 minutes',
-        severity: 'WARNING',
-        isRead: false,
-        latitude: 37.7649,
-        longitude: -122.4294,
-        triggeredAt: new Date(now.getTime() - 15 * 60 * 1000).toISOString(),
-        sentAt: new Date(now.getTime() - 15 * 60 * 1000).toISOString()
-      }
-    ];
-
-    this.notifications.set(mockNotifications);
-    this.isLoading.set(false);
   }
 }

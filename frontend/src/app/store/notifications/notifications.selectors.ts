@@ -91,3 +91,31 @@ export const selectFormattedBadgeCount = createSelector(
   selectUnreadCount,
   (count) => count > 99 ? '99+' : count.toString()
 );
+
+// ============================================
+// Pagination Selectors (for Alerts page)
+// ============================================
+
+// Select current page number
+export const selectCurrentPage = createSelector(
+  selectNotificationsState,
+  (state) => state.currentPage
+);
+
+// Select total elements count
+export const selectTotalElements = createSelector(
+  selectNotificationsState,
+  (state) => state.totalElements
+);
+
+// Select if more pages available
+export const selectHasMorePages = createSelector(
+  selectNotificationsState,
+  (state) => state.hasMorePages
+);
+
+// Select loading more state (infinite scroll)
+export const selectLoadingMore = createSelector(
+  selectNotificationsState,
+  (state) => state.loadingMore
+);

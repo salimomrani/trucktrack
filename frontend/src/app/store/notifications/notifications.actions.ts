@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Notification } from '../../models/notification.model';
+import { Notification, NotificationPage } from '../../models/notification.model';
 
 // Load Unread Notifications
 export const loadUnreadNotifications = createAction(
@@ -102,4 +102,45 @@ export const decrementUnreadCount = createAction(
 
 export const resetUnreadCount = createAction(
   '[Notifications] Reset Unread Count'
+);
+
+// ============================================
+// Paged Notifications (for Alerts page)
+// ============================================
+
+// Load first page of notifications
+export const loadNotificationsPaged = createAction(
+  '[Notifications] Load Notifications Paged',
+  props<{ page: number; size: number }>()
+);
+
+export const loadNotificationsPagedSuccess = createAction(
+  '[Notifications] Load Notifications Paged Success',
+  props<{ page: NotificationPage }>()
+);
+
+export const loadNotificationsPagedFailure = createAction(
+  '[Notifications] Load Notifications Paged Failure',
+  props<{ error: string }>()
+);
+
+// Load more notifications (infinite scroll)
+export const loadMoreNotifications = createAction(
+  '[Notifications] Load More Notifications',
+  props<{ page: number; size: number }>()
+);
+
+export const loadMoreNotificationsSuccess = createAction(
+  '[Notifications] Load More Notifications Success',
+  props<{ page: NotificationPage }>()
+);
+
+export const loadMoreNotificationsFailure = createAction(
+  '[Notifications] Load More Notifications Failure',
+  props<{ error: string }>()
+);
+
+// Reset pagination state
+export const resetPagination = createAction(
+  '[Notifications] Reset Pagination'
 );

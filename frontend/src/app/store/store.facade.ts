@@ -146,6 +146,20 @@ export class StoreFacade {
     initialValue: false
   });
 
+  // Pagination Signals (for Alerts page)
+  readonly currentPage = toSignal(this.store.select(NotificationsSelectors.selectCurrentPage), {
+    initialValue: 0
+  });
+  readonly totalElements = toSignal(this.store.select(NotificationsSelectors.selectTotalElements), {
+    initialValue: 0
+  });
+  readonly hasMorePages = toSignal(this.store.select(NotificationsSelectors.selectHasMorePages), {
+    initialValue: true
+  });
+  readonly loadingMore = toSignal(this.store.select(NotificationsSelectors.selectLoadingMore), {
+    initialValue: false
+  });
+
   // Computed Signals
   readonly trucksCount = computed(() => this.trucks().length);
   readonly hasActiveTrucks = computed(() => this.trucksCount() > 0);
@@ -375,5 +389,28 @@ export class StoreFacade {
    */
   resetUnreadCount() {
     this.store.dispatch(NotificationsActions.resetUnreadCount());
+  }
+
+  // Pagination Actions (for Alerts page)
+
+  /**
+   * Load first page of notifications (paginated)
+   */
+  loadNotificationsPaged(page: number = 0, size: number = 20) {
+    this.store.dispatch(NotificationsActions.loadNotificationsPaged({ page, size }));
+  }
+
+  /**
+   * Load more notifications (infinite scroll)
+   */
+  loadMoreNotifications(page: number, size: number = 20) {
+    this.store.dispatch(NotificationsActions.loadMoreNotifications({ page, size }));
+  }
+
+  /**
+   * Reset pagination state
+   */
+  resetPagination() {
+    this.store.dispatch(NotificationsActions.resetPagination());
   }
 }
