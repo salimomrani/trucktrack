@@ -136,8 +136,8 @@ export class NotificationsDropdownComponent implements OnInit, OnDestroy {
    */
   onNotificationClick(notification: Notification): void {
     if (!notification.isRead) {
+      // Don't use takeUntil here - the API call must complete even after component closes
       this.notificationService.markAsRead(notification.id)
-        .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
             this.notificationService.decrementUnreadCount();
