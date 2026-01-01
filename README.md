@@ -16,7 +16,7 @@ Système de suivi GPS en temps réel pour la gestion de flottes de camions.
 - Application mobile chauffeurs (iOS/Android) avec affichage des routes
 - **Gestion des trajets** : création, assignation, suivi de statut
 - Itinéraires routiers réels via OSRM (pas de lignes droites)
-- Historique des trajets avec playback
+- Historique des trajets avec playback et infinite scroll
 - Geofences (zones géographiques) avec alertes entrée/sortie
 - Alertes configurables (vitesse, offline, idle)
 - Panel d'administration (utilisateurs, camions, groupes, trajets)
@@ -164,7 +164,7 @@ sequenceDiagram
 
 | Application | Type | Technologie | Description |
 |-------------|------|-------------|-------------|
-| **Frontend Web** | Web | Angular 17 | Dashboard gestionnaire de flotte |
+| **Frontend Web** | Web | Angular 21 | Dashboard gestionnaire de flotte |
 | **Mobile Expo** | iOS/Android | React Native + Expo | App chauffeurs avec GPS et routes |
 | **Backend** | Microservices | Spring Boot 3.2 | API et services métier |
 
