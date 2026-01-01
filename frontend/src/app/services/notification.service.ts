@@ -1,7 +1,6 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, Subject } from 'rxjs';
-import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
+import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
   Notification,
@@ -12,9 +11,9 @@ import {
 } from '../models/notification.model';
 
 /**
- * Service for notification HTTP operations and WebSocket real-time updates
+ * Service for notification HTTP operations
+ * WebSocket and state management moved to NgRx store (store/notifications)
  * T158: Create NotificationService (HTTP client)
- * T166: Implement WebSocket subscription for real-time notifications
  */
 @Injectable({
   providedIn: 'root'
@@ -22,20 +21,6 @@ import {
 export class NotificationService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/notification/v1/notifications`;
-
-  // WebSocket client for notifications
-  private wsClient: Client | null = null;
-  private wsSubscription: StompSubscription | null = null;
-
-  // Real-time notification signals
-  private readonly newNotificationSource$ = new Subject<Notification>();
-  public readonly newNotification$ = this.newNotificationSource$.asObservable();
-
-  // Connection status
-  public wsConnected = signal(false);
-
-  // Unread count (updated in real-time)
-  public unreadCount = signal(0);
 
   /**
    * Get notifications for current user (paginated)
@@ -113,108 +98,6 @@ export class NotificationService {
    */
   getNotificationsForTruck(truckId: string): Observable<Notification[]> {
     return this.http.get<Notification[]>(`${this.baseUrl}/truck/${truckId}`);
-  }
-
-  // ============================================
-  // T166: WebSocket Real-time Notifications
-  // ============================================
-
-  /**
-   * Connect to notification WebSocket
-   */
-  connectWebSocket(): void {
-    if (this.wsClient?.connected) {
-      return;
-    }
-
-    // Get WebSocket URL for notifications (port 8082)
-    const wsUrl = environment.apiUrl.replace('http', 'ws').replace(':8000', ':8082') + '/ws-notifications';
-
-    this.wsClient = new Client({
-      brokerURL: wsUrl,
-      reconnectDelay: 5000,
-      heartbeatIncoming: 4000,
-      heartbeatOutgoing: 4000,
-      debug: (str) => {
-        if (environment.logging?.enableConsoleLogging) {
-        }
-      }
-    });
-
-    this.wsClient.onConnect = () => {
-      this.wsConnected.set(true);
-      this.subscribeToNotifications();
-      this.loadUnreadCount();
-    };
-
-    this.wsClient.onDisconnect = () => {
-      this.wsConnected.set(false);
-    };
-
-    this.wsClient.onStompError = (frame) => {
-      console.error('Notification WebSocket error', frame);
-      this.wsConnected.set(false);
-    };
-
-    this.wsClient.activate();
-  }
-
-  /**
-   * Disconnect from WebSocket
-   */
-  disconnectWebSocket(): void {
-    if (this.wsSubscription) {
-      this.wsSubscription.unsubscribe();
-      this.wsSubscription = null;
-    }
-    if (this.wsClient) {
-      this.wsClient.deactivate();
-      this.wsConnected.set(false);
-    }
-  }
-
-  /**
-   * Subscribe to broadcast notifications
-   */
-  private subscribeToNotifications(): void {
-    if (!this.wsClient?.connected) {
-      return;
-    }
-
-    this.wsSubscription = this.wsClient.subscribe('/topic/notifications', (message: IMessage) => {
-      const notification: Notification = JSON.parse(message.body);
-      this.newNotificationSource$.next(notification);
-      this.unreadCount.update(count => count + 1);
-    });
-
-  }
-
-  /**
-   * Load initial unread count
-   */
-  private loadUnreadCount(): void {
-    this.getUnreadCount().subscribe({
-      next: (response) => {
-        this.unreadCount.set(response.count);
-      },
-      error: (err) => {
-        console.error('Failed to load unread count:', err);
-      }
-    });
-  }
-
-  /**
-   * Decrement unread count (when notification is read)
-   */
-  decrementUnreadCount(): void {
-    this.unreadCount.update(count => Math.max(0, count - 1));
-  }
-
-  /**
-   * Reset unread count to zero
-   */
-  resetUnreadCount(): void {
-    this.unreadCount.set(0);
   }
 
   // ============================================

@@ -9,11 +9,13 @@ import * as TrucksSelectors from './trucks/trucks.selectors';
 import * as GpsSelectors from './gps/gps.selectors';
 import * as HistorySelectors from './history/history.selectors';
 import * as CacheSelectors from './cache/cache.selectors';
+import * as NotificationsSelectors from './notifications/notifications.selectors';
 import * as AuthActions from './auth/auth.actions';
 import * as TrucksActions from './trucks/trucks.actions';
 import * as GpsActions from './gps/gps.actions';
 import * as HistoryActions from './history/history.actions';
 import * as CacheActions from './cache/cache.actions';
+import * as NotificationsActions from './notifications/notifications.actions';
 import { LoginRequest } from '../core/models/auth.model';
 import { GPSPositionEvent } from '../models/gps-position.model';
 import { TruckStatus } from '../models/truck.model';
@@ -116,6 +118,31 @@ export class StoreFacade {
     initialValue: 'Never'
   });
   readonly allCachesFresh = toSignal(this.store.select(CacheSelectors.selectAllCachesFresh), {
+    initialValue: false
+  });
+
+  // Notifications Signals
+  readonly notifications = toSignal(this.store.select(NotificationsSelectors.selectAllNotifications), {
+    initialValue: []
+  });
+  readonly unreadCount = toSignal(this.store.select(NotificationsSelectors.selectUnreadCount), {
+    initialValue: 0
+  });
+  readonly notificationsLoading = toSignal(this.store.select(NotificationsSelectors.selectNotificationsLoading), {
+    initialValue: false
+  });
+  readonly notificationsError = toSignal(this.store.select(NotificationsSelectors.selectNotificationsError));
+  readonly wsConnected = toSignal(this.store.select(NotificationsSelectors.selectWsConnected), {
+    initialValue: false
+  });
+  readonly markingAsReadId = toSignal(this.store.select(NotificationsSelectors.selectMarkingAsReadId));
+  readonly markingAllAsRead = toSignal(this.store.select(NotificationsSelectors.selectMarkingAllAsRead), {
+    initialValue: false
+  });
+  readonly unreadNotifications = toSignal(this.store.select(NotificationsSelectors.selectUnreadNotifications), {
+    initialValue: []
+  });
+  readonly hasUnreadNotifications = toSignal(this.store.select(NotificationsSelectors.selectHasUnreadNotifications), {
     initialValue: false
   });
 
@@ -283,5 +310,70 @@ export class StoreFacade {
    */
   loadTrucksWithCache() {
     this.checkTrucksCache();
+  }
+
+  // Notifications Actions
+
+  /**
+   * Load unread notifications from API
+   */
+  loadUnreadNotifications() {
+    this.store.dispatch(NotificationsActions.loadUnreadNotifications());
+  }
+
+  /**
+   * Load unread count from API
+   */
+  loadUnreadCount() {
+    this.store.dispatch(NotificationsActions.loadUnreadCount());
+  }
+
+  /**
+   * Mark a single notification as read
+   */
+  markNotificationAsRead(notificationId: string) {
+    this.store.dispatch(NotificationsActions.markAsRead({ notificationId }));
+  }
+
+  /**
+   * Mark all notifications as read
+   */
+  markAllNotificationsAsRead() {
+    this.store.dispatch(NotificationsActions.markAllAsRead());
+  }
+
+  /**
+   * Connect to notifications WebSocket
+   */
+  connectNotificationsWebSocket() {
+    this.store.dispatch(NotificationsActions.connectWebSocket());
+  }
+
+  /**
+   * Disconnect from notifications WebSocket
+   */
+  disconnectNotificationsWebSocket() {
+    this.store.dispatch(NotificationsActions.disconnectWebSocket());
+  }
+
+  /**
+   * Get notification by ID (parameterized selector)
+   */
+  getNotificationById(notificationId: string) {
+    return toSignal(this.store.select(NotificationsSelectors.selectNotificationById(notificationId)));
+  }
+
+  /**
+   * Decrement unread count (when component handles API call directly)
+   */
+  decrementUnreadCount() {
+    this.store.dispatch(NotificationsActions.decrementUnreadCount());
+  }
+
+  /**
+   * Reset unread count to zero (when component handles API call directly)
+   */
+  resetUnreadCount() {
+    this.store.dispatch(NotificationsActions.resetUnreadCount());
   }
 }

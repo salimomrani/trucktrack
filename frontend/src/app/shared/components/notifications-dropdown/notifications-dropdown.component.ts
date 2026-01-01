@@ -12,7 +12,9 @@ import {
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { NotificationService } from '../../../services/notification.service';
+import { Actions, ofType } from '@ngrx/effects';
+import { StoreFacade } from '../../../store/store.facade';
+import * as NotificationsActions from '../../../store/notifications/notifications.actions';
 import { Notification, NotificationSeverity, NotificationType } from '../../../models/notification.model';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
 import { SkeletonComponent } from '../skeleton/skeleton.component';
@@ -38,49 +40,51 @@ import { SkeletonComponent } from '../skeleton/skeleton.component';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NotificationsDropdownComponent implements OnInit, OnDestroy {
-  private readonly notificationService = inject(NotificationService);
+  private readonly facade = inject(StoreFacade);
+  private readonly actions$ = inject(Actions);
   private readonly elementRef = inject(ElementRef);
   private readonly destroy$ = new Subject<void>();
 
   /** Event emitted when dropdown should close */
   readonly closed = output<void>();
 
-  /** Loading state */
-  readonly loading = signal(true);
+  /** Loading state from store */
+  readonly loading = this.facade.notificationsLoading;
 
-  /** Error message */
-  readonly error = signal<string | null>(null);
+  /** Error message from store */
+  readonly error = this.facade.notificationsError;
 
-  /** Recent notifications */
-  readonly notifications = signal<Notification[]>([]);
+  /** Notifications from store */
+  readonly notifications = this.facade.notifications;
 
-  /** Unread count from service */
-  readonly unreadCount = this.notificationService.unreadCount;
+  /** Unread count from store */
+  readonly unreadCount = this.facade.unreadCount;
 
   /** Track which notification is being marked as read */
-  readonly markingAsRead = signal<string | null>(null);
+  readonly markingAsRead = this.facade.markingAsReadId;
 
   /** Track if marking all as read */
-  readonly markingAllAsRead = signal(false);
+  readonly markingAllAsRead = this.facade.markingAllAsRead;
 
   /** Flag to skip the initial click that opened the dropdown */
   private initialized = false;
 
   ngOnInit(): void {
-    this.loadNotifications();
+    // Load notifications via store action
+    this.facade.loadUnreadNotifications();
 
     // Delay enabling click-outside detection to prevent immediate close
     setTimeout(() => {
       this.initialized = true;
     }, 100);
 
-    // Subscribe to new real-time notifications
-    this.notificationService.newNotification$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(notification => {
-        // Add new notification to the top of the list
-        this.notifications.update(list => [notification, ...list.slice(0, 9)]);
-      });
+    // Subscribe to new real-time notifications from store actions
+    this.actions$
+      .pipe(
+        ofType(NotificationsActions.newNotificationReceived),
+        takeUntil(this.destroy$)
+      )
+      .subscribe();
   }
 
   ngOnDestroy(): void {
@@ -110,25 +114,10 @@ export class NotificationsDropdownComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Load unread notifications
+   * Load unread notifications via store
    */
   loadNotifications(): void {
-    this.loading.set(true);
-    this.error.set(null);
-
-    this.notificationService.getUnreadNotifications()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (notifications) => {
-          this.notifications.set(notifications);
-          this.loading.set(false);
-        },
-        error: (err) => {
-          console.error('Failed to load notifications:', err);
-          this.error.set('Failed to load notifications');
-          this.loading.set(false);
-        }
-      });
+    this.facade.loadUnreadNotifications();
   }
 
   /**
@@ -136,13 +125,7 @@ export class NotificationsDropdownComponent implements OnInit, OnDestroy {
    */
   onNotificationClick(notification: Notification): void {
     if (!notification.isRead) {
-      // Don't use takeUntil here - the API call must complete even after component closes
-      this.notificationService.markAsRead(notification.id)
-        .subscribe({
-          next: () => {
-            this.notificationService.decrementUnreadCount();
-          }
-        });
+      this.facade.markNotificationAsRead(notification.id);
     }
     this.closed.emit();
   }
@@ -154,24 +137,7 @@ export class NotificationsDropdownComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     if (notification.isRead || this.markingAsRead()) return;
 
-    this.markingAsRead.set(notification.id);
-
-    this.notificationService.markAsRead(notification.id)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          // Update local list
-          this.notifications.update(list =>
-            list.map(n => n.id === notification.id ? { ...n, isRead: true } : n)
-          );
-          this.notificationService.decrementUnreadCount();
-          this.markingAsRead.set(null);
-        },
-        error: (err) => {
-          console.error('Failed to mark as read:', err);
-          this.markingAsRead.set(null);
-        }
-      });
+    this.facade.markNotificationAsRead(notification.id);
   }
 
   /**
@@ -180,24 +146,7 @@ export class NotificationsDropdownComponent implements OnInit, OnDestroy {
   markAllAsRead(): void {
     if (this.markingAllAsRead() || this.unreadCount() === 0) return;
 
-    this.markingAllAsRead.set(true);
-
-    this.notificationService.markAllAsRead()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          // Update all local notifications to read
-          this.notifications.update(list =>
-            list.map(n => ({ ...n, isRead: true }))
-          );
-          this.notificationService.resetUnreadCount();
-          this.markingAllAsRead.set(false);
-        },
-        error: (err) => {
-          console.error('Failed to mark all as read:', err);
-          this.markingAllAsRead.set(false);
-        }
-      });
+    this.facade.markAllNotificationsAsRead();
   }
 
   /**

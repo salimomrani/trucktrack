@@ -2,13 +2,14 @@ import { Component, OnDestroy, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Actions, ofType } from '@ngrx/effects';
 import { LayoutShellComponent } from './core/components/layout-shell/layout-shell.component';
 import { ConfirmDialogOverlayComponent } from './admin/shared/confirm-dialog/confirm-dialog-overlay.component';
 import { ImageViewerOverlayComponent } from './admin/shared/image-viewer/image-viewer-overlay.component';
-import { NotificationService } from './services/notification.service';
 import { StoreFacade } from './store/store.facade';
 import { ToastService } from './shared/components';
 import { Notification } from './models/notification.model';
+import * as NotificationsActions from './store/notifications/notifications.actions';
 
 /**
  * Root application component
@@ -23,8 +24,7 @@ import { Notification } from './models/notification.model';
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnDestroy {
-
-  private readonly notificationService = inject(NotificationService);
+  private readonly actions$ = inject(Actions);
   private readonly toast = inject(ToastService);
   private readonly facade = inject(StoreFacade);
 
@@ -32,10 +32,13 @@ export class AppComponent implements OnDestroy {
   isAuthenticated = this.facade.isAuthenticated;
 
   constructor() {
-    // Subscribe to new notifications and show snackbar
-    this.notificationService.newNotification$
-      .pipe(takeUntilDestroyed())
-      .subscribe(notification => {
+    // Subscribe to new notifications from store and show snackbar
+    this.actions$
+      .pipe(
+        ofType(NotificationsActions.newNotificationReceived),
+        takeUntilDestroyed()
+      )
+      .subscribe(({ notification }) => {
         this.showNotificationSnackbar(notification);
       });
 
@@ -43,15 +46,15 @@ export class AppComponent implements OnDestroy {
     effect(() => {
       const isAuthenticated = this.facade.isAuthenticated();
       if (isAuthenticated) {
-        this.notificationService.connectWebSocket();
+        this.facade.connectNotificationsWebSocket();
       } else {
-        this.notificationService.disconnectWebSocket();
+        this.facade.disconnectNotificationsWebSocket();
       }
     });
   }
 
   ngOnDestroy(): void {
-    this.notificationService.disconnectWebSocket();
+    this.facade.disconnectNotificationsWebSocket();
   }
 
   /**

@@ -3,15 +3,11 @@ import {
   inject,
   computed,
   output,
-  ChangeDetectionStrategy,
-  OnInit,
-  OnDestroy
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
 import { StoreFacade } from '../../../store/store.facade';
 import { NavigationService } from '../../services/navigation.service';
-import { NotificationService } from '../../../services/notification.service';
 import { NavItem } from '../../models/navigation.model';
 
 /**
@@ -27,12 +23,10 @@ import { NavItem } from '../../models/navigation.model';
   styleUrl: './sidebar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SidebarComponent implements OnInit, OnDestroy {
+export class SidebarComponent {
   private readonly router = inject(Router);
   private readonly facade = inject(StoreFacade);
   private readonly navigationService = inject(NavigationService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly destroy$ = new Subject<void>();
 
   /** Event emitted when navigation item is clicked (for mobile close) */
   readonly navigationClick = output<void>();
@@ -41,8 +35,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
   readonly currentUser = this.facade.currentUser;
   readonly isAuthenticated = this.facade.isAuthenticated;
 
-  /** Unread notification count */
-  readonly unreadCount = this.notificationService.unreadCount;
+  /** Unread notification count from store */
+  readonly unreadCount = this.facade.unreadCount;
 
   /** Current user role */
   readonly currentUserRole = computed(() => {
@@ -55,27 +49,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
     const role = this.currentUserRole();
     return this.navigationService.getSidebarNavigation(role);
   });
-
-  ngOnInit(): void {
-    // Load unread count if authenticated
-    if (this.isAuthenticated()) {
-      this.notificationService.getUnreadCount()
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (response) => {
-            this.notificationService.unreadCount.set(response.count);
-          },
-          error: (err) => {
-            console.error('Failed to load unread count:', err);
-          }
-        });
-    }
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 
   /**
    * Handle logout
