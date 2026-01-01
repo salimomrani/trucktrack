@@ -19,6 +19,11 @@ export interface NotificationsState extends EntityState<Notification> {
   wsConnected: boolean;
   markingAsReadId: string | null;
   markingAllAsRead: boolean;
+  // Pagination state for alerts page
+  currentPage: number;
+  totalElements: number;
+  hasMorePages: boolean;
+  loadingMore: boolean;
 }
 
 /**
@@ -30,5 +35,10 @@ export const initialNotificationsState: NotificationsState = notificationAdapter
   error: null,
   wsConnected: false,
   markingAsReadId: null,
-  markingAllAsRead: false
+  markingAllAsRead: false,
+  // Pagination defaults
+  currentPage: 0,
+  totalElements: 0,
+  hasMorePages: true,
+  loadingMore: false
 });

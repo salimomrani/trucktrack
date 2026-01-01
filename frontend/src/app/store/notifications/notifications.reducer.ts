@@ -122,5 +122,64 @@ export const notificationsReducer = createReducer(
   on(NotificationsActions.resetUnreadCount, (state) => ({
     ...state,
     unreadCount: 0
+  })),
+
+  // ============================================
+  // Paged Notifications (for Alerts page)
+  // ============================================
+
+  // Load first page
+  on(NotificationsActions.loadNotificationsPaged, (state) => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+
+  on(NotificationsActions.loadNotificationsPagedSuccess, (state, { page }) =>
+    notificationAdapter.setAll(page.content, {
+      ...state,
+      loading: false,
+      currentPage: page.number,
+      totalElements: page.totalElements,
+      hasMorePages: !page.last,
+      error: null
+    })
+  ),
+
+  on(NotificationsActions.loadNotificationsPagedFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error
+  })),
+
+  // Load more (infinite scroll)
+  on(NotificationsActions.loadMoreNotifications, (state) => ({
+    ...state,
+    loadingMore: true
+  })),
+
+  on(NotificationsActions.loadMoreNotificationsSuccess, (state, { page }) =>
+    notificationAdapter.addMany(page.content, {
+      ...state,
+      loadingMore: false,
+      currentPage: page.number,
+      hasMorePages: !page.last,
+      error: null
+    })
+  ),
+
+  on(NotificationsActions.loadMoreNotificationsFailure, (state, { error }) => ({
+    ...state,
+    loadingMore: false,
+    error
+  })),
+
+  // Reset pagination
+  on(NotificationsActions.resetPagination, (state) => ({
+    ...state,
+    currentPage: 0,
+    totalElements: 0,
+    hasMorePages: true,
+    loadingMore: false
   }))
 );
