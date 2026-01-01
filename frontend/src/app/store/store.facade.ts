@@ -86,6 +86,20 @@ export class StoreFacade {
   });
   readonly historyError = toSignal(this.store.select(HistorySelectors.selectHistoryError));
 
+  // History Pagination Signals (for infinite scroll)
+  readonly historyCurrentPage = toSignal(this.store.select(HistorySelectors.selectHistoryCurrentPage), {
+    initialValue: 0
+  });
+  readonly historyTotalElements = toSignal(this.store.select(HistorySelectors.selectHistoryTotalElements), {
+    initialValue: 0
+  });
+  readonly historyHasMorePages = toSignal(this.store.select(HistorySelectors.selectHistoryHasMorePages), {
+    initialValue: true
+  });
+  readonly historyLoadingMore = toSignal(this.store.select(HistorySelectors.selectHistoryLoadingMore), {
+    initialValue: false
+  });
+
   // Cache Signals
   readonly trucksCacheState = toSignal(this.store.select(CacheSelectors.selectTrucksCacheState));
   readonly driversCacheState = toSignal(this.store.select(CacheSelectors.selectDriversCacheState));
@@ -267,6 +281,22 @@ export class StoreFacade {
   // Helper to get history for specific truck
   getHistoryByTruckId(truckId: string) {
     return toSignal(this.store.select(HistorySelectors.selectHistoryByTruckId(truckId)));
+  }
+
+  // History Pagination Actions (for infinite scroll)
+
+  /**
+   * Load first page of history (paginated)
+   */
+  loadHistoryPaged(startTime: string, endTime: string, truckId?: string | null, size: number = 50) {
+    this.store.dispatch(HistoryActions.loadHistoryPaged({ startTime, endTime, truckId, size }));
+  }
+
+  /**
+   * Load more history (infinite scroll)
+   */
+  loadMoreHistory() {
+    this.store.dispatch(HistoryActions.loadMoreHistory());
   }
 
   // T036: Helper to get truck by ID using memoized selector

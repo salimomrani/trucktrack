@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, ChangeDetectionStrategy, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, signal, inject, ChangeDetectionStrategy, computed, ElementRef, viewChild } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -17,7 +17,7 @@ interface TruckHistory {
 
 /**
  * HistoryComponent - View for displaying truck movement history
- * Now uses REAL DATA from the backend API
+ * Now uses REAL DATA from the backend API with infinite scroll
  * Angular 17+ with signals, OnPush, Material UI
  */
 @Component({
@@ -31,16 +31,25 @@ interface TruckHistory {
   templateUrl: './history.component.html',
   styleUrls: ['./history.component.scss']
 })
-export class HistoryComponent implements OnInit {
+export class HistoryComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly facade = inject(StoreFacade);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
+
+  // Infinite scroll observer
+  private scrollObserver: IntersectionObserver | null = null;
+  readonly scrollSentinel = viewChild<ElementRef>('scrollSentinel');
 
   // State signals
   trucks = this.facade.trucks;
   historyData = this.facade.historyEntries;
   isLoading = this.facade.historyLoading;
   historyError = this.facade.historyError;
+
+  // Pagination signals
+  hasMorePages = this.facade.historyHasMorePages;
+  loadingMore = this.facade.historyLoadingMore;
+  totalElements = this.facade.historyTotalElements;
 
   selectedTruckId = signal<string | null>(null);
 
@@ -99,8 +108,51 @@ export class HistoryComponent implements OnInit {
     this.loadHistory();
   }
 
+  ngAfterViewInit(): void {
+    this.setupScrollObserver();
+  }
+
+  ngOnDestroy(): void {
+    this.destroyScrollObserver();
+  }
+
   /**
-   * Load history for selected truck or all trucks (single API endpoint)
+   * Setup IntersectionObserver for infinite scroll
+   */
+  private setupScrollObserver(): void {
+    this.scrollObserver = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && this.hasMorePages() && !this.loadingMore() && !this.isLoading()) {
+          this.loadMore();
+        }
+      },
+      {
+        root: null,
+        rootMargin: '100px',
+        threshold: 0.1
+      }
+    );
+
+    // Observe sentinel when it exists
+    const sentinel = this.scrollSentinel();
+    if (sentinel?.nativeElement) {
+      this.scrollObserver.observe(sentinel.nativeElement);
+    }
+  }
+
+  /**
+   * Cleanup IntersectionObserver
+   */
+  private destroyScrollObserver(): void {
+    if (this.scrollObserver) {
+      this.scrollObserver.disconnect();
+      this.scrollObserver = null;
+    }
+  }
+
+  /**
+   * Load history for selected truck or all trucks (paginated for infinite scroll)
    */
   loadHistory(): void {
     const truckId = this.selectedTruckId();
@@ -115,7 +167,23 @@ export class HistoryComponent implements OnInit {
     const startTime = start.toISOString();
     const endTime = end.toISOString();
 
-    this.facade.loadHistory(startTime, endTime, truckId);
+    // Use paginated endpoint for infinite scroll
+    this.facade.loadHistoryPaged(startTime, endTime, truckId, 50);
+
+    // Re-setup observer after loading new data
+    setTimeout(() => {
+      this.destroyScrollObserver();
+      this.setupScrollObserver();
+    }, 100);
+  }
+
+  /**
+   * Load more history (infinite scroll)
+   */
+  loadMore(): void {
+    if (this.hasMorePages() && !this.loadingMore()) {
+      this.facade.loadMoreHistory();
+    }
   }
 
   onTruckSelect(truckId: string): void {

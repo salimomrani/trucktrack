@@ -173,6 +173,18 @@ public interface GPSPositionRepository extends JpaRepository<GPSPosition, UUID> 
     );
 
     /**
+     * Find all GPS positions within a time range with pagination
+     * Used for infinite scroll in history view
+     */
+    @Query("SELECT g FROM GPSPosition g WHERE g.timestamp BETWEEN :startTime AND :endTime " +
+           "ORDER BY g.timestamp DESC")
+    Page<GPSPosition> findAllByTimestampBetweenPaged(
+        @Param("startTime") Instant startTime,
+        @Param("endTime") Instant endTime,
+        Pageable pageable
+    );
+
+    /**
      * Count all GPS positions within a time range
      */
     @Query("SELECT COUNT(g) FROM GPSPosition g WHERE g.timestamp BETWEEN :startTime AND :endTime")
