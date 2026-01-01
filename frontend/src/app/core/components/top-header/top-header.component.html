@@ -1,0 +1,57 @@
+<header class="top-header">
+  <!-- Left: Mobile menu toggle -->
+  <div class="header-left">
+    <button
+      type="button"
+      class="menu-toggle"
+      (click)="onToggleSidebar()"
+      aria-label="Menu">
+      <span class="material-icons">menu</span>
+    </button>
+  </div>
+
+  <!-- Right: Actions -->
+  <div class="header-right">
+    <!-- Theme toggle -->
+    <button
+      type="button"
+      class="action-btn"
+      (click)="toggleTheme()"
+      [attr.aria-label]="isDark() ? 'Mode clair' : 'Mode sombre'">
+      @if (isDark()) {
+        <span class="material-icons">light_mode</span>
+      } @else {
+        <span class="material-icons">dark_mode</span>
+      }
+    </button>
+
+    <!-- Notifications -->
+    <div class="relative">
+      <button
+        type="button"
+        class="action-btn"
+        (click)="toggleNotifications()"
+        aria-label="Notifications"
+        [attr.aria-expanded]="notificationsOpen()">
+        <span class="material-icons">notifications_none</span>
+        @if (unreadCount() > 0) {
+          <span class="notification-badge">{{ formatBadge(unreadCount()) }}</span>
+        }
+      </button>
+
+      @if (notificationsOpen()) {
+        <app-notifications-dropdown (closed)="closeNotifications()" />
+      }
+    </div>
+
+    <!-- User avatar -->
+    <button
+      type="button"
+      class="user-avatar-btn"
+      (click)="toggleUserMenu()"
+      aria-label="Menu utilisateur"
+      [attr.aria-expanded]="userMenuOpen()">
+      <span class="user-avatar">{{ getInitials() }}</span>
+    </button>
+  </div>
+</header>

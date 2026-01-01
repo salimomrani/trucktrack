@@ -1,0 +1,49 @@
+<aside class="sidebar">
+  <!-- Logo -->
+  <div class="sidebar-logo">
+    <a routerLink="/map" class="logo-link" (click)="onNavClick()">
+      <span class="material-icons logo-icon">local_shipping</span>
+      <span class="logo-text"><span class="text-primary-400">Truck</span>Track</span>
+    </a>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="sidebar-nav">
+    @for (category of navCategories(); track category.category) {
+      <div class="nav-category">
+        <h3 class="category-title">{{ category.label }}</h3>
+        <div class="nav-items">
+          @for (item of category.items; track item.route) {
+            <a
+              [routerLink]="item.route"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{exact: item.route === '/map'}"
+              class="nav-item"
+              (click)="onNavClick()">
+              <span class="material-icons nav-icon">{{ item.icon }}</span>
+              <span class="nav-label">{{ item.label }}</span>
+              @if (isAlertsRoute(item) && unreadCount() > 0) {
+                <span class="nav-badge">{{ formatBadge(unreadCount()) }}</span>
+              }
+            </a>
+          }
+        </div>
+      </div>
+    }
+  </nav>
+
+  <!-- User section -->
+  <div class="sidebar-user">
+    <div class="user-info">
+      <div class="user-avatar">{{ getInitials() }}</div>
+      <div class="user-details">
+        <p class="user-name">{{ getUserDisplayName() }}</p>
+        <p class="user-email">{{ currentUser()?.email }}</p>
+      </div>
+    </div>
+    <button type="button" class="logout-btn" (click)="logout()">
+      <span class="material-icons">logout</span>
+      <span>Deconnexion</span>
+    </button>
+  </div>
+</aside>
