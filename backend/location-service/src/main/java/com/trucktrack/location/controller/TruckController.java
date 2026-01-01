@@ -314,7 +314,7 @@ public class TruckController {
                 return ResponseEntity.notFound().build();
             }
 
-            Page<GPSPosition> positions = gpsPositionRepository.findByTruckIdAndTimestampBetween(
+            Page<GPSPosition> positions = gpsPositionRepository.findByTruckIdAndTimestampBetweenPaged(
                     truckId, startTime, endTime, pageRequest);
             return ResponseEntity.ok(positions);
         } else {
