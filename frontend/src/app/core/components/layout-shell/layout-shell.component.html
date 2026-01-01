@@ -1,0 +1,19 @@
+<div class="layout-shell">
+  <!-- Mobile backdrop -->
+  @if (isMobile() && mobileSidebarOpen()) {
+    <div class="sidebar-backdrop" (click)="onBackdropClick()"></div>
+  }
+
+  <!-- Sidebar -->
+  <div [class]="sidebarClasses()">
+    <app-sidebar (navigationClick)="onSidebarNavigationClick()" />
+  </div>
+
+  <!-- Main content area -->
+  <div class="main-area">
+    <app-top-header (toggleSidebar)="toggleMobileSidebar()" />
+    <main class="main-content">
+      <ng-content />
+    </main>
+  </div>
+</div>

@@ -1,0 +1,44 @@
+/**
+ * Top Header Component Styles
+ * Feature: 021-sidebar-layout
+ */
+
+.top-header {
+  @apply bg-white dark:bg-gray-800 shadow-sm h-16 flex items-center justify-between px-4 lg:px-6;
+}
+
+.header-left {
+  @apply flex items-center gap-4;
+}
+
+.menu-toggle {
+  @apply lg:hidden p-2 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors;
+
+  .material-icons {
+    @apply text-2xl;
+  }
+}
+
+.header-right {
+  @apply flex items-center gap-2;
+}
+
+.action-btn {
+  @apply p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative;
+
+  .material-icons {
+    @apply text-2xl;
+  }
+}
+
+.notification-badge {
+  @apply absolute -top-1 -right-1 h-5 w-5 rounded-full bg-danger-500 text-white text-xs font-bold flex items-center justify-center;
+}
+
+.user-avatar-btn {
+  @apply p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors;
+}
+
+.user-avatar {
+  @apply w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center text-sm font-medium;
+}

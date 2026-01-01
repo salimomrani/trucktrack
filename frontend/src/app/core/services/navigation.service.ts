@@ -179,4 +179,24 @@ export class NavigationService {
   hasAdminAccess(role: UserRole | null | undefined): boolean {
     return role === UserRole.ADMIN;
   }
+
+  /**
+   * Get navigation items as array of categories for sidebar iteration
+   * @param role - Current user's role
+   * @returns Array of category objects with items
+   */
+  getSidebarNavigation(role: UserRole | null | undefined): { category: string; label: string; items: NavItem[] }[] {
+    const categoriesRecord = this.getNavigationItemsByCategory(role);
+
+    // Define category order
+    const categoryOrder = ['operations', 'administration', 'other'];
+
+    return categoryOrder
+      .filter(cat => categoriesRecord[cat]?.length > 0)
+      .map(cat => ({
+        category: cat,
+        label: this.getCategoryLabel(cat),
+        items: categoriesRecord[cat]
+      }));
+  }
 }
