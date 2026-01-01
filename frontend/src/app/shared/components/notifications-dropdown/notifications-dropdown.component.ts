@@ -110,13 +110,13 @@ export class NotificationsDropdownComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Load recent notifications
+   * Load unread notifications
    */
   loadNotifications(): void {
     this.loading.set(true);
     this.error.set(null);
 
-    this.notificationService.getRecentNotifications(10)
+    this.notificationService.getUnreadNotifications()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (notifications) => {
