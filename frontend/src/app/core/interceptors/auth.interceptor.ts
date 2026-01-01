@@ -34,7 +34,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error: HttpErrorResponse) => {
       // If we get a 401 Unauthorized and we have a refresh token, try to refresh
       if (error.status === 401 && !isAuthEndpoint) {
-        console.log('Received 401, attempting token refresh...');
 
         return facade.refreshToken().pipe(
           switchMap(() => {

@@ -45,13 +45,33 @@
     </div>
 
     <!-- User avatar -->
-    <button
-      type="button"
-      class="user-avatar-btn"
-      (click)="toggleUserMenu()"
-      aria-label="Menu utilisateur"
-      [attr.aria-expanded]="userMenuOpen()">
-      <span class="user-avatar">{{ getInitials() }}</span>
-    </button>
+    <div class="relative">
+      <button
+        type="button"
+        class="user-avatar-btn"
+        (click)="toggleUserMenu()"
+        aria-label="Menu utilisateur"
+        [attr.aria-expanded]="userMenuOpen()">
+        <span class="user-avatar">{{ getInitials() }}</span>
+      </button>
+
+      @if (userMenuOpen()) {
+        <div class="user-menu">
+          <div class="user-menu-header">
+            <p class="user-name">{{ getUserDisplayName() }}</p>
+            <p class="user-email">{{ currentUser()?.email }}</p>
+          </div>
+          <div class="user-menu-divider"></div>
+          <a routerLink="/profile" class="user-menu-item" (click)="closeUserMenu()">
+            <span class="material-icons">person</span>
+            <span>Profil</span>
+          </a>
+          <button type="button" class="user-menu-item user-menu-item-danger" (click)="logout()">
+            <span class="material-icons">logout</span>
+            <span>Déconnexion</span>
+          </button>
+        </div>
+      }
+    </div>
   </div>
 </header>

@@ -40,7 +40,6 @@ export class WebSocketService {
    */
   connect(): void {
     if (this.client?.connected) {
-      console.log('WebSocket already connected');
       return;
     }
 
@@ -51,19 +50,16 @@ export class WebSocketService {
       heartbeatOutgoing: 4000,
       debug: (str) => {
         if (environment.logging.enableConsoleLogging) {
-          console.log('STOMP: ' + str);
         }
       }
     });
 
     this.client.onConnect = () => {
-      console.log('WebSocket connected');
       this.connectionStatusSignal.set(true);
       this.subscribeToAllPositions();
     };
 
     this.client.onDisconnect = () => {
-      console.log('WebSocket disconnected');
       this.connectionStatusSignal.set(false);
     };
 
@@ -86,7 +82,6 @@ export class WebSocketService {
       this.subscriptions.clear();
       this.client.deactivate();
       this.connectionStatusSignal.set(false);
-      console.log('WebSocket disconnected');
     }
   }
 
@@ -106,7 +101,6 @@ export class WebSocketService {
     });
 
     this.subscriptions.set('all-positions', subscription);
-    console.log('Subscribed to /topic/positions');
   }
 
   /**
@@ -129,13 +123,11 @@ export class WebSocketService {
       });
 
       this.subscriptions.set(`truck-${truckId}`, subscription);
-      console.log(`Subscribed to ${destination}`);
 
       // Cleanup on unsubscribe
       return () => {
         subscription.unsubscribe();
         this.subscriptions.delete(`truck-${truckId}`);
-        console.log(`Unsubscribed from ${destination}`);
       };
     });
   }
@@ -159,13 +151,11 @@ export class WebSocketService {
       });
 
       this.subscriptions.set(`truck-status-${truckId}`, subscription);
-      console.log(`Subscribed to ${destination}`);
 
       // Cleanup on unsubscribe
       return () => {
         subscription.unsubscribe();
         this.subscriptions.delete(`truck-status-${truckId}`);
-        console.log(`Unsubscribed from ${destination}`);
       };
     });
   }

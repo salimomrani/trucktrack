@@ -20,7 +20,6 @@ export const adminGuard: CanActivateFn = (): Observable<boolean | UrlTree> => {
     take(1),
     map(user => {
       if (!user) {
-        console.log('No user found, redirecting to login');
         return router.createUrlTree(['/login']);
       }
 
@@ -29,7 +28,6 @@ export const adminGuard: CanActivateFn = (): Observable<boolean | UrlTree> => {
       }
 
       // User doesn't have ADMIN role, redirect to unauthorized page
-      console.log(`User role ${user.role} not authorized for admin routes`);
       return router.createUrlTree(['/unauthorized']);
     })
   );

@@ -110,13 +110,13 @@ export class NotificationsDropdownComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Load recent notifications
+   * Load unread notifications
    */
   loadNotifications(): void {
     this.loading.set(true);
     this.error.set(null);
 
-    this.notificationService.getRecentNotifications(10)
+    this.notificationService.getUnreadNotifications()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (notifications) => {
@@ -132,7 +132,23 @@ export class NotificationsDropdownComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Mark a single notification as read
+   * Handle notification click - mark as read and close
+   */
+  onNotificationClick(notification: Notification): void {
+    if (!notification.isRead) {
+      // Don't use takeUntil here - the API call must complete even after component closes
+      this.notificationService.markAsRead(notification.id)
+        .subscribe({
+          next: () => {
+            this.notificationService.decrementUnreadCount();
+          }
+        });
+    }
+    this.closed.emit();
+  }
+
+  /**
+   * Mark a single notification as read (button click)
    */
   markAsRead(notification: Notification, event: Event): void {
     event.stopPropagation();
