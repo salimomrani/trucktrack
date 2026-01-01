@@ -7,7 +7,7 @@ import { ConfirmDialogOverlayComponent } from './admin/shared/confirm-dialog/con
 import { ImageViewerOverlayComponent } from './admin/shared/image-viewer/image-viewer-overlay.component';
 import { NotificationService } from './services/notification.service';
 import { StoreFacade } from './store/store.facade';
-import { ToastService } from './shared/components/toast/toast.service';
+import { ToastService } from './shared/components';
 import { Notification } from './models/notification.model';
 
 /**
@@ -23,7 +23,6 @@ import { Notification } from './models/notification.model';
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnDestroy {
-  title = 'frontend';
 
   private readonly notificationService = inject(NotificationService);
   private readonly toast = inject(ToastService);
