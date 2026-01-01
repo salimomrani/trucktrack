@@ -28,7 +28,7 @@ npm start
 
 - **Live Map** - Real-time truck positions with Leaflet
 - **Search/Filter** - Find trucks by status, name
-- **History** - Route playback with timeline
+- **History** - Route playback with infinite scroll pagination
 - **Geofences** - Draw and manage zones
 - **Alerts** - Configure rules, view notifications
 

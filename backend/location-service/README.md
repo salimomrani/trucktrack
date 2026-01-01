@@ -14,6 +14,7 @@ Consomme les événements GPS depuis Kafka, stocke les positions dans PostgreSQL
 | GET | /location/v1/trucks/{id} | Truck details |
 | GET | /location/v1/trucks/{id}/current | Current position |
 | GET | /location/v1/trucks/{id}/history | Position history |
+| GET | /location/v1/trucks/history/paged | Paginated history (infinite scroll) |
 | GET | /location/v1/trucks/my-truck | Get driver's assigned truck |
 | PATCH | /location/v1/trucks/{id}/status | Update truck status |
 
