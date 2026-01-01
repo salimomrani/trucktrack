@@ -9,6 +9,8 @@
 
 Système de suivi GPS en temps réel pour la gestion de flottes de camions.
 
+![TruckTrack Map](docs/images/map-screenshot.png)
+
 **Fonctionnalités principales :**
 - Carte temps réel avec positions GPS live (WebSocket)
 - Application mobile chauffeurs (iOS/Android) avec affichage des routes
