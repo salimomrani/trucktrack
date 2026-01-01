@@ -110,12 +110,13 @@ export class NotificationsDropdownComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Load recent notifications
+   * Load recent notifications and sync unread count
    */
   loadNotifications(): void {
     this.loading.set(true);
     this.error.set(null);
 
+    // Load both notifications and refresh unread count in parallel
     this.notificationService.getRecentNotifications(10)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -127,6 +128,15 @@ export class NotificationsDropdownComponent implements OnInit, OnDestroy {
           console.error('Failed to load notifications:', err);
           this.error.set('Failed to load notifications');
           this.loading.set(false);
+        }
+      });
+
+    // Also refresh unread count to ensure sync with backend
+    this.notificationService.getUnreadCount()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.notificationService.unreadCount.set(response.count);
         }
       });
   }
