@@ -67,12 +67,14 @@ export class HistoryEffects {
 
   /**
    * Load more history (infinite scroll)
+   * Note: We only check hasMorePages here since loadingMore is set by reducer
+   * before this effect runs (race condition)
    */
   loadMoreHistory$ = createEffect(() =>
     this.actions$.pipe(
       ofType(HistoryActions.loadMoreHistory),
       withLatestFrom(this.store.select(selectHistoryState)),
-      filter(([_, state]) => state.hasMorePages && !state.loadingMore),
+      filter(([_, state]) => state.hasMorePages),
       switchMap(([_, state]) => {
         const nextPage = state.currentPage + 1;
         return this.truckService.getTrucksHistoryPaged(

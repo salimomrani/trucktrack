@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, signal, inject, ChangeDetectionStrategy, computed, ElementRef, viewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject, ChangeDetectionStrategy, computed, ElementRef, viewChild, effect } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -31,7 +31,7 @@ interface TruckHistory {
   templateUrl: './history.component.html',
   styleUrls: ['./history.component.scss']
 })
-export class HistoryComponent implements OnInit, OnDestroy, AfterViewInit {
+export class HistoryComponent implements OnInit, OnDestroy {
   private readonly facade = inject(StoreFacade);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
@@ -39,6 +39,14 @@ export class HistoryComponent implements OnInit, OnDestroy, AfterViewInit {
   // Infinite scroll observer
   private scrollObserver: IntersectionObserver | null = null;
   readonly scrollSentinel = viewChild<ElementRef>('scrollSentinel');
+
+  // Effect to watch for sentinel availability and attach observer
+  private sentinelWatcher = effect(() => {
+    const sentinel = this.scrollSentinel();
+    if (sentinel?.nativeElement && !this.scrollObserver) {
+      this.setupScrollObserver();
+    }
+  });
 
   // State signals
   trucks = this.facade.trucks;
@@ -108,10 +116,6 @@ export class HistoryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.loadHistory();
   }
 
-  ngAfterViewInit(): void {
-    this.setupScrollObserver();
-  }
-
   ngOnDestroy(): void {
     this.destroyScrollObserver();
   }
@@ -167,14 +171,11 @@ export class HistoryComponent implements OnInit, OnDestroy, AfterViewInit {
     const startTime = start.toISOString();
     const endTime = end.toISOString();
 
+    // Destroy observer so effect can recreate it when new sentinel renders
+    this.destroyScrollObserver();
+
     // Use paginated endpoint for infinite scroll
     this.facade.loadHistoryPaged(startTime, endTime, truckId, 50);
-
-    // Re-setup observer after loading new data
-    setTimeout(() => {
-      this.destroyScrollObserver();
-      this.setupScrollObserver();
-    }, 100);
   }
 
   /**
