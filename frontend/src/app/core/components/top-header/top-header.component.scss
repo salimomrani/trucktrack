@@ -42,3 +42,40 @@
 .user-avatar {
   @apply w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center text-sm font-medium;
 }
+
+// User menu dropdown
+.user-menu {
+  @apply absolute right-0 top-full mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50;
+}
+
+.user-menu-header {
+  @apply px-4 py-3 bg-gray-50 dark:bg-gray-700/50;
+}
+
+.user-name {
+  @apply font-medium text-gray-900 dark:text-white text-sm;
+}
+
+.user-email {
+  @apply text-gray-500 dark:text-gray-400 text-xs mt-0.5 truncate;
+}
+
+.user-menu-divider {
+  @apply h-px bg-gray-200 dark:bg-gray-700;
+}
+
+.user-menu-item {
+  @apply w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors;
+
+  .material-icons {
+    @apply text-xl text-gray-500 dark:text-gray-400;
+  }
+}
+
+.user-menu-item-danger {
+  @apply text-danger-600 dark:text-danger-400;
+
+  .material-icons {
+    @apply text-danger-600 dark:text-danger-400;
+  }
+}

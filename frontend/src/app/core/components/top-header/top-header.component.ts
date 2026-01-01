@@ -5,6 +5,7 @@ import {
   output,
   ChangeDetectionStrategy
 } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { ThemeService } from '../../services/theme.service';
 import { NotificationService } from '../../../services/notification.service';
 import { StoreFacade } from '../../../store/store.facade';
@@ -18,12 +19,13 @@ import { NotificationsDropdownComponent } from '../../../shared/components/notif
 @Component({
   selector: 'app-top-header',
   standalone: true,
-  imports: [NotificationsDropdownComponent],
+  imports: [RouterLink, NotificationsDropdownComponent],
   templateUrl: './top-header.component.html',
   styleUrl: './top-header.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TopHeaderComponent {
+  private readonly router = inject(Router);
   private readonly themeService = inject(ThemeService);
   private readonly notificationService = inject(NotificationService);
   private readonly facade = inject(StoreFacade);
@@ -115,5 +117,28 @@ export class TopHeaderComponent {
    */
   formatBadge(count: number): string {
     return count > 99 ? '99+' : count.toString();
+  }
+
+  /**
+   * Get user display name
+   */
+  getUserDisplayName(): string {
+    const user = this.currentUser();
+    if (!user) return '';
+
+    const fullName = [user.firstName, user.lastName]
+      .filter(name => name && name.trim())
+      .join(' ');
+
+    return fullName || user.email || '';
+  }
+
+  /**
+   * Handle logout
+   */
+  logout(): void {
+    this.closeUserMenu();
+    this.facade.logout();
+    this.router.navigate(['/login']);
   }
 }
