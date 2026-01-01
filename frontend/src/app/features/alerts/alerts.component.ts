@@ -389,8 +389,8 @@ export class AlertsComponent implements OnInit, AfterViewInit, OnDestroy {
             notifications[index] = updated;
             this.notifications.set([...notifications]);
           }
-          // Update unread count in header badge
-          this.notificationService.decrementUnreadCount();
+          // Update unread count in store
+          this.facade.decrementUnreadCount();
         },
         error: (error) => {
           console.error('Failed to mark as read:', error);
@@ -400,8 +400,6 @@ export class AlertsComponent implements OnInit, AfterViewInit, OnDestroy {
           if (index !== -1) {
             notifications[index] = { ...notifications[index], isRead: true, readAt: new Date().toISOString() };
             this.notifications.set([...notifications]);
-            // Still update badge count on fallback
-            this.notificationService.decrementUnreadCount();
           }
         }
       });
@@ -418,8 +416,8 @@ export class AlertsComponent implements OnInit, AfterViewInit, OnDestroy {
             readAt: new Date().toISOString()
           }));
           this.notifications.set(notifications);
-          // Reset unread count to 0 in header badge
-          this.notificationService.resetUnreadCount();
+          // Reset unread count in store
+          this.facade.resetUnreadCount();
           this.showSuccess(`Marked ${response.markedCount} notifications as read`);
         },
         error: (error) => {
@@ -431,8 +429,6 @@ export class AlertsComponent implements OnInit, AfterViewInit, OnDestroy {
             readAt: new Date().toISOString()
           }));
           this.notifications.set(notifications);
-          // Still reset badge count on fallback
-          this.notificationService.resetUnreadCount();
         }
       });
   }

@@ -222,30 +222,5 @@ describe('NotificationService', () => {
     });
   });
 
-  describe('unreadCount signal', () => {
-    it('should start at 0', () => {
-      expect(service.unreadCount()).toBe(0);
-    });
-
-    it('should decrement when decrementUnreadCount is called', () => {
-      // Set initial count
-      service.unreadCount.set(5);
-      expect(service.unreadCount()).toBe(5);
-
-      service.decrementUnreadCount();
-      expect(service.unreadCount()).toBe(4);
-    });
-
-    it('should not go below 0', () => {
-      service.unreadCount.set(0);
-      service.decrementUnreadCount();
-      expect(service.unreadCount()).toBe(0);
-    });
-
-    it('should reset to 0 when resetUnreadCount is called', () => {
-      service.unreadCount.set(10);
-      service.resetUnreadCount();
-      expect(service.unreadCount()).toBe(0);
-    });
-  });
+  // Note: unreadCount signal tests removed - state management moved to NgRx store (store/notifications)
 });

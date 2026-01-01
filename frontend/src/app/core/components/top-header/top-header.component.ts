@@ -7,7 +7,6 @@ import {
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ThemeService } from '../../services/theme.service';
-import { NotificationService } from '../../../services/notification.service';
 import { StoreFacade } from '../../../store/store.facade';
 import { NotificationsDropdownComponent } from '../../../shared/components/notifications-dropdown/notifications-dropdown.component';
 
@@ -27,7 +26,6 @@ import { NotificationsDropdownComponent } from '../../../shared/components/notif
 export class TopHeaderComponent {
   private readonly router = inject(Router);
   private readonly themeService = inject(ThemeService);
-  private readonly notificationService = inject(NotificationService);
   private readonly facade = inject(StoreFacade);
 
   /** Event to toggle mobile sidebar */
@@ -39,8 +37,8 @@ export class TopHeaderComponent {
   /** Theme state */
   readonly isDark = this.themeService.isDark;
 
-  /** Unread notification count */
-  readonly unreadCount = this.notificationService.unreadCount;
+  /** Unread notification count from store */
+  readonly unreadCount = this.facade.unreadCount;
 
   /** Notifications dropdown open state */
   readonly notificationsOpen = signal(false);
