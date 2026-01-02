@@ -1,12 +1,11 @@
-import { Component, OnInit, inject, signal, input } from '@angular/core';
-import { TripService } from '../trip.service';
-import { TripAnalytics } from '../trip.model';
+import { Component, OnInit, inject, input, computed } from '@angular/core';
+import { StoreFacade } from '../../../store/store.facade';
 
 /**
  * Trip statistics component with KPI cards.
  * T058: Create TripStatsComponent with KPI cards
  * Feature: 010-trip-management (US5: Trip History and Analytics)
- * Migrated to Tailwind CSS (Feature 020)
+ * Migrated to NgRx store for state management via StoreFacade.
  */
 @Component({
   selector: 'app-trip-stats',
@@ -16,35 +15,26 @@ import { TripAnalytics } from '../trip.model';
   styleUrls: ['./trip-stats.component.scss']
 })
 export class TripStatsComponent implements OnInit {
-  private readonly tripService = inject(TripService);
+  private readonly facade = inject(StoreFacade);
 
   /** Whether to show in compact mode (for dashboard widget) */
   readonly compact = input<boolean>(false);
 
-  // State
-  analytics = signal<TripAnalytics | null>(null);
-  loading = signal(true);
-  error = signal<string | null>(null);
+  // State from store (using view model selector)
+  readonly viewModel = this.facade.tripStatsViewModel;
+
+  // Derived signals from view model
+  readonly analytics = computed(() => this.viewModel()?.analytics ?? null);
+  readonly loading = computed(() => this.viewModel()?.loading ?? true);
+  readonly error = computed(() => this.viewModel()?.error ?? null);
+
+  // Convenience accessors for analytics properties
+  readonly completionRate = computed(() => this.analytics()?.completionRate ?? 0);
+  readonly tripsToday = computed(() => this.analytics()?.tripsToday ?? 0);
 
   ngOnInit() {
-    this.loadAnalytics();
-  }
-
-  loadAnalytics() {
-    this.loading.set(true);
-    this.error.set(null);
-
-    this.tripService.getAnalytics().subscribe({
-      next: (data) => {
-        this.analytics.set(data);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        console.error('Failed to load analytics:', err);
-        this.error.set('Failed to load analytics');
-        this.loading.set(false);
-      }
-    });
+    // Load analytics via store
+    this.facade.loadTripAnalytics();
   }
 
   formatDuration(minutes: number | null): string {

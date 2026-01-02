@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -16,7 +16,7 @@ import { StoreFacade } from '../../../store/store.facade';
  * Trip detail component with assignment and status timeline.
  * T049: Create TripDetailComponent
  * Feature: 010-trip-management (US4: Dashboard Monitoring)
- * Migrated to Tailwind CSS (Feature 020)
+ * Migrated to NgRx store for state management via StoreFacade.
  */
 @Component({
   selector: 'app-trip-detail',
@@ -41,14 +41,23 @@ export class TripDetailComponent implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly facade = inject(StoreFacade);
 
-  // State
-  trip = signal<TripResponse | null>(null);
-  history = signal<TripStatusHistoryResponse[]>([]);
+  // State from store (using view model selector)
+  readonly viewModel = this.facade.tripDetailViewModel;
+
+  // Local loading state for new trip mode
+  private isNewTrip = signal(false);
+
+  // Derived signals from view model
+  readonly trip = computed(() => this.viewModel()?.trip ?? null);
+  readonly history = computed(() => this.viewModel()?.history ?? []);
+  // For new trips, don't show loading spinner - we're not loading anything from the store
+  readonly loading = computed(() => this.isNewTrip() ? false : (this.viewModel()?.loading ?? true));
+  readonly saving = computed(() => this.viewModel()?.saving ?? false);
+
+  // Local UI state
   trucks = signal<TruckAdminResponse[]>([]);
   /** Drivers with their assigned trucks (only drivers who have a truck assigned) */
   assignableDrivers = signal<{ driverId: string; driverName: string; truckId: string; truckName: string; truckStatus: string }[]>([]);
-  loading = signal(true);
-  saving = signal(false);
   isEditMode = signal(false);
   showAssignPanel = signal(false);
   showReassignPanel = signal(false);
@@ -62,18 +71,57 @@ export class TripDetailComponent implements OnInit {
   statusColors = TRIP_STATUS_COLORS;
   statuses = TRIP_STATUSES;
 
+  // Track pending operations for panel management
+  private pendingAssign = false;
+  private pendingReassign = false;
+  private pendingCancel = false;
+
+  constructor() {
+    // Watch for operation completion to close panels
+    effect(() => {
+      const currentSaving = this.saving();
+      const currentTrip = this.trip();
+
+      // If saving just completed and we have a pending operation
+      if (!currentSaving && currentTrip) {
+        if (this.pendingAssign && currentTrip.status === 'ASSIGNED') {
+          this.showAssignPanel.set(false);
+          this.assignForm.reset();
+          this.pendingAssign = false;
+        }
+        if (this.pendingReassign && currentTrip.assignedDriverId) {
+          this.showReassignPanel.set(false);
+          this.reassignForm.reset();
+          this.pendingReassign = false;
+        }
+        if (this.pendingCancel && currentTrip.status === 'CANCELLED') {
+          this.pendingCancel = false;
+        }
+      }
+    });
+
+    // Watch trip changes to update form
+    effect(() => {
+      const currentTrip = this.trip();
+      if (currentTrip && !this.isEditMode()) {
+        this.patchEditForm(currentTrip);
+      }
+    });
+  }
+
   ngOnInit() {
     this.initForms();
     this.tripId = this.route.snapshot.paramMap.get('id');
 
     if (this.tripId && this.tripId !== 'new') {
-      this.loadTrip();
-      this.loadHistory();
+      // Load trip and history via store
+      this.facade.loadTrip(this.tripId);
+      this.facade.loadTripHistory(this.tripId);
       this.loadTrucksAndDrivers();
     } else {
-      // New trip mode
+      // New trip mode - not loading from store
+      this.isNewTrip.set(true);
       this.isEditMode.set(true);
-      this.loading.set(false);
       this.loadTrucksAndDrivers();
     }
   }
@@ -93,37 +141,6 @@ export class TripDetailComponent implements OnInit {
 
     this.reassignForm = this.fb.group({
       driverId: ['', Validators.required]
-    });
-  }
-
-  loadTrip() {
-    if (!this.tripId) return;
-
-    this.loading.set(true);
-    this.tripService.getTripById(this.tripId).subscribe({
-      next: (trip) => {
-        this.trip.set(trip);
-        this.patchEditForm(trip);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        console.error('Failed to load trip:', err);
-        this.toast.error('Failed to load trip');
-        this.router.navigate(['/admin/trips']);
-      }
-    });
-  }
-
-  loadHistory() {
-    if (!this.tripId) return;
-
-    this.tripService.getTripHistory(this.tripId).subscribe({
-      next: (history) => {
-        this.history.set(history);
-      },
-      error: (err) => {
-        console.error('Failed to load trip history:', err);
-      }
     });
   }
 
@@ -192,8 +209,11 @@ export class TripDetailComponent implements OnInit {
 
   toggleEditMode() {
     this.isEditMode.update(v => !v);
-    if (!this.isEditMode() && this.trip()) {
-      this.patchEditForm(this.trip()!);
+    if (!this.isEditMode()) {
+      const currentTrip = this.trip();
+      if (currentTrip) {
+        this.patchEditForm(currentTrip);
+      }
     }
   }
 
@@ -206,10 +226,11 @@ export class TripDetailComponent implements OnInit {
 
   toggleReassignPanel() {
     this.showReassignPanel.update(v => !v);
-    if (this.showReassignPanel() && this.trip()) {
+    if (this.showReassignPanel()) {
+      const currentTrip = this.trip();
       // Pre-fill with current driver
       this.reassignForm.patchValue({
-        driverId: this.trip()?.assignedDriverId || ''
+        driverId: currentTrip?.assignedDriverId || ''
       });
     } else {
       this.reassignForm.reset();
@@ -219,7 +240,6 @@ export class TripDetailComponent implements OnInit {
   saveTrip() {
     if (this.editForm.invalid) return;
 
-    this.saving.set(true);
     const formValue = this.editForm.value;
     const originLocation = formValue.origin as LocationValue;
     const destinationLocation = formValue.destination as LocationValue;
@@ -236,22 +256,10 @@ export class TripDetailComponent implements OnInit {
         scheduledAt: this.formatDateForApi(formValue.scheduledAt),
         notes: formValue.notes || undefined
       };
-      this.tripService.updateTrip(this.tripId, updateRequest).subscribe({
-        next: (trip) => {
-          this.trip.set(trip);
-          this.isEditMode.set(false);
-          this.saving.set(false);
-          this.toast.success('Trip updated');
-          this.loadHistory();
-        },
-        error: (err) => {
-          console.error('Failed to update trip:', err);
-          this.toast.error(err.error?.message || 'Failed to update trip');
-          this.saving.set(false);
-        }
-      });
+      this.facade.updateTrip(this.tripId, updateRequest);
+      this.isEditMode.set(false);
     } else {
-      // Create new trip
+      // Create new trip (effect handles navigation on success)
       const createRequest: CreateTripRequest = {
         origin: originLocation?.address,
         originLat: originLocation?.lat,
@@ -262,17 +270,7 @@ export class TripDetailComponent implements OnInit {
         scheduledAt: this.formatDateForApi(formValue.scheduledAt),
         notes: formValue.notes || undefined
       };
-      this.tripService.createTrip(createRequest).subscribe({
-        next: (trip) => {
-          this.toast.success('Trip created');
-          this.router.navigate(['/admin/trips', trip.id]);
-        },
-        error: (err) => {
-          console.error('Failed to create trip:', err);
-          this.toast.error(err.error?.message || 'Failed to create trip');
-          this.saving.set(false);
-        }
-      });
+      this.facade.createTrip(createRequest);
     }
   }
 
@@ -287,27 +285,13 @@ export class TripDetailComponent implements OnInit {
       return;
     }
 
-    this.saving.set(true);
     const request: AssignTripRequest = {
       truckId: selectedDriver.truckId,
       driverId: selectedDriver.driverId
     };
 
-    this.tripService.assignTrip(this.tripId, request).subscribe({
-      next: (trip) => {
-        this.trip.set(trip);
-        this.showAssignPanel.set(false);
-        this.assignForm.reset();
-        this.saving.set(false);
-        this.toast.success('Trip assigned successfully');
-        this.loadHistory();
-      },
-      error: (err) => {
-        console.error('Failed to assign trip:', err);
-        this.toast.error(err.error?.message || 'Failed to assign trip');
-        this.saving.set(false);
-      }
-    });
+    this.pendingAssign = true;
+    this.facade.assignTrip(this.tripId, request);
   }
 
   /**
@@ -325,57 +309,28 @@ export class TripDetailComponent implements OnInit {
       return;
     }
 
-    this.saving.set(true);
     const request: AssignTripRequest = {
       truckId: selectedDriver.truckId,
       driverId: selectedDriver.driverId
     };
 
-    this.tripService.reassignTrip(this.tripId, request).subscribe({
-      next: (trip) => {
-        this.trip.set(trip);
-        this.showReassignPanel.set(false);
-        this.reassignForm.reset();
-        this.saving.set(false);
-        this.toast.success('Trip reassigned successfully');
-        this.loadHistory();
-      },
-      error: (err) => {
-        console.error('Failed to reassign trip:', err);
-        this.toast.error(err.error?.message || 'Failed to reassign trip');
-        this.saving.set(false);
-      }
-    });
+    this.pendingReassign = true;
+    this.facade.reassignTrip(this.tripId, request);
   }
 
   confirmCancel() {
-    const trip = this.trip();
-    if (!trip) return;
+    const currentTrip = this.trip();
+    if (!currentTrip) return;
 
     this.confirmDialog.open({
       title: 'Cancel Trip',
-      message: `Are you sure you want to cancel this trip from "${trip.origin}" to "${trip.destination}"?`,
+      message: `Are you sure you want to cancel this trip from "${currentTrip.origin}" to "${currentTrip.destination}"?`,
       confirmText: 'Cancel Trip',
       confirmColor: 'warn'
     }).subscribe(confirmed => {
-      if (confirmed) {
-        this.cancelTrip();
-      }
-    });
-  }
-
-  private cancelTrip() {
-    if (!this.tripId) return;
-
-    this.tripService.cancelTrip(this.tripId).subscribe({
-      next: (trip) => {
-        this.trip.set(trip);
-        this.toast.success('Trip cancelled');
-        this.loadHistory();
-      },
-      error: (err) => {
-        console.error('Failed to cancel trip:', err);
-        this.toast.error(err.error?.message || 'Failed to cancel trip');
+      if (confirmed && this.tripId) {
+        this.pendingCancel = true;
+        this.facade.cancelTrip(this.tripId);
       }
     });
   }
@@ -394,23 +349,23 @@ export class TripDetailComponent implements OnInit {
   }
 
   canAssign(): boolean {
-    const trip = this.trip();
-    return trip?.status === 'PENDING';
+    const currentTrip = this.trip();
+    return currentTrip?.status === 'PENDING';
   }
 
   canReassign(): boolean {
-    const trip = this.trip();
-    return trip?.status === 'ASSIGNED' || trip?.status === 'IN_PROGRESS';
+    const currentTrip = this.trip();
+    return currentTrip?.status === 'ASSIGNED' || currentTrip?.status === 'IN_PROGRESS';
   }
 
   canCancel(): boolean {
-    const trip = this.trip();
-    return trip?.status === 'PENDING' || trip?.status === 'ASSIGNED';
+    const currentTrip = this.trip();
+    return currentTrip?.status === 'PENDING' || currentTrip?.status === 'ASSIGNED';
   }
 
   canEdit(): boolean {
-    const trip = this.trip();
-    return trip?.status !== 'COMPLETED' && trip?.status !== 'CANCELLED';
+    const currentTrip = this.trip();
+    return currentTrip?.status !== 'COMPLETED' && currentTrip?.status !== 'CANCELLED';
   }
 
   formatDate(dateString: string | null): string {

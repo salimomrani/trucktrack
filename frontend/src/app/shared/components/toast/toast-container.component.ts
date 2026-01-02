@@ -16,47 +16,30 @@ import { Toast, ToastService } from './toast.service';
     <div class="fixed bottom-4 right-4 z-[100] flex flex-col gap-2 max-w-sm w-full pointer-events-none">
       @for (toast of toasts; track toast.id) {
         <div
-          class="flex items-start gap-3 p-4 rounded-lg shadow-lg pointer-events-auto transition-all duration-300"
+          class="flex items-start gap-3 p-4 rounded-lg shadow-lg pointer-events-auto transition-all duration-300 border-l-4"
           [class.opacity-0]="!toast.visible"
           [class.translate-x-full]="!toast.visible"
           [class.opacity-100]="toast.visible"
           [class.translate-x-0]="toast.visible"
-          [class.bg-success-50]="toast.type === 'success'"
-          [class.border-l-4]="true"
-          [class.border-success-500]="toast.type === 'success'"
-          [class.bg-danger-50]="toast.type === 'error'"
-          [class.border-danger-500]="toast.type === 'error'"
-          [class.bg-warning-50]="toast.type === 'warning'"
-          [class.border-warning-500]="toast.type === 'warning'"
-          [class.bg-primary-50]="toast.type === 'info'"
-          [class.border-primary-500]="toast.type === 'info'"
+          [ngClass]="getToastClasses(toast.type)"
           role="alert">
           <!-- Icon -->
           <span class="material-icons text-xl flex-shrink-0 mt-0.5"
-            [class.text-success-600]="toast.type === 'success'"
-            [class.text-danger-600]="toast.type === 'error'"
-            [class.text-warning-600]="toast.type === 'warning'"
-            [class.text-primary-600]="toast.type === 'info'">
+            [ngClass]="getIconClasses(toast.type)">
             {{ getIcon(toast.type) }}
           </span>
 
           <!-- Content -->
           <div class="flex-1 min-w-0">
             <p class="text-sm font-medium"
-              [class.text-success-800]="toast.type === 'success'"
-              [class.text-danger-800]="toast.type === 'error'"
-              [class.text-warning-800]="toast.type === 'warning'"
-              [class.text-primary-800]="toast.type === 'info'">
+              [ngClass]="getTextClasses(toast.type)">
               {{ toast.message }}
             </p>
             @if (toast.action) {
               <button
                 type="button"
                 class="mt-1 text-sm font-medium underline"
-                [class.text-success-700]="toast.type === 'success'"
-                [class.text-danger-700]="toast.type === 'error'"
-                [class.text-warning-700]="toast.type === 'warning'"
-                [class.text-primary-700]="toast.type === 'info'"
+                [ngClass]="getActionClasses(toast.type)"
                 (click)="onAction(toast)">
                 {{ toast.action.label }}
               </button>
@@ -67,7 +50,7 @@ import { Toast, ToastService } from './toast.service';
           @if (toast.dismissible) {
             <button
               type="button"
-              class="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+              class="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
               (click)="dismiss(toast.id)"
               aria-label="Dismiss">
               <span class="material-icons text-lg">close</span>
@@ -97,6 +80,46 @@ export class ToastContainerComponent {
       case 'info': return 'info';
       default: return 'info';
     }
+  }
+
+  getToastClasses(type: string): string {
+    const classes: Record<string, string> = {
+      success: 'bg-success-50 dark:bg-success-900/40 border-success-500',
+      error: 'bg-danger-50 dark:bg-danger-900/40 border-danger-500',
+      warning: 'bg-warning-50 dark:bg-warning-900/40 border-warning-500',
+      info: 'bg-primary-50 dark:bg-primary-900/40 border-primary-500'
+    };
+    return classes[type] || classes['info'];
+  }
+
+  getIconClasses(type: string): string {
+    const classes: Record<string, string> = {
+      success: 'text-success-600 dark:text-success-400',
+      error: 'text-danger-600 dark:text-danger-400',
+      warning: 'text-warning-600 dark:text-warning-400',
+      info: 'text-primary-600 dark:text-primary-400'
+    };
+    return classes[type] || classes['info'];
+  }
+
+  getTextClasses(type: string): string {
+    const classes: Record<string, string> = {
+      success: 'text-success-800 dark:text-success-200',
+      error: 'text-danger-800 dark:text-danger-200',
+      warning: 'text-warning-800 dark:text-warning-200',
+      info: 'text-primary-800 dark:text-primary-200'
+    };
+    return classes[type] || classes['info'];
+  }
+
+  getActionClasses(type: string): string {
+    const classes: Record<string, string> = {
+      success: 'text-success-700 dark:text-success-300',
+      error: 'text-danger-700 dark:text-danger-300',
+      warning: 'text-warning-700 dark:text-warning-300',
+      info: 'text-primary-700 dark:text-primary-300'
+    };
+    return classes[type] || classes['info'];
   }
 
   dismiss(id: number): void {

@@ -7,12 +7,14 @@ import { gpsReducer } from './gps/gps.reducer';
 import { historyReducer } from './history/history.reducer';
 import { cacheReducer } from './cache';
 import { notificationsReducer } from './notifications/notifications.reducer';
+import { tripsReducer } from './trips/trips.reducer';
 import { AuthState } from './auth/auth.state';
 import { TrucksState } from './trucks/trucks.state';
 import { GpsState } from './gps/gps.state';
 import { HistoryState } from './history/history.state';
 import { EntityCacheState } from './cache';
 import { NotificationsState } from './notifications/notifications.state';
+import { TripsState } from './trips/trips.state';
 
 /**
  * Root application state
@@ -24,6 +26,7 @@ export interface AppState {
   history: HistoryState;
   cache: EntityCacheState;
   notifications: NotificationsState;
+  trips: TripsState;
 }
 
 /**
@@ -35,7 +38,8 @@ export const rootReducers: ActionReducerMap<AppState> = {
   gps: gpsReducer,
   history: historyReducer,
   cache: cacheReducer,
-  notifications: notificationsReducer
+  notifications: notificationsReducer,
+  trips: tripsReducer
 };
 
 /**

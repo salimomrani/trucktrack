@@ -1,20 +1,22 @@
-import { Component, OnInit, OnDestroy, inject, signal, DestroyRef, ChangeDetectionStrategy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, DestroyRef, ChangeDetectionStrategy, HostListener, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { interval, Subscription } from 'rxjs';
 import { DataTableComponent, ColumnDef, PageInfo } from '../../shared/data-table/data-table.component';
-import { TripService } from '../trip.service';
 import { TripResponse, TripStatus, TRIP_STATUSES, TRIP_STATUS_COLORS } from '../trip.model';
 import { ConfirmDialogService } from '../../shared/confirm-dialog/confirm-dialog.service';
 import { BreadcrumbComponent } from '../../shared/breadcrumb/breadcrumb.component';
 import { ToastService } from '../../../shared/components/toast/toast.service';
+import { StoreFacade } from '../../../store/store.facade';
 
 /**
  * Trip list component with search, filter, pagination, and auto-refresh.
  * T045-T048: Create TripListComponent with filters and auto-refresh
  * Feature: 010-trip-management (US4: Dashboard Monitoring)
+ *
+ * Refactored to use NgRx store for state management via StoreFacade.
  */
 @Component({
   selector: 'app-trip-list',
@@ -31,7 +33,7 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
 })
 export class TripListComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
-  private readonly tripService = inject(TripService);
+  private readonly facade = inject(StoreFacade);
   private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
@@ -52,21 +54,32 @@ export class TripListComponent implements OnInit, OnDestroy {
     this.openDropdownId.update(current => current === tripId ? null : tripId);
   }
 
-  // State
-  trips = signal<TripResponse[]>([]);
-  totalElements = signal(0);
-  loading = signal(false);
-  stats = signal<{ [key: string]: number }>({});
+  // State from store (using view model selector)
+  readonly viewModel = this.facade.tripsListViewModel;
 
-  // Filters
+  // Derived signals from view model
+  readonly trips = computed(() => this.viewModel()?.trips ?? []);
+  readonly totalElements = computed(() => this.viewModel()?.pagination?.totalElements ?? 0);
+  readonly loading = computed(() => this.viewModel()?.loading ?? false);
+  readonly stats = computed(() => this.viewModel()?.stats ?? {});
+  readonly pageIndex = computed(() => this.viewModel()?.pagination?.page ?? 0);
+  readonly pageSize = computed(() => this.viewModel()?.pagination?.size ?? 25);
+  readonly hasFilters = computed(() => {
+    const filters = this.viewModel()?.filters;
+    if (!filters) return false;
+    return filters.status !== null ||
+      (filters.search !== null && filters.search !== '') ||
+      filters.driverId !== null ||
+      filters.truckId !== null ||
+      filters.startDate !== null ||
+      filters.endDate !== null;
+  });
+
+  // Local filter state (for form binding - synced to store on change)
   searchTerm = '';
   selectedStatus: TripStatus | null = null;
   startDate: Date | null = null;
   endDate: Date | null = null;
-
-  // Pagination
-  pageIndex = 0;
-  pageSize = 25;
 
   // Auto-refresh
   autoRefreshEnabled = true;
@@ -87,8 +100,18 @@ export class TripListComponent implements OnInit, OnDestroy {
   statuses = TRIP_STATUSES;
 
   ngOnInit() {
-    this.loadTrips();
-    this.loadStats();
+    // Initialize local filter state from store
+    const vm = this.viewModel();
+    if (vm?.filters) {
+      this.searchTerm = vm.filters.search || '';
+      this.selectedStatus = vm.filters.status;
+      this.startDate = vm.filters.startDate ? new Date(vm.filters.startDate) : null;
+      this.endDate = vm.filters.endDate ? new Date(vm.filters.endDate) : null;
+    }
+
+    // Load initial data
+    this.facade.loadTrips({ page: 0, size: 25 });
+    this.facade.loadTripStats();
     this.startAutoRefresh();
   }
 
@@ -96,66 +119,30 @@ export class TripListComponent implements OnInit, OnDestroy {
     this.stopAutoRefresh();
   }
 
+  /**
+   * Refresh trips list (used by refresh button)
+   */
   loadTrips() {
-    this.loading.set(true);
-    this.tripService.getTrips(
-      this.pageIndex,
-      this.pageSize,
-      this.searchTerm || undefined,
-      this.selectedStatus || undefined,
-      undefined, // driverId
-      undefined, // truckId
-      this.startDate?.toISOString(),
-      this.endDate?.toISOString()
-    ).subscribe({
-      next: (response) => {
-        this.trips.set(response.content);
-        this.totalElements.set(response.totalElements);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        console.error('Failed to load trips:', err);
-        this.toast.error('Failed to load trips');
-        this.loading.set(false);
-      }
-    });
-  }
-
-  loadStats() {
-    this.tripService.getTripStats().subscribe({
-      next: (stats) => {
-        this.stats.set(stats);
-      },
-      error: (err) => {
-        console.error('Failed to load stats:', err);
-      }
-    });
+    this.facade.loadTrips({});
+    this.facade.loadTripStats();
   }
 
   onSearch() {
-    this.pageIndex = 0;
-    this.loadTrips();
+    this.facade.setTripsSearchQuery(this.searchTerm);
   }
 
   onFilterChange() {
-    this.pageIndex = 0;
-    this.loadTrips();
+    // Status filter changed via dropdown
+    this.facade.setTripsStatusFilter(this.selectedStatus);
   }
 
   onStatusChipClick(status: TripStatus | null) {
     this.selectedStatus = this.selectedStatus === status ? null : status;
-    this.pageIndex = 0;
-    this.loadTrips();
+    this.facade.setTripsStatusFilter(this.selectedStatus);
   }
 
   onPageChange(pageInfo: PageInfo) {
-    this.pageIndex = pageInfo.page;
-    this.pageSize = pageInfo.size;
-    this.loadTrips();
-  }
-
-  hasFilters(): boolean {
-    return !!this.searchTerm || !!this.selectedStatus || !!this.startDate || !!this.endDate;
+    this.facade.loadTrips({ page: pageInfo.page, size: pageInfo.size });
   }
 
   clearFilters() {
@@ -163,13 +150,14 @@ export class TripListComponent implements OnInit, OnDestroy {
     this.selectedStatus = null;
     this.startDate = null;
     this.endDate = null;
-    this.pageIndex = 0;
-    this.loadTrips();
+    this.facade.clearTripsFilters();
   }
 
   onDateRangeChange() {
-    this.pageIndex = 0;
-    this.loadTrips();
+    this.facade.setTripsDateFilter(
+      this.startDate?.toISOString() ?? null,
+      this.endDate?.toISOString() ?? null
+    );
   }
 
   onStartDateChange(dateStr: string) {
@@ -213,8 +201,9 @@ export class TripListComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         if (this.autoRefreshEnabled) {
-          this.loadTrips();
-          this.loadStats();
+          // Reload with current filters (store holds the state)
+          this.facade.loadTrips({});
+          this.facade.loadTripStats();
         }
       });
   }
@@ -234,21 +223,7 @@ export class TripListComponent implements OnInit, OnDestroy {
       confirmColor: 'warn'
     }).subscribe(confirmed => {
       if (confirmed) {
-        this.cancelTrip(trip);
-      }
-    });
-  }
-
-  private cancelTrip(trip: TripResponse) {
-    this.tripService.cancelTrip(trip.id).subscribe({
-      next: () => {
-        this.toast.success('Trip cancelled');
-        this.loadTrips();
-        this.loadStats();
-      },
-      error: (err) => {
-        console.error('Failed to cancel trip:', err);
-        this.toast.error(err.error?.message || 'Failed to cancel trip');
+        this.facade.cancelTrip(trip.id);
       }
     });
   }

@@ -10,15 +10,18 @@ import * as GpsSelectors from './gps/gps.selectors';
 import * as HistorySelectors from './history/history.selectors';
 import * as CacheSelectors from './cache/cache.selectors';
 import * as NotificationsSelectors from './notifications/notifications.selectors';
+import * as TripsSelectors from './trips/trips.selectors';
 import * as AuthActions from './auth/auth.actions';
 import * as TrucksActions from './trucks/trucks.actions';
 import * as GpsActions from './gps/gps.actions';
 import * as HistoryActions from './history/history.actions';
 import * as CacheActions from './cache/cache.actions';
 import * as NotificationsActions from './notifications/notifications.actions';
+import * as TripsActions from './trips/trips.actions';
 import { LoginRequest } from '../core/models/auth.model';
 import { GPSPositionEvent } from '../models/gps-position.model';
 import { TruckStatus } from '../models/truck.model';
+import { TripStatus, CreateTripRequest, UpdateTripRequest, AssignTripRequest } from '../admin/trips/trip.model';
 
 /**
  * Store Facade with Signals Integration
@@ -442,5 +445,245 @@ export class StoreFacade {
    */
   resetPagination() {
     this.store.dispatch(NotificationsActions.resetPagination());
+  }
+
+  // ============================================
+  // Trips Signals
+  // ============================================
+
+  // Entity Signals
+  readonly trips = toSignal(this.store.select(TripsSelectors.selectAllTrips), {
+    initialValue: []
+  });
+  readonly selectedTrip = toSignal(this.store.select(TripsSelectors.selectSelectedTrip));
+  readonly tripEntities = toSignal(this.store.select(TripsSelectors.selectTripEntities));
+
+  // Loading Signals
+  readonly tripsLoading = toSignal(this.store.select(TripsSelectors.selectTripsLoading), {
+    initialValue: false
+  });
+  readonly tripLoading = toSignal(this.store.select(TripsSelectors.selectTripLoading), {
+    initialValue: false
+  });
+  readonly tripsSaving = toSignal(this.store.select(TripsSelectors.selectTripsSaving), {
+    initialValue: false
+  });
+  readonly tripsError = toSignal(this.store.select(TripsSelectors.selectTripsError));
+
+  // Pagination Signals
+  readonly tripsCurrentPage = toSignal(this.store.select(TripsSelectors.selectCurrentPage), {
+    initialValue: 0
+  });
+  readonly tripsPageSize = toSignal(this.store.select(TripsSelectors.selectPageSize), {
+    initialValue: 10
+  });
+  readonly tripsTotalElements = toSignal(this.store.select(TripsSelectors.selectTotalElements), {
+    initialValue: 0
+  });
+  readonly tripsTotalPages = toSignal(this.store.select(TripsSelectors.selectTotalPages), {
+    initialValue: 0
+  });
+  readonly tripsPagination = toSignal(this.store.select(TripsSelectors.selectPagination));
+
+  // Filter Signals
+  readonly tripsStatusFilter = toSignal(this.store.select(TripsSelectors.selectStatusFilter));
+  readonly tripsSearchQuery = toSignal(this.store.select(TripsSelectors.selectSearchQuery));
+  readonly tripsDriverIdFilter = toSignal(this.store.select(TripsSelectors.selectDriverIdFilter));
+  readonly tripsTruckIdFilter = toSignal(this.store.select(TripsSelectors.selectTruckIdFilter));
+  readonly tripsStartDateFilter = toSignal(this.store.select(TripsSelectors.selectStartDateFilter));
+  readonly tripsEndDateFilter = toSignal(this.store.select(TripsSelectors.selectEndDateFilter));
+  readonly tripsHasActiveFilters = toSignal(this.store.select(TripsSelectors.selectHasActiveFilters), {
+    initialValue: false
+  });
+
+  // Status-based Signals
+  readonly pendingTrips = toSignal(this.store.select(TripsSelectors.selectPendingTrips), {
+    initialValue: []
+  });
+  readonly assignedTrips = toSignal(this.store.select(TripsSelectors.selectAssignedTrips), {
+    initialValue: []
+  });
+  readonly inProgressTrips = toSignal(this.store.select(TripsSelectors.selectInProgressTrips), {
+    initialValue: []
+  });
+  readonly completedTrips = toSignal(this.store.select(TripsSelectors.selectCompletedTrips), {
+    initialValue: []
+  });
+  readonly cancelledTrips = toSignal(this.store.select(TripsSelectors.selectCancelledTrips), {
+    initialValue: []
+  });
+  readonly activeTrips = toSignal(this.store.select(TripsSelectors.selectActiveTrips), {
+    initialValue: []
+  });
+
+  // Stats & Analytics Signals
+  readonly tripStats = toSignal(this.store.select(TripsSelectors.selectStats));
+  readonly tripAnalytics = toSignal(this.store.select(TripsSelectors.selectAnalytics));
+  readonly tripHistory = toSignal(this.store.select(TripsSelectors.selectTripHistory), {
+    initialValue: []
+  });
+  readonly tripCompletionRate = toSignal(this.store.select(TripsSelectors.selectCompletionRate), {
+    initialValue: 0
+  });
+  readonly tripsToday = toSignal(this.store.select(TripsSelectors.selectTripsToday), {
+    initialValue: 0
+  });
+
+  // View Model Signals (for components)
+  readonly tripsListViewModel = toSignal(this.store.select(TripsSelectors.selectTripsListViewModel));
+  readonly tripDetailViewModel = toSignal(this.store.select(TripsSelectors.selectTripDetailViewModel));
+  readonly tripStatsViewModel = toSignal(this.store.select(TripsSelectors.selectTripStatsViewModel));
+
+  // ============================================
+  // Trips Actions
+  // ============================================
+
+  /**
+   * Load trips with optional filters
+   */
+  loadTrips(params?: {
+    page?: number;
+    size?: number;
+    status?: TripStatus | null;
+    search?: string;
+    driverId?: string | null;
+    truckId?: string | null;
+    startDate?: string | null;
+    endDate?: string | null;
+  }) {
+    this.store.dispatch(TripsActions.loadTrips(params || {}));
+  }
+
+  /**
+   * Load single trip by ID
+   */
+  loadTrip(id: string) {
+    this.store.dispatch(TripsActions.loadTrip({ id }));
+  }
+
+  /**
+   * Create a new trip
+   */
+  createTrip(request: CreateTripRequest) {
+    this.store.dispatch(TripsActions.createTrip({ request }));
+  }
+
+  /**
+   * Update an existing trip
+   */
+  updateTrip(id: string, request: UpdateTripRequest) {
+    this.store.dispatch(TripsActions.updateTrip({ id, request }));
+  }
+
+  /**
+   * Assign a trip to a truck/driver
+   */
+  assignTrip(id: string, request: AssignTripRequest) {
+    this.store.dispatch(TripsActions.assignTrip({ id, request }));
+  }
+
+  /**
+   * Reassign a trip to a different truck/driver
+   */
+  reassignTrip(id: string, request: AssignTripRequest) {
+    this.store.dispatch(TripsActions.reassignTrip({ id, request }));
+  }
+
+  /**
+   * Cancel a trip
+   */
+  cancelTrip(id: string, reason?: string) {
+    this.store.dispatch(TripsActions.cancelTrip({ id, reason }));
+  }
+
+  /**
+   * Load trip status history
+   */
+  loadTripHistory(tripId: string) {
+    this.store.dispatch(TripsActions.loadTripHistory({ tripId }));
+  }
+
+  /**
+   * Load trip analytics
+   */
+  loadTripAnalytics() {
+    this.store.dispatch(TripsActions.loadAnalytics());
+  }
+
+  /**
+   * Load trip stats (counts by status)
+   */
+  loadTripStats() {
+    this.store.dispatch(TripsActions.loadStats());
+  }
+
+  /**
+   * Select a trip
+   */
+  selectTrip(tripId: string) {
+    this.store.dispatch(TripsActions.selectTrip({ tripId }));
+  }
+
+  /**
+   * Clear trip selection
+   */
+  clearTripSelection() {
+    this.store.dispatch(TripsActions.clearSelection());
+  }
+
+  /**
+   * Set status filter
+   */
+  setTripsStatusFilter(status: TripStatus | null) {
+    this.store.dispatch(TripsActions.setStatusFilter({ status }));
+  }
+
+  /**
+   * Set search query
+   */
+  setTripsSearchQuery(query: string) {
+    this.store.dispatch(TripsActions.setSearchQuery({ query }));
+  }
+
+  /**
+   * Set driver filter
+   */
+  setTripsDriverFilter(driverId: string | null) {
+    this.store.dispatch(TripsActions.setDriverFilter({ driverId }));
+  }
+
+  /**
+   * Set truck filter
+   */
+  setTripsTruckFilter(truckId: string | null) {
+    this.store.dispatch(TripsActions.setTruckFilter({ truckId }));
+  }
+
+  /**
+   * Set date filter
+   */
+  setTripsDateFilter(startDate: string | null, endDate: string | null) {
+    this.store.dispatch(TripsActions.setDateFilter({ startDate, endDate }));
+  }
+
+  /**
+   * Clear all filters
+   */
+  clearTripsFilters() {
+    this.store.dispatch(TripsActions.clearFilters());
+  }
+
+  /**
+   * Get trip by ID using parameterized selector
+   */
+  getTripById(tripId: string) {
+    return toSignal(this.store.select(TripsSelectors.selectTripById(tripId)));
+  }
+
+  /**
+   * Get trips by status using parameterized selector
+   */
+  getTripsByStatus(status: TripStatus) {
+    return toSignal(this.store.select(TripsSelectors.selectTripsByStatus(status)));
   }
 }
