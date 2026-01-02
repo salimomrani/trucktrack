@@ -15,6 +15,7 @@ import { TrucksEffects } from './store/trucks/trucks.effects';
 import { HistoryEffects } from './store/history/history.effects';
 import { CacheEffects } from './store/cache/cache.effects';
 import { NotificationsEffects } from './store/notifications/notifications.effects';
+import { TripsEffects } from './store/trips/trips.effects';
 import * as AuthActions from './store/auth/auth.actions';
 
 /**
@@ -49,7 +50,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     provideHttpClient(withInterceptors([authInterceptor])),
     provideStore(rootReducers, { metaReducers }),
-    provideEffects([AuthEffects, TrucksEffects, HistoryEffects, CacheEffects, NotificationsEffects]),
+    provideEffects([AuthEffects, TrucksEffects, HistoryEffects, CacheEffects, NotificationsEffects, TripsEffects]),
     provideStoreDevtools({
       maxAge: 25,
       logOnly: !isDevMode(),

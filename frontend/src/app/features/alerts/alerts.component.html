@@ -1,10 +1,10 @@
 <div class="p-6">
   <!-- Alert Rules Management Section (T162) -->
-  <div class="bg-white rounded-lg shadow-card mb-6">
-    <div class="flex items-center justify-between p-4 border-b border-gray-100">
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card mb-6">
+    <div class="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700">
       <div class="flex items-center gap-2">
-        <span class="material-icons text-gray-600">rule</span>
-        <h2 class="text-lg font-semibold text-gray-800">Alert Rules</h2>
+        <span class="material-icons text-gray-600 dark:text-gray-300">rule</span>
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Alert Rules</h2>
       </div>
       <button
         type="button"
@@ -20,20 +20,20 @@
     <div class="p-4">
       <!-- Alert Rule Form -->
       @if (showRuleForm()) {
-        <div class="mb-6 p-4 bg-gray-50 rounded-lg" id="alert-rule-form" role="region" aria-label="Create new alert rule form">
+        <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg" id="alert-rule-form" role="region" aria-label="Create new alert rule form">
           <form [formGroup]="alertRuleForm" (ngSubmit)="createAlertRule()" aria-label="Alert rule configuration">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <!-- Rule Name -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Rule Name *</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Rule Name *</label>
                 <input
                   type="text"
                   formControlName="name"
-                  class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   placeholder="e.g., Speed Alert"
                   aria-required="true"
                   aria-describedby="name-hint">
-                <p id="name-hint" class="mt-1 text-xs text-gray-500">Enter a descriptive name for this alert rule</p>
+                <p id="name-hint" class="mt-1 text-xs text-gray-500 dark:text-gray-400">Enter a descriptive name for this alert rule</p>
                 @if (alertRuleForm.get('name')?.hasError('required') && alertRuleForm.get('name')?.touched) {
                   <p class="mt-1 text-xs text-danger-500">Name is required</p>
                 }
@@ -44,61 +44,61 @@
 
               <!-- Rule Type -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Rule Type *</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Rule Type *</label>
                 <select
                   formControlName="ruleType"
-                  class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   aria-required="true"
                   aria-describedby="type-hint">
                   @for (type of ruleTypes; track type.value) {
                     <option [value]="type.value">{{ type.label }}</option>
                   }
                 </select>
-                <p id="type-hint" class="mt-1 text-xs text-gray-500">Select the type of condition to monitor</p>
+                <p id="type-hint" class="mt-1 text-xs text-gray-500 dark:text-gray-400">Select the type of condition to monitor</p>
               </div>
             </div>
 
             <!-- Description -->
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Description (optional)</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Description (optional)</label>
               <textarea
                 formControlName="description"
                 rows="2"
-                class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 placeholder="Describe this alert rule"
                 aria-describedby="desc-hint"></textarea>
-              <p id="desc-hint" class="mt-1 text-xs text-gray-500">Optional description to explain this rule's purpose</p>
+              <p id="desc-hint" class="mt-1 text-xs text-gray-500 dark:text-gray-400">Optional description to explain this rule's purpose</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <!-- Threshold Value -->
               @if (requiresThreshold(alertRuleForm.get('ruleType')?.value)) {
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">{{ getThresholdLabel(alertRuleForm.get('ruleType')?.value) }}</label>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{{ getThresholdLabel(alertRuleForm.get('ruleType')?.value) }}</label>
                   <input
                     type="number"
                     formControlName="thresholdValue"
                     min="0"
-                    class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                     aria-describedby="threshold-hint">
-                  <p id="threshold-hint" class="mt-1 text-xs text-gray-500">Set the threshold value to trigger the alert</p>
+                  <p id="threshold-hint" class="mt-1 text-xs text-gray-500 dark:text-gray-400">Set the threshold value to trigger the alert</p>
                 </div>
               }
 
               <!-- Geofence Selection -->
               @if (requiresGeofence(alertRuleForm.get('ruleType')?.value)) {
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Select Geofence</label>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Select Geofence</label>
                   <select
                     formControlName="geofenceId"
-                    class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                     aria-describedby="geofence-hint">
                     <option value="">Select a geofence</option>
                     @for (geofence of geofences(); track geofence.id) {
                       <option [value]="geofence.id">{{ geofence.name }}</option>
                     }
                   </select>
-                  <p id="geofence-hint" class="mt-1 text-xs text-gray-500">Select an existing geofence to monitor</p>
+                  <p id="geofence-hint" class="mt-1 text-xs text-gray-500 dark:text-gray-400">Select an existing geofence to monitor</p>
                 </div>
               }
 
@@ -109,8 +109,8 @@
                     type="checkbox"
                     formControlName="isEnabled"
                     class="sr-only peer">
-                  <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600 relative"></div>
-                  <span class="ml-3 text-sm font-medium text-gray-700">Enabled</span>
+                  <div class="w-11 h-6 bg-gray-200 dark:bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 dark:after:border-gray-500 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600 relative"></div>
+                  <span class="ml-3 text-sm font-medium text-gray-700 dark:text-gray-200">Enabled</span>
                 </label>
               </div>
             </div>
@@ -118,7 +118,7 @@
             <div class="flex justify-end gap-3" role="group" aria-label="Form actions">
               <button
                 type="button"
-                class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                class="px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors"
                 (click)="toggleRuleForm()"
                 aria-label="Cancel creating alert rule">
                 Cancel
@@ -139,7 +139,7 @@
             </div>
           </form>
         </div>
-        <hr class="border-gray-200 mb-4">
+        <hr class="border-gray-200 dark:border-gray-700 mb-4">
       }
 
       <!-- Existing Alert Rules List -->
@@ -159,20 +159,23 @@
             <div
               class="flex items-center gap-4 p-4 rounded-lg border transition-colors"
               [class.bg-gray-50]="!rule.isEnabled"
+              [class.dark:bg-gray-700]="!rule.isEnabled"
               [class.border-gray-200]="rule.isEnabled"
+              [class.dark:border-gray-600]="rule.isEnabled"
               [class.border-gray-100]="!rule.isEnabled"
+              [class.dark:border-gray-700]="!rule.isEnabled"
               [class.opacity-60]="!rule.isEnabled"
               role="listitem"
               [attr.aria-label]="rule.name + ' - ' + rule.ruleType + (rule.isEnabled ? ' (enabled)' : ' (disabled)')">
-              <div class="flex items-center justify-center w-10 h-10 rounded-full bg-primary-50" aria-hidden="true">
-                <span class="material-icons text-primary-600">{{ getRuleTypeIcon(rule.ruleType) }}</span>
+              <div class="flex items-center justify-center w-10 h-10 rounded-full bg-primary-50 dark:bg-primary-900/30" aria-hidden="true">
+                <span class="material-icons text-primary-600 dark:text-primary-400">{{ getRuleTypeIcon(rule.ruleType) }}</span>
               </div>
               <div class="flex-1 min-w-0">
-                <div class="font-medium text-gray-800">{{ rule.name }}</div>
+                <div class="font-medium text-gray-800 dark:text-gray-100">{{ rule.name }}</div>
                 <div class="flex items-center gap-2 mt-1">
-                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">{{ rule.ruleType }}</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">{{ rule.ruleType }}</span>
                   @if (rule.thresholdValue) {
-                    <span class="text-xs text-gray-500">Threshold: {{ rule.thresholdValue }}</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">Threshold: {{ rule.thresholdValue }}</span>
                   }
                 </div>
               </div>
@@ -184,11 +187,11 @@
                     (change)="toggleRuleEnabled(rule)"
                     class="sr-only peer"
                     [attr.aria-label]="(rule.isEnabled ? 'Disable' : 'Enable') + ' rule ' + rule.name">
-                  <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-600 relative"></div>
+                  <div class="w-9 h-5 bg-gray-200 dark:bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 dark:after:border-gray-500 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-600 relative"></div>
                 </label>
                 <button
                   type="button"
-                  class="p-2 text-danger-500 hover:bg-danger-50 rounded-full transition-colors"
+                  class="p-2 text-danger-500 dark:text-danger-400 hover:bg-danger-50 dark:hover:bg-danger-900/30 rounded-full transition-colors"
                   (click)="deleteAlertRule(rule)"
                   [attr.aria-label]="'Delete rule ' + rule.name">
                   <span class="material-icons">delete</span>
@@ -323,7 +326,7 @@
       <div class="flex items-center gap-3">
         <button
           type="button"
-          class="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors text-sm"
+          class="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm"
           (click)="toggleShowRead()">
           <span class="material-icons text-base">{{ showRead() ? 'visibility_off' : 'visibility' }}</span>
           {{ showRead() ? 'Hide' : 'Show' }} Read
@@ -342,10 +345,10 @@
 
   <!-- Notifications List Header with Count -->
   <div class="flex items-center gap-2 mb-4">
-    <span class="material-icons text-gray-600">notifications</span>
-    <h3 class="text-lg font-semibold text-gray-800">Recent Notifications</h3>
+    <span class="material-icons text-gray-600 dark:text-gray-300">notifications</span>
+    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Recent Notifications</h3>
     @if (totalNotifications() > 0) {
-      <span class="text-sm text-gray-500">({{ filteredNotifications().length }} of {{ totalNotifications() }})</span>
+      <span class="text-sm text-gray-500 dark:text-gray-400">({{ filteredNotifications().length }} of {{ totalNotifications() }})</span>
     }
   </div>
 
@@ -354,7 +357,7 @@
     @if (isLoading()) {
       <div class="flex flex-col items-center justify-center py-12" role="status" aria-live="polite">
         <div class="w-8 h-8 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mb-3" aria-label="Loading notifications"></div>
-        <p class="text-gray-500">Loading notifications...</p>
+        <p class="text-gray-500 dark:text-gray-400">Loading notifications...</p>
       </div>
     } @else if (filteredNotifications().length === 0) {
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card" role="status" aria-live="polite">
@@ -366,11 +369,12 @@
     } @else {
       @for (notification of filteredNotifications(); track notification.id; let i = $index) {
         <div
-          class="bg-white rounded-lg shadow-card p-4 border-l-4 transition-colors"
+          class="bg-white dark:bg-gray-800 rounded-lg shadow-card p-4 border-l-4 transition-colors"
           [class.border-danger-500]="notification.severity === 'CRITICAL'"
           [class.border-warning-500]="notification.severity === 'WARNING'"
           [class.border-primary-500]="notification.severity === 'INFO'"
           [class.bg-gray-50]="notification.isRead"
+          [class.dark:bg-gray-700]="notification.isRead"
           role="listitem"
           tabindex="0"
           [attr.aria-label]="getNotificationAriaLabel(notification)"
@@ -380,14 +384,20 @@
             <div
               class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full"
               [class.bg-danger-100]="notification.severity === 'CRITICAL'"
+              [class.dark:bg-danger-900/30]="notification.severity === 'CRITICAL'"
               [class.bg-warning-100]="notification.severity === 'WARNING'"
+              [class.dark:bg-warning-900/30]="notification.severity === 'WARNING'"
               [class.bg-primary-100]="notification.severity === 'INFO'"
+              [class.dark:bg-primary-900/30]="notification.severity === 'INFO'"
               aria-hidden="true">
               <span
                 class="material-icons"
                 [class.text-danger-600]="notification.severity === 'CRITICAL'"
+                [class.dark:text-danger-400]="notification.severity === 'CRITICAL'"
                 [class.text-warning-600]="notification.severity === 'WARNING'"
-                [class.text-primary-600]="notification.severity === 'INFO'">
+                [class.dark:text-warning-400]="notification.severity === 'WARNING'"
+                [class.text-primary-600]="notification.severity === 'INFO'"
+                [class.dark:text-primary-400]="notification.severity === 'INFO'">
                 {{ getSeverityIcon(notification.severity) }}
               </span>
             </div>
@@ -396,30 +406,36 @@
             <div class="flex-1 min-w-0">
               <div class="flex items-start justify-between gap-2">
                 <div class="flex items-center gap-2">
-                  <span class="material-icons text-gray-400 text-base" aria-hidden="true">{{ getTypeIcon(notification.notificationType) }}</span>
-                  <strong class="text-gray-800">{{ notification.title }}</strong>
+                  <span class="material-icons text-gray-400 dark:text-gray-500 text-base" aria-hidden="true">{{ getTypeIcon(notification.notificationType) }}</span>
+                  <strong class="text-gray-800 dark:text-gray-100">{{ notification.title }}</strong>
                   @if (!notification.isRead) {
-                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-100 text-primary-700" aria-label="Unread notification">New</span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300" aria-label="Unread notification">New</span>
                   }
                 </div>
-                <span class="text-xs text-gray-400 whitespace-nowrap">{{ formatDate(notification.triggeredAt) }}</span>
+                <span class="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">{{ formatDate(notification.triggeredAt) }}</span>
               </div>
 
-              <p class="text-sm text-gray-600 mt-1">{{ notification.message }}</p>
+              <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">{{ notification.message }}</p>
 
               <div class="flex items-center gap-2 mt-2">
-                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">{{ notification.truckId }}</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">{{ notification.truckId }}</span>
                 <span
                   class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
                   [class.bg-danger-100]="notification.severity === 'CRITICAL'"
+                  [class.dark:bg-danger-900/40]="notification.severity === 'CRITICAL'"
                   [class.text-danger-700]="notification.severity === 'CRITICAL'"
+                  [class.dark:text-danger-300]="notification.severity === 'CRITICAL'"
                   [class.bg-warning-100]="notification.severity === 'WARNING'"
+                  [class.dark:bg-warning-900/40]="notification.severity === 'WARNING'"
                   [class.text-warning-700]="notification.severity === 'WARNING'"
+                  [class.dark:text-warning-300]="notification.severity === 'WARNING'"
                   [class.bg-primary-100]="notification.severity === 'INFO'"
-                  [class.text-primary-700]="notification.severity === 'INFO'">
+                  [class.dark:bg-primary-900/40]="notification.severity === 'INFO'"
+                  [class.text-primary-700]="notification.severity === 'INFO'"
+                  [class.dark:text-primary-300]="notification.severity === 'INFO'">
                   {{ notification.severity }}
                 </span>
-                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">{{ notification.notificationType }}</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">{{ notification.notificationType }}</span>
               </div>
             </div>
 
@@ -428,7 +444,7 @@
               @if (notification.latitude && notification.longitude) {
                 <button
                   type="button"
-                  class="p-2 text-primary-600 hover:bg-primary-50 rounded-full transition-colors"
+                  class="p-2 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-full transition-colors"
                   (click)="viewOnMap(notification)"
                   [attr.aria-label]="'View ' + notification.title + ' on map'">
                   <span class="material-icons">map</span>
@@ -437,7 +453,7 @@
               @if (!notification.isRead) {
                 <button
                   type="button"
-                  class="p-2 text-gray-500 hover:bg-gray-100 rounded-full transition-colors"
+                  class="p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
                   (click)="markAsRead(notification)"
                   [attr.aria-label]="'Mark ' + notification.title + ' as read'">
                   <span class="material-icons">mark_email_read</span>
@@ -453,18 +469,18 @@
         @if (isLoadingMore()) {
           <div class="flex items-center justify-center gap-3" role="status" aria-live="polite">
             <div class="w-6 h-6 border-3 border-primary-600 border-t-transparent rounded-full animate-spin" aria-label="Loading more notifications"></div>
-            <span class="text-gray-500">Loading more notifications...</span>
+            <span class="text-gray-500 dark:text-gray-400">Loading more notifications...</span>
           </div>
         } @else if (hasMorePages()) {
           <button
             type="button"
-            class="w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+            class="w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             (click)="loadMoreNotifications()">
             <span class="material-icons">expand_more</span>
             Load More
           </button>
         } @else if (filteredNotifications().length > 0) {
-          <div class="flex items-center justify-center gap-2 text-gray-400">
+          <div class="flex items-center justify-center gap-2 text-gray-400 dark:text-gray-500">
             <span class="material-icons">check_circle</span>
             <span>You've reached the end</span>
           </div>

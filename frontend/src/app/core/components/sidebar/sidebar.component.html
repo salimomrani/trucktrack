@@ -1,29 +1,29 @@
-<aside class="sidebar">
+<aside class="w-64 flex flex-col h-full bg-white dark:bg-gray-900 text-gray-800 dark:text-white">
   <!-- Logo -->
-  <div class="sidebar-logo">
-    <a routerLink="/map" class="logo-link" (click)="onNavClick()">
-      <span class="material-icons logo-icon">local_shipping</span>
-      <span class="logo-text"><span class="text-primary-400">Truck</span>Track</span>
+  <div class="p-6 border-b border-gray-200 dark:border-gray-800">
+    <a routerLink="/map" class="flex items-center gap-3 text-gray-800 dark:text-white no-underline" (click)="onNavClick()">
+      <span class="material-icons text-3xl text-primary-500 dark:text-primary-400">local_shipping</span>
+      <span class="text-2xl font-bold tracking-tight"><span class="text-primary-500 dark:text-primary-400">Truck</span>Track</span>
     </a>
   </div>
 
   <!-- Navigation -->
-  <nav class="sidebar-nav">
+  <nav class="flex-1 p-4 space-y-6 overflow-y-auto sidebar-nav">
     @for (category of navCategories(); track category.category) {
-      <div class="nav-category">
-        <h3 class="category-title">{{ category.label }}</h3>
-        <div class="nav-items">
+      <div class="space-y-2">
+        <h3 class="px-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ category.label }}</h3>
+        <div class="space-y-1">
           @for (item of category.items; track item.route) {
             <a
               [routerLink]="item.route"
-              routerLinkActive="active"
+              routerLinkActive="active-link"
               [routerLinkActiveOptions]="{exact: item.route === '/map'}"
-              class="nav-item"
+              class="flex items-center gap-3 px-3 py-2.5 rounded-lg no-underline transition-colors text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
               (click)="onNavClick()">
-              <span class="material-icons nav-icon">{{ item.icon }}</span>
-              <span class="nav-label">{{ item.label }}</span>
+              <span class="material-icons text-xl">{{ item.icon }}</span>
+              <span class="flex-1">{{ item.label }}</span>
               @if (isAlertsRoute(item) && unreadCount() > 0) {
-                <span class="nav-badge">{{ formatBadge(unreadCount()) }}</span>
+                <span class="ml-auto px-2 py-0.5 text-xs font-bold rounded-full bg-danger-500 text-white">{{ formatBadge(unreadCount()) }}</span>
               }
             </a>
           }
@@ -33,16 +33,16 @@
   </nav>
 
   <!-- User section -->
-  <div class="sidebar-user">
-    <div class="user-info">
-      <div class="user-avatar">{{ getInitials() }}</div>
-      <div class="user-details">
-        <p class="user-name">{{ getUserDisplayName() }}</p>
-        <p class="user-email">{{ currentUser()?.email }}</p>
+  <div class="p-4 border-t border-gray-200 dark:border-gray-800">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center font-medium text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white">{{ getInitials() }}</div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium truncate text-gray-800 dark:text-white">{{ getUserDisplayName() }}</p>
+        <p class="text-xs truncate text-gray-500 dark:text-gray-400">{{ currentUser()?.email }}</p>
       </div>
     </div>
-    <button type="button" class="logout-btn" (click)="logout()">
-      <span class="material-icons">logout</span>
+    <button type="button" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white" (click)="logout()">
+      <span class="material-icons text-xl">logout</span>
       <span>Deconnexion</span>
     </button>
   </div>

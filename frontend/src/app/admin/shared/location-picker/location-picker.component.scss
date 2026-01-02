@@ -5,6 +5,11 @@
   width: 100%;
 }
 
+// Map container height - explicit height needed for Leaflet
+.map-container {
+  height: 12rem; // 192px - equivalent to h-48
+}
+
 // Leaflet custom marker and popup styles
 :host ::ng-deep {
   .location-marker-container {
@@ -51,7 +56,7 @@
 
   .leaflet-container {
     width: 100%;
-    height: 100%;
     border-radius: 8px;
+    // Note: height is set via .map-container class (12rem)
   }
 }
