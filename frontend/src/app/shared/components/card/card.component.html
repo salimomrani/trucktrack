@@ -1,4 +1,9 @@
-<div [class]="cardClasses()">
+<div
+  class="card bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+  [class.shadow-card]="elevated()"
+  [class.transition-shadow]="hoverable()"
+  [class.hover:shadow-lg]="hoverable()"
+  [class.cursor-pointer]="hoverable()">
   <!-- Header (title/subtitle + optional header slot) -->
   @if (hasHeader()) {
     <div class="card-header flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700">
@@ -16,8 +21,14 @@
     </div>
   }
 
+  <!-- Custom header slot (without default title/subtitle) -->
+  <ng-content select="[customHeader]" />
+
   <!-- Main content -->
-  <div [class]="contentClasses()">
+  <div
+    [class.p-3]="padding() === 'sm'"
+    [class.p-4]="padding() === 'md'"
+    [class.p-6]="padding() === 'lg'">
     <ng-content />
   </div>
 
