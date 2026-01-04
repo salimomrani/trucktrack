@@ -3,7 +3,6 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { StoreFacade } from '../../store/store.facade';
-import { NotificationService } from '../../services/notification.service';
 import { AlertRuleService } from '../../services/alert-rule.service';
 import { GeofenceService } from '../../services/geofence.service';
 import { Notification, NotificationSeverity, NotificationType, NotificationStats } from '../../models/notification.model';
@@ -39,7 +38,6 @@ export class AlertsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('notificationList') notificationListRef!: ElementRef<HTMLElement>;
   private scrollObserver: IntersectionObserver | null = null;
   private readonly facade = inject(StoreFacade);
-  private readonly notificationService = inject(NotificationService);
   private readonly alertRuleService = inject(AlertRuleService);
   private readonly geofenceService = inject(GeofenceService);
   private readonly toast = inject(ToastService);
