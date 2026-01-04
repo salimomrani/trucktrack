@@ -1,18 +1,22 @@
 <div class="p-6">
   <!-- Alert Rules Management Section (T162) -->
-  <app-card title="Alert Rules" class="mb-6" [padding]="'none'">
-    <div header class="flex items-center gap-2">
-      <span class="material-icons text-gray-600 dark:text-gray-300">rule</span>
+  <app-card class="mb-6" [padding]="'none'">
+    <!-- Custom header with icon, title and button -->
+    <div class="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700">
+      <div class="flex items-center gap-2">
+        <span class="material-icons text-gray-600 dark:text-gray-300">rule</span>
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Alert Rules</h2>
+      </div>
+      <button
+        type="button"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
+        (click)="toggleRuleForm()"
+        [attr.aria-expanded]="showRuleForm()"
+        aria-controls="alert-rule-form">
+        <span class="material-icons">{{ showRuleForm() ? 'close' : 'add' }}</span>
+        {{ showRuleForm() ? 'Cancel' : 'New Rule' }}
+      </button>
     </div>
-    <button header
-      type="button"
-      class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
-      (click)="toggleRuleForm()"
-      [attr.aria-expanded]="showRuleForm()"
-      aria-controls="alert-rule-form">
-      <span class="material-icons">{{ showRuleForm() ? 'close' : 'add' }}</span>
-      {{ showRuleForm() ? 'Cancel' : 'New Rule' }}
-    </button>
 
     <div class="p-4">
       <!-- Alert Rule Form -->
