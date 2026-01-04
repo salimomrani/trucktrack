@@ -16,7 +16,8 @@ import {
   imports: [],
   templateUrl: './card.component.html',
   styleUrl: './card.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'block' }
 })
 export class CardComponent {
   /** Card title (optional) */
