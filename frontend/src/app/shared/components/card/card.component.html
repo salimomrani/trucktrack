@@ -1,0 +1,26 @@
+<div [class]="cardClasses()">
+  <!-- Header (title/subtitle + optional header slot) -->
+  @if (hasHeader()) {
+    <div class="card-header flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700">
+      <div class="flex-1 min-w-0">
+        @if (title()) {
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 truncate">{{ title() }}</h3>
+        }
+        @if (subtitle()) {
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5 truncate">{{ subtitle() }}</p>
+        }
+      </div>
+      <div class="flex-shrink-0 ml-4">
+        <ng-content select="[header]" />
+      </div>
+    </div>
+  }
+
+  <!-- Main content -->
+  <div [class]="contentClasses()">
+    <ng-content />
+  </div>
+
+  <!-- Actions slot (optional footer) -->
+  <ng-content select="[actions]" />
+</div>
