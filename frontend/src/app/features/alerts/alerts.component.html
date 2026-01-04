@@ -1,7 +1,6 @@
 <div class="p-6">
   <!-- Alert Rules Management Section (T162) -->
-  <app-card class="mb-6" [padding]="'none'">
-    <!-- Custom header with icon, title and button -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card mb-6">
     <div class="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700">
       <div class="flex items-center gap-2">
         <span class="material-icons text-gray-600 dark:text-gray-300">rule</span>
@@ -203,11 +202,11 @@
         }
       </div>
     </div>
-  </app-card>
+  </div>
 
   <!-- Stats Cards -->
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-    <app-card [padding]="'sm'">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card p-4">
       <div class="flex items-center gap-3">
         <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700">
           <span class="material-icons text-gray-600 dark:text-gray-300">notifications</span>
@@ -217,11 +216,11 @@
           <div class="text-xs text-gray-500 dark:text-gray-400">Total Alerts</div>
         </div>
       </div>
-    </app-card>
+    </div>
 
-    <app-card [padding]="'sm'" class="relative">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card p-4 relative">
       @if (stats().unread > 0) {
-        <span class="absolute -top-2 -right-2 flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-warning-500 rounded-full z-10">{{ stats().unread }}</span>
+        <span class="absolute -top-2 -right-2 flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-warning-500 rounded-full">{{ stats().unread }}</span>
       }
       <div class="flex items-center gap-3">
         <div class="flex items-center justify-center w-10 h-10 rounded-full bg-warning-50 dark:bg-warning-900/30">
@@ -232,9 +231,9 @@
           <div class="text-xs text-gray-500 dark:text-gray-400">Unread</div>
         </div>
       </div>
-    </app-card>
+    </div>
 
-    <app-card [padding]="'sm'">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card p-4">
       <div class="flex items-center gap-3">
         <div class="flex items-center justify-center w-10 h-10 rounded-full bg-danger-50 dark:bg-danger-900/30">
           <span class="material-icons text-danger-600 dark:text-danger-400">error</span>
@@ -244,9 +243,9 @@
           <div class="text-xs text-gray-500 dark:text-gray-400">Critical</div>
         </div>
       </div>
-    </app-card>
+    </div>
 
-    <app-card [padding]="'sm'">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card p-4">
       <div class="flex items-center gap-3">
         <div class="flex items-center justify-center w-10 h-10 rounded-full bg-warning-50 dark:bg-warning-900/30">
           <span class="material-icons text-warning-600 dark:text-warning-400">warning</span>
@@ -256,11 +255,11 @@
           <div class="text-xs text-gray-500 dark:text-gray-400">Warning</div>
         </div>
       </div>
-    </app-card>
+    </div>
   </div>
 
   <!-- Filters and Actions -->
-  <app-card class="mb-6">
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card p-4 mb-6">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-2">
         <button
@@ -342,7 +341,7 @@
         </button>
       </div>
     </div>
-  </app-card>
+  </div>
 
   <!-- Notifications List Header with Count -->
   <div class="flex items-center gap-2 mb-4">

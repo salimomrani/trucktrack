@@ -10,7 +10,6 @@ import { AlertRule, AlertRuleType, CreateAlertRuleRequest } from '../../models/a
 import { Geofence } from '../../models/geofence.model';
 import { ToastService } from '../../shared/components/toast/toast.service';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
-import { CardComponent } from '../../shared/components/card/card.component';
 
 interface AlertStats {
   total: number;
@@ -29,8 +28,7 @@ interface AlertStats {
     selector: 'app-alerts',
     imports: [
       ReactiveFormsModule,
-      EmptyStateComponent,
-      CardComponent
+      EmptyStateComponent
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './alerts.component.html',
