@@ -87,8 +87,8 @@
 - [x] T022 [US1] Export Input, Select, Datepicker from `frontend/src/app/shared/components/index.ts`
 - [x] T023 [US1] Migrate Login page to use new Input and Button components in `frontend/src/app/features/auth/login/login.component.ts`
 - [x] T024 [US1] Update Login page template in `frontend/src/app/features/auth/login/login.component.html`
-- [ ] T025 [US1] Migrate History page to use new Input, Select, Datepicker in `frontend/src/app/features/history/history.component.ts`
-- [ ] T026 [US1] Update History page template in `frontend/src/app/features/history/history.component.html`
+- [x] T025 [US1] Migrate History page to use new Input, Select, Datepicker in `frontend/src/app/features/history/history.component.ts`
+- [x] T026 [US1] Update History page template in `frontend/src/app/features/history/history.component.html`
 
 **Checkpoint**: Login and History pages fully migrated with Tailwind form components
 
@@ -102,14 +102,14 @@
 
 ### Implementation for User Story 2
 
-- [ ] T027 [US2] Update Sidenav component with Tailwind in `frontend/src/app/core/components/sidenav/sidenav.component.ts`
-- [ ] T028 [US2] Create responsive Sidenav template in `frontend/src/app/core/components/sidenav/sidenav.component.html`
-- [ ] T029 [US2] Create Sidenav Tailwind styles in `frontend/src/app/core/components/sidenav/sidenav.component.scss`
-- [ ] T030 [US2] Update Header component with Tailwind in `frontend/src/app/core/components/header/header.component.ts`
-- [ ] T031 [US2] Update Header template in `frontend/src/app/core/components/header/header.component.html`
-- [ ] T032 [US2] Update Header styles in `frontend/src/app/core/components/header/header.component.scss`
-- [ ] T033 [US2] Update AppComponent layout for Tailwind sidenav integration in `frontend/src/app/app.component.ts`
-- [ ] T034 [US2] Update AppComponent template in `frontend/src/app/app.component.html`
+- [x] T027 [US2] Update Sidenav component with Tailwind in `frontend/src/app/core/components/sidenav/sidenav.component.ts`
+- [x] T028 [US2] Create responsive Sidenav template in `frontend/src/app/core/components/sidenav/sidenav.component.html`
+- [x] T029 [US2] Create Sidenav Tailwind styles in `frontend/src/app/core/components/sidenav/sidenav.component.scss`
+- [x] T030 [US2] Update Header component with Tailwind in `frontend/src/app/core/components/header/header.component.ts`
+- [x] T031 [US2] Update Header template in `frontend/src/app/core/components/header/header.component.html`
+- [x] T032 [US2] Update Header styles in `frontend/src/app/core/components/header/header.component.scss`
+- [x] T033 [US2] Update AppComponent layout for Tailwind sidenav integration in `frontend/src/app/app.component.ts`
+- [x] T034 [US2] Update AppComponent template in `frontend/src/app/app.component.html`
 
 **Checkpoint**: Navigation fully responsive with Tailwind, Material sidenav removed
 
@@ -123,13 +123,13 @@
 
 ### Implementation for User Story 5
 
-- [ ] T035 [P] [US5] Create Card component TypeScript in `frontend/src/app/shared/components/card/card.component.ts`
-- [ ] T036 [P] [US5] Create Card component template in `frontend/src/app/shared/components/card/card.component.html`
-- [ ] T037 [P] [US5] Create Card component styles in `frontend/src/app/shared/components/card/card.component.scss`
-- [ ] T038 [US5] Export Card from `frontend/src/app/shared/components/index.ts`
-- [ ] T039 [US5] Migrate Map page cards in `frontend/src/app/features/map/map.component.html`
-- [ ] T040 [US5] Migrate Analytics KPI cards in `frontend/src/app/features/analytics/analytics.component.html`
-- [ ] T041 [US5] Migrate Trip detail cards in `frontend/src/app/admin/trips/trip-detail/trip-detail.component.html`
+- [x] T035 [P] [US5] Create Card component TypeScript in `frontend/src/app/shared/components/card/card.component.ts`
+- [x] T036 [P] [US5] Create Card component template in `frontend/src/app/shared/components/card/card.component.html`
+- [x] T037 [P] [US5] Create Card component styles in `frontend/src/app/shared/components/card/card.component.scss`
+- [x] T038 [US5] Export Card from `frontend/src/app/shared/components/index.ts`
+- [x] T039 [US5] Migrate Map page cards in `frontend/src/app/features/map/map.component.html`
+- [x] T040 [US5] Migrate Analytics KPI cards in `frontend/src/app/features/analytics/analytics.component.html`
+- [x] T041 [US5] Migrate Trip detail cards in `frontend/src/app/admin/trips/trip-detail/trip-detail.component.html`
 
 **Checkpoint**: All card-based layouts migrated to Tailwind
 
