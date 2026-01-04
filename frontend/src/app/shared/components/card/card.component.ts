@@ -16,7 +16,8 @@ import {
   imports: [],
   templateUrl: './card.component.html',
   styleUrl: './card.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'block' }
 })
 export class CardComponent {
   /** Card title (optional) */
@@ -33,44 +34,6 @@ export class CardComponent {
 
   /** Content padding: 'none' | 'sm' | 'md' | 'lg' (default: 'md') */
   readonly padding = input<'none' | 'sm' | 'md' | 'lg'>('md');
-
-  /** Computed card classes */
-  readonly cardClasses = computed(() => {
-    const classes = [
-      'card',
-      'bg-white dark:bg-gray-800',
-      'rounded-lg',
-      'border border-gray-200 dark:border-gray-700'
-    ];
-
-    // Elevation
-    if (this.elevated()) {
-      classes.push('shadow-card');
-    }
-
-    // Hover effect
-    if (this.hoverable()) {
-      classes.push('transition-shadow hover:shadow-lg cursor-pointer');
-    }
-
-    return classes.join(' ');
-  });
-
-  /** Computed content padding classes */
-  readonly contentClasses = computed(() => {
-    const padding = this.padding();
-    switch (padding) {
-      case 'none':
-        return '';
-      case 'sm':
-        return 'p-3';
-      case 'lg':
-        return 'p-6';
-      case 'md':
-      default:
-        return 'p-4';
-    }
-  });
 
   /** Check if header should be shown */
   readonly hasHeader = computed(() => {
