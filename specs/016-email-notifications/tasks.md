@@ -243,16 +243,16 @@
 - [x] T089 Add @Retryable with exponential backoff to EmailService.sendEmail() method
 - [x] T090 [P] Add @Retryable with exponential backoff to PushNotificationService.sendPush() method
 - [x] T091 Add Prometheus metrics for notifications_sent_total, notification_delivery_latency in backend/notification-service/src/main/java/com/trucktrack/notification/config/MetricsConfig.java
-- [ ] T092 Add health check endpoint for SendGrid and FCM connectivity
+- [x] T092 Add health check endpoint for Mailjet and FCM connectivity ✅ (HealthController.java with /health/channels, /health/mailjet, /health/firebase endpoints)
 
 ### Seed Data
 
-- [ ] T093 Create V2__seed_notification_templates.sql with default templates in backend/notification-service/src/main/resources/db/migration/V2__seed_notification_templates.sql
+- [x] T093 Create seed notification templates ✅ (Already in V1__add_email_push_notification_tables.sql - templates seeded on schema creation)
 
 ### Final Validation
 
-- [ ] T094 Run database migrations and verify tables created correctly
-- [ ] T095 Validate complete flow per quickstart.md scenarios
+- [ ] T094 Run database migrations and verify tables created correctly (MANUAL - requires running backend)
+- [ ] T095 Validate complete flow per quickstart.md scenarios (MANUAL - requires full stack)
 
 ---
 
@@ -268,7 +268,7 @@
 | Phase 6: US4 | 3 | 3 | Client Assignment |
 | Phase 7: US5 | 5 | 5 | Daily Report |
 | Phase 8: US6 | 11 | 11 | Préférences |
-| Phase 9: Polish | 12 | 8 | - |
-| **Total** | **95** | **91** | |
+| Phase 9: Polish | 12 | 10 | - |
+| **Total** | **95** | **93** | |
 
-**Progress: 91/95 tasks completed (96%)**
+**Progress: 93/95 tasks completed (98%)** - T094/T095 are manual validation tasks
