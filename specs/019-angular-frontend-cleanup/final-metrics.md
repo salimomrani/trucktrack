@@ -90,9 +90,27 @@ Created `frontend/lighthouserc.js` with:
 
 ```
 Chrome Headless 143.0.0.0 (Mac OS 10.15.7)
-Executed 136 of 136 SUCCESS
-TOTAL: 136 SUCCESS
+Executed 131 of 131 SUCCESS
+TOTAL: 131 SUCCESS
 ```
+
+## Lighthouse Audit Results (T033)
+
+**Date**: 2026-01-05
+**Note**: Audit run against static build without backend (APIs timeout)
+
+| Category | Score | Target | Status |
+|----------|-------|--------|--------|
+| Performance | 47 | 80 | ⚠️ Requires backend |
+| Accessibility | 87 | 80 | ✅ Pass |
+| Best Practices | 100 | - | ✅ Pass |
+
+**Performance breakdown** (without backend):
+- First Contentful Paint: 14.5s (API timeouts)
+- Total Blocking Time: 70ms ✅
+- Cumulative Layout Shift: 0.182
+
+**Conclusion**: Performance score requires running backend for accurate measurement. Accessibility and Best Practices meet targets.
 
 ## Manual Testing Required
 
