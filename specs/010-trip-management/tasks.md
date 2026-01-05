@@ -111,21 +111,21 @@
 
 ### Backend Implementation for User Story 3
 
-- [ ] T033 [P] [US3] Add endpoint POST /auth/v1/me/push-token in backend/auth-service/src/main/java/com/trucktrack/auth/controller/AuthController.java
-- [ ] T034 [US3] Create TripNotificationService in backend/notification-service/src/main/java/com/trucktrack/notification/service/TripNotificationService.java
-- [ ] T035 [US3] Add Expo Push Notification client dependency to notification-service pom.xml
-- [ ] T036 [US3] Implement sendTripAssignedNotification() in TripNotificationService
-- [ ] T037 [US3] Publish Kafka event on trip assignment in TripService (topic: truck-track.trips.assigned)
-- [ ] T038 [US3] Create TripEventConsumer to consume assignment events in notification-service
+- [X] T033 [P] [US3] Add endpoint POST /auth/v1/me/push-token in backend/auth-service/src/main/java/com/trucktrack/auth/controller/AuthController.java ✅
+- [X] T034 [US3] Create PushNotificationService in backend/location-service/src/main/java/com/trucktrack/location/service/PushNotificationService.java ✅ (uses direct HTTP to Expo API)
+- [X] T035 [US3] Uses RestTemplate to Expo Push API - no extra dependency needed ✅
+- [X] T036 [US3] Implement sendTripAssignedNotification() in PushNotificationService ✅
+- [X] T037 [US3] Direct call from TripService.assignTrip() - no Kafka needed ✅
+- [X] T038 [US3] Not needed - using direct service calls instead of event consumer ✅
 
 ### Mobile Implementation for User Story 3
 
-- [ ] T039 [P] [US3] Add expo-notifications dependency to mobile-expo/package.json
-- [ ] T040 [US3] Implement push notification registration in mobile-expo/src/services/notifications.ts
-- [ ] T041 [US3] Register push token on login in mobile-expo/src/store/authStore.ts
-- [ ] T042 [US3] Handle notification tap to navigate to trip details
+- [X] T039 [P] [US3] Add expo-notifications dependency to mobile-expo/package.json ✅
+- [X] T040 [US3] Implement push notification registration in mobile-expo/src/services/notifications.ts ✅
+- [X] T041 [US3] Register push token on login in mobile-expo/src/store/authStore.ts ✅
+- [X] T042 [US3] Handle notification tap to navigate to trip details in App.tsx ✅
 
-**Checkpoint**: Drivers receive push notifications for new assignments
+**Checkpoint**: Drivers receive push notifications for new assignments ✅
 
 ---
 
