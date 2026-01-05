@@ -168,7 +168,7 @@ export class NotificationsEffects implements OnDestroy {
     this.actions$.pipe(
       ofType(NotificationsActions.loadNotificationsPaged),
       exhaustMap(({ page, size }) =>
-        this.notificationService.getRecentNotificationsPaged(page, size).pipe(
+        this.notificationService.getNotifications(page, size).pipe(
           map(notificationPage => NotificationsActions.loadNotificationsPagedSuccess({ page: notificationPage })),
           catchError(error => of(NotificationsActions.loadNotificationsPagedFailure({
             error: error?.message || 'Failed to load notifications'
@@ -182,7 +182,7 @@ export class NotificationsEffects implements OnDestroy {
     this.actions$.pipe(
       ofType(NotificationsActions.loadMoreNotifications),
       mergeMap(({ page, size }) =>
-        this.notificationService.getRecentNotificationsPaged(page, size).pipe(
+        this.notificationService.getNotifications(page, size).pipe(
           map(notificationPage => NotificationsActions.loadMoreNotificationsSuccess({ page: notificationPage })),
           catchError(error => of(NotificationsActions.loadMoreNotificationsFailure({
             error: error?.message || 'Failed to load more notifications'
