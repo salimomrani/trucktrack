@@ -12,6 +12,7 @@ import localeEn from '@angular/common/locales/en';
 import { TranslateModule, TranslateLoader, MissingTranslationHandler } from '@ngx-translate/core';
 import { TranslateHttpLoader, provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { CustomMissingTranslationHandler } from './core/services/missing-translation.handler';
+import { environment } from '../environments/environment';
 
 // Register locales for date/number formatting
 registerLocaleData(localeFr, 'fr');
@@ -74,10 +75,10 @@ export const appConfig: ApplicationConfig = {
       deps: [Store, Actions],
       multi: true
     },
-    // i18n configuration
+    // i18n configuration with cache busting via build date query string
     provideTranslateHttpLoader({
       prefix: './assets/i18n/',
-      suffix: '.json'
+      suffix: `.json?d=${environment.buildTimestamp}`
     }),
     ...TranslateModule.forRoot({
       defaultLanguage: 'fr',

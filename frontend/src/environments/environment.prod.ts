@@ -1,6 +1,8 @@
 // Production environment configuration
+// Build timestamp is injected at build time for cache busting
 export const environment = {
   production: true,
+  buildTimestamp: new Date().toISOString().split('T')[0], // YYYY-MM-DD format
   apiUrl: 'https://api.trucktrack.example.com',
   wsUrl: 'wss://api.trucktrack.example.com/ws',
   map: {
