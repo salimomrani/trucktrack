@@ -10,6 +10,7 @@ import { StoreFacade } from './store/store.facade';
 import { ToastService } from './shared/components';
 import { Notification } from './models/notification.model';
 import * as NotificationsActions from './store/notifications/notifications.actions';
+import { LanguageService } from './core/services/language.service';
 
 /**
  * Root application component
@@ -27,11 +28,15 @@ export class AppComponent implements OnDestroy {
   private readonly actions$ = inject(Actions);
   private readonly toast = inject(ToastService);
   private readonly facade = inject(StoreFacade);
+  private readonly languageService = inject(LanguageService);
 
   // Auth state
   isAuthenticated = this.facade.isAuthenticated;
 
   constructor() {
+    // Initialize i18n language from localStorage
+    this.languageService.init();
+
     // Subscribe to new notifications from store and show snackbar
     this.actions$
       .pipe(
