@@ -537,7 +537,7 @@ All 4 user stories (Live Map, Search/Filter, History, Alerts) are fully implemen
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T172 [P] Add Angular i18n support (internationalization) in frontend/src/app/app.module.ts (English + French)
-- [ ] T173 [P] Implement dark mode support in frontend/src/styles.scss (CSS custom properties for theme switching)
+- [x] T173 [P] Implement dark mode support ✅ (ThemeService with signals, localStorage persistence, system preference detection)
 - [ ] T174 [P] Add Gatling load test scenario in tests/load/GPSIngestionLoadTest.scala (simulate 10K GPS updates/second)
 - [ ] T175 [P] Add Gatling load test scenario in tests/load/ConcurrentUsersLoadTest.scala (simulate 500 concurrent WebSocket connections)
 - [X] T176 [P] Create Grafana dashboard in infra/monitoring/grafana/dashboards/truck-track-overview.json (GPS ingestion rate, API latency, Kafka lag)
