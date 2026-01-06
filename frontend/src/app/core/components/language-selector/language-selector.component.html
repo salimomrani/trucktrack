@@ -13,7 +13,7 @@
 
   @if (isOpen()) {
     <ul class="language-dropdown" role="listbox">
-      @for (lang of languages; track lang) {
+      @for (lang of languages(); track lang) {
         <li
           role="option"
           class="language-option"
@@ -21,7 +21,7 @@
           [attr.aria-selected]="lang === currentLanguage()"
           (click)="selectLanguage(lang)">
           <span class="flag">{{ languageFlags[lang] }}</span>
-          <span class="name">{{ languageNames[lang] }}</span>
+          <span class="name">{{ languageNames()?.[lang] }}</span>
           @if (lang === currentLanguage()) {
             <span class="material-icons check">check</span>
           }

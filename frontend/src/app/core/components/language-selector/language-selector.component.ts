@@ -1,6 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LanguageService, SupportedLanguage } from '../../services/language.service';
+import { StoreFacade } from '../../../store/store.facade';
+import { SupportedLanguage } from '../../../store/language/language.state';
 
 @Component({
   selector: 'app-language-selector',
@@ -10,19 +11,22 @@ import { LanguageService, SupportedLanguage } from '../../services/language.serv
   styleUrls: ['./language-selector.component.scss']
 })
 export class LanguageSelectorComponent {
-  private readonly languageService = inject(LanguageService);
+  private readonly facade = inject(StoreFacade);
 
   /** Whether the dropdown is open */
   readonly isOpen = signal(false);
 
-  /** Current language */
-  readonly currentLanguage = this.languageService.currentLanguage;
+  /** Language dropdown view model from NgRx selector */
+  readonly viewModel = this.facade.languageDropdownViewModel;
 
-  /** Available languages */
-  readonly languages = this.languageService.supportedLanguages;
+  /** Current language (from store) */
+  readonly currentLanguage = this.facade.currentLanguage;
 
-  /** Language display names */
-  readonly languageNames = this.languageService.languageNames;
+  /** Available languages (from store) */
+  readonly languages = this.facade.supportedLanguages;
+
+  /** Language display names (from store) */
+  readonly languageNames = this.facade.languageNames;
 
   /** Flag emojis for languages */
   readonly languageFlags: Record<SupportedLanguage, string> = {
@@ -35,7 +39,7 @@ export class LanguageSelectorComponent {
   }
 
   selectLanguage(lang: SupportedLanguage): void {
-    this.languageService.setLanguage(lang);
+    this.facade.setLanguage(lang);
     this.isOpen.set(false);
   }
 

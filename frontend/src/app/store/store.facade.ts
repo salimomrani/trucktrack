@@ -11,6 +11,7 @@ import * as HistorySelectors from './history/history.selectors';
 import * as CacheSelectors from './cache/cache.selectors';
 import * as NotificationsSelectors from './notifications/notifications.selectors';
 import * as TripsSelectors from './trips/trips.selectors';
+import * as LanguageSelectors from './language/language.selectors';
 import * as AuthActions from './auth/auth.actions';
 import * as TrucksActions from './trucks/trucks.actions';
 import * as GpsActions from './gps/gps.actions';
@@ -18,10 +19,12 @@ import * as HistoryActions from './history/history.actions';
 import * as CacheActions from './cache/cache.actions';
 import * as NotificationsActions from './notifications/notifications.actions';
 import * as TripsActions from './trips/trips.actions';
+import * as LanguageActions from './language/language.actions';
 import { LoginRequest } from '../core/models/auth.model';
 import { GPSPositionEvent } from '../models/gps-position.model';
 import { TruckStatus } from '../models/truck.model';
 import { TripStatus, CreateTripRequest, UpdateTripRequest, AssignTripRequest } from '../admin/trips/trip.model';
+import { SupportedLanguage } from './language/language.state';
 
 /**
  * Store Facade with Signals Integration
@@ -685,5 +688,59 @@ export class StoreFacade {
    */
   getTripsByStatus(status: TripStatus) {
     return toSignal(this.store.select(TripsSelectors.selectTripsByStatus(status)));
+  }
+
+  // ============================================
+  // Language Signals (i18n)
+  // ============================================
+
+  /** Current language code (fr/en) */
+  readonly currentLanguage = toSignal(this.store.select(LanguageSelectors.selectCurrentLanguage), {
+    initialValue: 'fr' as SupportedLanguage
+  });
+
+  /** Current language display name */
+  readonly currentLanguageName = toSignal(this.store.select(LanguageSelectors.selectCurrentLanguageName), {
+    initialValue: 'Français'
+  });
+
+  /** Whether language is initialized */
+  readonly languageInitialized = toSignal(this.store.select(LanguageSelectors.selectLanguageInitialized), {
+    initialValue: false
+  });
+
+  /** Supported languages list */
+  readonly supportedLanguages = toSignal(this.store.select(LanguageSelectors.selectSupportedLanguages), {
+    initialValue: ['fr', 'en'] as readonly SupportedLanguage[]
+  });
+
+  /** Language names map */
+  readonly languageNames = toSignal(this.store.select(LanguageSelectors.selectLanguageNames));
+
+  /** Other languages (excluding current) */
+  readonly otherLanguages = toSignal(this.store.select(LanguageSelectors.selectOtherLanguages), {
+    initialValue: [] as SupportedLanguage[]
+  });
+
+  /** Language dropdown view model (for UI component) */
+  readonly languageDropdownViewModel = toSignal(this.store.select(LanguageSelectors.selectLanguageDropdownViewModel));
+
+  // ============================================
+  // Language Actions
+  // ============================================
+
+  /**
+   * Initialize language from localStorage or default
+   * Should be called once at app startup
+   */
+  initLanguage() {
+    this.store.dispatch(LanguageActions.initLanguage());
+  }
+
+  /**
+   * Set language and persist to localStorage
+   */
+  setLanguage(language: SupportedLanguage) {
+    this.store.dispatch(LanguageActions.setLanguage({ language }));
   }
 }
