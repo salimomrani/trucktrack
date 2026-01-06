@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { signal, computed } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { SidebarComponent } from './sidebar.component';
 import { StoreFacade } from '../../../store/store.facade';
 import { NavigationService } from '../../services/navigation.service';
@@ -74,7 +75,7 @@ describe('SidebarComponent', () => {
     });
 
     await TestBed.configureTestingModule({
-      imports: [SidebarComponent, RouterTestingModule.withRoutes([])],
+      imports: [SidebarComponent, RouterTestingModule.withRoutes([]), TranslateModule.forRoot()],
       providers: [
         { provide: StoreFacade, useValue: mockStoreFacade },
         { provide: NavigationService, useValue: mockNavigationService }
