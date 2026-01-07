@@ -1,10 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { signal } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { TopHeaderComponent } from './top-header.component';
 import { ThemeService } from '../../services/theme.service';
 import { StoreFacade } from '../../../store/store.facade';
 import { User, UserRole } from '../../models/auth.model';
+import { SupportedLanguage } from '../../../store/language/language.state';
 
 /**
  * Unit tests for TopHeaderComponent
@@ -45,7 +47,18 @@ describe('TopHeaderComponent', () => {
     
     const currentUserSignal = signal(mockUser);
     const unreadCountSignal = signal(5);
-    mockStoreFacade = jasmine.createSpyObj('StoreFacade', ['logout']);
+    const currentLanguageSignal = signal<SupportedLanguage>('fr');
+    const supportedLanguagesSignal = signal<readonly SupportedLanguage[]>(['fr', 'en']);
+    const languageNamesSignal = signal<Record<SupportedLanguage, string>>({ fr: 'Français', en: 'English' });
+    const languageDropdownViewModelSignal = signal({
+      currentLanguage: 'fr' as SupportedLanguage,
+      currentLanguageName: 'Français',
+      supportedLanguages: ['fr', 'en'] as readonly SupportedLanguage[],
+      languageNames: { fr: 'Français', en: 'English' },
+      languageFlags: { fr: '🇫🇷', en: '🇬🇧' }
+    });
+
+    mockStoreFacade = jasmine.createSpyObj('StoreFacade', ['logout', 'setLanguage']);
     Object.defineProperty(mockStoreFacade, 'currentUser', {
       get: () => currentUserSignal,
       configurable: true
@@ -54,9 +67,25 @@ describe('TopHeaderComponent', () => {
       get: () => unreadCountSignal,
       configurable: true
     });
+    Object.defineProperty(mockStoreFacade, 'currentLanguage', {
+      get: () => currentLanguageSignal,
+      configurable: true
+    });
+    Object.defineProperty(mockStoreFacade, 'supportedLanguages', {
+      get: () => supportedLanguagesSignal,
+      configurable: true
+    });
+    Object.defineProperty(mockStoreFacade, 'languageNames', {
+      get: () => languageNamesSignal,
+      configurable: true
+    });
+    Object.defineProperty(mockStoreFacade, 'languageDropdownViewModel', {
+      get: () => languageDropdownViewModelSignal,
+      configurable: true
+    });
 
     await TestBed.configureTestingModule({
-      imports: [TopHeaderComponent],
+      imports: [TopHeaderComponent, TranslateModule.forRoot()],
       providers: [
         { provide: Router, useValue: mockRouter },
         { provide: ThemeService, useValue: mockThemeService },

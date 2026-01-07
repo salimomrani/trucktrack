@@ -26,6 +26,8 @@
     "@ngrx/entity": "^21.0.1",
     "@ngrx/store": "^21.0.1",
     "@ngrx/store-devtools": "^21.0.1",
+    "@ngx-translate/core": "^17.0.0",
+    "@ngx-translate/http-loader": "^17.0.0",
     "@stomp/stompjs": "^7.2.1",
     "@swimlane/ngx-charts": "^23.1.0",
     "@types/leaflet": "^1.9.21",

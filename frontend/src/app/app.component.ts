@@ -32,6 +32,9 @@ export class AppComponent implements OnDestroy {
   isAuthenticated = this.facade.isAuthenticated;
 
   constructor() {
+    // Initialize i18n language from NgRx store
+    this.facade.initLanguage();
+
     // Subscribe to new notifications from store and show snackbar
     this.actions$
       .pipe(
