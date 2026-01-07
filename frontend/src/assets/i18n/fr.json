@@ -65,6 +65,20 @@
     "SIGN_IN": "Se connecter",
     "WELCOME": "Bienvenue"
   },
+  "HEADER": {
+    "MENU": "Menu",
+    "LIGHT_MODE": "Mode clair",
+    "DARK_MODE": "Mode sombre",
+    "NOTIFICATIONS": "Notifications",
+    "USER_MENU": "Menu utilisateur"
+  },
+  "SIDEBAR": {
+    "MAIN": "Principal",
+    "MANAGEMENT": "Gestion",
+    "ADMINISTRATION": "Administration",
+    "OPERATIONS": "Opérations",
+    "OTHER": "Autre"
+  },
   "DASHBOARD": {
     "TITLE": "Tableau de bord",
     "ACTIVE_TRUCKS": "Camions actifs",

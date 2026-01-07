@@ -19,25 +19,26 @@ export class NavigationService {
    * Complete navigation items configuration
    * Roles array defines which roles can see each item
    * Empty roles array = visible to all authenticated users
+   * Labels are translation keys (e.g., 'NAV.MAP' translates to 'Carte' in FR)
    */
   private readonly ALL_NAV_ITEMS: NavItem[] = [
     // Operations category
     {
-      label: 'Carte',
+      label: 'NAV.MAP',
       route: '/map',
       icon: 'map',
       roles: [], // All roles can see Map
       category: 'operations'
     },
     {
-      label: 'Historique',
+      label: 'NAV.HISTORY',
       route: '/history',
       icon: 'history',
       roles: [UserRole.ADMIN, UserRole.FLEET_MANAGER, UserRole.DISPATCHER, UserRole.VIEWER],
       category: 'operations'
     },
     {
-      label: 'Alertes',
+      label: 'NAV.ALERTS',
       route: '/alerts',
       icon: 'notifications',
       roles: [UserRole.ADMIN, UserRole.FLEET_MANAGER, UserRole.DISPATCHER, UserRole.VIEWER],
@@ -48,28 +49,28 @@ export class NavigationService {
 
     // Administration category (ADMIN only)
     {
-      label: 'Utilisateurs',
+      label: 'NAV.USERS',
       route: '/admin/users',
       icon: 'people',
       roles: [UserRole.ADMIN],
       category: 'administration'
     },
     {
-      label: 'Camions',
+      label: 'NAV.TRUCKS',
       route: '/admin/trucks',
       icon: 'local_shipping',
       roles: [UserRole.ADMIN],
       category: 'administration'
     },
     {
-      label: 'Trajets',
+      label: 'NAV.TRIPS',
       route: '/admin/trips',
       icon: 'route',
       roles: [UserRole.ADMIN],
       category: 'administration'
     },
     {
-      label: 'Configuration',
+      label: 'NAV.CONFIG',
       route: '/admin/config',
       icon: 'settings',
       roles: [UserRole.ADMIN],
@@ -79,10 +80,11 @@ export class NavigationService {
 
   /**
    * User menu items (always visible after main nav)
+   * Labels are translation keys
    */
   private readonly USER_MENU_ITEMS: NavItem[] = [
     {
-      label: 'Profil',
+      label: 'AUTH.PROFILE',
       route: '/profile',
       icon: 'person',
       roles: [] // All roles
@@ -162,13 +164,14 @@ export class NavigationService {
   }
 
   /**
-   * Get category label for display
+   * Get category label translation key
+   * Returns a translation key that should be used with the translate pipe
    */
   getCategoryLabel(category: string): string {
     const labels: Record<string, string> = {
-      'operations': 'Opérations',
-      'administration': 'Administration',
-      'other': 'Autre'
+      'operations': 'SIDEBAR.OPERATIONS',
+      'administration': 'SIDEBAR.ADMINISTRATION',
+      'other': 'SIDEBAR.OTHER'
     };
     return labels[category] || category;
   }
