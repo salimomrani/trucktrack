@@ -1,8 +1,8 @@
 <div class="p-6 space-y-6">
   <!-- Page Header -->
   <div class="mb-6">
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
-    <p class="text-gray-500 dark:text-gray-400 mt-1">Fleet overview and quick actions</p>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'DASHBOARD.TITLE' | translate }}</h1>
+    <p class="text-gray-500 dark:text-gray-400 mt-1">{{ 'DASHBOARD.SUBTITLE' | translate }}</p>
   </div>
 
   @if (loading()) {
@@ -18,7 +18,7 @@
           type="button"
           class="px-4 py-2 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
           (click)="loadStats()">
-          Retry
+          {{ 'COMMON.RETRY' | translate }}
         </button>
       </div>
     </div>
@@ -33,8 +33,8 @@
         </div>
         <div class="flex-1">
           <span class="block text-2xl font-bold text-gray-900 dark:text-white">{{ stats()?.totalUsers ?? 0 }}</span>
-          <span class="text-sm text-gray-600 dark:text-gray-400">Total Users</span>
-          <span class="block text-xs text-gray-400 dark:text-gray-500">{{ stats()?.activeUsers ?? 0 }} active</span>
+          <span class="text-sm text-gray-600 dark:text-gray-400">{{ 'DASHBOARD.TOTAL_USERS' | translate }}</span>
+          <span class="block text-xs text-gray-400 dark:text-gray-500">{{ stats()?.activeUsers ?? 0 }} {{ 'COMMON.ACTIVE' | translate | lowercase }}</span>
         </div>
         <span class="material-icons text-gray-400 group-hover:text-primary-500 transition-colors">chevron_right</span>
       </a>
@@ -47,8 +47,8 @@
         </div>
         <div class="flex-1">
           <span class="block text-2xl font-bold text-gray-900 dark:text-white">{{ stats()?.trucks?.total ?? 0 }}</span>
-          <span class="text-sm text-gray-600 dark:text-gray-400">Total Trucks</span>
-          <span class="block text-xs text-gray-400 dark:text-gray-500">{{ stats()?.trucks?.active ?? 0 }} active</span>
+          <span class="text-sm text-gray-600 dark:text-gray-400">{{ 'DASHBOARD.TOTAL_TRUCKS' | translate }}</span>
+          <span class="block text-xs text-gray-400 dark:text-gray-500">{{ stats()?.trucks?.active ?? 0 }} {{ 'COMMON.ACTIVE' | translate | lowercase }}</span>
         </div>
         <span class="material-icons text-gray-400 group-hover:text-success-500 transition-colors">chevron_right</span>
       </a>
@@ -61,8 +61,8 @@
         </div>
         <div class="flex-1">
           <span class="block text-2xl font-bold text-gray-900 dark:text-white">{{ stats()?.totalGroups ?? 0 }}</span>
-          <span class="text-sm text-gray-600 dark:text-gray-400">Groups</span>
-          <span class="block text-xs text-gray-400 dark:text-gray-500">Fleet organization</span>
+          <span class="text-sm text-gray-600 dark:text-gray-400">{{ 'NAV.GROUPS' | translate }}</span>
+          <span class="block text-xs text-gray-400 dark:text-gray-500">{{ 'DASHBOARD.FLEET_ORGANIZATION' | translate }}</span>
         </div>
         <span class="material-icons text-gray-400 group-hover:text-info-500 transition-colors">chevron_right</span>
       </a>
@@ -75,8 +75,8 @@
         </div>
         <div class="flex-1">
           <span class="block text-2xl font-bold text-gray-900 dark:text-white">{{ stats()?.alerts?.total ?? 0 }}</span>
-          <span class="text-sm text-gray-600 dark:text-gray-400">Configuration</span>
-          <span class="block text-xs text-gray-400 dark:text-gray-500">System settings</span>
+          <span class="text-sm text-gray-600 dark:text-gray-400">{{ 'NAV.CONFIG' | translate }}</span>
+          <span class="block text-xs text-gray-400 dark:text-gray-500">{{ 'DASHBOARD.SYSTEM_SETTINGS' | translate }}</span>
         </div>
         <span class="material-icons text-gray-400 group-hover:text-warning-500 transition-colors">chevron_right</span>
       </a>
@@ -87,10 +87,10 @@
       <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
         <div class="flex items-center gap-2 text-gray-800 dark:text-gray-200 font-medium">
           <span class="material-icons text-primary-500">route</span>
-          <span>Trip Analytics</span>
+          <span>{{ 'DASHBOARD.TRIP_ANALYTICS' | translate }}</span>
         </div>
         <div class="flex items-center gap-1 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700">
-          <span>View All</span>
+          <span>{{ 'COMMON.VIEW_ALL' | translate }}</span>
           <span class="material-icons text-lg">chevron_right</span>
         </div>
       </div>
@@ -102,25 +102,25 @@
     <!-- Truck Status Breakdown -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card">
       <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
-        <h3 class="font-medium text-gray-800 dark:text-gray-200">Truck Status Breakdown</h3>
+        <h3 class="font-medium text-gray-800 dark:text-gray-200">{{ 'DASHBOARD.TRUCK_STATUS_BREAKDOWN' | translate }}</h3>
       </div>
       <div class="p-6">
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div class="text-center p-4 rounded-lg bg-success-50 dark:bg-success-900/20 border-l-4 border-success-500">
             <span class="block text-2xl font-bold text-success-700 dark:text-success-400">{{ stats()?.trucks?.active ?? 0 }}</span>
-            <span class="text-sm text-success-600 dark:text-success-500">Active</span>
+            <span class="text-sm text-success-600 dark:text-success-500">{{ 'TRUCKS.STATUS_ACTIVE' | translate }}</span>
           </div>
           <div class="text-center p-4 rounded-lg bg-warning-50 dark:bg-warning-900/20 border-l-4 border-warning-500">
             <span class="block text-2xl font-bold text-warning-700 dark:text-warning-400">{{ stats()?.trucks?.idle ?? 0 }}</span>
-            <span class="text-sm text-warning-600 dark:text-warning-500">Idle</span>
+            <span class="text-sm text-warning-600 dark:text-warning-500">{{ 'TRUCKS.STATUS_IDLE' | translate }}</span>
           </div>
           <div class="text-center p-4 rounded-lg bg-gray-50 dark:bg-gray-700 border-l-4 border-gray-400">
             <span class="block text-2xl font-bold text-gray-700 dark:text-gray-300">{{ stats()?.trucks?.offline ?? 0 }}</span>
-            <span class="text-sm text-gray-600 dark:text-gray-400">Offline</span>
+            <span class="text-sm text-gray-600 dark:text-gray-400">{{ 'TRUCKS.STATUS_OFFLINE' | translate }}</span>
           </div>
           <div class="text-center p-4 rounded-lg bg-danger-50 dark:bg-danger-900/20 border-l-4 border-danger-500">
             <span class="block text-2xl font-bold text-danger-700 dark:text-danger-400">{{ stats()?.trucks?.outOfService ?? 0 }}</span>
-            <span class="text-sm text-danger-600 dark:text-danger-500">Out of Service</span>
+            <span class="text-sm text-danger-600 dark:text-danger-500">{{ 'TRUCKS.STATUS_OUT_OF_SERVICE' | translate }}</span>
           </div>
         </div>
       </div>
@@ -129,29 +129,29 @@
     <!-- Quick Actions -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card">
       <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
-        <h3 class="font-medium text-gray-800 dark:text-gray-200">Quick Actions</h3>
+        <h3 class="font-medium text-gray-800 dark:text-gray-200">{{ 'DASHBOARD.QUICK_ACTIONS' | translate }}</h3>
       </div>
       <div class="p-6">
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <a routerLink="/admin/users/new"
              class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-primary-300 dark:hover:border-primary-500 transition-colors">
             <span class="material-icons text-xl">person_add</span>
-            <span>Add User</span>
+            <span>{{ 'USERS.ADD' | translate }}</span>
           </a>
           <a routerLink="/admin/trucks/new"
              class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-primary-300 dark:hover:border-primary-500 transition-colors">
             <span class="material-icons text-xl">add</span>
-            <span>Add Truck</span>
+            <span>{{ 'TRUCKS.ADD' | translate }}</span>
           </a>
           <a routerLink="/admin/groups/new"
              class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-primary-300 dark:hover:border-primary-500 transition-colors">
             <span class="material-icons text-xl">group_add</span>
-            <span>Create Group</span>
+            <span>{{ 'GROUPS.ADD' | translate }}</span>
           </a>
           <a routerLink="/admin/config"
              class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-primary-300 dark:hover:border-primary-500 transition-colors">
             <span class="material-icons text-xl">settings</span>
-            <span>Configuration</span>
+            <span>{{ 'NAV.CONFIG' | translate }}</span>
           </a>
         </div>
       </div>
@@ -161,17 +161,17 @@
     @if (stats()?.mileage) {
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card">
         <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
-          <h3 class="font-medium text-gray-800 dark:text-gray-200">Fleet Mileage</h3>
+          <h3 class="font-medium text-gray-800 dark:text-gray-200">{{ 'DASHBOARD.FLEET_MILEAGE' | translate }}</h3>
         </div>
         <div class="p-6">
           <div class="grid grid-cols-2 gap-6">
             <div class="text-center">
               <span class="block text-3xl font-bold text-gray-900 dark:text-white">{{ stats()?.mileage?.totalKilometers | number:'1.0-0' }}</span>
-              <span class="text-sm text-gray-500 dark:text-gray-400">Total km</span>
+              <span class="text-sm text-gray-500 dark:text-gray-400">{{ 'DASHBOARD.TOTAL_KM' | translate }}</span>
             </div>
             <div class="text-center">
               <span class="block text-3xl font-bold text-gray-900 dark:text-white">{{ stats()?.mileage?.averagePerTruck | number:'1.0-0' }}</span>
-              <span class="text-sm text-gray-500 dark:text-gray-400">Avg per truck</span>
+              <span class="text-sm text-gray-500 dark:text-gray-400">{{ 'DASHBOARD.AVG_PER_TRUCK' | translate }}</span>
             </div>
           </div>
         </div>
@@ -183,7 +183,7 @@
   @if (isCacheLoading()) {
     <div class="fixed bottom-4 right-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg px-4 py-2 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
       <div class="animate-spin rounded-full h-4 w-4 border-2 border-primary-500 border-t-transparent"></div>
-      <span>Updating...</span>
+      <span>{{ 'COMMON.UPDATING' | translate }}</span>
     </div>
   }
 </div>

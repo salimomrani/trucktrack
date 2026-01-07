@@ -1,6 +1,7 @@
 import { Component, inject, signal, effect, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { StoreFacade } from '../../../store/store.facade';
 import { LoginRequest } from '../../../core/models/auth.model';
 import { ButtonComponent, InputComponent } from '../../../shared/components';
@@ -16,6 +17,7 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
   standalone: true,
   imports: [
     ReactiveFormsModule,
+    TranslateModule,
     ButtonComponent,
     InputComponent
   ],
@@ -28,6 +30,7 @@ export class LoginComponent {
   private readonly facade = inject(StoreFacade);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
+  private readonly translate = inject(TranslateService);
 
   loginForm: FormGroup;
   hidePassword = signal(true);
@@ -50,7 +53,7 @@ export class LoginComponent {
     // React to authentication success
     effect(() => {
       if (this.isAuthenticated()) {
-        this.showSuccess('Welcome back!');
+        this.showSuccess(this.translate.instant('AUTH.WELCOME_BACK'));
         this.router.navigate(['/map']);
       }
     });
@@ -108,10 +111,10 @@ export class LoginComponent {
     if (!field?.touched) return null;
 
     if (field?.hasError('required')) {
-      return 'Email is required';
+      return this.translate.instant('AUTH.EMAIL_REQUIRED');
     }
     if (field?.hasError('email')) {
-      return 'Please enter a valid email address';
+      return this.translate.instant('ERRORS.INVALID_EMAIL');
     }
     return null;
   }
@@ -124,10 +127,10 @@ export class LoginComponent {
     if (!field?.touched) return null;
 
     if (field?.hasError('required')) {
-      return 'Password is required';
+      return this.translate.instant('AUTH.PASSWORD_REQUIRED');
     }
     if (field?.hasError('minlength')) {
-      return 'Password must be at least 8 characters';
+      return this.translate.instant('AUTH.PASSWORD_MIN_LENGTH');
     }
     return null;
   }

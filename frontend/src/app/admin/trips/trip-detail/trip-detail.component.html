@@ -20,7 +20,7 @@
           <span class="material-icons">arrow_back</span>
         </button>
         <div>
-          <h1 class="text-2xl font-semibold text-gray-800">{{ tripId === 'new' ? 'Create New Trip' : 'Trip Details' }}</h1>
+          <h1 class="text-2xl font-semibold text-gray-800">{{ tripId === 'new' ? ('TRIPS.ADD' | translate) : ('TRIPS.TRIP_DETAILS' | translate) }}</h1>
           @if (trip()) {
             <div class="mt-1">
               <span
@@ -40,7 +40,7 @@
             class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
             (click)="toggleEditMode()">
             <span class="material-icons text-lg">{{ isEditMode() ? 'close' : 'edit' }}</span>
-            {{ isEditMode() ? 'Cancel Edit' : 'Edit' }}
+            {{ isEditMode() ? ('COMMON.CANCEL' | translate) : ('COMMON.EDIT' | translate) }}
           </button>
         }
         @if (trip() && canAssign()) {
@@ -49,7 +49,7 @@
             class="inline-flex items-center gap-2 px-4 py-2 border border-primary-600 text-primary-600 rounded-md hover:bg-primary-50 transition-colors"
             (click)="toggleAssignPanel()">
             <span class="material-icons text-lg">assignment_ind</span>
-            {{ showAssignPanel() ? 'Cancel' : 'Assign' }}
+            {{ showAssignPanel() ? ('COMMON.CANCEL' | translate) : ('TRIPS.ASSIGN' | translate) }}
           </button>
         }
         @if (trip() && canReassign()) {
@@ -58,7 +58,7 @@
             class="inline-flex items-center gap-2 px-4 py-2 border border-warning-600 text-warning-600 rounded-md hover:bg-warning-50 transition-colors"
             (click)="toggleReassignPanel()">
             <span class="material-icons text-lg">swap_horiz</span>
-            {{ showReassignPanel() ? 'Cancel' : 'Reassign' }}
+            {{ showReassignPanel() ? ('COMMON.CANCEL' | translate) : ('TRIPS.REASSIGN' | translate) }}
           </button>
         }
         @if (trip() && canCancel()) {
@@ -67,7 +67,7 @@
             class="inline-flex items-center gap-2 px-4 py-2 border border-danger-500 text-danger-500 rounded-md hover:bg-danger-50 transition-colors"
             (click)="confirmCancel()">
             <span class="material-icons text-lg">cancel</span>
-            Cancel Trip
+            {{ 'TRIPS.CONFIRM_CANCEL' | translate }}
           </button>
         }
       </div>
@@ -76,27 +76,27 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Main Info Card -->
       <div class="bg-white rounded-lg shadow-card p-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-100">Trip Information</h3>
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-100">{{ 'TRIPS.TRIP_DETAILS' | translate }}</h3>
         @if (isEditMode()) {
           <!-- Edit Form -->
           <form [formGroup]="editForm" (ngSubmit)="saveTrip()" class="space-y-4">
             <app-location-picker
               formControlName="origin"
-              label="Origin"
+              [label]="'TRIPS.ORIGIN' | translate"
               placeholder="Search origin address..."
               [required]="true">
             </app-location-picker>
 
             <app-location-picker
               formControlName="destination"
-              label="Destination"
+              [label]="'TRIPS.DESTINATION' | translate"
               placeholder="Search destination address..."
               [required]="true">
             </app-location-picker>
 
             <div class="space-y-1">
               <label class="block text-sm font-medium text-gray-700" for="scheduledAt">
-                Scheduled Date/Time
+                {{ 'TRIPS.SCHEDULED_DATE' | translate }}
               </label>
               <input
                 id="scheduledAt"
@@ -107,7 +107,7 @@
 
             <div class="space-y-1">
               <label class="block text-sm font-medium text-gray-700" for="notes">
-                Notes
+                {{ 'TRIPS.NOTES' | translate }}
               </label>
               <textarea
                 id="notes"
@@ -126,7 +126,7 @@
                   <span class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
                 } @else {
                   <span class="material-icons text-lg">save</span>
-                  {{ tripId === 'new' ? 'Create Trip' : 'Save Changes' }}
+                  {{ tripId === 'new' ? ('TRIPS.ADD' | translate) : ('TRIPS.SAVE_CHANGES' | translate) }}
                 }
               </button>
             </div>
@@ -135,24 +135,24 @@
           <!-- Display Mode -->
           <div class="grid grid-cols-2 gap-4">
             <div class="space-y-1">
-              <span class="text-sm text-gray-500">Origin</span>
+              <span class="text-sm text-gray-500">{{ 'TRIPS.ORIGIN' | translate }}</span>
               <p class="font-medium text-gray-800">{{ trip()?.origin }}</p>
             </div>
             <div class="space-y-1">
-              <span class="text-sm text-gray-500">Destination</span>
+              <span class="text-sm text-gray-500">{{ 'TRIPS.DESTINATION' | translate }}</span>
               <p class="font-medium text-gray-800">{{ trip()?.destination }}</p>
             </div>
             <div class="space-y-1">
-              <span class="text-sm text-gray-500">Scheduled</span>
+              <span class="text-sm text-gray-500">{{ 'TRIPS.SCHEDULED_DATE' | translate }}</span>
               <p class="font-medium text-gray-800">{{ formatDate(trip()?.scheduledAt || null) }}</p>
             </div>
             <div class="space-y-1">
-              <span class="text-sm text-gray-500">Created</span>
+              <span class="text-sm text-gray-500">{{ 'TRIPS.CREATED' | translate }}</span>
               <p class="font-medium text-gray-800">{{ formatDate(trip()?.createdAt || null) }}</p>
             </div>
             @if (trip()?.notes) {
               <div class="col-span-2 space-y-1">
-                <span class="text-sm text-gray-500">Notes</span>
+                <span class="text-sm text-gray-500">{{ 'TRIPS.NOTES' | translate }}</span>
                 <p class="font-medium text-gray-800">{{ trip()?.notes }}</p>
               </div>
             }
@@ -162,13 +162,13 @@
 
       <!-- Assignment Card -->
       <div class="bg-white rounded-lg shadow-card p-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-100">Assignment</h3>
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-100">{{ 'TRIPS.ASSIGNMENT' | translate }}</h3>
         @if (showAssignPanel()) {
           <!-- Assign Form -->
           <form [formGroup]="assignForm" (ngSubmit)="assignTrip()" class="space-y-4">
             <div class="space-y-1">
               <label class="block text-sm font-medium text-gray-700" for="assignDriverId">
-                Select Driver
+                {{ 'TRIPS.SELECT_DRIVER' | translate }}
               </label>
               <select
                 id="assignDriverId"
@@ -182,7 +182,7 @@
                 }
               </select>
               @if (assignableDrivers().length === 0) {
-                <p class="mt-1 text-xs text-warning-600">No drivers with assigned trucks available</p>
+                <p class="mt-1 text-xs text-warning-600">{{ 'TRIPS.NO_DRIVERS_AVAILABLE' | translate }}</p>
               }
             </div>
 
@@ -195,7 +195,7 @@
                   <span class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
                 } @else {
                   <span class="material-icons text-lg">assignment_ind</span>
-                  Assign Trip
+                  {{ 'TRIPS.ASSIGN_TRIP' | translate }}
                 }
               </button>
             </div>
@@ -203,24 +203,24 @@
         } @else if (trip()?.assignedTruckId) {
           <div class="grid grid-cols-2 gap-4">
             <div class="space-y-1">
-              <span class="text-sm text-gray-500">Truck</span>
+              <span class="text-sm text-gray-500">{{ 'TRIPS.TRUCK' | translate }}</span>
               <p class="font-medium text-gray-800">{{ trip()?.assignedTruckName || 'N/A' }}</p>
             </div>
             <div class="space-y-1">
-              <span class="text-sm text-gray-500">Driver</span>
+              <span class="text-sm text-gray-500">{{ 'TRIPS.DRIVER' | translate }}</span>
               <p class="font-medium text-gray-800">{{ trip()?.assignedDriverName || 'N/A' }}</p>
             </div>
           </div>
         } @else {
           <div class="flex flex-col items-center py-8 text-gray-400">
             <span class="material-icons text-5xl mb-3">assignment_late</span>
-            <p class="mb-4">No assignment yet</p>
+            <p class="mb-4">{{ 'TRIPS.NO_ASSIGNMENT' | translate }}</p>
             @if (canAssign()) {
               <button
                 type="button"
                 class="inline-flex items-center gap-2 px-4 py-2 border border-primary-600 text-primary-600 rounded-md hover:bg-primary-50 transition-colors"
                 (click)="toggleAssignPanel()">
-                Assign Now
+                {{ 'TRIPS.ASSIGN_NOW' | translate }}
               </button>
             }
           </div>
@@ -232,12 +232,12 @@
         <div class="bg-white rounded-lg shadow-card p-6">
           <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-100 flex items-center gap-2">
             <span class="material-icons text-warning-600">swap_horiz</span>
-            Reassign Trip
+            {{ 'TRIPS.REASSIGN_TRIP' | translate }}
           </h3>
           <form [formGroup]="reassignForm" (ngSubmit)="reassignTrip()" class="space-y-4">
             <div class="space-y-1">
               <label class="block text-sm font-medium text-gray-700" for="reassignDriverId">
-                Select New Driver
+                {{ 'TRIPS.SELECT_NEW_DRIVER' | translate }}
               </label>
               <select
                 id="reassignDriverId"
@@ -257,7 +257,7 @@
                 type="button"
                 class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
                 (click)="toggleReassignPanel()">
-                Cancel
+                {{ 'COMMON.CANCEL' | translate }}
               </button>
               <button
                 type="submit"
@@ -267,7 +267,7 @@
                   <span class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
                 } @else {
                   <span class="material-icons text-lg">swap_horiz</span>
-                  Reassign Trip
+                  {{ 'TRIPS.REASSIGN_TRIP' | translate }}
                 }
               </button>
             </div>
@@ -278,7 +278,7 @@
       <!-- Timeline Card -->
       @if (trip() && history().length > 0) {
         <div class="bg-white rounded-lg shadow-card p-6">
-          <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-100">Status Timeline</h3>
+          <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-100">{{ 'TRIPS.STATUS_TIMELINE' | translate }}</h3>
           <div class="space-y-4">
             @for (event of history(); track event.id; let first = $first) {
               <div class="flex gap-4" [class.pt-0]="first">
@@ -306,26 +306,26 @@
       <!-- Timestamps Card -->
       @if (trip()) {
         <div class="bg-white rounded-lg shadow-card p-6">
-          <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-100">Timestamps</h3>
+          <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-100">{{ 'TRIPS.TIMESTAMPS' | translate }}</h3>
           <div class="grid grid-cols-2 gap-4">
             <div class="space-y-1">
-              <span class="text-sm text-gray-500">Created</span>
+              <span class="text-sm text-gray-500">{{ 'TRIPS.CREATED' | translate }}</span>
               <p class="font-medium text-gray-800">{{ formatDate(trip()?.createdAt || null) }}</p>
             </div>
             @if (trip()?.startedAt) {
               <div class="space-y-1">
-                <span class="text-sm text-gray-500">Started</span>
+                <span class="text-sm text-gray-500">{{ 'TRIPS.STARTED' | translate }}</span>
                 <p class="font-medium text-gray-800">{{ formatDate(trip()?.startedAt || null) }}</p>
               </div>
             }
             @if (trip()?.completedAt) {
               <div class="space-y-1">
-                <span class="text-sm text-gray-500">Completed</span>
+                <span class="text-sm text-gray-500">{{ 'TRIPS.COMPLETED' | translate }}</span>
                 <p class="font-medium text-gray-800">{{ formatDate(trip()?.completedAt || null) }}</p>
               </div>
             }
             <div class="space-y-1">
-              <span class="text-sm text-gray-500">Last Updated</span>
+              <span class="text-sm text-gray-500">{{ 'TRIPS.LAST_UPDATED' | translate }}</span>
               <p class="font-medium text-gray-800">{{ formatDate(trip()?.updatedAt || null) }}</p>
             </div>
           </div>

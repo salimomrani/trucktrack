@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { StatsService, DashboardStats } from './stats.service';
 import { TripStatsComponent } from '../trips/trip-stats/trip-stats.component';
 import { StoreFacade } from '../../store/store.facade';
@@ -17,6 +18,7 @@ import { StoreFacade } from '../../store/store.facade';
         CommonModule,
         RouterModule,
         DecimalPipe,
+        TranslateModule,
         TripStatsComponent
     ],
     templateUrl: './stats-dashboard.component.html',

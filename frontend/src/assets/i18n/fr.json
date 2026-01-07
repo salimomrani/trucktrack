@@ -39,7 +39,12 @@
     "ACTIVE": "Actif",
     "INACTIVE": "Inactif",
     "ENABLED": "Activé",
-    "DISABLED": "Désactivé"
+    "DISABLED": "Désactivé",
+    "RETRY": "Réessayer",
+    "VIEW_ALL": "Voir tout",
+    "UPDATING": "Mise à jour...",
+    "TRUE": "Vrai",
+    "FALSE": "Faux"
   },
   "NAV": {
     "DASHBOARD": "Tableau de bord",
@@ -63,7 +68,16 @@
     "REMEMBER_ME": "Se souvenir de moi",
     "FORGOT_PASSWORD": "Mot de passe oublié ?",
     "SIGN_IN": "Se connecter",
-    "WELCOME": "Bienvenue"
+    "WELCOME": "Bienvenue",
+    "WELCOME_BACK": "Bon retour !",
+    "ENTER_EMAIL": "Entrez votre email",
+    "ENTER_PASSWORD": "Entrez votre mot de passe",
+    "SHOW_PASSWORD": "Afficher le mot de passe",
+    "HIDE_PASSWORD": "Masquer le mot de passe",
+    "EMAIL_REQUIRED": "L'email est requis",
+    "PASSWORD_REQUIRED": "Le mot de passe est requis",
+    "PASSWORD_MIN_LENGTH": "Le mot de passe doit contenir au moins 8 caractères",
+    "TEST_USERS": "Utilisateurs de test (cliquez pour remplir) :"
   },
   "HEADER": {
     "MENU": "Menu",
@@ -80,7 +94,8 @@
     "OTHER": "Autre"
   },
   "DASHBOARD": {
-    "TITLE": "Tableau de bord",
+    "TITLE": "Tableau de bord Admin",
+    "SUBTITLE": "Vue d'ensemble de la flotte et actions rapides",
     "ACTIVE_TRUCKS": "Camions actifs",
     "TRIPS_TODAY": "Trajets aujourd'hui",
     "OFFLINE_TRUCKS": "Camions hors ligne",
@@ -88,7 +103,17 @@
     "COMPLETED_TRIPS": "Trajets terminés",
     "PENDING_TRIPS": "Trajets en attente",
     "FLEET_STATUS": "État de la flotte",
-    "RECENT_ACTIVITY": "Activité récente"
+    "RECENT_ACTIVITY": "Activité récente",
+    "TOTAL_USERS": "Total Utilisateurs",
+    "TOTAL_TRUCKS": "Total Camions",
+    "FLEET_ORGANIZATION": "Organisation de la flotte",
+    "SYSTEM_SETTINGS": "Paramètres système",
+    "TRIP_ANALYTICS": "Analytique des trajets",
+    "TRUCK_STATUS_BREAKDOWN": "Répartition des statuts",
+    "QUICK_ACTIONS": "Actions rapides",
+    "FLEET_MILEAGE": "Kilométrage de la flotte",
+    "TOTAL_KM": "Total km",
+    "AVG_PER_TRUCK": "Moy. par camion"
   },
   "TRUCKS": {
     "TITLE": "Gestion des camions",
@@ -108,6 +133,7 @@
     "STATUS_IDLE": "Inactif",
     "STATUS_OFFLINE": "Hors ligne",
     "STATUS_MAINTENANCE": "Maintenance",
+    "STATUS_OUT_OF_SERVICE": "Hors service",
     "NO_TRUCKS": "Aucun camion trouvé",
     "ASSIGN_DRIVER": "Assigner un chauffeur",
     "ASSIGN_GROUP": "Assigner un groupe"
@@ -133,6 +159,23 @@
     "NO_TRIPS": "Aucun trajet trouvé",
     "TRIP_DETAILS": "Détails du trajet",
     "PROOF_OF_DELIVERY": "Preuve de livraison",
+    "SCHEDULED_DATE": "Date/Heure planifiée",
+    "NOTES": "Notes",
+    "ASSIGNMENT": "Affectation",
+    "SELECT_DRIVER": "Sélectionner un chauffeur",
+    "NO_ASSIGNMENT": "Pas encore d'affectation",
+    "ASSIGN_NOW": "Assigner maintenant",
+    "ASSIGN_TRIP": "Assigner le trajet",
+    "REASSIGN_TRIP": "Réassigner le trajet",
+    "SELECT_NEW_DRIVER": "Sélectionner un nouveau chauffeur",
+    "STATUS_TIMELINE": "Historique des statuts",
+    "TIMESTAMPS": "Horodatages",
+    "CREATED": "Créé",
+    "STARTED": "Démarré",
+    "COMPLETED": "Terminé",
+    "LAST_UPDATED": "Dernière mise à jour",
+    "SAVE_CHANGES": "Enregistrer les modifications",
+    "NO_DRIVERS_AVAILABLE": "Aucun chauffeur avec camion assigné disponible",
     "STATUS": {
       "PENDING": "En attente",
       "ASSIGNED": "Assigné",
@@ -160,7 +203,8 @@
       "ADMIN": "Administrateur",
       "FLEET_MANAGER": "Gestionnaire de flotte",
       "DISPATCHER": "Répartiteur",
-      "DRIVER": "Chauffeur"
+      "DRIVER": "Chauffeur",
+      "VIEWER": "Observateur"
     },
     "STATUS_ACTIVE": "Actif",
     "STATUS_INACTIVE": "Inactif",
@@ -182,13 +226,32 @@
   },
   "CONFIG": {
     "TITLE": "Configuration",
+    "SYSTEM_CONFIG": "Configuration système",
+    "MANAGE_SETTINGS": "Gérer les paramètres de l'application",
+    "LOADING_CONFIG": "Chargement de la configuration...",
     "ALERT_RULES": "Règles d'alerte",
     "GEOFENCES": "Zones géographiques",
     "SETTINGS": "Paramètres",
     "NOTIFICATIONS": "Notifications",
     "PREFERENCES": "Préférences",
     "GENERAL": "Général",
-    "SECURITY": "Sécurité"
+    "SECURITY": "Sécurité",
+    "VALUE": "Valeur",
+    "REASON_FOR_CHANGE": "Raison du changement (optionnel)",
+    "ENTER_REASON": "Entrer la raison...",
+    "TYPE": "Type",
+    "VERSION": "Version",
+    "LAST_UPDATED_BY": "Dernière modification par",
+    "NO_CONFIG": "Aucun paramètre de configuration trouvé.",
+    "CONFIG_WILL_POPULATE": "La configuration sera remplie lors de l'initialisation du système.",
+    "GPS": "GPS",
+    "GPS_DESC": "Configuration du suivi de localisation",
+    "ALERTS_DESC": "Règles de notification et d'alerte",
+    "MAP": "Carte",
+    "MAP_DESC": "Préférences d'affichage de la carte",
+    "RETENTION": "Rétention",
+    "RETENTION_DESC": "Gestion du cycle de vie des données",
+    "GENERAL_DESC": "Paramètres généraux de l'application"
   },
   "ALERTS": {
     "TITLE": "Alertes",
@@ -229,8 +292,25 @@
     "MAX_LENGTH": "Longueur maximale dépassée",
     "PASSWORDS_MISMATCH": "Les mots de passe ne correspondent pas"
   },
+  "PROFILE": {
+    "TITLE": "Profil",
+    "NO_USER_DATA": "Donnees utilisateur non disponibles",
+    "CHANGE_PASSWORD": "Changer le mot de passe",
+    "UPDATE_PASSWORD_DESC": "Mettre a jour le mot de passe de votre compte",
+    "CURRENT_PASSWORD": "Mot de passe actuel",
+    "ENTER_CURRENT_PASSWORD": "Entrez votre mot de passe actuel",
+    "NEW_PASSWORD": "Nouveau mot de passe",
+    "ENTER_NEW_PASSWORD": "Entrez votre nouveau mot de passe",
+    "CONFIRM_NEW_PASSWORD": "Confirmer le nouveau mot de passe",
+    "CONFIRM_PASSWORD_PLACEHOLDER": "Confirmez votre nouveau mot de passe",
+    "PASSWORD_CHANGED": "Mot de passe modifie avec succes",
+    "PASSWORD_CHANGE_ERROR": "Echec du changement de mot de passe",
+    "LAST_LOGIN": "Derniere connexion",
+    "MEMBER_SINCE": "Membre depuis"
+  },
   "NOTIFICATIONS": {
     "TITLE": "Notifications",
+    "NEW": "nouveau",
     "NEW_ALERT": "Nouvelle alerte",
     "TRIP_ASSIGNED": "Trajet assigné",
     "TRIP_COMPLETED": "Trajet terminé",
@@ -238,6 +318,13 @@
     "GEOFENCE_ENTER": "Entrée dans la zone",
     "GEOFENCE_EXIT": "Sortie de la zone",
     "SPEED_ALERT": "Alerte vitesse",
-    "NO_NOTIFICATIONS": "Aucune notification"
+    "NO_NOTIFICATIONS": "Aucune notification",
+    "VIEW_ALL": "Voir toutes les notifications",
+    "MARKING": "Marquage...",
+    "MARK_AS_READ": "Marquer comme lu",
+    "JUST_NOW": "À l'instant",
+    "MINUTES_AGO": "Il y a {{count}} min",
+    "HOURS_AGO": "Il y a {{count}}h",
+    "DAYS_AGO": "Il y a {{count}}j"
   }
 }

@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { Actions, ofType } from '@ngrx/effects';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { StoreFacade } from '../../../store/store.facade';
 import * as NotificationsActions from '../../../store/notifications/notifications.actions';
 import { Notification, NotificationSeverity, NotificationType } from '../../../models/notification.model';
@@ -34,7 +35,7 @@ import { SkeletonComponent } from '../skeleton/skeleton.component';
 @Component({
   selector: 'app-notifications-dropdown',
   standalone: true,
-  imports: [CommonModule, RouterModule, EmptyStateComponent, SkeletonComponent],
+  imports: [CommonModule, RouterModule, TranslateModule, EmptyStateComponent, SkeletonComponent],
   templateUrl: './notifications-dropdown.component.html',
   styleUrl: './notifications-dropdown.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -43,6 +44,7 @@ export class NotificationsDropdownComponent implements OnInit, OnDestroy {
   private readonly facade = inject(StoreFacade);
   private readonly actions$ = inject(Actions);
   private readonly elementRef = inject(ElementRef);
+  private readonly translate = inject(TranslateService);
   private readonly destroy$ = new Subject<void>();
 
   /** Event emitted when dropdown should close */
@@ -189,10 +191,10 @@ export class NotificationsDropdownComponent implements OnInit, OnDestroy {
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
+    if (diffMins < 1) return this.translate.instant('NOTIFICATIONS.JUST_NOW');
+    if (diffMins < 60) return this.translate.instant('NOTIFICATIONS.MINUTES_AGO', { count: diffMins });
+    if (diffHours < 24) return this.translate.instant('NOTIFICATIONS.HOURS_AGO', { count: diffHours });
+    if (diffDays < 7) return this.translate.instant('NOTIFICATIONS.DAYS_AGO', { count: diffDays });
     return date.toLocaleDateString();
   }
 
