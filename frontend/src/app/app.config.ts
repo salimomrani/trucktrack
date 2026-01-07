@@ -10,7 +10,7 @@ import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 import localeEn from '@angular/common/locales/en';
 import { TranslateModule, TranslateLoader, MissingTranslationHandler } from '@ngx-translate/core';
-import { TranslateHttpLoader, provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { CustomMissingTranslationHandler } from './core/services/missing-translation.handler';
 import { environment } from '../environments/environment';
 
@@ -77,12 +77,13 @@ export const appConfig: ApplicationConfig = {
       multi: true
     },
     // i18n configuration with cache busting via build date query string
-    provideTranslateHttpLoader({
-      prefix: './assets/i18n/',
-      suffix: `.json?d=${environment.buildTimestamp}`
-    }),
     ...TranslateModule.forRoot({
       defaultLanguage: 'fr',
+      loader: {
+        provide: TranslateLoader,
+        useFactory: (http: HttpClient) => new TranslateHttpLoader(http, './assets/i18n/', `.json?d=${environment.buildTimestamp}`),
+        deps: [HttpClient]
+      },
       missingTranslationHandler: {
         provide: MissingTranslationHandler,
         useClass: CustomMissingTranslationHandler
