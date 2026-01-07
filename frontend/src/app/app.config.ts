@@ -76,11 +76,7 @@ export const appConfig: ApplicationConfig = {
       deps: [Store, Actions],
       multi: true
     },
-    // i18n configuration with cache busting via build date query string
-    provideTranslateHttpLoader({
-      prefix: './assets/i18n/',
-      suffix: `.json?d=${environment.buildTimestamp}`
-    }),
+    // i18n configuration - order matters: TranslateModule first, then HTTP loader to override
     ...TranslateModule.forRoot({
       defaultLanguage: 'fr',
       missingTranslationHandler: {
@@ -88,6 +84,10 @@ export const appConfig: ApplicationConfig = {
         useClass: CustomMissingTranslationHandler
       }
     }).providers || [],
+    provideTranslateHttpLoader({
+      prefix: './assets/i18n/',
+      suffix: `.json?d=${environment.buildTimestamp}`
+    }),
     {
       provide: LOCALE_ID,
       useValue: 'fr'
