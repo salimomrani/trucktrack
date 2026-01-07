@@ -9,8 +9,8 @@ import { firstValueFrom, timeout, catchError, of } from 'rxjs';
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 import localeEn from '@angular/common/locales/en';
-import { TranslateModule, TranslateLoader, MissingTranslationHandler } from '@ngx-translate/core';
-import { TranslateHttpLoader, provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { TranslateModule, MissingTranslationHandler } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { CustomMissingTranslationHandler } from './core/services/missing-translation.handler';
 import { environment } from '../environments/environment';
 
@@ -76,11 +76,7 @@ export const appConfig: ApplicationConfig = {
       deps: [Store, Actions],
       multi: true
     },
-    // i18n configuration with cache busting via build date query string
-    provideTranslateHttpLoader({
-      prefix: './assets/i18n/',
-      suffix: `.json?d=${environment.buildTimestamp}`
-    }),
+    // i18n configuration - order matters: TranslateModule first, then HTTP loader to override
     ...TranslateModule.forRoot({
       defaultLanguage: 'fr',
       missingTranslationHandler: {
@@ -88,6 +84,10 @@ export const appConfig: ApplicationConfig = {
         useClass: CustomMissingTranslationHandler
       }
     }).providers || [],
+    provideTranslateHttpLoader({
+      prefix: './assets/i18n/',
+      suffix: `.json?d=${environment.buildTimestamp}`
+    }),
     {
       provide: LOCALE_ID,
       useValue: 'fr'

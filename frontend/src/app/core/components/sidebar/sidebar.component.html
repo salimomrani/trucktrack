@@ -11,7 +11,7 @@
   <nav class="flex-1 p-4 space-y-6 overflow-y-auto sidebar-nav">
     @for (category of navCategories(); track category.category) {
       <div class="space-y-2">
-        <h3 class="px-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ category.label }}</h3>
+        <h3 class="px-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ category.label | translate }}</h3>
         <div class="space-y-1">
           @for (item of category.items; track item.route) {
             <a
@@ -21,7 +21,7 @@
               class="flex items-center gap-3 px-3 py-2.5 rounded-lg no-underline transition-colors text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
               (click)="onNavClick()">
               <span class="material-icons text-xl">{{ item.icon }}</span>
-              <span class="flex-1">{{ item.label }}</span>
+              <span class="flex-1">{{ item.label | translate }}</span>
               @if (isAlertsRoute(item) && unreadCount() > 0) {
                 <span class="ml-auto px-2 py-0.5 text-xs font-bold rounded-full bg-danger-500 text-white">{{ formatBadge(unreadCount()) }}</span>
               }
