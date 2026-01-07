@@ -1,17 +1,17 @@
 <div class="p-6 space-y-6">
   <!-- Breadcrumb -->
-  <app-breadcrumb [items]="[{ label: 'Configuration', icon: 'settings' }]"></app-breadcrumb>
+  <app-breadcrumb [items]="[{ label: ('CONFIG.TITLE' | translate), icon: 'settings' }]"></app-breadcrumb>
 
   <!-- Header -->
   <div class="mb-6">
-    <h1 class="text-2xl font-semibold text-gray-800">System Configuration</h1>
-    <p class="text-gray-500">Manage application settings</p>
+    <h1 class="text-2xl font-semibold text-gray-800">{{ 'CONFIG.SYSTEM_CONFIG' | translate }}</h1>
+    <p class="text-gray-500">{{ 'CONFIG.MANAGE_SETTINGS' | translate }}</p>
   </div>
 
   @if (loading()) {
     <div class="flex flex-col items-center justify-center py-12">
       <div class="w-12 h-12 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-      <p class="text-gray-500">Loading configuration...</p>
+      <p class="text-gray-500">{{ 'CONFIG.LOADING_CONFIG' | translate }}</p>
     </div>
   } @else if (error()) {
     <div class="bg-white rounded-lg shadow-card p-6">
@@ -22,7 +22,7 @@
           type="button"
           class="px-4 py-2 text-primary-600 hover:bg-primary-50 rounded-md transition-colors"
           (click)="loadConfig()">
-          Retry
+          {{ 'COMMON.RETRY' | translate }}
         </button>
       </div>
     </div>
@@ -54,13 +54,13 @@
 
                 <!-- Value Input -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Value</label>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">{{ 'CONFIG.VALUE' | translate }}</label>
                   @if (config.valueType === 'BOOLEAN') {
                     <select
                       class="w-full max-w-md px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                       [(ngModel)]="editValues[config.key]">
-                      <option value="true">True</option>
-                      <option value="false">False</option>
+                      <option value="true">{{ 'COMMON.TRUE' | translate }}</option>
+                      <option value="false">{{ 'COMMON.FALSE' | translate }}</option>
                     </select>
                   } @else {
                     <input
@@ -72,12 +72,12 @@
 
                 <!-- Reason Input -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Reason for change (optional)</label>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">{{ 'CONFIG.REASON_FOR_CHANGE' | translate }}</label>
                   <input
                     type="text"
                     class="w-full max-w-md px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                     [(ngModel)]="editReasons[config.key]"
-                    placeholder="Enter reason...">
+                    [placeholder]="'CONFIG.ENTER_REASON' | translate">
                 </div>
 
                 <!-- Actions -->
@@ -86,23 +86,23 @@
                     type="button"
                     class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
                     (click)="resetValue(config)">
-                    Reset
+                    {{ 'COMMON.RESET' | translate }}
                   </button>
                   <button
                     type="button"
                     class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     [disabled]="editValues[config.key] === config.value"
                     (click)="saveConfig(config)">
-                    Save
+                    {{ 'COMMON.SAVE' | translate }}
                   </button>
                 </div>
 
                 <!-- Meta Information -->
                 <div class="flex flex-wrap items-center gap-4 text-xs text-gray-500 pt-2 border-t border-gray-100">
-                  <span>Type: {{ config.valueType }}</span>
-                  <span>Version: {{ config.version }}</span>
+                  <span>{{ 'CONFIG.TYPE' | translate }}: {{ config.valueType }}</span>
+                  <span>{{ 'CONFIG.VERSION' | translate }}: {{ config.version }}</span>
                   @if (config.updatedBy) {
-                    <span>Last updated by {{ config.updatedBy }}</span>
+                    <span>{{ 'CONFIG.LAST_UPDATED_BY' | translate }} {{ config.updatedBy }}</span>
                   }
                 </div>
               </div>
@@ -116,8 +116,8 @@
       <div class="bg-white rounded-lg shadow-card p-8">
         <div class="flex flex-col items-center text-center text-gray-400">
           <span class="material-icons text-5xl mb-4">settings</span>
-          <p class="text-lg font-medium text-gray-600">No configuration settings found.</p>
-          <p class="text-sm">Configuration will be populated when the system initializes.</p>
+          <p class="text-lg font-medium text-gray-600">{{ 'CONFIG.NO_CONFIG' | translate }}</p>
+          <p class="text-sm">{{ 'CONFIG.CONFIG_WILL_POPULATE' | translate }}</p>
         </div>
       </div>
     }

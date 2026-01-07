@@ -39,7 +39,12 @@
     "ACTIVE": "Active",
     "INACTIVE": "Inactive",
     "ENABLED": "Enabled",
-    "DISABLED": "Disabled"
+    "DISABLED": "Disabled",
+    "RETRY": "Retry",
+    "VIEW_ALL": "View all",
+    "UPDATING": "Updating...",
+    "TRUE": "True",
+    "FALSE": "False"
   },
   "NAV": {
     "DASHBOARD": "Dashboard",
@@ -63,7 +68,16 @@
     "REMEMBER_ME": "Remember me",
     "FORGOT_PASSWORD": "Forgot password?",
     "SIGN_IN": "Sign in",
-    "WELCOME": "Welcome"
+    "WELCOME": "Welcome",
+    "WELCOME_BACK": "Welcome back!",
+    "ENTER_EMAIL": "Enter your email",
+    "ENTER_PASSWORD": "Enter your password",
+    "SHOW_PASSWORD": "Show password",
+    "HIDE_PASSWORD": "Hide password",
+    "EMAIL_REQUIRED": "Email is required",
+    "PASSWORD_REQUIRED": "Password is required",
+    "PASSWORD_MIN_LENGTH": "Password must be at least 8 characters",
+    "TEST_USERS": "Test users (click to fill):"
   },
   "HEADER": {
     "MENU": "Menu",
@@ -80,7 +94,8 @@
     "OTHER": "Other"
   },
   "DASHBOARD": {
-    "TITLE": "Dashboard",
+    "TITLE": "Admin Dashboard",
+    "SUBTITLE": "Fleet overview and quick actions",
     "ACTIVE_TRUCKS": "Active trucks",
     "TRIPS_TODAY": "Trips today",
     "OFFLINE_TRUCKS": "Offline trucks",
@@ -88,7 +103,17 @@
     "COMPLETED_TRIPS": "Completed trips",
     "PENDING_TRIPS": "Pending trips",
     "FLEET_STATUS": "Fleet status",
-    "RECENT_ACTIVITY": "Recent activity"
+    "RECENT_ACTIVITY": "Recent activity",
+    "TOTAL_USERS": "Total Users",
+    "TOTAL_TRUCKS": "Total Trucks",
+    "FLEET_ORGANIZATION": "Fleet organization",
+    "SYSTEM_SETTINGS": "System settings",
+    "TRIP_ANALYTICS": "Trip Analytics",
+    "TRUCK_STATUS_BREAKDOWN": "Truck Status Breakdown",
+    "QUICK_ACTIONS": "Quick Actions",
+    "FLEET_MILEAGE": "Fleet Mileage",
+    "TOTAL_KM": "Total km",
+    "AVG_PER_TRUCK": "Avg per truck"
   },
   "TRUCKS": {
     "TITLE": "Truck Management",
@@ -108,6 +133,7 @@
     "STATUS_IDLE": "Idle",
     "STATUS_OFFLINE": "Offline",
     "STATUS_MAINTENANCE": "Maintenance",
+    "STATUS_OUT_OF_SERVICE": "Out of Service",
     "NO_TRUCKS": "No trucks found",
     "ASSIGN_DRIVER": "Assign driver",
     "ASSIGN_GROUP": "Assign group"
@@ -133,6 +159,23 @@
     "NO_TRIPS": "No trips found",
     "TRIP_DETAILS": "Trip details",
     "PROOF_OF_DELIVERY": "Proof of delivery",
+    "SCHEDULED_DATE": "Scheduled Date/Time",
+    "NOTES": "Notes",
+    "ASSIGNMENT": "Assignment",
+    "SELECT_DRIVER": "Select Driver",
+    "NO_ASSIGNMENT": "No assignment yet",
+    "ASSIGN_NOW": "Assign Now",
+    "ASSIGN_TRIP": "Assign Trip",
+    "REASSIGN_TRIP": "Reassign Trip",
+    "SELECT_NEW_DRIVER": "Select New Driver",
+    "STATUS_TIMELINE": "Status Timeline",
+    "TIMESTAMPS": "Timestamps",
+    "CREATED": "Created",
+    "STARTED": "Started",
+    "COMPLETED": "Completed",
+    "LAST_UPDATED": "Last Updated",
+    "SAVE_CHANGES": "Save Changes",
+    "NO_DRIVERS_AVAILABLE": "No drivers with assigned trucks available",
     "STATUS": {
       "PENDING": "Pending",
       "ASSIGNED": "Assigned",
@@ -160,7 +203,8 @@
       "ADMIN": "Administrator",
       "FLEET_MANAGER": "Fleet manager",
       "DISPATCHER": "Dispatcher",
-      "DRIVER": "Driver"
+      "DRIVER": "Driver",
+      "VIEWER": "Viewer"
     },
     "STATUS_ACTIVE": "Active",
     "STATUS_INACTIVE": "Inactive",
@@ -182,13 +226,32 @@
   },
   "CONFIG": {
     "TITLE": "Configuration",
+    "SYSTEM_CONFIG": "System Configuration",
+    "MANAGE_SETTINGS": "Manage application settings",
+    "LOADING_CONFIG": "Loading configuration...",
     "ALERT_RULES": "Alert rules",
     "GEOFENCES": "Geofences",
     "SETTINGS": "Settings",
     "NOTIFICATIONS": "Notifications",
     "PREFERENCES": "Preferences",
     "GENERAL": "General",
-    "SECURITY": "Security"
+    "SECURITY": "Security",
+    "VALUE": "Value",
+    "REASON_FOR_CHANGE": "Reason for change (optional)",
+    "ENTER_REASON": "Enter reason...",
+    "TYPE": "Type",
+    "VERSION": "Version",
+    "LAST_UPDATED_BY": "Last updated by",
+    "NO_CONFIG": "No configuration settings found.",
+    "CONFIG_WILL_POPULATE": "Configuration will be populated when the system initializes.",
+    "GPS": "GPS",
+    "GPS_DESC": "Location tracking configuration",
+    "ALERTS_DESC": "Notification and alert rules",
+    "MAP": "Map",
+    "MAP_DESC": "Map display preferences",
+    "RETENTION": "Retention",
+    "RETENTION_DESC": "Data lifecycle management",
+    "GENERAL_DESC": "General application settings"
   },
   "ALERTS": {
     "TITLE": "Alerts",
@@ -229,8 +292,25 @@
     "MAX_LENGTH": "Maximum length exceeded",
     "PASSWORDS_MISMATCH": "Passwords do not match"
   },
+  "PROFILE": {
+    "TITLE": "Profile",
+    "NO_USER_DATA": "User data not available",
+    "CHANGE_PASSWORD": "Change Password",
+    "UPDATE_PASSWORD_DESC": "Update your account password",
+    "CURRENT_PASSWORD": "Current Password",
+    "ENTER_CURRENT_PASSWORD": "Enter your current password",
+    "NEW_PASSWORD": "New Password",
+    "ENTER_NEW_PASSWORD": "Enter your new password",
+    "CONFIRM_NEW_PASSWORD": "Confirm New Password",
+    "CONFIRM_PASSWORD_PLACEHOLDER": "Confirm your new password",
+    "PASSWORD_CHANGED": "Password changed successfully",
+    "PASSWORD_CHANGE_ERROR": "Failed to change password",
+    "LAST_LOGIN": "Last login",
+    "MEMBER_SINCE": "Member since"
+  },
   "NOTIFICATIONS": {
     "TITLE": "Notifications",
+    "NEW": "new",
     "NEW_ALERT": "New alert",
     "TRIP_ASSIGNED": "Trip assigned",
     "TRIP_COMPLETED": "Trip completed",
@@ -238,6 +318,13 @@
     "GEOFENCE_ENTER": "Entered geofence",
     "GEOFENCE_EXIT": "Left geofence",
     "SPEED_ALERT": "Speed alert",
-    "NO_NOTIFICATIONS": "No notifications"
+    "NO_NOTIFICATIONS": "No notifications",
+    "VIEW_ALL": "View all notifications",
+    "MARKING": "Marking...",
+    "MARK_AS_READ": "Mark as read",
+    "JUST_NOW": "Just now",
+    "MINUTES_AGO": "{{count}}m ago",
+    "HOURS_AGO": "{{count}}h ago",
+    "DAYS_AGO": "{{count}}d ago"
   }
 }

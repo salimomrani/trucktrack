@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { StoreFacade } from '../../store/store.facade';
 import { AuthService } from '../../core/services/auth.service';
 import { ChangePasswordRequest } from '../../core/models/auth.model';
@@ -15,6 +16,7 @@ import { ToastService } from '../../shared/components/toast/toast.service';
   standalone: true,
   imports: [
     ReactiveFormsModule,
+    TranslateModule,
     DatePipe
   ],
   templateUrl: './profile.component.html',
@@ -26,6 +28,7 @@ export class ProfileComponent {
   private readonly facade = inject(StoreFacade);
   private readonly authService = inject(AuthService);
   private readonly toast = inject(ToastService);
+  private readonly translate = inject(TranslateService);
 
   // User data from store (already loaded after login)
   readonly user = this.facade.currentUser;
@@ -66,13 +69,13 @@ export class ProfileComponent {
 
     this.authService.changePassword(request).subscribe({
       next: () => {
-        this.showSuccess('Password changed successfully');
+        this.showSuccess(this.translate.instant('PROFILE.PASSWORD_CHANGED'));
         this.passwordForm.reset();
         this.isChangingPassword.set(false);
       },
       error: (error) => {
         console.error('Failed to change password:', error);
-        const message = error.error?.message || 'Failed to change password. Please try again.';
+        const message = error.error?.message || this.translate.instant('PROFILE.PASSWORD_CHANGE_ERROR');
         this.showError(message);
         this.isChangingPassword.set(false);
       }
@@ -99,31 +102,18 @@ export class ProfileComponent {
     const field = this.passwordForm.get(fieldName);
 
     if (field?.hasError('required')) {
-      return this.getFieldLabel(fieldName) + ' is required';
+      return this.translate.instant('ERRORS.REQUIRED');
     }
 
     if (field?.hasError('minlength')) {
-      const minLength = field.errors?.['minlength'].requiredLength;
-      return `Password must be at least ${minLength} characters`;
+      return this.translate.instant('AUTH.PASSWORD_MIN_LENGTH');
     }
 
     if (fieldName === 'confirmPassword' && this.passwordForm.hasError('passwordMismatch')) {
-      return 'Passwords do not match';
+      return this.translate.instant('ERRORS.PASSWORDS_MISMATCH');
     }
 
     return '';
-  }
-
-  /**
-   * Get human-readable field label
-   */
-  private getFieldLabel(fieldName: string): string {
-    const labels: Record<string, string> = {
-      currentPassword: 'Current password',
-      newPassword: 'New password',
-      confirmPassword: 'Confirm password'
-    };
-    return labels[fieldName] || fieldName;
   }
 
   /**
@@ -140,14 +130,15 @@ export class ProfileComponent {
    * Get role display name
    */
   getRoleDisplayName(role: string): string {
-    const roleNames: Record<string, string> = {
-      ADMIN: 'Administrateur',
-      FLEET_MANAGER: 'Gestionnaire de flotte',
-      DRIVER: 'Conducteur',
-      DISPATCHER: 'Dispatcher',
-      VIEWER: 'Observateur'
+    const roleKeys: Record<string, string> = {
+      ADMIN: 'USERS.ROLES.ADMIN',
+      FLEET_MANAGER: 'USERS.ROLES.FLEET_MANAGER',
+      DRIVER: 'USERS.ROLES.DRIVER',
+      DISPATCHER: 'USERS.ROLES.DISPATCHER',
+      VIEWER: 'USERS.ROLES.VIEWER'
     };
-    return roleNames[role] || role;
+    const key = roleKeys[role];
+    return key ? this.translate.instant(key) : role;
   }
 
   /**

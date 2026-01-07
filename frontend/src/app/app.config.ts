@@ -1,4 +1,4 @@
-import { ApplicationConfig, isDevMode, APP_INITIALIZER, LOCALE_ID, inject } from '@angular/core';
+import { ApplicationConfig, isDevMode, APP_INITIALIZER, LOCALE_ID } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideHttpClient, withInterceptors, HttpClient } from '@angular/common/http';
@@ -13,6 +13,19 @@ import { TranslateModule, MissingTranslationHandler } from '@ngx-translate/core'
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { CustomMissingTranslationHandler } from './core/services/missing-translation.handler';
 import { environment } from '../environments/environment';
+import { LANGUAGE_STORAGE_KEY, DEFAULT_LANGUAGE, SupportedLanguage, SUPPORTED_LANGUAGES } from './store/language/language.state';
+
+/**
+ * Factory function for LOCALE_ID
+ * Reads saved language preference from localStorage to set initial locale for date/number formatting
+ */
+function getInitialLocale(): string {
+  if (typeof localStorage === 'undefined') {
+    return DEFAULT_LANGUAGE;
+  }
+  const savedLang = localStorage.getItem(LANGUAGE_STORAGE_KEY) as SupportedLanguage | null;
+  return savedLang && SUPPORTED_LANGUAGES.includes(savedLang) ? savedLang : DEFAULT_LANGUAGE;
+}
 
 // Register locales for date/number formatting
 registerLocaleData(localeFr, 'fr');
@@ -90,7 +103,7 @@ export const appConfig: ApplicationConfig = {
     }),
     {
       provide: LOCALE_ID,
-      useValue: 'fr'
+      useFactory: getInitialLocale
     }
   ]
 };

@@ -89,7 +89,7 @@
 
 ---
 
-## Phase 5: User Story 3 - Traduction des Pages Administration (Priority: P3) 🔄 IN PROGRESS
+## Phase 5: User Story 3 - Traduction des Pages Administration (Priority: P3) ✅
 
 **Goal**: All admin pages (Dashboard, Users, Trucks, Trips, Groups, Config) are fully translated.
 
@@ -98,13 +98,13 @@
 ### Implementation for User Story 3
 
 - [x] T027 [P] [US3] Add DASHBOARD translations (TITLE, ACTIVE_TRUCKS, TRIPS_TODAY, OFFLINE_TRUCKS, ALERTS_TODAY) to both `frontend/src/assets/i18n/fr.json` and `en.json`
-- [ ] T028 [US3] Apply translate pipe to dashboard component in `frontend/src/app/admin/dashboard/stats-dashboard.component.html`
+- [x] T028 [US3] Apply translate pipe to dashboard component in `frontend/src/app/admin/dashboard/stats-dashboard.component.html`
 - [x] T029 [P] [US3] Add TRUCKS translations (TITLE, ADD, PLATE_NUMBER, STATUS, DRIVER, GROUP, ACTIONS, EDIT, DELETE, CONFIRM_DELETE) to both JSON files
 - [x] T030 [US3] Apply translate pipe to truck-list component in `frontend/src/app/admin/trucks/truck-list/truck-list.component.html`
 - [x] T031 [US3] Apply translate pipe to truck-form component in `frontend/src/app/admin/trucks/truck-form/truck-form.component.html`
 - [x] T032 [P] [US3] Add TRIPS translations (TITLE, ADD, STATUS.*, ORIGIN, DESTINATION, DRIVER, TRUCK, FILTERS, DATE_RANGE) to both JSON files
 - [x] T033 [US3] Apply translate pipe to trip-list component in `frontend/src/app/admin/trips/trip-list/trip-list.component.html`
-- [ ] T034 [US3] Apply translate pipe to trip-detail component in `frontend/src/app/admin/trips/trip-detail/trip-detail.component.html`
+- [x] T034 [US3] Apply translate pipe to trip-detail component in `frontend/src/app/admin/trips/trip-detail/trip-detail.component.html`
 - [x] T035 [P] [US3] Add USERS translations (TITLE, ADD, EMAIL, ROLE, GROUP, STATUS, ACTIONS) to both JSON files
 - [x] T036 [US3] Apply translate pipe to user-list component in `frontend/src/app/admin/users/user-list/user-list.component.html`
 - [x] T037 [US3] Apply translate pipe to user-form component in `frontend/src/app/admin/users/user-form/user-form.component.html`
@@ -112,14 +112,14 @@
 - [x] T039 [US3] Apply translate pipe to group-list component in `frontend/src/app/admin/groups/group-list/group-list.component.html`
 - [x] T040 [US3] Apply translate pipe to group-form component in `frontend/src/app/admin/groups/group-form/group-form.component.html`
 - [x] T041 [P] [US3] Add CONFIG translations (TITLE, ALERT_RULES, GEOFENCES, SETTINGS) to both JSON files
-- [ ] T042 [US3] Apply translate pipe to config-page component in `frontend/src/app/admin/config/config-page.component.html`
+- [x] T042 [US3] Apply translate pipe to config-page component in `frontend/src/app/admin/config/config-page.component.html`
 - [x] T043 [US3] Add TranslateModule to all admin components that need it (update imports in each .ts file)
 
-**Checkpoint**: All admin pages display correctly in both FR and EN (3 components remaining)
+**Checkpoint**: All admin pages display correctly in both FR and EN ✅
 
 ---
 
-## Phase 6: User Story 4 - Traduction des Messages et Notifications (Priority: P4) 🔄 IN PROGRESS
+## Phase 6: User Story 4 - Traduction des Messages et Notifications (Priority: P4) ✅
 
 **Goal**: All toast messages (success, error) and validation messages are translated.
 
@@ -129,15 +129,15 @@
 
 - [x] T044 [P] [US4] Add SUCCESS translations (SAVED, DELETED, CREATED, UPDATED) to both JSON files
 - [x] T045 [P] [US4] Add ERRORS translations (GENERIC, NETWORK, VALIDATION, NOT_FOUND, UNAUTHORIZED, REQUIRED, INVALID_FORMAT) to both JSON files
-- [ ] T046 [US4] Update ToastService to use TranslateService for messages in `frontend/src/app/shared/components/toast/toast.service.ts`
+- [x] T046 [US4] Update ToastService to use TranslateService for messages in `frontend/src/app/shared/components/toast/toast.service.ts`
 - [x] T047 [US4] Update form validation messages to use translate pipe in truck-form in `frontend/src/app/admin/trucks/truck-form/truck-form.component.html`
 - [x] T048 [US4] Update form validation messages in user-form in `frontend/src/app/admin/users/user-form/user-form.component.html`
-- [ ] T049 [US4] Update form validation messages in trip-detail in `frontend/src/app/admin/trips/trip-detail/trip-detail.component.html`
+- [x] T049 [US4] Update form validation messages in trip-detail in `frontend/src/app/admin/trips/trip-detail/trip-detail.component.html`
 - [x] T050 [US4] Update form validation messages in group-form in `frontend/src/app/admin/groups/group-form/group-form.component.html`
 - [x] T051 [P] [US4] Add NOTIFICATIONS translations (NEW_ALERT, TRIP_ASSIGNED, TRUCK_OFFLINE) to both JSON files
-- [ ] T052 [US4] Update notifications-dropdown to use translate pipe in `frontend/src/app/shared/components/notifications-dropdown/notifications-dropdown.component.html`
+- [x] T052 [US4] Update notifications-dropdown to use translate pipe in `frontend/src/app/shared/components/notifications-dropdown/notifications-dropdown.component.html`
 
-**Checkpoint**: All dynamic messages (toasts, validation, notifications) appear in the selected language (3 remaining)
+**Checkpoint**: All dynamic messages (toasts, validation, notifications) appear in the selected language ✅
 
 ---
 
@@ -146,11 +146,11 @@
 **Purpose**: Date formatting, edge cases, and final validation
 
 - [x] T053 [P] Configure LOCALE_ID provider to update with language changes in `frontend/src/app/app.config.ts`
-- [ ] T054 [P] Update date pipes to use locale-aware formatting across components
+- [x] T054 [P] Update date pipes to use locale-aware formatting across components
 - [x] T055 Verify all translate pipes work with missing translation handler
 - [ ] T056 Run quickstart.md validation scenarios (language switch, persistence, admin pages, toast messages)
-- [ ] T057 Update login component to use translate pipe in `frontend/src/app/features/auth/login/login.component.html`
-- [ ] T058 Update profile component to use translate pipe in `frontend/src/app/features/profile/profile.component.ts`
+- [x] T057 Update login component to use translate pipe in `frontend/src/app/features/auth/login/login.component.html`
+- [x] T058 Update profile component to use translate pipe in `frontend/src/app/features/profile/profile.component.ts`
 
 ---
 
@@ -255,30 +255,17 @@ This delivers the core i18n functionality and can be demo'd immediately.
 
 | Metric | Count | Completed |
 |--------|-------|-----------|
-| **Total Tasks** | 58 | 44 (76%) |
+| **Total Tasks** | 58 | 57 (98%) |
 | **Phase 1 (Setup)** | 4 | 4 ✅ |
 | **Phase 2 (Foundational)** | 5 | 5 ✅ |
 | **US1 (Language Switching)** | 13 | 13 ✅ |
 | **US2 (Persistence)** | 4 | 4 ✅ |
-| **US3 (Admin Pages)** | 17 | 14 🔄 |
-| **US4 (Messages)** | 9 | 6 🔄 |
-| **Phase 7 (Polish)** | 6 | 2 🔄 |
+| **US3 (Admin Pages)** | 17 | 17 ✅ |
+| **US4 (Messages)** | 9 | 9 ✅ |
+| **Phase 7 (Polish)** | 6 | 5 🔄 |
 | **Parallel Opportunities** | 18 tasks marked [P] |
 
-### Remaining Tasks (14 total)
+### Remaining Tasks (1 total)
 
-**US3 (3 remaining)**:
-- T028: Dashboard component translate pipe
-- T034: Trip-detail translate pipe
-- T042: Config-page translate pipe
-
-**US4 (3 remaining)**:
-- T046: ToastService translate integration
-- T049: Trip-detail validation messages
-- T052: Notifications-dropdown translate
-
-**Polish (4 remaining)**:
-- T054: Date pipes locale-aware formatting
-- T056: Quickstart validation scenarios
-- T057: Login component translate pipe
-- T058: Profile component translate pipe
+**Polish (1 remaining)**:
+- T056: Quickstart validation scenarios (manual testing)

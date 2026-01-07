@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ConfigService, ConfigResponse, UpdateConfigRequest } from './config.service';
 import { BreadcrumbComponent } from '../shared/breadcrumb/breadcrumb.component';
 import { ToastService } from '../../shared/components/toast/toast.service';
@@ -13,6 +14,7 @@ import { ToastService } from '../../shared/components/toast/toast.service';
   standalone: true,
   imports: [
     FormsModule,
+    TranslateModule,
     BreadcrumbComponent
   ],
   templateUrl: './config-page.component.html',
@@ -22,6 +24,7 @@ import { ToastService } from '../../shared/components/toast/toast.service';
 export class ConfigPageComponent implements OnInit {
   private readonly configService = inject(ConfigService);
   private readonly toast = inject(ToastService);
+  private readonly translate = inject(TranslateService);
 
   loading = signal(false);
   error = signal<string | null>(null);
@@ -77,14 +80,15 @@ export class ConfigPageComponent implements OnInit {
   }
 
   getCategoryDescription(category: string): string {
-    const descriptions: Record<string, string> = {
-      'GPS': 'Location tracking configuration',
-      'Alerts': 'Notification and alert rules',
-      'Map': 'Map display preferences',
-      'Retention': 'Data lifecycle management',
-      'General': 'General application settings'
+    const translationKeys: Record<string, string> = {
+      'GPS': 'CONFIG.GPS_DESC',
+      'Alerts': 'CONFIG.ALERTS_DESC',
+      'Map': 'CONFIG.MAP_DESC',
+      'Retention': 'CONFIG.RETENTION_DESC',
+      'General': 'CONFIG.GENERAL_DESC'
     };
-    return descriptions[category] || 'Configuration settings';
+    const key = translationKeys[category];
+    return key ? this.translate.instant(key) : category;
   }
 
   resetValue(config: ConfigResponse) {

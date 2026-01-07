@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal, computed, effect } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { TripService } from '../trip.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { TripResponse, TripStatusHistoryResponse, TRIP_STATUS_COLORS, TRIP_STATUSES, CreateTripRequest, AssignTripRequest, UpdateTripRequest } from '../trip.model';
@@ -25,6 +26,7 @@ import { StoreFacade } from '../../../store/store.facade';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    TranslateModule,
     BreadcrumbComponent,
     LocationPickerComponent
   ],

@@ -1,15 +1,22 @@
 import { Injectable, inject, ApplicationRef, createComponent, EnvironmentInjector, ComponentRef, Injector } from '@angular/core';
 import { Subject } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 import { ToastContainerComponent } from './toast-container.component';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
 export interface ToastConfig {
   message: string;
+  /** Optional translation key - if provided, message will be treated as a translation key */
+  translationKey?: string;
+  /** Optional translation params */
+  translationParams?: Record<string, string | number>;
   type?: ToastType;
   duration?: number;
   action?: {
     label: string;
+    /** Optional translation key for action label */
+    labelKey?: string;
     callback: () => void;
   };
   dismissible?: boolean;
@@ -47,6 +54,7 @@ export class ToastService {
   private readonly appRef = inject(ApplicationRef);
   private readonly injector = inject(Injector);
   private readonly envInjector = inject(EnvironmentInjector);
+  private readonly translate = inject(TranslateService);
 
   private toasts: Toast[] = [];
   private toastId = 0;
@@ -59,12 +67,24 @@ export class ToastService {
    * Show a toast notification
    */
   show(config: ToastConfig): void {
+    // Resolve message - use translation key if provided
+    let message = config.message;
+    if (config.translationKey) {
+      message = this.translate.instant(config.translationKey, config.translationParams);
+    }
+
+    // Resolve action label if translation key provided
+    let action = config.action;
+    if (action?.labelKey) {
+      action = { ...action, label: this.translate.instant(action.labelKey) };
+    }
+
     const toast: Toast = {
       id: ++this.toastId,
-      message: config.message,
+      message,
       type: config.type || 'info',
       duration: config.duration ?? 3000,
-      action: config.action,
+      action,
       dismissible: config.dismissible ?? true,
       visible: true
     };
@@ -86,30 +106,65 @@ export class ToastService {
 
   /**
    * Show a success toast
+   * @param messageOrKey - Message text or translation key (if key starts with uppercase like 'SUCCESS.SAVED')
    */
-  success(message: string, duration = 3000): void {
-    this.show({ message, type: 'success', duration });
+  success(messageOrKey: string, duration = 3000): void {
+    const isTranslationKey = this.isTranslationKey(messageOrKey);
+    this.show({
+      message: isTranslationKey ? '' : messageOrKey,
+      translationKey: isTranslationKey ? messageOrKey : undefined,
+      type: 'success',
+      duration
+    });
   }
 
   /**
    * Show an error toast
+   * @param messageOrKey - Message text or translation key (if key starts with uppercase like 'ERRORS.GENERIC')
    */
-  error(message: string, duration = 5000): void {
-    this.show({ message, type: 'error', duration });
+  error(messageOrKey: string, duration = 5000): void {
+    const isTranslationKey = this.isTranslationKey(messageOrKey);
+    this.show({
+      message: isTranslationKey ? '' : messageOrKey,
+      translationKey: isTranslationKey ? messageOrKey : undefined,
+      type: 'error',
+      duration
+    });
   }
 
   /**
    * Show a warning toast
+   * @param messageOrKey - Message text or translation key
    */
-  warning(message: string, duration = 4000): void {
-    this.show({ message, type: 'warning', duration });
+  warning(messageOrKey: string, duration = 4000): void {
+    const isTranslationKey = this.isTranslationKey(messageOrKey);
+    this.show({
+      message: isTranslationKey ? '' : messageOrKey,
+      translationKey: isTranslationKey ? messageOrKey : undefined,
+      type: 'warning',
+      duration
+    });
   }
 
   /**
    * Show an info toast
+   * @param messageOrKey - Message text or translation key
    */
-  info(message: string, duration = 3000): void {
-    this.show({ message, type: 'info', duration });
+  info(messageOrKey: string, duration = 3000): void {
+    const isTranslationKey = this.isTranslationKey(messageOrKey);
+    this.show({
+      message: isTranslationKey ? '' : messageOrKey,
+      translationKey: isTranslationKey ? messageOrKey : undefined,
+      type: 'info',
+      duration
+    });
+  }
+
+  /**
+   * Check if string looks like a translation key (e.g., 'SUCCESS.SAVED', 'ERRORS.GENERIC')
+   */
+  private isTranslationKey(str: string): boolean {
+    return /^[A-Z][A-Z_]+\.[A-Z][A-Z_]+/.test(str);
   }
 
   /**
