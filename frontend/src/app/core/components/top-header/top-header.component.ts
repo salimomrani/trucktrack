@@ -6,9 +6,11 @@ import {
   ChangeDetectionStrategy
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { ThemeService } from '../../services/theme.service';
 import { StoreFacade } from '../../../store/store.facade';
 import { NotificationsDropdownComponent } from '../../../shared/components/notifications-dropdown/notifications-dropdown.component';
+import { LanguageSelectorComponent } from '../language-selector/language-selector.component';
 
 /**
  * Top Header Component
@@ -18,7 +20,7 @@ import { NotificationsDropdownComponent } from '../../../shared/components/notif
 @Component({
   selector: 'app-top-header',
   standalone: true,
-  imports: [RouterLink, NotificationsDropdownComponent],
+  imports: [RouterLink, TranslateModule, NotificationsDropdownComponent, LanguageSelectorComponent],
   templateUrl: './top-header.component.html',
   styleUrl: './top-header.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

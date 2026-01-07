@@ -5,19 +5,22 @@
       type="button"
       class="menu-toggle"
       (click)="onToggleSidebar()"
-      aria-label="Menu">
+      [attr.aria-label]="'HEADER.MENU' | translate">
       <span class="material-icons">menu</span>
     </button>
   </div>
 
   <!-- Right: Actions -->
   <div class="header-right">
+    <!-- Language selector -->
+    <app-language-selector />
+
     <!-- Theme toggle -->
     <button
       type="button"
       class="action-btn"
       (click)="toggleTheme()"
-      [attr.aria-label]="isDark() ? 'Mode clair' : 'Mode sombre'">
+      [attr.aria-label]="isDark() ? ('HEADER.LIGHT_MODE' | translate) : ('HEADER.DARK_MODE' | translate)">
       @if (isDark()) {
         <span class="material-icons">light_mode</span>
       } @else {
@@ -31,7 +34,7 @@
         type="button"
         class="action-btn"
         (click)="toggleNotifications()"
-        aria-label="Notifications"
+        [attr.aria-label]="'HEADER.NOTIFICATIONS' | translate"
         [attr.aria-expanded]="notificationsOpen()">
         <span class="material-icons">notifications_none</span>
         @if (unreadCount() > 0) {
@@ -50,7 +53,7 @@
         type="button"
         class="user-avatar-btn"
         (click)="toggleUserMenu()"
-        aria-label="Menu utilisateur"
+        [attr.aria-label]="'HEADER.USER_MENU' | translate"
         [attr.aria-expanded]="userMenuOpen()">
         <span class="user-avatar">{{ getInitials() }}</span>
       </button>
@@ -64,11 +67,11 @@
           <div class="user-menu-divider"></div>
           <a routerLink="/profile" class="user-menu-item" (click)="closeUserMenu()">
             <span class="material-icons">person</span>
-            <span>Profil</span>
+            <span>{{ 'AUTH.PROFILE' | translate }}</span>
           </a>
           <button type="button" class="user-menu-item user-menu-item-danger" (click)="logout()">
             <span class="material-icons">logout</span>
-            <span>Déconnexion</span>
+            <span>{{ 'AUTH.LOGOUT' | translate }}</span>
           </button>
         </div>
       }

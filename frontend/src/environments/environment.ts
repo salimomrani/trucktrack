@@ -1,6 +1,8 @@
 // Development environment configuration
+// Build timestamp is injected at build time for cache busting
 export const environment = {
   production: false,
+  buildTimestamp: new Date().toISOString().split('T')[0], // YYYY-MM-DD format
   apiUrl: 'http://localhost:8000',
   wsUrl: 'ws://localhost:8081/ws',
   map: {

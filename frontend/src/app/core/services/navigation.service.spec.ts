@@ -150,10 +150,10 @@ describe('NavigationService', () => {
   });
 
   describe('getCategoryLabel', () => {
-    it('should return French labels for known categories', () => {
-      expect(service.getCategoryLabel('operations')).toBe('Opérations');
-      expect(service.getCategoryLabel('administration')).toBe('Administration');
-      expect(service.getCategoryLabel('other')).toBe('Autre');
+    it('should return translation keys for known categories', () => {
+      expect(service.getCategoryLabel('operations')).toBe('SIDEBAR.OPERATIONS');
+      expect(service.getCategoryLabel('administration')).toBe('SIDEBAR.ADMINISTRATION');
+      expect(service.getCategoryLabel('other')).toBe('SIDEBAR.OTHER');
     });
 
     it('should return category name for unknown categories', () => {

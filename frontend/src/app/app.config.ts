@@ -1,11 +1,22 @@
-import { ApplicationConfig, isDevMode, APP_INITIALIZER } from '@angular/core';
+import { ApplicationConfig, isDevMode, APP_INITIALIZER, LOCALE_ID, inject } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, HttpClient } from '@angular/common/http';
 import { provideStore, Store } from '@ngrx/store';
 import { provideEffects, Actions, ofType } from '@ngrx/effects';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { firstValueFrom, timeout, catchError, of } from 'rxjs';
+import { registerLocaleData } from '@angular/common';
+import localeFr from '@angular/common/locales/fr';
+import localeEn from '@angular/common/locales/en';
+import { TranslateModule, MissingTranslationHandler } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { CustomMissingTranslationHandler } from './core/services/missing-translation.handler';
+import { environment } from '../environments/environment';
+
+// Register locales for date/number formatting
+registerLocaleData(localeFr, 'fr');
+registerLocaleData(localeEn, 'en');
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
@@ -16,6 +27,7 @@ import { HistoryEffects } from './store/history/history.effects';
 import { CacheEffects } from './store/cache/cache.effects';
 import { NotificationsEffects } from './store/notifications/notifications.effects';
 import { TripsEffects } from './store/trips/trips.effects';
+import { LanguageEffects } from './store/language/language.effects';
 import * as AuthActions from './store/auth/auth.actions';
 
 /**
@@ -50,7 +62,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     provideHttpClient(withInterceptors([authInterceptor])),
     provideStore(rootReducers, { metaReducers }),
-    provideEffects([AuthEffects, TrucksEffects, HistoryEffects, CacheEffects, NotificationsEffects, TripsEffects]),
+    provideEffects([AuthEffects, TrucksEffects, HistoryEffects, CacheEffects, NotificationsEffects, TripsEffects, LanguageEffects]),
     provideStoreDevtools({
       maxAge: 25,
       logOnly: !isDevMode(),
@@ -63,6 +75,22 @@ export const appConfig: ApplicationConfig = {
       useFactory: initializeAuth,
       deps: [Store, Actions],
       multi: true
+    },
+    // i18n configuration - order matters: TranslateModule first, then HTTP loader to override
+    ...TranslateModule.forRoot({
+      defaultLanguage: 'fr',
+      missingTranslationHandler: {
+        provide: MissingTranslationHandler,
+        useClass: CustomMissingTranslationHandler
+      }
+    }).providers || [],
+    provideTranslateHttpLoader({
+      prefix: './assets/i18n/',
+      suffix: `.json?d=${environment.buildTimestamp}`
+    }),
+    {
+      provide: LOCALE_ID,
+      useValue: 'fr'
     }
   ]
 };
