@@ -24,7 +24,7 @@ export const adminRoutes: Routes = [
       },
       {
         path: 'dashboard',
-        loadComponent: () => import('./dashboard/stats-dashboard.component').then(m => m.StatsDashboardComponent),
+        loadComponent: () => import('../core/components/dashboard-v2/dashboard-v2.component').then(m => m.DashboardV2Component),
         title: 'Dashboard - Admin'
       },
 

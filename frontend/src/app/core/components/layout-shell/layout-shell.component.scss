@@ -1,48 +1,74 @@
 /**
  * Layout Shell Component Styles
- * Feature: 021-sidebar-layout
+ * Feature: 021-sidebar-layout (Updated for V2 theme)
  */
 
-.layout-shell {
-  @apply flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-900;
+:host {
+  --sidebar-width: 260px;
+  --bg-page: #0d1117;
 }
 
-// Sidebar container with responsive behavior
-.sidebar-container {
-  @apply flex-shrink-0;
+.layout-shell {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg-page);
+}
 
-  // Desktop: always visible
+// Sidebar container - just a wrapper, sidebar is fixed
+.sidebar-container {
+  // Desktop: no width, sidebar is fixed
   &.desktop {
-    @apply relative;
+    width: 0;
   }
 
   // Mobile: fixed overlay
   &.mobile-open,
   &.mobile-closed {
-    @apply fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out;
-  }
-
-  &.mobile-open {
-    @apply translate-x-0;
+    position: fixed;
+    inset: 0;
+    width: auto;
+    right: auto;
+    z-index: 50;
+    transform: translateX(0);
+    transition: transform 0.3s ease-in-out;
   }
 
   &.mobile-closed {
-    @apply -translate-x-full;
+    transform: translateX(-100%);
   }
 }
 
 // Backdrop for mobile
 .sidebar-backdrop {
-  @apply fixed inset-0 bg-black/50 z-40 lg:hidden;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 40;
+
+  @media (min-width: 1024px) {
+    display: none;
+  }
 }
 
 // Main content area
-// z-30 creates stacking context so header (z-1010) is above map backdrops (z-1001)
-// Must be lower than sidebar-backdrop (z-40) and sidebar (z-50)
 .main-area {
-  @apply flex-1 flex flex-col overflow-hidden relative z-30;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  z-index: 30;
+  background: var(--bg-page);
+  margin-left: 0;
+
+  @media (min-width: 1024px) {
+    margin-left: var(--sidebar-width);
+  }
 }
 
 .main-content {
-  @apply flex-1 overflow-y-auto;
+  flex: 1;
+  overflow-y: auto;
+  background: var(--bg-page);
 }

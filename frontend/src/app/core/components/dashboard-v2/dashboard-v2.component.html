@@ -1,0 +1,210 @@
+<div class="dashboard-v2">
+  <!-- Header Section -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <div class="greeting-section">
+        <h1 class="greeting">{{ getGreeting() }}, {{ currentUser()?.firstName || 'User' }}</h1>
+        <p class="subtitle">Here's your fleet overview for today</p>
+      </div>
+      <div class="header-actions">
+        <div class="live-indicator">
+          <span class="pulse"></span>
+          <span class="label">Live</span>
+        </div>
+        <button class="action-btn">
+          <span class="material-icons">refresh</span>
+        </button>
+        <button class="action-btn primary">
+          <span class="material-icons">add</span>
+          <span class="btn-label">New Trip</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- KPI Cards Grid -->
+  <section class="kpi-section">
+    <div class="kpi-grid">
+      @for (kpi of kpiCards(); track kpi.labelKey) {
+        <div class="kpi-card" [attr.data-color]="kpi.color">
+          <div class="kpi-icon">
+            <span class="material-icons">{{ kpi.icon }}</span>
+          </div>
+          <div class="kpi-content">
+            <span class="kpi-label">{{ kpi.labelKey | translate }}</span>
+            <span class="kpi-value">{{ kpi.value }}</span>
+            @if (kpi.trend) {
+              <div class="kpi-trend" [class.positive]="kpi.trend > 0" [class.negative]="kpi.trend < 0">
+                <span class="material-icons">{{ kpi.trend > 0 ? 'trending_up' : 'trending_down' }}</span>
+                <span class="trend-value">{{ kpi.trend > 0 ? '+' : '' }}{{ kpi.trend }}%</span>
+                <span class="trend-label">{{ kpi.trendLabel }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Main Content Grid -->
+  <div class="content-grid">
+    <!-- Fleet Status Card -->
+    <section class="card fleet-status-card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span class="material-icons">pie_chart</span>
+          Fleet Status
+        </h2>
+        <span class="card-badge">{{ totalTrucks() }} total</span>
+      </div>
+      <div class="card-body">
+        <div class="status-chart">
+          <div class="chart-visual">
+            <svg viewBox="0 0 100 100" class="donut-chart">
+              <circle class="donut-ring" cx="50" cy="50" r="40" fill="none" stroke-width="12" />
+              @for (status of fleetStatus(); track status.label; let i = $index) {
+                <circle
+                  class="donut-segment"
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  fill="none"
+                  stroke-width="12"
+                  [attr.stroke]="status.color"
+                  [attr.stroke-dasharray]="(status.percentage * 2.51) + ' ' + (251 - status.percentage * 2.51)"
+                  [attr.stroke-dashoffset]="getDonutOffset(i)"
+                />
+              }
+            </svg>
+            <div class="chart-center">
+              <span class="center-value">{{ activeTrucks() }}</span>
+              <span class="center-label">Active</span>
+            </div>
+          </div>
+          <div class="status-legend">
+            @for (status of fleetStatus(); track status.label) {
+              <div class="legend-item">
+                <span class="legend-dot" [style.background-color]="status.color"></span>
+                <span class="legend-label">{{ status.label }}</span>
+                <span class="legend-value">{{ status.count }}</span>
+                <span class="legend-percentage">{{ status.percentage }}%</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recent Activity Card -->
+    <section class="card activity-card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span class="material-icons">history</span>
+          Recent Activity
+        </h2>
+        <button class="see-all-btn">View All</button>
+      </div>
+      <div class="card-body">
+        <div class="activity-list">
+          @for (activity of recentActivity; track activity.time) {
+            <div class="activity-item">
+              <div class="activity-icon" [style.background-color]="getActivityColor(activity.type) + '20'" [style.color]="getActivityColor(activity.type)">
+                <span class="material-icons">{{ activity.icon }}</span>
+              </div>
+              <div class="activity-content">
+                <span class="activity-label">{{ getActivityLabel(activity.type) }}</span>
+                <span class="activity-truck">{{ activity.truck }}</span>
+              </div>
+              <span class="activity-time">{{ activity.time }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Actions Card -->
+    <section class="card quick-actions-card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span class="material-icons">flash_on</span>
+          Quick Actions
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="actions-grid">
+          <button class="quick-action">
+            <span class="material-icons">add_location</span>
+            <span class="action-label">Add Truck</span>
+          </button>
+          <button class="quick-action">
+            <span class="material-icons">route</span>
+            <span class="action-label">Create Trip</span>
+          </button>
+          <button class="quick-action">
+            <span class="material-icons">group_add</span>
+            <span class="action-label">Add Driver</span>
+          </button>
+          <button class="quick-action">
+            <span class="material-icons">assessment</span>
+            <span class="action-label">Reports</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Performance Overview Card -->
+    <section class="card performance-card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span class="material-icons">speed</span>
+          Performance Overview
+        </h2>
+        <select class="period-select">
+          <option>This Week</option>
+          <option>This Month</option>
+          <option>This Quarter</option>
+        </select>
+      </div>
+      <div class="card-body">
+        <div class="performance-metrics">
+          <div class="metric">
+            <div class="metric-header">
+              <span class="metric-label">Trip Completion Rate</span>
+              <span class="metric-value">94%</span>
+            </div>
+            <div class="metric-bar">
+              <div class="metric-fill" style="width: 94%; background: linear-gradient(90deg, #10b981, #34d399)"></div>
+            </div>
+          </div>
+          <div class="metric">
+            <div class="metric-header">
+              <span class="metric-label">On-Time Delivery</span>
+              <span class="metric-value">87%</span>
+            </div>
+            <div class="metric-bar">
+              <div class="metric-fill" style="width: 87%; background: linear-gradient(90deg, #3b82f6, #60a5fa)"></div>
+            </div>
+          </div>
+          <div class="metric">
+            <div class="metric-header">
+              <span class="metric-label">Fleet Utilization</span>
+              <span class="metric-value">72%</span>
+            </div>
+            <div class="metric-bar">
+              <div class="metric-fill" style="width: 72%; background: linear-gradient(90deg, #f59e0b, #fbbf24)"></div>
+            </div>
+          </div>
+          <div class="metric">
+            <div class="metric-header">
+              <span class="metric-label">Driver Satisfaction</span>
+              <span class="metric-value">4.5/5</span>
+            </div>
+            <div class="metric-bar">
+              <div class="metric-fill" style="width: 90%; background: linear-gradient(90deg, #8b5cf6, #a78bfa)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
