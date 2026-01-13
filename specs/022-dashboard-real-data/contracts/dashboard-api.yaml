@@ -1,0 +1,320 @@
+openapi: 3.0.3
+info:
+  title: TruckTrack Dashboard API
+  description: API endpoints for dashboard real data integration
+  version: 1.0.0
+
+servers:
+  - url: /api/location/v1
+    description: Location Service (via API Gateway)
+
+paths:
+  /admin/dashboard:
+    get:
+      summary: Get aggregated dashboard data
+      description: Returns all dashboard data in a single call (KPIs, Fleet Status, Activity, Performance)
+      operationId: getDashboardData
+      tags:
+        - Dashboard
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: performancePeriod
+          in: query
+          description: Period for performance metrics
+          required: false
+          schema:
+            type: string
+            enum: [week, month]
+            default: week
+      responses:
+        '200':
+          description: Dashboard data retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardDataDTO'
+        '401':
+          description: Unauthorized - Invalid or missing token
+        '403':
+          description: Forbidden - User has no access to any truck groups
+        '500':
+          description: Internal server error
+
+  /admin/dashboard/kpis:
+    get:
+      summary: Get KPIs only
+      description: Returns only KPI metrics for partial refresh
+      operationId: getDashboardKpis
+      tags:
+        - Dashboard
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: KPIs retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardKpiDTO'
+        '401':
+          description: Unauthorized
+
+  /admin/dashboard/fleet-status:
+    get:
+      summary: Get fleet status breakdown
+      description: Returns truck status distribution for donut chart
+      operationId: getFleetStatus
+      tags:
+        - Dashboard
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Fleet status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FleetStatusDTO'
+        '401':
+          description: Unauthorized
+
+  /admin/dashboard/activity:
+    get:
+      summary: Get recent activity feed
+      description: Returns last 5 activity events across trucks
+      operationId: getRecentActivity
+      tags:
+        - Dashboard
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of events to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+            default: 5
+      responses:
+        '200':
+          description: Activity feed retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActivityEventDTO'
+        '401':
+          description: Unauthorized
+
+  /admin/dashboard/performance:
+    get:
+      summary: Get performance metrics
+      description: Returns calculated performance metrics for specified period
+      operationId: getPerformanceMetrics
+      tags:
+        - Dashboard
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          description: Time period for metrics calculation
+          required: false
+          schema:
+            type: string
+            enum: [week, month]
+            default: week
+      responses:
+        '200':
+          description: Performance metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PerformanceMetricsDTO'
+        '401':
+          description: Unauthorized
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    DashboardDataDTO:
+      type: object
+      required:
+        - kpis
+        - fleetStatus
+        - recentActivity
+        - performance
+        - generatedAt
+      properties:
+        kpis:
+          $ref: '#/components/schemas/DashboardKpiDTO'
+        fleetStatus:
+          $ref: '#/components/schemas/FleetStatusDTO'
+        recentActivity:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActivityEventDTO'
+        performance:
+          $ref: '#/components/schemas/PerformanceMetricsDTO'
+        generatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when data was generated
+        userId:
+          type: string
+          format: uuid
+          description: User ID for audit purposes
+
+    DashboardKpiDTO:
+      type: object
+      required:
+        - totalTrucks
+        - activeTrucks
+        - tripsToday
+        - alertsUnread
+      properties:
+        totalTrucks:
+          type: integer
+          minimum: 0
+          description: Total trucks in user's groups
+        activeTrucks:
+          type: integer
+          minimum: 0
+          description: Trucks currently active (moving)
+        tripsToday:
+          type: integer
+          minimum: 0
+          description: Trips created today
+        alertsUnread:
+          type: integer
+          minimum: 0
+          description: Unread alerts count
+        totalTrucksTrend:
+          type: number
+          description: Percentage change vs last month
+        activeTrucksTrend:
+          type: number
+          description: Percentage change vs yesterday
+        tripsTodayTrend:
+          type: number
+          description: Percentage change vs yesterday
+        alertsTrend:
+          type: number
+          description: Percentage change vs yesterday
+
+    FleetStatusDTO:
+      type: object
+      required:
+        - total
+        - active
+        - idle
+        - offline
+      properties:
+        total:
+          type: integer
+          minimum: 0
+        active:
+          type: integer
+          minimum: 0
+        idle:
+          type: integer
+          minimum: 0
+        offline:
+          type: integer
+          minimum: 0
+        activePercent:
+          type: number
+          minimum: 0
+          maximum: 100
+        idlePercent:
+          type: number
+          minimum: 0
+          maximum: 100
+        offlinePercent:
+          type: number
+          minimum: 0
+          maximum: 100
+
+    ActivityEventDTO:
+      type: object
+      required:
+        - id
+        - type
+        - title
+        - truckId
+        - timestamp
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum:
+            - TRIP_STARTED
+            - TRIP_COMPLETED
+            - DELIVERY_CONFIRMED
+            - ALERT_TRIGGERED
+            - MAINTENANCE_SCHEDULED
+        title:
+          type: string
+          description: Human-readable event title
+        truckId:
+          type: string
+          description: Truck identifier (e.g., TRK-001)
+        timestamp:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+          additionalProperties: true
+          description: Additional event-specific data
+
+    PerformanceMetricsDTO:
+      type: object
+      required:
+        - tripCompletionRate
+        - onTimeDelivery
+        - fleetUtilization
+        - periodStart
+        - periodEnd
+        - periodLabel
+      properties:
+        tripCompletionRate:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: Percentage of completed trips
+        onTimeDelivery:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: Percentage of on-time deliveries
+        fleetUtilization:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: Fleet utilization percentage
+        driverSatisfaction:
+          type: number
+          minimum: 0
+          maximum: 5
+          nullable: true
+          description: Driver satisfaction score (null = Coming Soon)
+        periodStart:
+          type: string
+          format: date
+        periodEnd:
+          type: string
+          format: date
+        periodLabel:
+          type: string
+          description: Human-readable period label (e.g., "This Week")

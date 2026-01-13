@@ -44,7 +44,8 @@
     "VIEW_ALL": "View all",
     "UPDATING": "Updating...",
     "TRUE": "True",
-    "FALSE": "False"
+    "FALSE": "False",
+    "COMING_SOON": "Coming Soon"
   },
   "NAV": {
     "DASHBOARD": "Dashboard",
@@ -102,8 +103,8 @@
     "ALERTS_TODAY": "Alerts today",
     "COMPLETED_TRIPS": "Completed trips",
     "PENDING_TRIPS": "Pending trips",
-    "FLEET_STATUS": "Fleet status",
-    "RECENT_ACTIVITY": "Recent activity",
+    "FLEET_STATUS": "Fleet Status",
+    "RECENT_ACTIVITY": "Recent Activity",
     "TOTAL_USERS": "Total Users",
     "TOTAL_TRUCKS": "Total Trucks",
     "FLEET_ORGANIZATION": "Fleet organization",
@@ -113,7 +114,20 @@
     "QUICK_ACTIONS": "Quick Actions",
     "FLEET_MILEAGE": "Fleet Mileage",
     "TOTAL_KM": "Total km",
-    "AVG_PER_TRUCK": "Avg per truck"
+    "AVG_PER_TRUCK": "Avg per truck",
+    "KPI_LOAD_ERROR": "Failed to load KPIs",
+    "FLEET_STATUS_ERROR": "Failed to load fleet status",
+    "ACTIVITY_ERROR": "Failed to load activity",
+    "NO_ACTIVITY": "No recent activity",
+    "NO_ACTIVITY_HINT": "Activity will appear here when trips are started or completed",
+    "NO_TRUCKS": "No trucks in your fleet",
+    "ADD_TRUCKS_HINT": "Add trucks to see fleet status",
+    "PERFORMANCE_OVERVIEW": "Performance Overview",
+    "PERFORMANCE_ERROR": "Failed to load performance",
+    "TRIP_COMPLETION_RATE": "Trip Completion Rate",
+    "ON_TIME_DELIVERY": "On-Time Delivery",
+    "FLEET_UTILIZATION": "Fleet Utilization",
+    "DRIVER_SATISFACTION": "Driver Satisfaction"
   },
   "TRUCKS": {
     "TITLE": "Truck Management",

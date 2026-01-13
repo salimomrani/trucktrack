@@ -44,7 +44,8 @@
     "VIEW_ALL": "Voir tout",
     "UPDATING": "Mise à jour...",
     "TRUE": "Vrai",
-    "FALSE": "Faux"
+    "FALSE": "Faux",
+    "COMING_SOON": "Bientôt disponible"
   },
   "NAV": {
     "DASHBOARD": "Tableau de bord",
@@ -113,7 +114,20 @@
     "QUICK_ACTIONS": "Actions rapides",
     "FLEET_MILEAGE": "Kilométrage de la flotte",
     "TOTAL_KM": "Total km",
-    "AVG_PER_TRUCK": "Moy. par camion"
+    "AVG_PER_TRUCK": "Moy. par camion",
+    "KPI_LOAD_ERROR": "Échec du chargement des KPIs",
+    "FLEET_STATUS_ERROR": "Échec du chargement de l'état de la flotte",
+    "ACTIVITY_ERROR": "Échec du chargement de l'activité",
+    "NO_ACTIVITY": "Aucune activité récente",
+    "NO_ACTIVITY_HINT": "L'activité apparaîtra ici lorsque des trajets seront démarrés ou terminés",
+    "NO_TRUCKS": "Aucun camion dans votre flotte",
+    "ADD_TRUCKS_HINT": "Ajoutez des camions pour voir l'état de la flotte",
+    "PERFORMANCE_OVERVIEW": "Vue d'ensemble des performances",
+    "PERFORMANCE_ERROR": "Échec du chargement des performances",
+    "TRIP_COMPLETION_RATE": "Taux d'achèvement des trajets",
+    "ON_TIME_DELIVERY": "Livraison à temps",
+    "FLEET_UTILIZATION": "Utilisation de la flotte",
+    "DRIVER_SATISFACTION": "Satisfaction des chauffeurs"
   },
   "TRUCKS": {
     "TITLE": "Gestion des camions",
