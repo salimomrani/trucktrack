@@ -19,7 +19,7 @@ import {
 })
 export class DashboardApiService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/location/v1/admin/dashboard`;
+  private readonly baseUrl = `${environment.apiUrl}/admin/dashboard`;
 
   /**
    * Get all dashboard data in a single API call.
