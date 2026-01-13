@@ -48,11 +48,11 @@ spring:
             - name: JwtAuthenticationFilter
             - RewritePath=/admin/(?<segment>.*), /admin/$\{segment}
 
-        # Admin Routes - Location Service (stats, config, groups, trucks, trips, proofs, audit)
+        # Admin Routes - Location Service (stats, config, groups, trucks, trips, proofs, audit, dashboard)
         - id: admin-location
           uri: http://localhost:8081
           predicates:
-            - Path=/admin/stats/**, /admin/config/**, /admin/groups/**, /admin/trucks/**, /admin/trips/**, /admin/proofs/**, /admin/audit/**
+            - Path=/admin/stats/**, /admin/config/**, /admin/groups/**, /admin/trucks/**, /admin/trips/**, /admin/proofs/**, /admin/audit/**, /admin/dashboard/**
           filters:
             - name: JwtAuthenticationFilter
             - RewritePath=/admin/(?<segment>.*), /admin/$\{segment}
