@@ -85,13 +85,8 @@ class AdminTripControllerTest {
         @DisplayName("should return paginated trips for admin user")
         void should_returnPaginatedTrips_forAdminUser() throws Exception {
             // Given
-            PageResponse<TripResponse> pageResponse = PageResponse.<TripResponse>builder()
-                .content(List.of(testTripResponse))
-                .pageNumber(0)
-                .pageSize(25)
-                .totalElements(1)
-                .totalPages(1)
-                .build();
+            PageResponse<TripResponse> pageResponse = new PageResponse<>(
+                List.of(testTripResponse), 0, 25, 1);
 
             when(tripService.getTrips(anyInt(), anyInt(), any(), any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(pageResponse);
@@ -112,13 +107,8 @@ class AdminTripControllerTest {
         @DisplayName("should return trips filtered by status")
         void should_returnTripsFilteredByStatus() throws Exception {
             // Given
-            PageResponse<TripResponse> pageResponse = PageResponse.<TripResponse>builder()
-                .content(List.of(testTripResponse))
-                .pageNumber(0)
-                .pageSize(25)
-                .totalElements(1)
-                .totalPages(1)
-                .build();
+            PageResponse<TripResponse> pageResponse = new PageResponse<>(
+                List.of(testTripResponse), 0, 25, 1);
 
             when(tripService.getTrips(eq(0), eq(25), any(), eq(TripStatus.PENDING), any(), any(), any(), any(), any(), any()))
                 .thenReturn(pageResponse);
@@ -137,13 +127,8 @@ class AdminTripControllerTest {
         @DisplayName("should allow DISPATCHER role to access")
         void should_allowDispatcherRole() throws Exception {
             // Given
-            PageResponse<TripResponse> pageResponse = PageResponse.<TripResponse>builder()
-                .content(Collections.emptyList())
-                .pageNumber(0)
-                .pageSize(25)
-                .totalElements(0)
-                .totalPages(0)
-                .build();
+            PageResponse<TripResponse> pageResponse = new PageResponse<>(
+                Collections.emptyList(), 0, 25, 0);
 
             when(tripService.getTrips(anyInt(), anyInt(), any(), any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(pageResponse);
@@ -489,13 +474,8 @@ class AdminTripControllerTest {
                 .status(TripStatus.IN_PROGRESS)
                 .build();
 
-            PageResponse<TripResponse> pageResponse = PageResponse.<TripResponse>builder()
-                .content(List.of(activeTrip))
-                .pageNumber(0)
-                .pageSize(25)
-                .totalElements(1)
-                .totalPages(1)
-                .build();
+            PageResponse<TripResponse> pageResponse = new PageResponse<>(
+                List.of(activeTrip), 0, 25, 1);
 
             when(tripService.getActiveTrips(0, 25)).thenReturn(pageResponse);
 
@@ -583,10 +563,8 @@ class AdminTripControllerTest {
         @DisplayName("should allow FLEET_MANAGER role")
         void should_allowFleetManagerRole() throws Exception {
             // Given
-            PageResponse<TripResponse> pageResponse = PageResponse.<TripResponse>builder()
-                .content(Collections.emptyList())
-                .totalElements(0)
-                .build();
+            PageResponse<TripResponse> pageResponse = new PageResponse<>(
+                Collections.emptyList(), 0, 25, 0);
 
             when(tripService.getTrips(anyInt(), anyInt(), any(), any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(pageResponse);
