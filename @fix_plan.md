@@ -46,6 +46,7 @@
 ## Completed
 
 ### Recent Features (2024-2025)
+- [x] Ralph specialized agents (test, doc, frontend, backend, review, git)
 - [x] Dashboard real data integration (022)
 - [x] Frontend i18n FR/EN (021)
 - [x] Tailwind CSS migration (020)
@@ -62,11 +63,15 @@
 - **Medium**: Important for maintainability and performance
 - **Low**: Nice-to-have improvements
 
-### Before Starting Any Task
-1. Check specs/ for existing specifications
-2. Review CLAUDE.md for conventions
-3. Create a feature branch
-4. Update this file after completion
+### Before Starting ANY Task (CRITICAL)
+1. **FIRST: Create a feature branch** `git checkout -b feature/<task-name>`
+2. Check specs/ for existing specifications
+3. Review CLAUDE.md for conventions
+4. Implement the task
+5. Commit and push to the feature branch
+6. Create PR via `gh pr create`
+7. **STOP** - Wait for user to merge
+8. Update this file after merge
 
 ### Testing Requirements
 - Backend: Min 70% coverage per service
