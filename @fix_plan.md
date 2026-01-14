@@ -3,7 +3,7 @@
 ## High Priority
 
 ### Backend Improvements
-- [ ] Add unit tests for DashboardService (location-service)
+- [x] Add unit tests for DashboardService (location-service) ✓ PR #100
 - [ ] Add integration tests for Trip API endpoints
 - [ ] Implement Redis caching for dashboard KPIs
 - [ ] Add health check endpoints for all microservices
