@@ -1,7 +1,8 @@
-import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { StoreFacade } from '../../../store/store.facade';
+import { SidebarService } from '../../services/sidebar.service';
 
 interface NavItem {
   icon: string;
@@ -31,17 +32,17 @@ interface NavGroup {
 })
 export class SidebarV2Component {
   private readonly facade = inject(StoreFacade);
+  private readonly sidebarService = inject(SidebarService);
 
-  // Collapse state
-  isCollapsed = signal(false);
-  isHovered = signal(false);
+  // Collapse state from service
+  readonly isCollapsed = this.sidebarService.isCollapsed;
 
   // User data from store
   readonly currentUser = this.facade.currentUser;
   readonly unreadNotifications = this.facade.unreadCount;
 
-  // Computed display state
-  readonly showLabels = computed(() => !this.isCollapsed() || this.isHovered());
+  // Show labels when not collapsed
+  readonly showLabels = computed(() => !this.isCollapsed());
 
   // Navigation structure
   readonly navGroups: NavGroup[] = [
@@ -75,17 +76,7 @@ export class SidebarV2Component {
   ];
 
   toggleCollapse(): void {
-    this.isCollapsed.update(v => !v);
-  }
-
-  onMouseEnter(): void {
-    if (this.isCollapsed()) {
-      this.isHovered.set(true);
-    }
-  }
-
-  onMouseLeave(): void {
-    this.isHovered.set(false);
+    this.sidebarService.toggleCollapsed();
   }
 
   getUserInitials(): string {
