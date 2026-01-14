@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Feature: 010-trip-management (US2: Driver Views and Manages Trips)
  */
 @WebMvcTest(TripController.class)
-@Import(TestSecurityConfig.class)
+@Import({TestSecurityConfig.class, TestSecurityConfig.TestExceptionHandler.class})
 @DisplayName("TripController (Driver) Integration Tests")
 class TripControllerTest {
 
