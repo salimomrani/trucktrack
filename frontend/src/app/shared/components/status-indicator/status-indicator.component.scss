@@ -1,0 +1,392 @@
+// Status Indicator Component Styles
+// Feature: Backend Service Health Monitoring
+
+.status-indicator-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+// ============================================
+// Status Dot Button
+// ============================================
+
+.status-dot-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+  }
+
+  // Dark mode
+  :host-context(.dark) & {
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+// Status-specific colors and animations
+
+.status-up {
+  .status-dot {
+    background-color: #22c55e; // green-500
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+    animation: pulse-green 2s infinite;
+  }
+}
+
+.status-degraded {
+  .status-dot {
+    background-color: #f97316; // orange-500
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4);
+    animation: pulse-orange 1.5s infinite;
+  }
+}
+
+.status-down {
+  .status-dot {
+    background-color: #ef4444; // red-500
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    animation: pulse-red 1s infinite;
+  }
+}
+
+.status-unknown {
+  .status-dot {
+    background-color: #9ca3af; // gray-400
+    animation: none;
+  }
+}
+
+// Loading state
+.loading {
+  .status-dot {
+    opacity: 0.5;
+    animation: none;
+  }
+}
+
+.loading-ring {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  opacity: 0.5;
+}
+
+// ============================================
+// Pulse Animations
+// ============================================
+
+@keyframes pulse-green {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+@keyframes pulse-orange {
+  0% {
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(249, 115, 22, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0);
+  }
+}
+
+@keyframes pulse-red {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ============================================
+// Popup
+// ============================================
+
+.status-popup {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 1000;
+  min-width: 280px;
+  background: white;
+  border-radius: 12px;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  animation: slideDown 0.2s ease;
+
+  // Dark mode
+  :host-context(.dark) & {
+    background: #1f2937;
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.3),
+      0 2px 4px -1px rgba(0, 0, 0, 0.2),
+      0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+
+  :host-context(.dark) & {
+    border-bottom-color: #374151;
+  }
+
+  h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+
+    :host-context(.dark) & {
+      color: #f3f4f6;
+    }
+  }
+}
+
+.refresh-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: #f3f4f6;
+    color: #374151;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  :host-context(.dark) & {
+    color: #9ca3af;
+
+    &:hover:not(:disabled) {
+      background: #374151;
+      color: #f3f4f6;
+    }
+  }
+}
+
+.refresh-icon {
+  width: 16px;
+  height: 16px;
+
+  &.spinning {
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+.popup-content {
+  padding: 8px 0;
+}
+
+// ============================================
+// Services List
+// ============================================
+
+.services-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.service-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: #f9fafb;
+  }
+
+  &.service-down {
+    background-color: #fef2f2;
+
+    &:hover {
+      background-color: #fee2e2;
+    }
+  }
+
+  :host-context(.dark) & {
+    &:hover {
+      background-color: #374151;
+    }
+
+    &.service-down {
+      background-color: rgba(239, 68, 68, 0.1);
+
+      &:hover {
+        background-color: rgba(239, 68, 68, 0.15);
+      }
+    }
+  }
+}
+
+.service-status-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+
+  &.up {
+    background-color: #22c55e;
+  }
+
+  &.down {
+    background-color: #ef4444;
+  }
+}
+
+.service-name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+
+  :host-context(.dark) & {
+    color: #e5e7eb;
+  }
+}
+
+.service-info {
+  font-size: 12px;
+  color: #6b7280;
+
+  :host-context(.dark) & {
+    color: #9ca3af;
+  }
+}
+
+.response-time {
+  font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+  font-size: 11px;
+  color: #22c55e;
+
+  :host-context(.dark) & {
+    color: #4ade80;
+  }
+}
+
+.status-text {
+  font-weight: 500;
+
+  &.down {
+    color: #ef4444;
+  }
+}
+
+.critical-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+  font-weight: 700;
+  color: white;
+  background-color: #f97316;
+  border-radius: 50%;
+}
+
+// ============================================
+// Footer
+// ============================================
+
+.popup-footer {
+  padding: 8px 16px 12px;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 4px;
+
+  :host-context(.dark) & {
+    border-top-color: #374151;
+  }
+}
+
+.last-checked {
+  font-size: 11px;
+  color: #9ca3af;
+
+  :host-context(.dark) & {
+    color: #6b7280;
+  }
+}

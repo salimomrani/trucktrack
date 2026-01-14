@@ -58,7 +58,13 @@ describe('TopHeaderComponent', () => {
       languageFlags: { fr: '🇫🇷', en: '🇬🇧' }
     });
 
-    mockStoreFacade = jasmine.createSpyObj('StoreFacade', ['logout', 'setLanguage']);
+    mockStoreFacade = jasmine.createSpyObj('StoreFacade', [
+      'logout',
+      'setLanguage',
+      'startHealthMonitoring',
+      'stopHealthMonitoring',
+      'checkHealth'
+    ]);
     Object.defineProperty(mockStoreFacade, 'currentUser', {
       get: () => currentUserSignal,
       configurable: true
@@ -81,6 +87,36 @@ describe('TopHeaderComponent', () => {
     });
     Object.defineProperty(mockStoreFacade, 'languageDropdownViewModel', {
       get: () => languageDropdownViewModelSignal,
+      configurable: true
+    });
+
+    // Health monitoring signals
+    const healthStatusSignal = signal('UP');
+    const healthMonitoringActiveSignal = signal(false);
+    const healthLoadingSignal = signal(false);
+    const statusIndicatorViewModelSignal = signal({
+      status: 'UP',
+      services: [],
+      lastChecked: null,
+      loading: false,
+      downCount: 0,
+      totalCount: 0
+    });
+
+    Object.defineProperty(mockStoreFacade, 'healthStatus', {
+      get: () => healthStatusSignal,
+      configurable: true
+    });
+    Object.defineProperty(mockStoreFacade, 'healthMonitoringActive', {
+      get: () => healthMonitoringActiveSignal,
+      configurable: true
+    });
+    Object.defineProperty(mockStoreFacade, 'healthLoading', {
+      get: () => healthLoadingSignal,
+      configurable: true
+    });
+    Object.defineProperty(mockStoreFacade, 'statusIndicatorViewModel', {
+      get: () => statusIndicatorViewModelSignal,
       configurable: true
     });
 

@@ -340,5 +340,18 @@
     "MINUTES_AGO": "{{count}}m ago",
     "HOURS_AGO": "{{count}}h ago",
     "DAYS_AGO": "{{count}}d ago"
+  },
+  "HEALTH": {
+    "SERVICES_STATUS": "Services Status",
+    "STATUS_UP": "All services are operational",
+    "STATUS_DEGRADED": "Some services are unavailable",
+    "STATUS_DOWN": "Critical services are down",
+    "STATUS_UNKNOWN": "Checking...",
+    "SERVICE_DOWN": "{{service}} is unavailable",
+    "SERVICE_RESTORED": "{{service}} is back online",
+    "REFRESH": "Refresh",
+    "LAST_CHECKED": "Last checked",
+    "DOWN": "Down",
+    "CRITICAL_SERVICE": "Critical service"
   }
 }

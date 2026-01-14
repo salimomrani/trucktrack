@@ -1,0 +1,80 @@
+<div class="status-indicator-wrapper">
+  <!-- Status Dot -->
+  <button
+    class="status-dot-button"
+    [class]="statusClass()"
+    [class.loading]="loading()"
+    (mouseenter)="onShowPopup()"
+    (mouseleave)="onHidePopup()"
+    (click)="onTogglePopup()"
+    [attr.aria-label]="tooltipKey() | translate"
+    [attr.title]="tooltipKey() | translate"
+  >
+    <span class="status-dot"></span>
+    @if (loading()) {
+      <span class="loading-ring"></span>
+    }
+  </button>
+
+  <!-- Popup -->
+  @if (showPopup()) {
+    <div
+      class="status-popup"
+      (mouseenter)="onShowPopup()"
+      (mouseleave)="onHidePopup()"
+    >
+      <div class="popup-header">
+        <h4>{{ 'HEALTH.SERVICES_STATUS' | translate }}</h4>
+        <button
+          class="refresh-button"
+          (click)="onRefresh()"
+          [disabled]="loading()"
+          [attr.aria-label]="'HEALTH.REFRESH' | translate"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            class="refresh-icon"
+            [class.spinning]="loading()"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.242a.75.75 0 001.5 0v-2.43l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm-6.623-7.351a7 7 0 00-11.712 3.138.75.75 0 001.449.39 5.5 5.5 0 019.201-2.466l.312.311H5.506a.75.75 0 000 1.5h4.243a.75.75 0 00.75-.75V1.954a.75.75 0 00-1.5 0v2.43l-.31-.31z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <div class="popup-content">
+        @if (viewModel(); as vm) {
+          <ul class="services-list">
+            @for (service of vm.services; track service.name) {
+              <li class="service-item" [class.service-down]="service.status === 'DOWN'">
+                <span class="service-status-dot" [class.up]="service.status === 'UP'" [class.down]="service.status === 'DOWN'"></span>
+                <span class="service-name">{{ service.displayName }}</span>
+                <span class="service-info">
+                  @if (service.status === 'UP') {
+                    <span class="response-time">{{ formatResponseTime(service.responseTimeMs) }}</span>
+                  } @else {
+                    <span class="status-text down">{{ 'HEALTH.DOWN' | translate }}</span>
+                  }
+                </span>
+                @if (service.critical) {
+                  <span class="critical-badge" [attr.title]="'HEALTH.CRITICAL_SERVICE' | translate">!</span>
+                }
+              </li>
+            }
+          </ul>
+
+          <div class="popup-footer">
+            <span class="last-checked">
+              {{ 'HEALTH.LAST_CHECKED' | translate }}: {{ getTimeSinceLastCheck() }}
+            </span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
