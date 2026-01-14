@@ -10,7 +10,7 @@
   </div>
 
   <!-- Main content area -->
-  <div class="main-area">
+  <div class="main-area" [style.--sidebar-current-width.px]="sidebarWidth()">
     <app-top-header (toggleSidebar)="toggleMobileSidebar()" />
     <main class="main-content">
       <ng-content />

@@ -27,7 +27,7 @@
   z-index: 100;
   transition: width 0.2s ease;
 
-  &.collapsed:not(.hovered) {
+  &.collapsed {
     width: var(--sidebar-collapsed);
   }
 }

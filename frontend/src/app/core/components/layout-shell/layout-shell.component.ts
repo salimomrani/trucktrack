@@ -12,6 +12,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { Subject, takeUntil, filter } from 'rxjs';
 import { SidebarV2Component } from '../sidebar-v2/sidebar-v2.component';
 import { TopHeaderComponent } from '../top-header/top-header.component';
+import { SidebarService } from '../../services/sidebar.service';
 
 /**
  * Layout Shell Component
@@ -28,10 +29,14 @@ import { TopHeaderComponent } from '../top-header/top-header.component';
 })
 export class LayoutShellComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
+  private readonly sidebarService = inject(SidebarService);
   private readonly destroy$ = new Subject<void>();
 
   /** Breakpoint for lg (1024px) */
   private readonly LG_BREAKPOINT = 1024;
+
+  /** Sidebar effective width from service */
+  readonly sidebarWidth = this.sidebarService.effectiveWidth;
 
   /** Mobile sidebar open state */
   readonly mobileSidebarOpen = signal(false);
