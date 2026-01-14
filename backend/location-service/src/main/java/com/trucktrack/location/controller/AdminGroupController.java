@@ -52,9 +52,11 @@ public class AdminGroupController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<GroupDetailResponse> getGroup(@PathVariable UUID id) {
-        return groupService.getGroupById(id)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+        GroupDetailResponse group = groupService.getGroupById(id);
+        if (group == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(group);
     }
 
     /**
