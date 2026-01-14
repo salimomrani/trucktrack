@@ -1,158 +1,211 @@
-# Agent Build Instructions
+# TruckTrack - Agent Build Instructions
 
 ## Project Setup
+
+### Prerequisites
+- Java 17 (OpenJDK or Oracle JDK)
+- Node.js 18+ and npm 9+
+- PostgreSQL 15+ with PostGIS extension
+- Redis 7+
+- Apache Kafka 3.6+
+- Docker & Docker Compose (optional, for local infra)
+
+### Backend Setup
 ```bash
-# Install dependencies (example for Node.js project)
+# Install dependencies and build all services
+cd backend
+mvn clean install -DskipTests
+
+# Build specific service
+mvn clean install -pl location-service -DskipTests
+```
+
+### Frontend Setup
+```bash
+# Install dependencies
+cd frontend
 npm install
 
-# Or for Python project
-pip install -r requirements.txt
+# Start development server
+npm start
+# App runs at http://localhost:4200
+```
 
-# Or for Rust project  
-cargo build
+### Mobile Setup (Expo)
+```bash
+cd mobile-expo
+npm install
+npx expo start
 ```
 
 ## Running Tests
+
+### Backend Tests
 ```bash
-# Node.js
+# Run all backend tests
+cd backend
+mvn test
+
+# Run tests for specific service
+mvn test -pl location-service
+mvn test -pl auth-service
+mvn test -pl notification-service
+
+# Run with coverage report
+mvn test jacoco:report -pl location-service
+# Report: backend/location-service/target/site/jacoco/index.html
+```
+
+### Frontend Tests
+```bash
+cd frontend
+
+# Run tests in watch mode
 npm test
 
-# Python
-pytest
+# Run tests once (CI mode)
+npm run test:ci
 
-# Rust
-cargo test
+# Run with coverage
+npm run test:ci -- --code-coverage
+# Report: frontend/coverage/index.html
+```
+
+### Lint
+```bash
+cd frontend
+npm run lint
+npm run lint:fix  # Auto-fix issues
 ```
 
 ## Build Commands
+
+### Backend Production Build
 ```bash
-# Production build
-npm run build
-# or
-cargo build --release
+cd backend
+mvn clean package -DskipTests
+
+# Build Docker images (if configured)
+mvn spring-boot:build-image -pl api-gateway
 ```
 
-## Development Server
+### Frontend Production Build
 ```bash
-# Start development server
-npm run dev
-# or
-cargo run
+cd frontend
+npm run build
+# Output: frontend/dist/frontend/
+```
+
+### Mobile Production Build
+```bash
+cd mobile-expo
+npx expo build:android  # or build:ios
+# Or use EAS Build
+npx eas build --platform android
+```
+
+## Development Servers
+
+### Start Backend Services
+```bash
+# Start each service (in separate terminals or use IDE)
+cd backend/api-gateway && mvn spring-boot:run
+cd backend/auth-service && mvn spring-boot:run
+cd backend/location-service && mvn spring-boot:run
+cd backend/notification-service && mvn spring-boot:run
+cd backend/gps-ingestion-service && mvn spring-boot:run
+
+# Services run on:
+# - API Gateway: http://localhost:8080
+# - Auth Service: http://localhost:8081
+# - Location Service: http://localhost:8082
+# - Notification Service: http://localhost:8083
+# - GPS Ingestion: http://localhost:8084
+```
+
+### Start Frontend
+```bash
+cd frontend
+npm start
+# Runs at http://localhost:4200
+# Proxies API calls to http://localhost:8080
+```
+
+## Database
+
+### PostgreSQL Setup
+```sql
+-- Create database
+CREATE DATABASE trucktrack;
+
+-- Enable PostGIS
+CREATE EXTENSION IF NOT EXISTS postgis;
+```
+
+### Run Migrations
+Flyway migrations run automatically on service startup.
+Manual run:
+```bash
+cd backend/location-service
+mvn flyway:migrate
 ```
 
 ## Key Learnings
-- Update this section when you learn new build optimizations
-- Document any gotchas or special setup requirements
-- Keep track of the fastest test/build cycle
+
+### Fast Test Cycle
+```bash
+# Backend: Test single class
+mvn test -pl location-service -Dtest=DashboardServiceTest
+
+# Frontend: Test single file
+npm test -- --include=**/dashboard*.spec.ts
+```
+
+### Common Issues
+
+1. **Port already in use**: Kill existing process or change port in application.yml
+2. **Kafka not available**: Services start without Kafka but GPS ingestion won't work
+3. **Redis connection refused**: Check Redis is running, or disable cache in dev profile
+
+### Angular Build Optimization
+```bash
+# Analyze bundle size
+npm run build -- --stats-json
+npx webpack-bundle-analyzer frontend/dist/frontend/stats.json
+```
 
 ## Feature Development Quality Standards
 
-**CRITICAL**: All new features MUST meet the following mandatory requirements before being considered complete.
-
 ### Testing Requirements
+- **Backend**: 70% coverage minimum per service
+- **Frontend**: 80% coverage for critical components
+- All tests must pass before merging
 
-- **Minimum Coverage**: 85% code coverage ratio required for all new code
-- **Test Pass Rate**: 100% - all tests must pass, no exceptions
-- **Test Types Required**:
-  - Unit tests for all business logic and services
-  - Integration tests for API endpoints or main functionality
-  - End-to-end tests for critical user workflows
-- **Coverage Validation**: Run coverage reports before marking features complete:
-  ```bash
-  # Examples by language/framework
-  npm run test:coverage
-  pytest --cov=src tests/ --cov-report=term-missing
-  cargo tarpaulin --out Html
-  ```
-- **Test Quality**: Tests must validate behavior, not just achieve coverage metrics
-- **Test Documentation**: Complex test scenarios must include comments explaining the test strategy
+### Git Workflow
+```bash
+# Create feature branch
+git checkout -b feature/my-feature
 
-### Git Workflow Requirements
+# Commit with conventional format
+git commit -m "feat(location): add dashboard caching"
 
-Before moving to the next feature, ALL changes must be:
+# Push and create PR
+git push -u origin feature/my-feature
+gh pr create --title "feat: dashboard caching" --body "..."
+```
 
-1. **Committed with Clear Messages**:
-   ```bash
-   git add .
-   git commit -m "feat(module): descriptive message following conventional commits"
-   ```
-   - Use conventional commit format: `feat:`, `fix:`, `docs:`, `test:`, `refactor:`, etc.
-   - Include scope when applicable: `feat(api):`, `fix(ui):`, `test(auth):`
-   - Write descriptive messages that explain WHAT changed and WHY
+### Commit Message Format
+- `feat(scope):` New feature
+- `fix(scope):` Bug fix
+- `docs(scope):` Documentation
+- `test(scope):` Tests
+- `refactor(scope):` Code refactoring
+- `perf(scope):` Performance improvement
 
-2. **Pushed to Remote Repository**:
-   ```bash
-   git push origin <branch-name>
-   ```
-   - Never leave completed features uncommitted
-   - Push regularly to maintain backup and enable collaboration
-   - Ensure CI/CD pipelines pass before considering feature complete
-
-3. **Branch Hygiene**:
-   - Work on feature branches, never directly on `main`
-   - Branch naming convention: `feature/<feature-name>`, `fix/<issue-name>`, `docs/<doc-update>`
-   - Create pull requests for all significant changes
-
-4. **Ralph Integration**:
-   - Update @fix_plan.md with new tasks before starting work
-   - Mark items complete in @fix_plan.md upon completion
-   - Update PROMPT.md if development patterns change
-   - Test features work within Ralph's autonomous loop
-
-### Documentation Requirements
-
-**ALL implementation documentation MUST remain synchronized with the codebase**:
-
-1. **Code Documentation**:
-   - Language-appropriate documentation (JSDoc, docstrings, etc.)
-   - Update inline comments when implementation changes
-   - Remove outdated comments immediately
-
-2. **Implementation Documentation**:
-   - Update relevant sections in this AGENT.md file
-   - Keep build and test commands current
-   - Update configuration examples when defaults change
-   - Document breaking changes prominently
-
-3. **README Updates**:
-   - Keep feature lists current
-   - Update setup instructions when dependencies change
-   - Maintain accurate command examples
-   - Update version compatibility information
-
-4. **AGENT.md Maintenance**:
-   - Add new build patterns to relevant sections
-   - Update "Key Learnings" with new insights
-   - Keep command examples accurate and tested
-   - Document new testing patterns or quality gates
-
-### Feature Completion Checklist
-
-Before marking ANY feature as complete, verify:
-
-- [ ] All tests pass with appropriate framework command
-- [ ] Code coverage meets 85% minimum threshold
-- [ ] Coverage report reviewed for meaningful test quality
-- [ ] Code formatted according to project standards
-- [ ] Type checking passes (if applicable)
-- [ ] All changes committed with conventional commit messages
-- [ ] All commits pushed to remote repository
-- [ ] @fix_plan.md task marked as complete
-- [ ] Implementation documentation updated
-- [ ] Inline code comments updated or added
-- [ ] AGENT.md updated (if new patterns introduced)
-- [ ] Breaking changes documented
-- [ ] Features tested within Ralph loop (if applicable)
-- [ ] CI/CD pipeline passes
-
-### Rationale
-
-These standards ensure:
-- **Quality**: High test coverage and pass rates prevent regressions
-- **Traceability**: Git commits and @fix_plan.md provide clear history of changes
-- **Maintainability**: Current documentation reduces onboarding time and prevents knowledge loss
-- **Collaboration**: Pushed changes enable team visibility and code review
-- **Reliability**: Consistent quality gates maintain production stability
-- **Automation**: Ralph integration ensures continuous development practices
-
-**Enforcement**: AI agents should automatically apply these standards to all feature development tasks without requiring explicit instruction for each task.
+### Before Marking Task Complete
+- [ ] All tests pass
+- [ ] Code coverage meets threshold
+- [ ] Lint passes with no errors
+- [ ] Changes committed with proper message
+- [ ] PR created (if applicable)
+- [ ] @fix_plan.md updated
