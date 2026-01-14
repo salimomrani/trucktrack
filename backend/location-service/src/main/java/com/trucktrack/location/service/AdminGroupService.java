@@ -73,19 +73,21 @@ public class AdminGroupService {
     /**
      * Get single group by ID
      * T030: Cached by group ID.
+     * @return GroupDetailResponse or null if not found
      */
     @Cacheable(
         cacheNames = CacheConstants.CACHE_GROUPS,
         key = "'group:' + #id.toString()",
-        unless = "#result == null || !#result.isPresent()"
+        unless = "#result == null"
     )
-    public Optional<GroupDetailResponse> getGroupById(UUID id) {
+    public GroupDetailResponse getGroupById(UUID id) {
         return groupRepository.findById(id)
             .map(group -> {
                 long truckCount = truckAssignmentRepository.countByGroupId(group.getId());
                 long userCount = countUsersInGroup(group.getId());
                 return GroupDetailResponse.fromEntity(group, truckCount, userCount);
-            });
+            })
+            .orElse(null);
     }
 
     /**
