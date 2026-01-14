@@ -37,12 +37,13 @@ specs/                      # Feature specifications
 ```
 
 ## Current Objectives
-1. Study specs/* to learn about the project specifications
+1. **FIRST: Create a feature branch** (`git checkout -b feature/<task-name>`)
 2. Review @fix_plan.md for current priorities
-3. Implement the highest priority item using best practices
-4. Use parallel subagents for complex tasks (max 100 concurrent)
-5. Run tests after each implementation
-6. Update documentation and @fix_plan.md
+3. Study specs/* for relevant specifications
+4. Implement the highest priority item using best practices
+5. Run tests after implementation
+6. Commit, push, and create PR (`gh pr create`)
+7. **STOP after PR creation** - Wait for user to merge
 
 ## Key Principles
 - ONE task per loop - focus on the most important thing
