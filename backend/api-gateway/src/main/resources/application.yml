@@ -119,7 +119,12 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,prometheus,metrics
+        include: health,prometheus,metrics,circuitbreakers,circuitbreakerevents,retries,retryevents,ratelimiters
+  health:
+    circuitbreakers:
+      enabled: true
+    ratelimiters:
+      enabled: true
   metrics:
     export:
       prometheus:
@@ -137,5 +142,88 @@ logging:
     com.trucktrack: INFO
     org.springframework: WARN
     org.springframework.cloud.gateway: DEBUG
+    io.github.resilience4j: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# Resilience4j Configuration
+resilience4j:
+  # Circuit Breaker - Prevents cascading failures
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: 3s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 30s
+    instances:
+      authService:
+        baseConfig: default
+      locationService:
+        baseConfig: default
+      notificationService:
+        baseConfig: default
+        failureRateThreshold: 70
+      gpsService:
+        baseConfig: default
+        failureRateThreshold: 70
+
+  # Retry - Automatically retry failed requests
+  retry:
+    configs:
+      default:
+        maxAttempts: 3
+        waitDuration: 500ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+        retryExceptions:
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+          - org.springframework.web.reactive.function.client.WebClientRequestException
+        ignoreExceptions:
+          - com.trucktrack.gateway.exception.ServiceUnavailableException
+    instances:
+      authService:
+        baseConfig: default
+      locationService:
+        baseConfig: default
+      notificationService:
+        baseConfig: default
+        maxAttempts: 2
+      gpsService:
+        baseConfig: default
+
+  # Time Limiter - Timeout for async operations
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 5s
+        cancelRunningFuture: true
+    instances:
+      authService:
+        baseConfig: default
+      locationService:
+        baseConfig: default
+      notificationService:
+        baseConfig: default
+        timeoutDuration: 10s
+      gpsService:
+        baseConfig: default
+
+  # Rate Limiter - Protect services from overload
+  ratelimiter:
+    configs:
+      default:
+        limitForPeriod: 100
+        limitRefreshPeriod: 1s
+        timeoutDuration: 0s
+    instances:
+      healthCheck:
+        limitForPeriod: 10
+        limitRefreshPeriod: 1s

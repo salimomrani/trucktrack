@@ -4,6 +4,15 @@ import com.trucktrack.gateway.dto.HealthAggregateDTO;
 import com.trucktrack.gateway.dto.HealthAggregateDTO.OverallStatus;
 import com.trucktrack.gateway.dto.HealthAggregateDTO.ServiceHealth;
 import com.trucktrack.gateway.dto.HealthAggregateDTO.ServiceStatus;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBreakerOperator;
+import io.github.resilience4j.reactor.retry.RetryOperator;
+import io.github.resilience4j.reactor.timelimiter.TimeLimiterOperator;
+import io.github.resilience4j.retry.Retry;
+import io.github.resilience4j.retry.RetryRegistry;
+import io.github.resilience4j.timelimiter.TimeLimiter;
+import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -17,10 +26,16 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Controller that aggregates health status from all backend microservices.
  * Provides a single endpoint for the frontend to check overall system health.
+ *
+ * Uses Resilience4j for:
+ * - Circuit Breaker: Prevents cascading failures when a service is down
+ * - Retry: Automatically retries transient failures
+ * - Time Limiter: Enforces timeout on service calls
  */
 @RestController
 @RequestMapping("/health")
@@ -30,19 +45,29 @@ public class HealthAggregatorController {
     private static final Duration TIMEOUT = Duration.ofSeconds(5);
 
     private final WebClient webClient;
+    private final CircuitBreakerRegistry circuitBreakerRegistry;
+    private final RetryRegistry retryRegistry;
+    private final TimeLimiterRegistry timeLimiterRegistry;
 
     /**
-     * Service configuration: name, display name, URL, and criticality
+     * Service configuration: name, display name, URL, criticality, and resilience4j instance name
      */
     private static final List<ServiceConfig> SERVICES = List.of(
-            new ServiceConfig("auth-service", "Auth Service", "http://localhost:8083", true),
-            new ServiceConfig("location-service", "Location Service", "http://localhost:8081", true),
-            new ServiceConfig("notification-service", "Notification Service", "http://localhost:8082", false),
-            new ServiceConfig("gps-service", "GPS Service", "http://localhost:8080", false)
+            new ServiceConfig("auth-service", "Auth Service", "http://localhost:8083", true, "authService"),
+            new ServiceConfig("location-service", "Location Service", "http://localhost:8081", true, "locationService"),
+            new ServiceConfig("notification-service", "Notification Service", "http://localhost:8082", false, "notificationService"),
+            new ServiceConfig("gps-service", "GPS Service", "http://localhost:8080", false, "gpsService")
     );
 
-    public HealthAggregatorController(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.build();
+    public HealthAggregatorController(
+            WebClient webClient,
+            CircuitBreakerRegistry circuitBreakerRegistry,
+            RetryRegistry retryRegistry,
+            TimeLimiterRegistry timeLimiterRegistry) {
+        this.webClient = webClient;
+        this.circuitBreakerRegistry = circuitBreakerRegistry;
+        this.retryRegistry = retryRegistry;
+        this.timeLimiterRegistry = timeLimiterRegistry;
     }
 
     /**
@@ -74,10 +99,33 @@ public class HealthAggregatorController {
     }
 
     /**
-     * Check health of a single service.
+     * Check health of a single service with Resilience4j protection.
+     *
+     * Order of operators (inside-out execution):
+     * 1. TimeLimiter - enforces timeout
+     * 2. CircuitBreaker - prevents calls when open
+     * 3. Retry - retries on transient failures
      */
     private Mono<ServiceHealth> checkServiceHealth(ServiceConfig config) {
         long startTime = System.currentTimeMillis();
+
+        // Get Resilience4j instances for this service
+        CircuitBreaker circuitBreaker = circuitBreakerRegistry.circuitBreaker(config.resilience4jName());
+        Retry retry = retryRegistry.retry(config.resilience4jName());
+        TimeLimiter timeLimiter = timeLimiterRegistry.timeLimiter(config.resilience4jName());
+
+        // Check if circuit breaker is open - return DOWN immediately without making the call
+        if (circuitBreaker.getState() == CircuitBreaker.State.OPEN) {
+            log.debug("Circuit breaker OPEN for service {}, skipping health check", config.name());
+            return Mono.just(new ServiceHealth(
+                    config.name(),
+                    config.displayName(),
+                    ServiceStatus.DOWN,
+                    null,
+                    "Circuit breaker open",
+                    config.critical()
+            ));
+        }
 
         return webClient.get()
                 .uri(config.baseUrl() + "/actuator/health")
@@ -96,6 +144,10 @@ public class HealthAggregatorController {
                             config.critical()
                     );
                 })
+                // Apply Resilience4j operators (executed in reverse order)
+                .transformDeferred(TimeLimiterOperator.of(timeLimiter))
+                .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
+                .transformDeferred(RetryOperator.of(retry))
                 .onErrorResume(error -> {
                     log.warn("Service {} is DOWN: {}", config.name(), error.getMessage());
                     return Mono.just(new ServiceHealth(
@@ -147,6 +199,17 @@ public class HealthAggregatorController {
 
     /**
      * Service configuration record.
+     *
+     * @param name Service identifier
+     * @param displayName Human-readable name for UI
+     * @param baseUrl Base URL of the service
+     * @param critical Whether the service is critical (affects overall status)
+     * @param resilience4jName Name of Resilience4j instance to use
      */
-    private record ServiceConfig(String name, String displayName, String baseUrl, boolean critical) {}
+    private record ServiceConfig(
+            String name,
+            String displayName,
+            String baseUrl,
+            boolean critical,
+            String resilience4jName) {}
 }
