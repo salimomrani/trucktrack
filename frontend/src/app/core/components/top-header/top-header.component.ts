@@ -11,6 +11,7 @@ import { ThemeService } from '../../services/theme.service';
 import { StoreFacade } from '../../../store/store.facade';
 import { NotificationsDropdownComponent } from '../../../shared/components/notifications-dropdown/notifications-dropdown.component';
 import { LanguageSelectorComponent } from '../language-selector/language-selector.component';
+import { StatusIndicatorComponent } from '../../../shared/components/status-indicator/status-indicator.component';
 
 /**
  * Top Header Component
@@ -20,7 +21,7 @@ import { LanguageSelectorComponent } from '../language-selector/language-selecto
 @Component({
   selector: 'app-top-header',
   standalone: true,
-  imports: [RouterLink, TranslateModule, NotificationsDropdownComponent, LanguageSelectorComponent],
+  imports: [RouterLink, TranslateModule, NotificationsDropdownComponent, LanguageSelectorComponent, StatusIndicatorComponent],
   templateUrl: './top-header.component.html',
   styleUrl: './top-header.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

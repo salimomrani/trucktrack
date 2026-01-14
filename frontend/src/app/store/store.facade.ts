@@ -13,6 +13,7 @@ import * as NotificationsSelectors from './notifications/notifications.selectors
 import * as TripsSelectors from './trips/trips.selectors';
 import * as LanguageSelectors from './language/language.selectors';
 import * as DashboardSelectors from './dashboard/dashboard.selectors';
+import * as HealthSelectors from './health/health.selectors';
 import * as AuthActions from './auth/auth.actions';
 import * as TrucksActions from './trucks/trucks.actions';
 import * as GpsActions from './gps/gps.actions';
@@ -22,6 +23,7 @@ import * as NotificationsActions from './notifications/notifications.actions';
 import * as TripsActions from './trips/trips.actions';
 import * as LanguageActions from './language/language.actions';
 import * as DashboardActions from './dashboard/dashboard.actions';
+import * as HealthActions from './health/health.actions';
 import { LoginRequest } from '../core/models/auth.model';
 import { GPSPositionEvent } from '../models/gps-position.model';
 import { TruckStatus } from '../models/truck.model';
@@ -860,5 +862,78 @@ export class StoreFacade {
    */
   clearDashboard() {
     this.store.dispatch(DashboardActions.clearDashboard());
+  }
+
+  // ============================================
+  // Health Monitoring Signals
+  // ============================================
+
+  /** Overall health status (UP, DEGRADED, DOWN, UNKNOWN) */
+  readonly healthStatus = toSignal(this.store.select(HealthSelectors.selectOverallStatus), {
+    initialValue: 'UNKNOWN' as const
+  });
+
+  /** All service health statuses */
+  readonly healthServices = toSignal(this.store.select(HealthSelectors.selectServices), {
+    initialValue: []
+  });
+
+  /** Last health check timestamp */
+  readonly healthLastChecked = toSignal(this.store.select(HealthSelectors.selectLastChecked));
+
+  /** Health check loading state */
+  readonly healthLoading = toSignal(this.store.select(HealthSelectors.selectHealthLoading), {
+    initialValue: false
+  });
+
+  /** Health check error */
+  readonly healthError = toSignal(this.store.select(HealthSelectors.selectHealthError));
+
+  /** Whether health monitoring is active */
+  readonly healthMonitoringActive = toSignal(this.store.select(HealthSelectors.selectMonitoringActive), {
+    initialValue: false
+  });
+
+  /** Services that are down */
+  readonly downServices = toSignal(this.store.select(HealthSelectors.selectDownServices), {
+    initialValue: []
+  });
+
+  /** Count of down services */
+  readonly downServicesCount = toSignal(this.store.select(HealthSelectors.selectDownServicesCount), {
+    initialValue: 0
+  });
+
+  /** Whether all services are up */
+  readonly allServicesUp = toSignal(this.store.select(HealthSelectors.selectAllServicesUp), {
+    initialValue: false
+  });
+
+  /** Status indicator view model (for UI component) */
+  readonly statusIndicatorViewModel = toSignal(this.store.select(HealthSelectors.selectStatusIndicatorViewModel));
+
+  // ============================================
+  // Health Monitoring Actions
+  // ============================================
+
+  /**
+   * Start health monitoring (polling every 30 seconds)
+   */
+  startHealthMonitoring() {
+    this.store.dispatch(HealthActions.startMonitoring());
+  }
+
+  /**
+   * Stop health monitoring
+   */
+  stopHealthMonitoring() {
+    this.store.dispatch(HealthActions.stopMonitoring());
+  }
+
+  /**
+   * Trigger a single health check
+   */
+  checkHealth() {
+    this.store.dispatch(HealthActions.checkHealth());
   }
 }

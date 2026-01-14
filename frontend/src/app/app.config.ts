@@ -42,6 +42,7 @@ import { NotificationsEffects } from './store/notifications/notifications.effect
 import { TripsEffects } from './store/trips/trips.effects';
 import { LanguageEffects } from './store/language/language.effects';
 import { DashboardEffects } from './store/dashboard/dashboard.effects';
+import { HealthEffects } from './store/health/health.effects';
 import * as AuthActions from './store/auth/auth.actions';
 
 /**
@@ -76,7 +77,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     provideHttpClient(withInterceptors([authInterceptor])),
     provideStore(rootReducers, { metaReducers }),
-    provideEffects([AuthEffects, TrucksEffects, HistoryEffects, CacheEffects, NotificationsEffects, TripsEffects, LanguageEffects, DashboardEffects]),
+    provideEffects([AuthEffects, TrucksEffects, HistoryEffects, CacheEffects, NotificationsEffects, TripsEffects, LanguageEffects, DashboardEffects, HealthEffects]),
     provideStoreDevtools({
       maxAge: 25,
       logOnly: !isDevMode(),

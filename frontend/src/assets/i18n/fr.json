@@ -340,5 +340,18 @@
     "MINUTES_AGO": "Il y a {{count}} min",
     "HOURS_AGO": "Il y a {{count}}h",
     "DAYS_AGO": "Il y a {{count}}j"
+  },
+  "HEALTH": {
+    "SERVICES_STATUS": "État des services",
+    "STATUS_UP": "Tous les services sont opérationnels",
+    "STATUS_DEGRADED": "Certains services sont indisponibles",
+    "STATUS_DOWN": "Services critiques indisponibles",
+    "STATUS_UNKNOWN": "Vérification en cours...",
+    "SERVICE_DOWN": "{{service}} est indisponible",
+    "SERVICE_RESTORED": "{{service}} est de nouveau opérationnel",
+    "REFRESH": "Actualiser",
+    "LAST_CHECKED": "Dernière vérification",
+    "DOWN": "Indisponible",
+    "CRITICAL_SERVICE": "Service critique"
   }
 }

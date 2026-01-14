@@ -10,6 +10,7 @@ import { notificationsReducer } from './notifications/notifications.reducer';
 import { tripsReducer } from './trips/trips.reducer';
 import { languageReducer } from './language/language.reducer';
 import { dashboardReducer } from './dashboard/dashboard.reducer';
+import { healthReducer } from './health/health.reducer';
 import { AuthState } from './auth/auth.state';
 import { TrucksState } from './trucks/trucks.state';
 import { GpsState } from './gps/gps.state';
@@ -19,10 +20,12 @@ import { NotificationsState } from './notifications/notifications.state';
 import { TripsState } from './trips/trips.state';
 import { LanguageState } from './language/language.state';
 import { DashboardState } from './dashboard/dashboard.state';
+import { HealthState } from './health/health.state';
 
 /**
  * Root application state
  * T016: Added dashboard state
+ * Health: Added health monitoring state
  */
 export interface AppState {
   auth: AuthState;
@@ -34,11 +37,13 @@ export interface AppState {
   trips: TripsState;
   language: LanguageState;
   dashboard: DashboardState;
+  health: HealthState;
 }
 
 /**
  * Root reducers map
  * T016: Added dashboard reducer
+ * Health: Added health reducer
  */
 export const rootReducers: ActionReducerMap<AppState> = {
   auth: authReducer,
@@ -49,7 +54,8 @@ export const rootReducers: ActionReducerMap<AppState> = {
   notifications: notificationsReducer,
   trips: tripsReducer,
   language: languageReducer,
-  dashboard: dashboardReducer
+  dashboard: dashboardReducer,
+  health: healthReducer
 };
 
 /**
