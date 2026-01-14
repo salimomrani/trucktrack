@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { Subject, takeUntil, filter } from 'rxjs';
-import { SidebarComponent } from '../sidebar/sidebar.component';
+import { SidebarV2Component } from '../sidebar-v2/sidebar-v2.component';
 import { TopHeaderComponent } from '../top-header/top-header.component';
 
 /**
@@ -21,7 +21,7 @@ import { TopHeaderComponent } from '../top-header/top-header.component';
 @Component({
   selector: 'app-layout-shell',
   standalone: true,
-  imports: [SidebarComponent, TopHeaderComponent],
+  imports: [SidebarV2Component, TopHeaderComponent],
   templateUrl: './layout-shell.component.html',
   styleUrl: './layout-shell.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

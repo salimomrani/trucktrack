@@ -1,0 +1,358 @@
+<div class="dashboard-v2">
+  <!-- Header Section -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <div class="greeting-section">
+        <h1 class="greeting">{{ getGreeting() }}, {{ currentUser()?.firstName || 'User' }}</h1>
+        <p class="subtitle">Here's your fleet overview for today</p>
+      </div>
+      <div class="header-actions">
+        <div class="live-indicator">
+          <span class="pulse"></span>
+          <span class="label">Live</span>
+        </div>
+        <button class="action-btn" (click)="refreshDashboard()" [disabled]="isRefreshing()">
+          <span class="material-icons" [class.spin]="isRefreshing()">refresh</span>
+        </button>
+        <button class="action-btn primary">
+          <span class="material-icons">add</span>
+          <span class="btn-label">New Trip</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- KPI Cards Grid -->
+  <section class="kpi-section">
+    <!-- T025: Error state with retry -->
+    @if (kpisError()) {
+      <div class="kpi-error">
+        <div class="error-content">
+          <span class="material-icons error-icon">error_outline</span>
+          <span class="error-message">{{ 'DASHBOARD.KPI_LOAD_ERROR' | translate }}</span>
+          <button class="retry-btn" (click)="retryLoadKpis()">
+            <span class="material-icons">refresh</span>
+            {{ 'COMMON.RETRY' | translate }}
+          </button>
+        </div>
+      </div>
+    } @else {
+      <div class="kpi-grid">
+        <!-- T024: Loading skeleton state -->
+        @if (kpisLoading() && kpiCards().length === 0) {
+          @for (i of [1, 2, 3, 4]; track i) {
+            <div class="kpi-card kpi-skeleton" data-color="primary">
+              <div class="kpi-icon skeleton-pulse">
+                <span class="material-icons">hourglass_empty</span>
+              </div>
+              <div class="kpi-content">
+                <span class="kpi-label skeleton-text"></span>
+                <span class="kpi-value skeleton-text skeleton-value"></span>
+                <div class="kpi-trend skeleton-text skeleton-trend"></div>
+              </div>
+            </div>
+          }
+        } @else {
+          @for (kpi of kpiCards(); track kpi.labelKey) {
+            <div class="kpi-card" [attr.data-color]="kpi.color" [class.loading]="kpisLoading()">
+              <div class="kpi-icon">
+                <span class="material-icons">{{ kpi.icon }}</span>
+              </div>
+              <div class="kpi-content">
+                <span class="kpi-label">{{ kpi.labelKey | translate }}</span>
+                <span class="kpi-value">{{ kpi.value }}</span>
+                @if (kpi.trend !== null && kpi.trend !== undefined) {
+                  <div class="kpi-trend" [class.positive]="kpi.trend > 0" [class.negative]="kpi.trend < 0">
+                    <span class="material-icons">{{ kpi.trend > 0 ? 'trending_up' : 'trending_down' }}</span>
+                    <span class="trend-value">{{ kpi.trend > 0 ? '+' : '' }}{{ kpi.trend | number:'1.0-1' }}%</span>
+                    <span class="trend-label">{{ kpi.trendLabel }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        }
+      </div>
+    }
+  </section>
+
+  <!-- Main Content Grid -->
+  <div class="content-grid">
+    <!-- Fleet Status Card -->
+    <section class="card fleet-status-card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span class="material-icons">pie_chart</span>
+          {{ 'DASHBOARD.FLEET_STATUS' | translate }}
+        </h2>
+        @if (!fleetStatusLoading() && !fleetStatusError()) {
+          <span class="card-badge">{{ totalTrucks() }} total</span>
+        }
+      </div>
+      <div class="card-body">
+        <!-- T033: Error state with retry -->
+        @if (fleetStatusError()) {
+          <div class="widget-error">
+            <span class="material-icons error-icon">error_outline</span>
+            <span class="error-message">{{ 'DASHBOARD.FLEET_STATUS_ERROR' | translate }}</span>
+            <button class="retry-btn" (click)="retryLoadFleetStatus()">
+              <span class="material-icons">refresh</span>
+              {{ 'COMMON.RETRY' | translate }}
+            </button>
+          </div>
+        } @else if (fleetStatusLoading()) {
+          <!-- T031: Loading skeleton state -->
+          <div class="status-chart">
+            <div class="chart-visual">
+              <svg viewBox="0 0 100 100" class="donut-chart skeleton-chart">
+                <circle class="donut-ring skeleton-pulse" cx="50" cy="50" r="40" fill="none" stroke-width="12" />
+              </svg>
+              <div class="chart-center">
+                <span class="center-value skeleton-text">--</span>
+                <span class="center-label">Loading</span>
+              </div>
+            </div>
+            <div class="status-legend">
+              @for (i of [1, 2, 3]; track i) {
+                <div class="legend-item skeleton-pulse">
+                  <span class="legend-dot" style="background-color: var(--bg-elevated)"></span>
+                  <span class="legend-label skeleton-text">Status</span>
+                  <span class="legend-value skeleton-text">-</span>
+                  <span class="legend-percentage skeleton-text">-%</span>
+                </div>
+              }
+            </div>
+          </div>
+        } @else if (hasNoTrucks()) {
+          <!-- T032: Empty state (0 trucks) -->
+          <div class="widget-empty">
+            <span class="material-icons empty-icon">local_shipping</span>
+            <span class="empty-message">{{ 'DASHBOARD.NO_TRUCKS' | translate }}</span>
+            <span class="empty-hint">{{ 'DASHBOARD.ADD_TRUCKS_HINT' | translate }}</span>
+          </div>
+        } @else {
+          <!-- Normal content -->
+          <div class="status-chart">
+            <div class="chart-visual">
+              <svg viewBox="0 0 100 100" class="donut-chart">
+                <circle class="donut-ring" cx="50" cy="50" r="40" fill="none" stroke-width="12" />
+                @for (status of fleetStatus(); track status.label; let i = $index) {
+                  <circle
+                    class="donut-segment"
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    fill="none"
+                    stroke-width="12"
+                    [attr.stroke]="status.color"
+                    [attr.stroke-dasharray]="(status.percentage * 2.51) + ' ' + (251 - status.percentage * 2.51)"
+                    [attr.stroke-dashoffset]="getDonutOffset(i)"
+                  />
+                }
+              </svg>
+              <div class="chart-center">
+                <span class="center-value">{{ activeTrucks() }}</span>
+                <span class="center-label">Active</span>
+              </div>
+            </div>
+            <div class="status-legend">
+              @for (status of fleetStatus(); track status.label) {
+                <div class="legend-item">
+                  <span class="legend-dot" [style.background-color]="status.color"></span>
+                  <span class="legend-label">{{ status.label }}</span>
+                  <span class="legend-value">{{ status.count }}</span>
+                  <span class="legend-percentage">{{ status.percentage }}%</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Recent Activity Card -->
+    <section class="card activity-card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span class="material-icons">history</span>
+          {{ 'DASHBOARD.RECENT_ACTIVITY' | translate }}
+        </h2>
+        @if (!activityLoading() && !activityError() && hasActivity()) {
+          <button class="see-all-btn">{{ 'COMMON.VIEW_ALL' | translate }}</button>
+        }
+      </div>
+      <div class="card-body">
+        <!-- T041: Error state with retry -->
+        @if (activityError()) {
+          <div class="widget-error">
+            <div class="error-content">
+              <span class="material-icons error-icon">error_outline</span>
+              <span class="error-message">{{ 'DASHBOARD.ACTIVITY_ERROR' | translate }}</span>
+              <button class="retry-btn" (click)="retryLoadActivity()">
+                <span class="material-icons">refresh</span>
+                {{ 'COMMON.RETRY' | translate }}
+              </button>
+            </div>
+          </div>
+        } @else if (activityLoading()) {
+          <!-- T039: Loading skeleton state -->
+          <div class="activity-list">
+            @for (i of [1, 2, 3, 4, 5]; track i) {
+              <div class="activity-item skeleton-pulse">
+                <div class="activity-icon" style="background: var(--bg-elevated)">
+                  <span class="material-icons" style="opacity: 0.3">hourglass_empty</span>
+                </div>
+                <div class="activity-content">
+                  <span class="activity-label skeleton-text" style="width: 120px; height: 14px"></span>
+                  <span class="activity-truck skeleton-text" style="width: 60px; height: 11px; margin-top: 4px"></span>
+                </div>
+                <span class="activity-time skeleton-text" style="width: 50px; height: 11px"></span>
+              </div>
+            }
+          </div>
+        } @else if (!hasActivity()) {
+          <!-- T040: Empty state (no activity) -->
+          <div class="widget-empty">
+            <span class="material-icons empty-icon">inbox</span>
+            <span class="empty-message">{{ 'DASHBOARD.NO_ACTIVITY' | translate }}</span>
+            <span class="empty-hint">{{ 'DASHBOARD.NO_ACTIVITY_HINT' | translate }}</span>
+          </div>
+        } @else {
+          <!-- Normal content with real data -->
+          <div class="activity-list">
+            @for (activity of activityData(); track activity.id) {
+              <div class="activity-item">
+                <div class="activity-icon" [style.background-color]="getActivityColor(activity.type) + '20'" [style.color]="getActivityColor(activity.type)">
+                  <span class="material-icons">{{ getActivityIcon(activity.type) }}</span>
+                </div>
+                <div class="activity-content">
+                  <span class="activity-label">{{ activity.title }}</span>
+                  <span class="activity-truck">{{ activity.truckId }}</span>
+                </div>
+                <span class="activity-time">{{ getRelativeTime(activity.timestamp) }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Quick Actions Card -->
+    <section class="card quick-actions-card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span class="material-icons">flash_on</span>
+          Quick Actions
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="actions-grid">
+          <button class="quick-action">
+            <span class="material-icons">add_location</span>
+            <span class="action-label">Add Truck</span>
+          </button>
+          <button class="quick-action">
+            <span class="material-icons">route</span>
+            <span class="action-label">Create Trip</span>
+          </button>
+          <button class="quick-action">
+            <span class="material-icons">group_add</span>
+            <span class="action-label">Add Driver</span>
+          </button>
+          <button class="quick-action">
+            <span class="material-icons">assessment</span>
+            <span class="action-label">Reports</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Performance Overview Card -->
+    <section class="card performance-card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span class="material-icons">speed</span>
+          {{ 'DASHBOARD.PERFORMANCE_OVERVIEW' | translate }}
+        </h2>
+        <!-- T049: Period selector with change handler -->
+        @if (!performanceError()) {
+          <select class="period-select" (change)="onPerformancePeriodChange($event)" [disabled]="performanceLoading()">
+            <option [selected]="performancePeriod() === 'week'">This Week</option>
+            <option [selected]="performancePeriod() === 'month'">This Month</option>
+          </select>
+        }
+      </div>
+      <div class="card-body">
+        <!-- T050: Error state with retry -->
+        @if (performanceError()) {
+          <div class="widget-error">
+            <div class="error-content">
+              <span class="material-icons error-icon">error_outline</span>
+              <span class="error-message">{{ 'DASHBOARD.PERFORMANCE_ERROR' | translate }}</span>
+              <button class="retry-btn" (click)="retryLoadPerformance()">
+                <span class="material-icons">refresh</span>
+                {{ 'COMMON.RETRY' | translate }}
+              </button>
+            </div>
+          </div>
+        } @else if (performanceLoading()) {
+          <!-- T047: Loading skeleton state -->
+          <div class="performance-metrics">
+            @for (i of [1, 2, 3, 4]; track i) {
+              <div class="metric skeleton-pulse">
+                <div class="metric-header">
+                  <span class="metric-label skeleton-text" style="width: 100px; height: 12px"></span>
+                  <span class="metric-value skeleton-text" style="width: 40px; height: 14px"></span>
+                </div>
+                <div class="metric-bar">
+                  <div class="metric-fill" style="width: 60%; background: var(--bg-elevated)"></div>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <!-- Normal content with real data -->
+          <div class="performance-metrics">
+            <div class="metric">
+              <div class="metric-header">
+                <span class="metric-label">{{ 'DASHBOARD.TRIP_COMPLETION_RATE' | translate }}</span>
+                <span class="metric-value">{{ performanceData()?.tripCompletionRate ?? 0 | number:'1.0-0' }}%</span>
+              </div>
+              <div class="metric-bar">
+                <div class="metric-fill" [style.width.%]="performanceData()?.tripCompletionRate ?? 0" style="background: linear-gradient(90deg, #10b981, #34d399)"></div>
+              </div>
+            </div>
+            <div class="metric">
+              <div class="metric-header">
+                <span class="metric-label">{{ 'DASHBOARD.ON_TIME_DELIVERY' | translate }}</span>
+                <span class="metric-value">{{ performanceData()?.onTimeDelivery ?? 0 | number:'1.0-0' }}%</span>
+              </div>
+              <div class="metric-bar">
+                <div class="metric-fill" [style.width.%]="performanceData()?.onTimeDelivery ?? 0" style="background: linear-gradient(90deg, #3b82f6, #60a5fa)"></div>
+              </div>
+            </div>
+            <div class="metric">
+              <div class="metric-header">
+                <span class="metric-label">{{ 'DASHBOARD.FLEET_UTILIZATION' | translate }}</span>
+                <span class="metric-value">{{ performanceData()?.fleetUtilization ?? 0 | number:'1.0-0' }}%</span>
+              </div>
+              <div class="metric-bar">
+                <div class="metric-fill" [style.width.%]="performanceData()?.fleetUtilization ?? 0" style="background: linear-gradient(90deg, #f59e0b, #fbbf24)"></div>
+              </div>
+            </div>
+            <!-- T048: Driver Satisfaction - Coming Soon -->
+            <div class="metric coming-soon">
+              <div class="metric-header">
+                <span class="metric-label">{{ 'DASHBOARD.DRIVER_SATISFACTION' | translate }}</span>
+                <span class="metric-value coming-soon-badge">{{ 'COMMON.COMING_SOON' | translate }}</span>
+              </div>
+              <div class="metric-bar">
+                <div class="metric-fill" style="width: 0%; background: linear-gradient(90deg, #8b5cf6, #a78bfa)"></div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  </div>
+</div>

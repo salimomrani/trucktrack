@@ -1,0 +1,112 @@
+<aside
+  class="sidebar-v2"
+  [class.collapsed]="isCollapsed() && !isHovered()"
+  [class.hovered]="isHovered()"
+  (mouseenter)="onMouseEnter()"
+  (mouseleave)="onMouseLeave()">
+
+  <!-- Logo & Brand -->
+  <div class="sidebar-header">
+    <div class="brand">
+      <div class="logo-container">
+        <div class="logo-icon">
+          <span class="material-icons">local_shipping</span>
+        </div>
+        <div class="logo-pulse"></div>
+      </div>
+      @if (showLabels()) {
+        <div class="brand-text">
+          <span class="brand-name">TruckTrack</span>
+          <span class="brand-tagline">Fleet Command</span>
+        </div>
+      }
+    </div>
+    <button class="collapse-btn" (click)="toggleCollapse()" [attr.aria-label]="isCollapsed() ? 'Expand' : 'Collapse'">
+      <span class="material-icons">{{ isCollapsed() ? 'chevron_right' : 'chevron_left' }}</span>
+    </button>
+  </div>
+
+  <!-- Live Status Indicator -->
+  <div class="status-indicator">
+    <div class="status-dot"></div>
+    @if (showLabels()) {
+      <span class="status-text">Systems Online</span>
+    }
+  </div>
+
+  <!-- Navigation -->
+  <nav class="sidebar-nav">
+    @for (group of navGroups; track group.title) {
+      <div class="nav-group">
+        @if (showLabels()) {
+          <div class="nav-group-title">{{ group.translationKey | translate }}</div>
+        } @else {
+          <div class="nav-group-divider"></div>
+        }
+
+        @for (item of group.items; track item.route) {
+          <a
+            class="nav-item"
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: item.route === '/admin/dashboard' }">
+            <div class="nav-item-icon">
+              <span class="material-icons">{{ item.icon }}</span>
+            </div>
+            @if (showLabels()) {
+              <span class="nav-item-label">{{ item.translationKey | translate }}</span>
+            }
+            @if (item.badge && item.badge > 0) {
+              <span class="nav-item-badge">{{ item.badge }}</span>
+            }
+            <div class="nav-item-indicator"></div>
+          </a>
+        }
+      </div>
+    }
+  </nav>
+
+  <!-- Quick Stats Mini -->
+  @if (showLabels()) {
+    <div class="quick-stats">
+      <div class="stat-item">
+        <div class="stat-icon active">
+          <span class="material-icons">local_shipping</span>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">5</span>
+          <span class="stat-label">Active</span>
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon routes">
+          <span class="material-icons">route</span>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">3</span>
+          <span class="stat-label">En route</span>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- User Section -->
+  <div class="sidebar-footer">
+    <div class="user-section">
+      <div class="user-avatar">
+        <span class="avatar-text">{{ getUserInitials() }}</span>
+        <div class="avatar-status online"></div>
+      </div>
+      @if (showLabels()) {
+        <div class="user-info">
+          <span class="user-name">{{ currentUser()?.firstName }} {{ currentUser()?.lastName }}</span>
+          <span class="user-role">{{ currentUser()?.role }}</span>
+        </div>
+      }
+    </div>
+
+    <button class="logout-btn" (click)="logout()" [attr.aria-label]="'AUTH.LOGOUT' | translate">
+      <span class="material-icons">logout</span>
+    </button>
+  </div>
+</aside>

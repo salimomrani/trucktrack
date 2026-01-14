@@ -227,4 +227,37 @@ public interface TripRepository extends JpaRepository<Trip, UUID> {
            "AND completed_at < CAST(:end AS TIMESTAMP)",
            nativeQuery = true)
     Double getAverageTripDurationMinutesBetween(@Param("start") Instant start, @Param("end") Instant end);
+
+    /**
+     * T034: Find recent trips ordered by most recent activity timestamp.
+     * Uses GREATEST to find the most recent event (started, completed, or updated).
+     * Feature: 022-dashboard-real-data
+     */
+    @Query("SELECT t FROM Trip t ORDER BY " +
+           "COALESCE(t.completedAt, t.startedAt, t.updatedAt) DESC")
+    List<Trip> findRecentTrips(Pageable pageable);
+
+    /**
+     * T034: Find recently started trips.
+     * Feature: 022-dashboard-real-data
+     */
+    @Query("SELECT t FROM Trip t WHERE t.startedAt IS NOT NULL " +
+           "ORDER BY t.startedAt DESC")
+    List<Trip> findRecentlyStartedTrips(Pageable pageable);
+
+    /**
+     * T034: Find recently completed trips.
+     * Feature: 022-dashboard-real-data
+     */
+    @Query("SELECT t FROM Trip t WHERE t.completedAt IS NOT NULL " +
+           "ORDER BY t.completedAt DESC")
+    List<Trip> findRecentlyCompletedTrips(Pageable pageable);
+
+    /**
+     * T034: Find trips with proof of delivery.
+     * Feature: 022-dashboard-real-data
+     */
+    @Query("SELECT t FROM Trip t WHERE t.hasProof = true " +
+           "ORDER BY t.completedAt DESC")
+    List<Trip> findTripsWithProof(Pageable pageable);
 }

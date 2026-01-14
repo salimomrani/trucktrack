@@ -12,6 +12,7 @@ import * as CacheSelectors from './cache/cache.selectors';
 import * as NotificationsSelectors from './notifications/notifications.selectors';
 import * as TripsSelectors from './trips/trips.selectors';
 import * as LanguageSelectors from './language/language.selectors';
+import * as DashboardSelectors from './dashboard/dashboard.selectors';
 import * as AuthActions from './auth/auth.actions';
 import * as TrucksActions from './trucks/trucks.actions';
 import * as GpsActions from './gps/gps.actions';
@@ -20,6 +21,7 @@ import * as CacheActions from './cache/cache.actions';
 import * as NotificationsActions from './notifications/notifications.actions';
 import * as TripsActions from './trips/trips.actions';
 import * as LanguageActions from './language/language.actions';
+import * as DashboardActions from './dashboard/dashboard.actions';
 import { LoginRequest } from '../core/models/auth.model';
 import { GPSPositionEvent } from '../models/gps-position.model';
 import { TruckStatus } from '../models/truck.model';
@@ -742,5 +744,121 @@ export class StoreFacade {
    */
   setLanguage(language: SupportedLanguage) {
     this.store.dispatch(LanguageActions.setLanguage({ language }));
+  }
+
+  // ============================================
+  // Dashboard Signals (T017)
+  // Feature: 022-dashboard-real-data
+  // ============================================
+
+  // KPIs Signals
+  readonly dashboardKpis = toSignal(this.store.select(DashboardSelectors.selectKpis));
+  readonly dashboardKpisLoading = toSignal(this.store.select(DashboardSelectors.selectKpisLoading), {
+    initialValue: false
+  });
+  readonly dashboardKpisError = toSignal(this.store.select(DashboardSelectors.selectKpisError));
+  readonly dashboardKpiCards = toSignal(this.store.select(DashboardSelectors.selectKpiCards), {
+    initialValue: []
+  });
+
+  // Fleet Status Signals
+  readonly dashboardFleetStatus = toSignal(this.store.select(DashboardSelectors.selectFleetStatus));
+  readonly dashboardFleetStatusLoading = toSignal(this.store.select(DashboardSelectors.selectFleetStatusLoading), {
+    initialValue: false
+  });
+  readonly dashboardFleetStatusError = toSignal(this.store.select(DashboardSelectors.selectFleetStatusError));
+  readonly dashboardFleetStatusChartData = toSignal(this.store.select(DashboardSelectors.selectFleetStatusChartData), {
+    initialValue: []
+  });
+
+  // Activity Signals
+  readonly dashboardActivity = toSignal(this.store.select(DashboardSelectors.selectActivity), {
+    initialValue: []
+  });
+  readonly dashboardActivityLoading = toSignal(this.store.select(DashboardSelectors.selectActivityLoading), {
+    initialValue: false
+  });
+  readonly dashboardActivityError = toSignal(this.store.select(DashboardSelectors.selectActivityError));
+  readonly dashboardHasActivity = toSignal(this.store.select(DashboardSelectors.selectHasActivity), {
+    initialValue: false
+  });
+
+  // Performance Signals
+  readonly dashboardPerformance = toSignal(this.store.select(DashboardSelectors.selectPerformance));
+  readonly dashboardPerformanceLoading = toSignal(this.store.select(DashboardSelectors.selectPerformanceLoading), {
+    initialValue: false
+  });
+  readonly dashboardPerformanceError = toSignal(this.store.select(DashboardSelectors.selectPerformanceError));
+  readonly dashboardPerformancePeriod = toSignal(this.store.select(DashboardSelectors.selectPerformancePeriod), {
+    initialValue: 'week' as const
+  });
+
+  // Global Dashboard Signals
+  readonly dashboardRefreshing = toSignal(this.store.select(DashboardSelectors.selectDashboardRefreshing), {
+    initialValue: false
+  });
+  readonly dashboardAnyLoading = toSignal(this.store.select(DashboardSelectors.selectAnyLoading), {
+    initialValue: false
+  });
+  readonly dashboardAnyError = toSignal(this.store.select(DashboardSelectors.selectAnyError));
+
+  // ============================================
+  // Dashboard Actions (T017)
+  // ============================================
+
+  /**
+   * Load all dashboard data in a single API call
+   */
+  loadDashboardData(performancePeriod?: 'week' | 'month') {
+    this.store.dispatch(DashboardActions.loadAllDashboardData({ performancePeriod }));
+  }
+
+  /**
+   * Load KPIs only
+   */
+  loadDashboardKpis() {
+    this.store.dispatch(DashboardActions.loadKpis());
+  }
+
+  /**
+   * Load fleet status only
+   */
+  loadDashboardFleetStatus() {
+    this.store.dispatch(DashboardActions.loadFleetStatus());
+  }
+
+  /**
+   * Load activity feed
+   */
+  loadDashboardActivity(limit?: number) {
+    this.store.dispatch(DashboardActions.loadActivity({ limit }));
+  }
+
+  /**
+   * Load performance metrics
+   */
+  loadDashboardPerformance(period: 'week' | 'month') {
+    this.store.dispatch(DashboardActions.loadPerformance({ period }));
+  }
+
+  /**
+   * Set performance period (week/month)
+   */
+  setDashboardPerformancePeriod(period: 'week' | 'month') {
+    this.store.dispatch(DashboardActions.setPerformancePeriod({ period }));
+  }
+
+  /**
+   * Refresh all dashboard data
+   */
+  refreshDashboard() {
+    this.store.dispatch(DashboardActions.refreshDashboard());
+  }
+
+  /**
+   * Clear dashboard state (on logout)
+   */
+  clearDashboard() {
+    this.store.dispatch(DashboardActions.clearDashboard());
   }
 }
