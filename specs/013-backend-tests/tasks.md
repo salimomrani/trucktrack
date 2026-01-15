@@ -16,7 +16,7 @@
 
 - [x] T001 Vérifier dépendances test dans backend/pom.xml (JUnit5, Mockito, AssertJ, TestContainers)
 - [x] T002 [P] Ajouter TestContainers PostgreSQL si manquant dans backend/pom.xml
-- [ ] T003 [P] Créer classe de base TestContainersConfig dans backend/shared/src/test/java/ (fichier manquant)
+- [x] T003 [P] Créer classe de base TestContainersConfig dans backend/shared/src/test/java/
 
 ---
 
@@ -98,9 +98,9 @@
   - Test getAverageSpeed → moyenne calculée
   - Test getTotalDistance → somme correcte
 
-- [ ] T014 [US2] Créer TruckRepositoryTest dans backend/location-service/src/test/java/com/trucktrack/location/repository/TruckRepositoryTest.java (fichier manquant)
+- [x] T014 [US2] Créer TruckRepositoryTest dans backend/location-service/src/test/java/com/trucktrack/location/repository/TruckRepositoryTest.java
   - Test findByStatus → liste filtrée
-  - Test findNearby → trucks dans rayon
+  - Test findTrucksInBoundingBox → trucks dans rayon
 
 **Checkpoint**: Location service tests complets, coverage >= 80%
 
