@@ -4,7 +4,7 @@
 
 ### Backend Improvements
 - [x] Add unit tests for DashboardService (location-service) ✓ PR #100
-- [ ] Add integration tests for Trip API endpoints
+- [x] Add integration tests for Trip API endpoints ✓ PR #101
 - [ ] Implement Redis caching for dashboard KPIs
 - [ ] Add health check endpoints for all microservices
 

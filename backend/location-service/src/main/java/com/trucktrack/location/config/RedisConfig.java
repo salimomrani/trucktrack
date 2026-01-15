@@ -73,6 +73,16 @@ public class RedisConfig implements CachingConfigurer {
         cacheConfigurations.put(CacheConstants.CACHE_STATS,
                 defaultConfig.entryTtl(CacheConstants.TTL_STATS));
 
+        // Dashboard caches - short TTL for real-time feel
+        cacheConfigurations.put(CacheConstants.CACHE_DASHBOARD_KPIS,
+                defaultConfig.entryTtl(CacheConstants.TTL_DASHBOARD_KPIS));
+        cacheConfigurations.put(CacheConstants.CACHE_DASHBOARD_FLEET_STATUS,
+                defaultConfig.entryTtl(CacheConstants.TTL_DASHBOARD_FLEET));
+        cacheConfigurations.put(CacheConstants.CACHE_DASHBOARD_ACTIVITY,
+                defaultConfig.entryTtl(CacheConstants.TTL_DASHBOARD_ACTIVITY));
+        cacheConfigurations.put(CacheConstants.CACHE_DASHBOARD_PERFORMANCE,
+                defaultConfig.entryTtl(CacheConstants.TTL_DASHBOARD_PERFORMANCE));
+
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)
                 .withInitialCacheConfigurations(cacheConfigurations)
