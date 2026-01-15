@@ -42,7 +42,7 @@
         <spring-cloud.version>2023.0.0</spring-cloud.version>
 
         <!-- Lombok - needs latest version for Java 17+ compatibility -->
-        <lombok.version>1.18.34</lombok.version>
+        <lombok.version>1.18.36</lombok.version>
 
         <!-- Kafka -->
         <kafka.version>3.6.1</kafka.version>
