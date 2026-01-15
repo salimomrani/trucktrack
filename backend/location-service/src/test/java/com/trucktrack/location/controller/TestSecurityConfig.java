@@ -2,10 +2,12 @@ package com.trucktrack.location.controller;
 
 import com.trucktrack.common.security.GatewayAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,6 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.Map;
 
@@ -59,20 +62,48 @@ public class TestSecurityConfig {
 
     /**
      * Test exception handler for validation and access denied errors.
+     * Handles exceptions thrown by @Valid, @PreAuthorize, and other mechanisms.
      */
     @ControllerAdvice
     public static class TestExceptionHandler {
 
         @ExceptionHandler(MethodArgumentNotValidException.class)
+        @ResponseStatus(HttpStatus.BAD_REQUEST)
         public ResponseEntity<Map<String, String>> handleValidationException(MethodArgumentNotValidException ex) {
+            String message = ex.getBindingResult().getFieldErrors().stream()
+                .findFirst()
+                .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                .orElse("Validation failed");
             return ResponseEntity.badRequest()
-                .body(Map.of("error", "Validation failed"));
+                .body(Map.of("error", "Validation failed", "message", message));
+        }
+
+        @ExceptionHandler(ConstraintViolationException.class)
+        @ResponseStatus(HttpStatus.BAD_REQUEST)
+        public ResponseEntity<Map<String, String>> handleConstraintViolation(ConstraintViolationException ex) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("error", "Validation failed", "message", ex.getMessage()));
+        }
+
+        @ExceptionHandler(HttpMessageNotReadableException.class)
+        @ResponseStatus(HttpStatus.BAD_REQUEST)
+        public ResponseEntity<Map<String, String>> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("error", "Invalid request body"));
         }
 
         @ExceptionHandler(AccessDeniedException.class)
+        @ResponseStatus(HttpStatus.FORBIDDEN)
         public ResponseEntity<Map<String, String>> handleAccessDeniedException(AccessDeniedException ex) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(Map.of("error", "Access denied"));
+        }
+
+        @ExceptionHandler(IllegalArgumentException.class)
+        @ResponseStatus(HttpStatus.BAD_REQUEST)
+        public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException ex) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("error", ex.getMessage()));
         }
     }
 }
