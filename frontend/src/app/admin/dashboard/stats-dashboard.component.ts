@@ -5,6 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { StatsService, DashboardStats } from './stats.service';
 import { TripStatsComponent } from '../trips/trip-stats/trip-stats.component';
 import { StoreFacade } from '../../store/store.facade';
+import { DashboardSkeletonComponent } from './dashboard-skeleton/dashboard-skeleton.component';
 
 /**
  * Admin dashboard with fleet statistics.
@@ -19,7 +20,8 @@ import { StoreFacade } from '../../store/store.facade';
         RouterModule,
         DecimalPipe,
         TranslateModule,
-        TripStatsComponent
+        TripStatsComponent,
+        DashboardSkeletonComponent
     ],
     templateUrl: './stats-dashboard.component.html',
     styleUrls: ['./stats-dashboard.component.scss']
