@@ -1,5 +1,6 @@
 package com.trucktrack.location.service.impl;
 
+import com.trucktrack.common.cache.CacheConstants;
 import com.trucktrack.location.dto.*;
 import com.trucktrack.location.model.Trip;
 import com.trucktrack.location.model.TripStatus;
@@ -9,6 +10,7 @@ import com.trucktrack.location.repository.TruckRepository;
 import com.trucktrack.location.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,6 +68,7 @@ public class DashboardServiceImpl implements DashboardService {
      */
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = CacheConstants.CACHE_DASHBOARD_KPIS, key = "#userGroups ?: 'all'")
     public DashboardKpiDTO getKpis(String userGroups) {
         List<UUID> groupIds = parseGroups(userGroups);
         log.debug("Getting KPIs for groups: {}", groupIds);
@@ -138,6 +141,7 @@ public class DashboardServiceImpl implements DashboardService {
      */
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = CacheConstants.CACHE_DASHBOARD_FLEET_STATUS, key = "#userGroups ?: 'all'")
     public FleetStatusDTO getFleetStatus(String userGroups) {
         List<UUID> groupIds = parseGroups(userGroups);
         log.debug("Getting fleet status for groups: {}", groupIds);
@@ -181,6 +185,7 @@ public class DashboardServiceImpl implements DashboardService {
      */
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = CacheConstants.CACHE_DASHBOARD_ACTIVITY, key = "#userGroups ?: 'all' + ':' + #limit")
     public List<ActivityEventDTO> getRecentActivity(String userGroups, int limit) {
         List<UUID> groupIds = parseGroups(userGroups);
         log.debug("Getting recent activity for groups: {}, limit: {}", groupIds, limit);
@@ -287,6 +292,7 @@ public class DashboardServiceImpl implements DashboardService {
      */
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = CacheConstants.CACHE_DASHBOARD_PERFORMANCE, key = "#userGroups ?: 'all' + ':' + #period")
     public PerformanceMetricsDTO getPerformanceMetrics(String userGroups, String period) {
         List<UUID> groupIds = parseGroups(userGroups);
         log.debug("Getting performance metrics for groups: {}, period: {}", groupIds, period);

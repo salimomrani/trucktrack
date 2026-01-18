@@ -4,15 +4,15 @@
 
 ### Backend Improvements
 - [x] Add unit tests for DashboardService (location-service) ✓ PR #100
-- [ ] Add integration tests for Trip API endpoints
-- [ ] Implement Redis caching for dashboard KPIs
-- [ ] Add health check endpoints for all microservices
+- [x] Add integration tests for Trip API endpoints ✓ PR #101
+- [x] Implement Redis caching for dashboard KPIs ✓ PR #102
+- [x] Add health check endpoints for all microservices ✓ PR #102
 
 ### Frontend Improvements
 - [ ] Increase frontend test coverage to 80%+
 - [ ] Add E2E tests with Cypress/Playwright
-- [ ] Optimize bundle size (lazy loading for admin modules)
-- [ ] Add loading skeletons for dashboard widgets
+- [x] Optimize bundle size (lazy loading for admin modules) ✓ Already implemented
+- [x] Add loading skeletons for dashboard widgets ✓ PR #102
 
 ## Medium Priority
 
